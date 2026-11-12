@@ -4,8 +4,9 @@
 # Each bundle has a grip. Suction builds up "pull" on a bundle while the nozzle is near it
 # (stronger when closer); when pull reaches the grip the bundle comes loose and is sucked in.
 # A longer bundle has a stronger grip, so the nozzle has to be held on it for longer. Pull fades
-# away if the nozzle leaves. The brush never removes dust: it loosens bundles (lowers their grip)
-# so the vacuum is faster afterwards.
+# away if the nozzle leaves. The brush never removes dust: it loosens bundles (lowers their grip),
+# tosses loosened bundles around inside their own part (they slide, spin, bounce off the part's
+# edges and settle somewhere else) and chips small specks off long chains. Only the vacuum removes dust.
 # v0.8.0 reduces density and speeds suction; regression timing runs this GDScript in Godot.
 extends RefCounted
 
@@ -17,6 +18,7 @@ const TOOL_BRUSH: int = 1
 const STUCK: int = 0
 const LOOSE: int = 1
 const GONE: int = 2
+const TOSSED: int = 3                 # a bundle the brush flicked: sliding and spinning until it settles
 
 # Bundle shape and grip
 const NODE_SPACING: float = 6.0
@@ -48,11 +50,23 @@ const BRUSH_SPEED_REF: float = 500.0  # mouse speed (px/s) that counts as full s
 const LOOSEN_FLOOR: float = 0.2       # brushing can lower a grip to 20% of normal, never to zero
 const BRUSH_TOUCH: float = 12.0       # a bristle tip this close to a bundle's nodes touches it
 const FLICK_AT: float = 0.35          # once grip is loosened below this share, a moving brush flicks the bundle off
-const FLICK_SPEED: float = 240.0      # px per second a flicked bundle flies along the stroke
 const FLICK_MIN_K: float = 0.25       # brushing slower than this share of full speed only loosens
-const FLICK_LIFE: float = 1.2         # flicked bundles start this old, so they vanish after a short flight
+const TOSS_PUSH: float = 0.6          # share of the brush speed a tossed bundle starts with
+const TOSS_MAX_SPEED: float = 700.0   # brush speeds above this count as this
+const TOSS_FRICTION: float = 3.2      # speed lost per second while sliding
+const TOSS_SETTLE_SPEED: float = 14.0 # a tossed bundle slower than this settles
+const TOSS_MAX_TIME: float = 1.6      # and never slides longer than this
+const TOSS_SPIN: float = 4.0          # largest spin (radians per second) given to a tossed bundle
+const TOSS_LOOSEN: float = 0.75       # a settled bundle grips at this share of its normal grip again
+const ZONE_MARGIN: float = 2.0        # tossed dust stays this far inside its part's edge
+const SHED_RATE: float = 1.4          # chance per second, at full brush speed, that a touched chain chips off a speck
+const SHED_MIN_NODES: int = 3         # only chains with at least this many nodes shed (they keep two)
+const SHED_SPEED: float = 0.35        # share of the brush speed a shed speck starts with
+const MAX_BUNDLES: int = 420          # safety cap on the number of bundles including shed specks
 
 var brush_contacts := PackedVector2Array()
+var kicked := PackedVector2Array()    # where dust was tossed or shed during the last step (for dust motes)
+var swallowed: float = 0.0            # dust weight the vacuum took in since take_swallowed() was last called
 var blockers: Array = []
 var hidden_zones: Dictionary = {}
 var count: int = 0
@@ -68,6 +82,7 @@ var b_loosen: PackedFloat32Array = PackedFloat32Array()   # 1 = full grip, down 
 var b_stress: PackedFloat32Array = PackedFloat32Array()   # pull / grip, 0 .. 1 (drives the stretch)
 var b_life: PackedFloat32Array = PackedFloat32Array()
 var b_vel: PackedVector2Array = PackedVector2Array()
+var b_spin: PackedFloat32Array = PackedFloat32Array()
 var b_center: PackedVector2Array = PackedVector2Array()
 var b_radius: PackedFloat32Array = PackedFloat32Array()
 var rest: Array = []     # PackedVector2Array per bundle: where the nodes sit
@@ -78,10 +93,15 @@ var b_remaining: PackedFloat64Array = PackedFloat64Array()
 var zone_weight: PackedFloat32Array = PackedFloat32Array()    # dust amount per zone (sum of nodes)
 var zone_removed: PackedFloat32Array = PackedFloat32Array()
 var zone_bundles: Array = []   # Array of Array[int]: bundle indices per zone
+# Where each part's dust area is now (moves with the part): tossed dust is kept inside it.
+var zone_center: PackedVector2Array = PackedVector2Array()
+var zone_angle: PackedFloat32Array = PackedFloat32Array()
+var zone_half: PackedVector2Array = PackedVector2Array()
 
 var _zones: Array = []
 var _origin: Vector2 = Vector2.ZERO
 var _seed: int = 1
+var _rng := RandomNumberGenerator.new()
 
 
 # Build the dust for every zone. Positions are in screen coordinates (zone rect + origin).
@@ -91,6 +111,13 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
     _seed = seed_value
     var rng := RandomNumberGenerator.new()
     rng.seed = seed_value
+    _rng.seed = seed_value + 1
+    kicked = PackedVector2Array()
+    swallowed = 0.0
+    b_spin = PackedFloat32Array()
+    zone_center = PackedVector2Array()
+    zone_angle = PackedFloat32Array()
+    zone_half = PackedVector2Array()
     count = 0
     blockers = []
     hidden_zones = {}
@@ -118,6 +145,9 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
         area.position += origin
         zone_weight.append(0.0)
         zone_removed.append(0.0)
+        zone_center.append(area.get_center())
+        zone_angle.append(0.0)
+        zone_half.append(area.size * 0.5)
         var list: Array = []
         for k in range(int(z["bundles"]) + int(z.get("specks", 0))):
             var speck: bool = k >= int(z["bundles"])
@@ -147,6 +177,7 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
             b_stress.append(0.0)
             b_life.append(0.0)
             b_vel.append(Vector2.ZERO)
+            b_spin.append(0.0)
             b_center.append(sum / float(n))
             b_radius.append(n * NODE_SPACING)
             rest.append(nodes)
@@ -258,6 +289,7 @@ func has_access(b: int, tool_pos: Vector2) -> bool:
 # Surface dust follows the removed component instead of remaining at its old mount.
 func translate_zone(zone: int, offset: Vector2) -> void:
     if offset.is_zero_approx(): return
+    zone_center[zone] += offset
     for b: int in zone_bundles[zone]:
         var resting: PackedVector2Array = rest[b].duplicate()
         var visible: PackedVector2Array = shown[b].duplicate()
@@ -294,12 +326,17 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
     else:
         vac_ramp = maxf(0.0, vac_ramp - delta / RAMP_DOWN)
     var brush_k: float = clampf(tool_vel.length() / BRUSH_SPEED_REF, 0.0, 1.0)
-    for b in range(count):
+    kicked.clear()
+    # Bundles shed during this loop are appended after `count`, so they wait for the next step.
+    var existing: int = count
+    for b in range(existing):
         var st: int = b_state[b]
         if st == GONE or is_hidden(b):
             continue
         if st == STUCK:
             _step_stuck(b, delta, tool_pos, tool_vel, vac_on, brushing, brush_k)
+        elif st == TOSSED:
+            _step_tossed(b, delta)
         else:
             _step_loose(b, delta, tool_pos)
 
@@ -316,13 +353,12 @@ func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac
         for point: Vector2 in brush_contacts: brush_distance = minf(brush_distance,_nearest_dist(rest[b],point))
     if brushing and near and brush_distance < (BRUSH_TOUCH if not brush_contacts.is_empty() else BRUSH_RADIUS):
         b_loosen[b] = maxf(LOOSEN_FLOOR, b_loosen[b] - BRUSH_LOOSEN_RATE * brush_k * delta)
+        if brush_k >= FLICK_MIN_K and b_n[b] >= SHED_MIN_NODES and b_remaining[b] >= 1.5 and count < MAX_BUNDLES \
+                and _rng.randf() < SHED_RATE * brush_k * delta:
+            _shed(b, tool_vel)
         if b_loosen[b] <= FLICK_AT and brush_k >= FLICK_MIN_K:
-            # Loosened enough: the stroke sweeps the bundle off the part.
-            b_state[b] = LOOSE
-            b_life[b] = FLICK_LIFE
-            b_vel[b] = tool_vel.normalized() * FLICK_SPEED
-            b_stress[b] = 0.0
-            shown[b] = (rest[b] as PackedVector2Array).duplicate()
+            # Loosened enough: the stroke flicks the bundle across its part. It stays in the PC.
+            _toss(b, tool_vel)
             return
     if vac_on and dmin < VAC_RADIUS:
         var s: float = pow(1.0 - dmin / VAC_RADIUS, VAC_FALLOFF) * vac_ramp
@@ -363,13 +399,134 @@ func _step_loose(b: int, delta: float, tool_pos: Vector2) -> void:
         b_vel[b] = b_vel[b].lerp(dir * LOOSE_SPEED, 1.0 - exp(-26.0 * delta))
     else:
         b_life[b] += delta * 2.0   # no suction: it drops away quickly
-        b_vel[b] = b_vel[b] * exp(-3.0 * delta)   # a flicked bundle slows as it flies
     var move: Vector2 = b_vel[b] * delta
     for i in range(nodes.size()):
         nodes[i] += move
     shown[b] = nodes
-    if d <= INTAKE_RADIUS or b_life[b] > MAX_LOOSE_LIFE:
+    if d <= INTAKE_RADIUS:
+        swallowed += b_remaining[b]
         _remove(b)
+    elif b_life[b] > MAX_LOOSE_LIFE:
+        _remove(b)
+
+
+func take_swallowed() -> float:
+    var amount: float = swallowed
+    swallowed = 0.0
+    return amount
+
+
+# Keep a point inside its part's dust area (the area moves and turns with the part).
+func confine(zone: int, p: Vector2) -> Vector2:
+    var angle: float = zone_angle[zone]
+    var half: Vector2 = (zone_half[zone] - Vector2(ZONE_MARGIN, ZONE_MARGIN)).max(Vector2.ZERO)
+    var local: Vector2 = (p - zone_center[zone]).rotated(-angle)
+    return zone_center[zone] + local.clamp(-half, half).rotated(angle)
+
+
+# The brush flicks a loosened bundle: it slides along the stroke, spinning a little.
+func _toss(b: int, tool_vel: Vector2) -> void:
+    b_state[b] = TOSSED
+    b_life[b] = 0.0
+    b_pull[b] = 0.0
+    b_stress[b] = 0.0
+    b_vel[b] = tool_vel.limit_length(TOSS_MAX_SPEED) * TOSS_PUSH + Vector2.from_angle(_rng.randf() * TAU) * _rng.randf_range(10.0, 40.0)
+    b_spin[b] = _rng.randf_range(-TOSS_SPIN, TOSS_SPIN)
+    shown[b] = (rest[b] as PackedVector2Array).duplicate()
+    kicked.append(b_center[b])
+
+
+func _step_tossed(b: int, delta: float) -> void:
+    b_life[b] += delta
+    var zone: int = b_zone[b]
+    var nodes: PackedVector2Array = shown[b]
+    var velocity: Vector2 = b_vel[b]
+    var center: Vector2 = b_center[b]
+    var turn: float = b_spin[b] * delta
+    var sum := Vector2.ZERO
+    var hit_x: bool = false
+    var hit_y: bool = false
+    var angle: float = zone_angle[zone]
+    var half: Vector2 = (zone_half[zone] - Vector2(ZONE_MARGIN, ZONE_MARGIN)).max(Vector2.ZERO)
+    var local_velocity: Vector2 = velocity.rotated(-angle)
+    for i in range(nodes.size()):
+        var moved: Vector2 = center + (nodes[i] - center).rotated(turn) + velocity * delta
+        var local: Vector2 = (moved - zone_center[zone]).rotated(-angle)
+        if local.x > half.x and local_velocity.x > 0.0:
+            hit_x = true
+        elif local.x < -half.x and local_velocity.x < 0.0:
+            hit_x = true
+        if local.y > half.y and local_velocity.y > 0.0:
+            hit_y = true
+        elif local.y < -half.y and local_velocity.y < 0.0:
+            hit_y = true
+        var inside: Vector2 = confine(zone, moved)
+        nodes[i] = inside
+        sum += inside
+    if hit_x:
+        local_velocity.x *= -0.5
+    if hit_y:
+        local_velocity.y *= -0.5
+    if hit_x or hit_y:
+        b_spin[b] *= -0.5
+    velocity = local_velocity.rotated(angle) * exp(-TOSS_FRICTION * delta)
+    b_vel[b] = velocity
+    b_spin[b] *= exp(-TOSS_FRICTION * delta)
+    shown[b] = nodes
+    b_center[b] = sum / float(maxi(1, nodes.size()))
+    if velocity.length() < TOSS_SETTLE_SPEED or b_life[b] > TOSS_MAX_TIME:
+        rest[b] = nodes.duplicate()
+        b_state[b] = STUCK
+        b_vel[b] = Vector2.ZERO
+        b_spin[b] = 0.0
+        b_loosen[b] = TOSS_LOOSEN
+        b_pull[b] = 0.0
+
+
+# A touched chain chips its free end off as a separate speck. The weight moves with it, so the
+# part's total dust (and its cleaning progress) does not change.
+func _shed(b: int, tool_vel: Vector2) -> void:
+    var nodes: PackedVector2Array = rest[b]
+    var n: int = nodes.size()
+    if n < SHED_MIN_NODES:
+        return
+    var end_point: Vector2 = nodes[n - 1]
+    nodes.resize(n - 1)
+    rest[b] = nodes
+    shown[b] = nodes.duplicate()
+    b_n[b] = n - 1
+    b_remaining[b] = maxf(0.05, b_remaining[b] - 1.0)
+    b_grip[b] = maxf(0.4, b_grip[b] - GRIP_PER_NODE)
+    b_radius[b] = float(n - 1) * NODE_SPACING
+    var sum := Vector2.ZERO
+    for v: Vector2 in nodes:
+        sum += v
+    b_center[b] = sum / float(nodes.size())
+    _spawn_speck(b_zone[b], end_point, tool_vel)
+
+
+func _spawn_speck(zone: int, point: Vector2, tool_vel: Vector2) -> void:
+    var index: int = b_zone.size()
+    b_zone.append(zone)
+    b_n.append(1)
+    b_remaining.append(1.0)
+    b_state.append(TOSSED)
+    b_grip.append(0.55 * _rng.randf_range(GRIP_JITTER_LOW, GRIP_JITTER_HIGH))
+    b_pull.append(0.0)
+    b_loosen.append(1.0)
+    b_stress.append(0.0)
+    b_life.append(0.0)
+    b_vel.append(tool_vel.limit_length(TOSS_MAX_SPEED) * SHED_SPEED + Vector2.from_angle(_rng.randf() * TAU) * _rng.randf_range(20.0, 70.0))
+    b_spin.append(0.0)
+    b_center.append(point)
+    b_radius.append(NODE_SPACING)
+    var nodes := PackedVector2Array([point])
+    rest.append(nodes)
+    shown.append(nodes.duplicate())
+    var list: Array = zone_bundles[zone]
+    list.append(index)
+    count = b_zone.size()
+    kicked.append(point)
 
 
 # Controlled exception to access blocking, reserved for the risky service pick.
@@ -396,6 +553,8 @@ func visible_count() -> int:
 
 func transform_zone(zone_index: int, old_center: Vector2, new_center: Vector2, angle_delta: float) -> void:
     if old_center.is_equal_approx(new_center) and absf(angle_delta) < 0.00001: return
+    zone_center[zone_index] = new_center + (zone_center[zone_index] - old_center).rotated(angle_delta)
+    zone_angle[zone_index] += angle_delta
     for b in zone_bundles[zone_index]:
         var r: PackedVector2Array = rest[b].duplicate()
         var s: PackedVector2Array = shown[b].duplicate()

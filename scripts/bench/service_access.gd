@@ -1,6 +1,8 @@
 # Service-access controller: original mounts, tray positions and drag state. No drawing/input.
 extends RefCounted
 const TRAY := Rect2(40, 540, 620, 110)
+const ToolRig = preload("res://scripts/bench/tool_rig.gd")
+const BOUNDS: Rect2 = ToolRig.TABLE   # a dragged part can never leave the bench
 const MOVABLE := ["cooler", "gpu"]
 var homes: Dictionary = {}
 var parked: Dictionary = {}
@@ -40,7 +42,9 @@ func begin(point: Vector2) -> bool:
 
 func move(point: Vector2) -> void:
     if dragging != "":
-        drag_rect.position = point - drag_offset
+        var wanted: Vector2 = point - drag_offset
+        var farthest: Vector2 = (BOUNDS.end - drag_rect.size).max(BOUNDS.position)
+        drag_rect.position = wanted.clamp(BOUNDS.position, farthest)
 
 # Snap only to the service tray or original slot. Invalid releases return to prior position.
 func finish(point: Vector2) -> Dictionary:
