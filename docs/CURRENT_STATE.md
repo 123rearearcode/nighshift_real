@@ -1,8 +1,10 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.6 · 12 November 2026
+Version 1.7 · 13 November 2026
 
 ## Active baseline
+**Update 0.15.0 (13 November 2026, Claude Opus 5.5, model id claude-opus-5-5):** the active trial is 0.15.0 in the user's GitHub repository `123rearearcode/nighshift_real`; main is the integrated baseline, older versions are kept as `archive/vX.Y.Z` branches. Every push runs the checker, the data-schema suite, the regression suite and a scripted bench playtest on Godot 4.7.2 headless (GitHub Actions); the user playtests by hand. Exact check counts per version are in CHANGELOG.md. See DESIGN.md section 18 for what the bench does now. The paragraphs below describe older trials and are kept for history.
+
 Active Godot foundation trial 0.11.0, based on supplied 0.7.1 and reconciliation patch 0.7.2. Servicing, shared model geometry, persistence fixes, removable parts and risky pick/replacement choices implemented. No GitHub push or full production migration was performed.
 
 Engine: Godot 4.7.2 is the user's real version, confirmed 2026-11-12 (a short-lived 4.6.3 claim in 0.11.1/0.11.2 was wrong). The review engine available to Codex was 4.6.3.stable.official.7d41c59c4, so the automated checks ran close to, but not on, the real engine; 4.7.2 verification and human playtesting are pending. **Update 0.12.3:** the automated checks (172 data schema, 344 regression, 0 failures) ran on Godot 4.7.2.stable.official via GitHub Actions on 0.12.2; human playtesting is still pending.

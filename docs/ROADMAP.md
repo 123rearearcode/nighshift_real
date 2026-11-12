@@ -1,6 +1,6 @@
 # Nightshift — Roadmap
 
-Version 1.6 · 12 November 2026
+Version 1.7 · 13 November 2026
 
 ## Current position
 Browser prototype v0.9 is historical reference. Active Godot foundation trial reached 0.7.1; patch 0.7.2 reconciled documentation; 0.8.0 implements servicing/layout fixes and regression tests. Current milestone remains stabilisation before campaign expansion. No release date or completion percentage is promised.
@@ -85,3 +85,11 @@ Also playtest the new hardware sandbox: free drawer placement, rotations and fit
 
 ## Immediate follow-up after0.11.0
 Playtest throws versus precise placement on hardware stock, then use/toss/recover all repair tools and service-removable pieces. Check the flexible brush's actual contact feel and the fresh/partial/clean ticket states. Verify inventory purchase->drawer->fit consumes exactly one item and customer originals never become player stock. Shared stock is implemented for the trial's bounded part kinds, not a complete shop inventory milestone. Next choose interaction refinements, body-to-body collision/audio/mass behaviours and general shared PC/owned storage; preserve prior diagnosis/economy/reputation roadmap. A complete target-editor human repair/payment walkthrough remains pending.
+
+## Position after trial 0.15.0 (13 November 2026)
+Written by Claude (Opus 5.5, model id claude-opus-5-5). The project lives in the user's GitHub repository with automated checks on Godot 4.7.2; versions 0.12–0.15 rebuilt the repair bench's feel (dust physics, hose and bin, piece collisions, tool turning) and finished the thermal paste flow (Complete repaste, toothpaste scam). Next, in order:
+1. User playtest of 0.15.0: the paste game, Complete repaste and toothpaste.
+2. Design pass on the scam direction (DESIGN.md section 19, D54) with a design agent; the user decides. Prompt: docs/DESIGN_AGENT_PROMPT.md.
+3. Decide the dust minigame's extra purpose (D55).
+4. Finish the bench part: whatever the user still finds missing, then queued items (fans moving dust, DESIGN_PROPOSALS.md section 5).
+5. Only then expand scams into systems (discovery, consequences), followed by the shared persistent-PC and shop-cycle milestones above.

@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.6 · 12 November 2026
+Version 1.7 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -104,3 +104,22 @@ Brush: handle/ferrule/13 independent bristles; tips trail velocity, spread/compr
 Owned stock: one persisted player_inventory list with unique uid,kind,tier,owner,condition and a shared inventory_layout snapshot. Initial trial stock: two existing RAM instances, equivalent/budget GPU and equivalent/budget cooler. Buying a service item charges once and adds it only if money and grid space suffice. Fitting uses an available working owned item in the drawer; consumes its uid, assigns it to the customer PC and keeps the broken original customer-owned in a separate per-ticket record. A part installed on the hardware board cannot simultaneously serve as loose repair stock. Both screens read the same list; empty stock never regenerates free samples. Reset arrangement never replenishes stock. Full ownership/storage for every customer PC, part-type compatibility catalogue and supplier purchasing remain future work.
 Dust: fresh tickets explicitly start with zero removal in all eight zones; visible dust is brighter and a ticket/visible-group status is always shown. Cleaned saved work is preserved rather than re-dirtied automatically. New dirty PC starts a new practice ticket, keeping money/upgrades/stock and clearing work on the prior practice ticket. Ticket-id guard prevents the departing scene from overwriting fresh dust. This is not the final intake/customer queue.
 OPEN/LIMITS: no body-to-body collision response, rigid-body 3D scene, throwing damage, material-dependent masses/sounds or persistent flight velocities. Free tools return to their rack on re-entry; service component resting poses persist, and inventory throws settle safely on exit. Customer detection/reputation/disclosure remain deferred. Restitution0.60, floor bounce0.33, gravity950 and throw thresholds are provisional feel values.
+
+## 18. Bench servicing since 0.12 — trials 0.12–0.15 (IMPLEMENTED unless marked)
+Written by Claude (Opus 5.5, model id claude-opus-5-5). Decisions D45–D56 in DECISIONS.md.
+- Dust: bundles and specks; the brush loosens, tosses (dust slides and settles elsewhere on its part) and chips specks; only the vacuum removes dust; floating motes are cosmetic. The front filter's dust grips 1.5x harder (clogged filter, intended).
+- Dust management: swallowed dust rides a see-through hose to a dust bin (140 units, proposal) and the vacuum stops when the bin is full until the player clicks it to empty it. The hose is a rope with a length limit, curves round pieces, can be right-dragged out of the way, and tugs the vacuum back when taut; a longer hose is a $40 shop upgrade (proposal).
+- Handling: tools and loose parts collide gently as rotated boxes; nothing leaves its area; tools turn with the middle mouse (wheel/drag) or Q/E.
+- Thermal paste (0.15.0): squeeze, mount and press, inspect, then Complete repaste. Only PERFECT or GOOD ENOUGH can be completed; a bad result must be wiped and redone. Real thermal paste costs $3 per repaste (proposal); the final check counts the paste only when completed. Gauge and grade lines were retuned from a scripted playtest: about 100–160 units on the CPU and a 2.5–4 s press give a good result (proposal).
+- Toothpaste (0.15.0, D53): selectable instead of thermal paste while the CPU is bare. Free; stiffer, so it needs more pressure; +14 C in the final check; the customer still pays; recorded in `job.scams`. Nothing happens afterwards yet.
+- Verification: automated suites and a scripted playtest run on Godot 4.7.2 in GitHub Actions; the user playtests by hand. Feel numbers remain proposals.
+
+## 19. Direction after the bench: hands-on scams — CONFIRMED direction, details OPEN
+The user wants to go further in the scam direction once the current bench part is finished (D54). This builds on D17/D18 (scams through ordinary diagnosis, installation and invoices; persona-based discovery for now). The toothpaste swap is the first hands-on example: the scam is performed with the same tools as honest work, and saves money or time.
+OPEN questions for the next design pass (not decided; do not implement without the user):
+1. Which scams belong in the hands-on repair work (examples to evaluate, not approved: skipping hidden dust but invoicing a full clean; reusing old paste; fitting a cheaper or used part as new; pick damage hidden from the customer; fake fault reports; selling the customer's removed parts).
+2. What each scam gains (money, time, stock) and what it risks; how honest work stays a viable, rewarding path.
+3. Discovery: persona knowledge, delay (e.g. toothpaste drying out over days), evidence, chance; what the player sees; how deception-skill modifiers (D18) fit.
+4. Consequences: comebacks, refunds, relationships (trust vs closeness, D15), shop reputation (D16), online reviews.
+5. Feedback and tone: how the game shows that something was a scam without lecturing; whether the shop has a moral meter or only consequences.
+6. What the dust minigame should add (D55) and whether it ties into scams (e.g. what a customer can and cannot check).

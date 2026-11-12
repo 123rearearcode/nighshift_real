@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.6 · 12 November 2026
+Version 1.7 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -100,3 +100,20 @@ D43 (confirmed follow-up): improve object handling based on user-supplied Probab
 D44 (confirmed request): include tabletop/edge bounce on throws; apply tactile/physical object handling to repair tools and movable pieces; replace circular brush with dynamic physical geometry; fix/check dust presence on opening; connect replacement tray to player inventory.
 Scoped implementation uses a shared bounded2.5D tabletop model and bristle springs, not full3D/body-to-body simulation. All repair tools share follow/toss handling; service-removable GPU/cooler and hardware drawer pieces bounce/recover. One stock list and shared positions connect hardware drawer with purchase/fit actions. Unlike0.10.0's combined purchase/fitting, buying replenishes actual stock and fitting consumes owned stock without a second charge. Starting quantities, rebound, friction and thresholds are trial tuning. The existing replacement prices and payout values are preserved. The user still owns catalogue design; generic stock choices are not a catalogue expansion.
 The missing dust report was checked against fresh and reopened tickets: fresh/partially dirty tickets show dust, cleaned saves correctly contain none. Root cause on the user's machine is not established. Added explicit fresh-ticket dust initialisation, brighter drawing, visible count/status, new dirty ticket action preserving economy, and stale-scene save protection. Do not silently erase cleaning progress on each bench entry.
+
+## Bench physics, workflow and repaste — 12–13 November 2026, docs 1.7, trials 0.12–0.15
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5). Entries D45–D51 catch up user decisions made while building trials 0.12–0.14 (by Claude Sonnet 5.5, model id claude-sonnet-5-5); D52–D56 are new with 0.15.0. Numbers in the trials remain proposals.
+
+D45 (confirmed): the brush never removes dust; it loosens, displaces and tosses it, and long chains shed small specks. Only the vacuum removes dust. Dust floats a little (cosmetic motes).
+D46 (confirmed): no picked-up object may leave the area it belongs to; this applies to every moving-object logic.
+D47 (confirmed): dust management is a mechanic. The vacuum has a fillable dust bin that must be emptied, and a physics hose anchored at the bin that has a limited length, lies around pieces, can be picked up and moved, and gives a soft tug when taut. A longer hose is a shop upgrade. The bin was enlarged after playtest (0.15.0: 90 -> 140 units, proposal).
+D48 (confirmed): pieces on the bench (tools and loose parts) collide with each other as rotated boxes; knocks must stay gentle.
+D49 (confirmed): tools can be rotated; the middle mouse (wheel or drag) is the default turning control, Q/E also work. With a tool in hand, a left click uses that tool.
+D50 (confirmed): the clogged dust filter being hard to clean is a feature (its dust grips harder).
+D51 (confirmed, workflow): every AI edit is signed with the model name and exact model id (changelog Author, HANDOFF signature, commit messages). Older versions are kept as `archive/vX.Y.Z` branches until the user's last confirmed human playtest. Claude may merge pull requests into main (user permission, 2026-11-13).
+
+D52 (confirmed): the thermal paste minigame ends with a Complete repaste button, available only once the result is good. The repaste counts for the job only after completion. (Trial: PERFECT or GOOD ENOUGH; real thermal paste costs $3 per repaste — proposal.)
+D53 (confirmed): the player can use toothpaste instead of thermal paste to scam the customer. This is a hands-on instance of D17/D18 (cheaper substitution through the ordinary workflow). Trial: toothpaste is free, stiffer to spread, +14 C, passes today's check and is recorded on the job as a scam; dry-out, discovery, complaints and reputation effects are NOT simulated yet (proposal numbers).
+D54 (confirmed direction): after the current bench/servicing part of the project is complete, the game goes further in the scam direction: more ways to cut corners and cheat built into the hands-on repair actions, with consequences. Which scams, how they are discovered and what they cost the player are OPEN and are the next design task (see DESIGN.md section 19 and docs/DESIGN_AGENT_PROMPT.md).
+D55 (open): the dust minigame needs a further purpose or twist; the user is thinking about it. Do not build changes to its goal until the user decides.
+D56 (superseded plan): fans swirling dust and blowing it under components were planned as 0.15.0; the user redirected 0.15.0 to the paste game. The fan idea stays queued (DESIGN_PROPOSALS.md section 5), not cancelled.
