@@ -1,0 +1,102 @@
+# Nightshift — Decision Register
+
+Version 1.6 · 12 November 2026
+
+This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
+
+| ID | Status | Decision |
+| --- | --- | --- |
+| D01 | Confirmed | Final product must be publishable on Steam; current browser game is a prototype |
+| D02 | Confirmed | Pixel art, clear component colours, generic names with hover model details |
+| D03 | Confirmed | Parts-size inventory grids, shaped model-specific motherboard grids, compatible connectors, cases determine interior space |
+| D04 | Confirmed | Dozens of choices per major part category, low through high end; CPU replacement; repairable motherboard; complete assembly from an empty case |
+| D05 | Confirmed | Physical drawer stock, drag/click handling, interactive cleaning and thermal pasting, separate technician-PC diagnosis view |
+| D06 | Deferred | Cable visuals removed for clarity; reconsider later |
+| D07 | Confirmed | First complete day teaches the loop; press Open/Close shop; untimed individual day customers |
+| D08 | Confirmed | Visitors drop off/collect repairs, buy goods, sell parts/PCs/bulk; trade-ins wanted but conditions open |
+| D09 | Confirmed | Questions and limited intake inspections determine night monitor information; budget/date negotiation |
+| D10 | Confirmed | Continuous night clock, manual pause; routine inventory and monitor activity use time; upgrades can increase shop time |
+| D11 | Confirmed | Incomplete work persists; overtime permitted with fatigue/money costs and possible social/reputation effects |
+| D12 | Confirmed | Dump is a minigame; time cost depends on choices; details deferred |
+| D13 | Confirmed | Hidden true budgets; free player prices with recommendation; customers may offer first or request a quote |
+| D14 | Confirmed | Persona/relationship influence deadline flexibility, knowledge and other behaviour |
+| D15 | Confirmed | Trust and closeness are separate; descriptive display; last ten meaningful events visible plus persistent major story facts |
+| D16 | Confirmed | Overall shop reputation with workmanship/reliability/value influences clientele, traffic and online sales |
+| D17 | Confirmed | Invented faults, exaggerated work, used-as-new, unperformed-work charges and cheaper substitutions are available scams |
+| D18 | Confirmed | Deception through ordinary workflow; obtainable deception modifiers; initially persona-based random discovery, refined later |
+| D19 | Confirmed | Removed parts remain customer property until returned, bought or disposal authorised; customer PCs occupy inventory |
+| D20 | Confirmed | Finite daily visitor set; early closing permitted; no loaner PCs for now |
+| D21 | Confirmed | Mostly generated suppliers; hidden dishonesty, ratings and different opening/closing availability |
+| D22 | Confirmed | Common older consumer parts widely supplied; high-end scarce; some supplier-exclusive models; fluctuating prices |
+| D23 | Confirmed | Market stock/prices update between days; occasional major events; delivery choices depend on supplier |
+| D24 | Confirmed | Total supplier spending unlocks bulk; some offer immediate bulk and ~90% of that group are shady |
+| D25 | Confirmed | Current bulk-lot mechanic is just price reduction; no elaborate inspection/ sealed-lot subsystem |
+| D26 | Confirmed | Whole PC is one large storage footprint; internal grid revealed on bench; removed parts separate |
+| D27 | Confirmed | Online listings for PCs, parts and lots; asking price/specs/condition/claims; offers/questions over days |
+| D28 | Confirmed | Own build can serve as technician PC, be upgraded/sold/replaced, and have power tested |
+| D29 | Confirmed | Personal PC: 1% daily failure chance, protected at least five days after obtaining a new PC; boundary/replacement details unresolved |
+| D30 | Later update | Advanced diagnostic software with hardware requirements and buying games for performance testing |
+| D31 | Long-term | B2B/bulk sales unlock by conditions; server builds have complex demands; exact release placement open |
+| D32 | Confirmed | Lore and substantial enjoyable progression are release needs; setting and endgame not selected |
+| D33 | Superseded workflow | Original coding pause; now replaced by D38 stabilisation task |
+
+## Important distinctions
+- The v0.9 prototype is deliberately untimed for testing. That does not cancel D10's final-game night clock.
+- Prototype grid dimensions, socket names, jobs, prices and repair times are demonstration values, not approved production balance.
+- ~90% shady refers to immediate-bulk suppliers, not all suppliers or every transaction.
+- The five-day failure protection is approved; precise inclusive/exclusive day counting is not.
+- Diagnostic fee credited to repair, exact budget-approval procedure and other earlier suggestions were not explicitly accepted as payment rules. They remain open.
+
+## Proposals, not selected decisions
+Full production migration; Windows-first release; benchmark breakdown into CPU/GPU/overall plus stability; exact tutorial/five-day job sequence; starting resources; time durations; overtime cost formula; tutorial-only safeguards; visible supplier rating evolution. See DESIGN.md and ROADMAP.md.
+
+## Change procedure
+Append a record: date, decision ID, old rule, approved replacement, reason, affected files/tasks. Update DESIGN.md and ROADMAP.md consistently. Mark abandoned proposals as superseded; avoid growing contradictory parallel rules. New AI output remains proposed until accepted by the user or explicitly delegated decision authority.
+
+## Collaboration update — 12 November 2026, v1.1
+- Fact: user downloaded Godot and reports creating a GitHub repository. Repository address/access/content and editor version are unverified.
+- Working proposal: Godot/GDScript, local editor for testing, GitHub for shared history, one lead coding AI and bounded specialist contributors. The user requested the handoff documents reflect this approach.
+- Final engine migration remains unconfirmed; no code or remote repository change accompanies this document update.
+- Added file-access distinctions, shared data contracts, branch ownership, honest runtime-verification requirements and beginner repository onboarding to PROJECT_BRIEF.md. CURRENT_STATE.md and ROADMAP.md updated consistently.
+- Existing gameplay decisions D01–D33 unchanged.
+
+
+## Reconciliation update — 12 November 2026, document v1.2 / trial 0.7.2
+D01–D32 are preserved. The following additions incorporate the supplied newer handoff at the user's request.
+
+| ID | Status | Decision |
+| --- | --- | --- |
+| D34 | Recorded newer agreement | Stash, case and motherboard form nested grids; case fittings are grid items; customer ownership persists through dismantling |
+| D35 | Recorded newer agreement | Part height and case-depth constraint; exact units and stacking rules remain open |
+| D36 | Recorded newer agreement | Parody brands; catalogue fields include category/name/brand/price/rarity/condition/grid/compatibility/performance/heat; format and model-vs-instance condition remain open |
+| D37 | Recorded newer agreement | Night hub routes to repairs/tickets, go-out/map and stock/tools/upgrades Shop; customer-commissioned builds are a mid-game direction |
+| D38 | Current authorised task | Stabilise Godot trial, reconcile notes, update/include all five original documents in the handoff; explain large-view refactor before broad change |
+| D39 | Current working facts | Manual ZIP exchange with Claude; GitHub repository provided and document upload user-confirmed; AI repository integration not established |
+
+Conflict resolutions: daytime phase and continuous night clock are confirmed by D07/D10, not OPEN. Night hub does not replace daytime business. Removing customer parts does not grant ownership (D19). Cable placement remains deferred. Newer agreement records are sourced to docs/DESIGN_PROPOSALS.md in supplied 0.7.1; the raw Claude conversation was not provided.
+
+This package changes documents and application version metadata only. Current implementation is not declared stable, target-verified or production-ready. Historic v1.1 collaboration notes above remain as history and are superseded by this section.
+
+
+## Trial 0.8.0 update — 12 November 2026, docs v1.3
+D40 (authorised): fix dust visibility/tool selection, shorten cleaning, correct shared case/motherboard geometry, begin bench-file cleanup, and check payments without altering established prices. Added shared layout and extracted PC renderer; persistence and payout regression checks run. Model dimensions, 36 bundles, suction 7.5 and display sizes are implementation tuning, not locked release balance. Full PC inventory/assembly is not claimed. Previous 0.7.2 no-gameplay-change statement applies to that historical patch only.
+
+
+## Trial 0.9.0 update — 12 November 2026, docs v1.4
+D41 (confirmed request): remove redundant syringe button; reduce base vacuum strength and add some dust plus independent specks; add blocked access and physical part removal; review interaction smoothness. Discuss broader physics representation afterwards, not during this change.
+Scoped delivery: GPU and cooler can be dragged to a service tray and refitted. Their installed bodies protect hidden dust; payment requires reassembly. Additional model-specific disassembly and rigid-body/3D physics are not selected. Strong suction is a later-progression direction; no new vacuum-upgrade purchase is introduced. Recorded tuning is provisional.
+
+
+## Trial 0.10.0 update — 12 November 2026, docs v1.5
+D42 (confirmed request): add a pick to inspect/extract trapped dust beneath components without removing them, with risk of damage. Preserve a choice between correct repair and speed/money; allow replacement with similar or inferior parts. This develops the already confirmed cheaper-substitution/deception direction in D17/D18.
+Scoped implementation covers GPU/cooler only. Equivalent and budget replacements are demo choices, not the release catalogue. Damage blocks final check; functional downgraded parts may pass and retain their lower specification. Customer discovery, honesty/disclosure choice and social consequences remain unimplemented, not rejected design. Exact prices, 12% risk, 0.8s stroke,65% specification and+8C penalty are proposals for playtesting, not approved final balance.
+
+
+## Free arrangement update — same 0.10.0 delivery
+D43 (confirmed follow-up): improve object handling based on user-supplied Probably Stolen recording; allow parts to be moved/rotated throughout storage, with forgiving feedback that encourages experiments. Storage location is independent of motherboard compatibility. Controlled motion and quarter-turn footprint placement are implementation choices for playtesting; no engine migration is authorised. The reference recording informs interaction goals, not permission to reuse assets/code.
+
+
+## Trial0.11.0 — 12 November2026, docs1.6
+D44 (confirmed request): include tabletop/edge bounce on throws; apply tactile/physical object handling to repair tools and movable pieces; replace circular brush with dynamic physical geometry; fix/check dust presence on opening; connect replacement tray to player inventory.
+Scoped implementation uses a shared bounded2.5D tabletop model and bristle springs, not full3D/body-to-body simulation. All repair tools share follow/toss handling; service-removable GPU/cooler and hardware drawer pieces bounce/recover. One stock list and shared positions connect hardware drawer with purchase/fit actions. Unlike0.10.0's combined purchase/fitting, buying replenishes actual stock and fitting consumes owned stock without a second charge. Starting quantities, rebound, friction and thresholds are trial tuning. The existing replacement prices and payout values are preserved. The user still owns catalogue design; generic stock choices are not a catalogue expansion.
+The missing dust report was checked against fresh and reopened tickets: fresh/partially dirty tickets show dust, cleaned saves correctly contain none. Root cause on the user's machine is not established. Added explicit fresh-ticket dust initialisation, brighter drawing, visible count/status, new dirty ticket action preserving economy, and stale-scene save protection. Do not silently erase cleaning progress on each bench entry.

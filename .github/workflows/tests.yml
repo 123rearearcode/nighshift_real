@@ -20,8 +20,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Find the project folder
+        # Works whether the files sit at the top of the repository or inside one extra folder.
+        run: |
+          PROJECT_FILE=$(find . -name project.godot -not -path './.git/*' | head -n 1)
+          if [ -z "$PROJECT_FILE" ]; then
+            echo "No project.godot found anywhere in the repository. The project files were not uploaded. Top of the repository:"
+            ls -la
+            exit 1
+          fi
+          DIR=$(dirname "$PROJECT_FILE")
+          echo "PROJECT_DIR=$DIR" >> "$GITHUB_ENV"
+          echo "Project folder: $DIR"
+          ls -la "$DIR"
+          if [ ! -f "$DIR/tools/check_project.py" ]; then
+            echo "The tools folder is missing from the project. Upload the tools folder too."
+            exit 1
+          fi
+
       - name: Project hygiene (versions, changelog, file map)
-        run: python3 -I tools/check_project.py
+        run: |
+          cd "$PROJECT_DIR"
+          python3 -I tools/check_project.py
 
       - name: Download Godot ${{ env.GODOT_VERSION }}
         run: |
@@ -33,19 +53,23 @@ jobs:
 
       - name: Import project (builds the .godot cache)
         # Only preparation. The test steps below decide pass or fail, so a quirky exit code here is ignored.
-        run: godot --headless --path . --import || true
+        run: |
+          cd "$PROJECT_DIR"
+          godot --headless --path . --import || true
 
       - name: Data schema checks
         run: |
-          godot --headless --path . --script res://tools/test_data_schemas.gd 2>&1 | tee schema.log
-          grep -q "Data schema checks: .*failures: 0" schema.log
-          ! grep -E "SCRIPT ERROR|Parse Error" schema.log
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/test_data_schemas.gd 2>&1 | tee "$GITHUB_WORKSPACE/schema.log"
+          grep -q "Data schema checks: .*failures: 0" "$GITHUB_WORKSPACE/schema.log"
+          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/schema.log"
 
       - name: Regression suite
         run: |
-          godot --headless --path . --script res://tools/test_regressions.gd 2>&1 | tee regression.log
-          grep -q "Regression checks: .*failures: 0" regression.log
-          ! grep -E "SCRIPT ERROR|Parse Error" regression.log
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/test_regressions.gd 2>&1 | tee "$GITHUB_WORKSPACE/regression.log"
+          grep -q "Regression checks: .*failures: 0" "$GITHUB_WORKSPACE/regression.log"
+          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/regression.log"
 
       - name: Keep the logs
         if: always()
