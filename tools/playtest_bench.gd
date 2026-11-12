@@ -14,8 +14,20 @@ const STEP: float = 1.0 / 60.0
 var view: Node2D
 
 
+var waited: float = 0.0
+
+
 func _initialize() -> void:
     call_deferred("run")
+
+
+# Watchdog: if a script error stops run() part-way, quit anyway instead of hanging the build.
+func _process(delta: float) -> bool:
+    waited += delta
+    if waited > 5.0:
+        print("Playtest stopped early (a script error above ended it)")
+        return true
+    return false
 
 
 func run() -> void:
@@ -38,11 +50,11 @@ func run() -> void:
     quit(0)
 
 
-func reset_bench(tool: int, angle_steps: int) -> void:
+func reset_bench(tool_id: int, angle_steps: int) -> void:
     view.holding = false
     view._on_reset_dust()
     view.scripted_pointer = view._zone_rect(0).get_center()
-    view._select_tool(tool)
+    view._select_tool(tool_id)
     var id: String = view.tools.selected
     view.tools.turns[id] = wrapf(float(angle_steps) * ToolRig.TURN_STEP, -PI, PI)
     for frame in range(30):

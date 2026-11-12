@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true
         run: |
           cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/playtest_bench.gd 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
+          timeout 300 godot --headless --path . --script res://tools/playtest_bench.gd 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
 
       - name: Keep the logs
         if: always()
