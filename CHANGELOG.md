@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 No game code changed, so Godot behaviour is the same as 0.14.2. GitHub Actions runs the checker and the Godot 4.7.2 suites on this branch; result recorded below once it has finished.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43328137536, branch feature-0.14.3): checker passed; Data schema checks 172, failures 0; Regression checks 422, failures 0.
 
 ### Added / Changed / Fixed / Removed
 - Added (user rule): every AI edit is signed with the model that made it, with the exact model id, in the changelog Author line, the HANDOFF signature and git commit messages. A person writes "(human)".
