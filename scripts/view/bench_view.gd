@@ -77,6 +77,7 @@ const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 
 var turning_with_mouse: bool = false
 var turn_travel: float = 0.0
 var bin_notified: bool = false
+var scripted_pointer: Variant = null  # tools/playtest_bench.gd sets this to drive the bench without a real mouse
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
 var paste_texture: ImageTexture
@@ -245,7 +246,7 @@ func _select_stage(new_stage: int) -> void:
         _sync_part_geometry()
     stage = new_stage
     holding = false
-    tools.select("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), get_global_mouse_position())
+    tools.select("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), _pointer())
     if stage == STAGE_CLEAN and active_tool == 2: tools.park()
     if stage == STAGE_PASTE:
         wiping = false
@@ -292,7 +293,7 @@ func _select_tool(new_tool: int) -> void:
     if access.dragging != "": access.dragging = ""
     holding = false
     active_tool = new_tool
-    if new_tool != 2: tools.select(["vacuum","brush","vacuum","pick"][new_tool], get_global_mouse_position())
+    if new_tool != 2: tools.select(["vacuum","brush","vacuum","pick"][new_tool], _pointer())
     else: tools.park()
     pick.reset()
     if tool_buttons.size() == 4:
@@ -344,7 +345,7 @@ func _cloth_is_square() -> bool:
 
 
 func _select_dispense() -> void:
-    tools.select("syringe",get_global_mouse_position())
+    tools.select("syringe",_pointer())
     wiping = false
     holding = false
     wipe_button.set_pressed_no_signal(false)
@@ -354,7 +355,7 @@ func _select_dispense() -> void:
 
 func _on_wipe_toggled() -> void:
     wiping = wipe_button.button_pressed
-    tools.select("cloth" if wiping else "syringe",get_global_mouse_position())
+    tools.select("cloth" if wiping else "syringe",_pointer())
     holding = false
     var shape: String = "square cloth" if _cloth_is_square() else "cloth"
     if wiping:
@@ -373,6 +374,11 @@ func _on_back_pressed() -> void:
 
 
 # ---------- input ----------
+
+# Where the pointer is: the real mouse, or a scripted position during an automated playtest.
+func _pointer() -> Vector2:
+    return scripted_pointer if scripted_pointer is Vector2 else get_global_mouse_position()
+
 
 func _work_rect() -> Rect2:
     if stage == STAGE_CLEAN:
@@ -476,7 +482,7 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-    var mouse: Vector2 = get_global_mouse_position()
+    var mouse: Vector2 = _pointer()
     var raw_vel: Vector2 = (mouse - last_mouse) / maxf(delta, 0.0001)
     tool_vel = tool_vel.lerp(raw_vel.limit_length(2500), 1.0 - exp(-26.0 * delta))
     last_mouse = mouse

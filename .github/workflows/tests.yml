@@ -71,6 +71,13 @@ jobs:
           grep -q "Regression checks: .*failures: 0" "$GITHUB_WORKSPACE/regression.log"
           ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/regression.log"
 
+      - name: Scripted bench playtest (prints a table, never fails the build)
+        if: always()
+        continue-on-error: true
+        run: |
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/playtest_bench.gd 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
+
       - name: Keep the logs
         if: always()
         uses: actions/upload-artifact@v4
