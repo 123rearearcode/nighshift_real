@@ -259,7 +259,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag / release throws. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. Click a resting tool to pick up."
+        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag / release throws; right-drag the hose to move it. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. With empty hands, click a resting tool to pick it up."
         if _done_count() == zones.size():
             _set_status("Resumed saved PC: already clean. Dust is intentionally absent. Choose New dirty PC to practise again, or continue to paste.", 1)
         else:
@@ -304,6 +304,7 @@ func _select_tool(new_tool: int) -> void:
 
 func _on_reset_dust() -> void:
     dust.reset()
+    tools.flow.clear()
     part_offsets.clear()
     previous_poses.clear()
     blocker_key = ""
@@ -411,9 +412,16 @@ func _input(event: InputEvent) -> void:
         if mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
             tools.rotate_held(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
             return
+        # Right mouse grabs things: a resting tool (hand empty), else the hose, else it throws the held tool.
+        if mb.button_index == MOUSE_BUTTON_RIGHT and not mb.pressed and tools.hose_grab >= 0:
+            tools.release_hose()
+            return
         if mb.button_index == MOUSE_BUTTON_RIGHT and active_tool != 2 and not mount.active:
             if mb.pressed:
-                var candidate: String = tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
+                var candidate: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
+                if candidate == "" and stage == STAGE_CLEAN and tools.grab_hose(mb.position):
+                    holding = false
+                    return
                 if stage == STAGE_CLEAN and candidate in ["vacuum","brush","pick"]:
                     _select_tool({"vacuum":0,"brush":1,"pick":3}[candidate])
                 elif stage == STAGE_PASTE and candidate in ["cloth","syringe"]:
@@ -427,7 +435,8 @@ func _input(event: InputEvent) -> void:
             return
         if mb.button_index == MOUSE_BUTTON_LEFT:
             if mb.pressed:
-                var resting: String = tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
+                # With a tool in hand a left click always uses it (it never swaps to a tool lying next to it).
+                var resting: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
                 if resting != "" and ToolRig.TABLE.has_point(mb.position) and resting in (["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"]):
                     if stage == STAGE_CLEAN and resting in ["vacuum","brush","pick"]:
                         _select_tool({"vacuum":0,"brush":1,"pick":3}[resting])
@@ -608,9 +617,11 @@ func _apply_part_collisions(pieces: Array) -> void:
 
 # Things that follow from one dust step: the bin fills, kicked dust sends up motes, motes float.
 func _after_dust_step(delta: float, nozzle: Vector2) -> void:
-    var taken: float = dust.take_swallowed()
-    if taken > 0.0:
-        bin.add(taken)
+    tools.flow.add(dust.take_swallowed())   # swallowed dust rides the hose; it fills the bin when it arrives
+    var suction_now: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
+    var arrived: float = tools.flow.step(delta, suction_now, DustBin.CAPACITY - bin.fill)
+    if arrived > 0.0:
+        bin.add(arrived)
         if bin.is_full() and not bin_notified:
             bin_notified = true
             _set_status("The dust bin is full! Click the bin (bottom right of the bench) to empty it, then keep vacuuming.", 2)

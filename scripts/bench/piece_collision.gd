@@ -10,11 +10,12 @@
 #   touched: bool                                        set to true here when the piece was moved or struck
 extends RefCounted
 
-const RESTITUTION: float = 0.35       # bounce
+const RESTITUTION: float = 0.12       # bounce (low: tools are dull, they knock rather than ricochet)
 const SLOP: float = 0.4               # overlaps smaller than this px are ignored (stops resting jitter)
-const SPIN_FROM_SLIDING: float = 0.004
+const SPIN_FROM_SLIDING: float = 0.0015
 const MAX_SPEED: float = 1800.0
-const MAX_SPIN: float = 7.0
+const MAX_SPIN: float = 4.0
+const MAX_SHOVE_SPEED: float = 200.0  # px/s; a piece shoved by a HELD piece never moves faster than this (it is nudged, not batted)
 const ITERATIONS: int = 3
 
 
@@ -77,7 +78,13 @@ static func resolve(pieces: Array) -> int:
                     var impulse: float = -(1.0 + RESTITUTION) * closing / total
                     a["velocity"] = (a["velocity"] - normal * impulse * inv_a).limit_length(MAX_SPEED)
                     b["velocity"] = (b["velocity"] + normal * impulse * inv_b).limit_length(MAX_SPEED)
+                    if inv_a <= 0.0:
+                        b["velocity"] = Vector2(b["velocity"]).limit_length(MAX_SHOVE_SPEED)
+                    if inv_b <= 0.0:
+                        a["velocity"] = Vector2(a["velocity"]).limit_length(MAX_SHOVE_SPEED)
                     var sliding: float = relative.dot(normal.orthogonal())
+                    if inv_a <= 0.0 or inv_b <= 0.0:
+                        sliding = clampf(sliding, -MAX_SHOVE_SPEED, MAX_SHOVE_SPEED)
                     a["spin"] = clampf(float(a["spin"]) - sliding * SPIN_FROM_SLIDING * inv_a, -MAX_SPIN, MAX_SPIN)
                     b["spin"] = clampf(float(b["spin"]) + sliding * SPIN_FROM_SLIDING * inv_b, -MAX_SPIN, MAX_SPIN)
     return contacts

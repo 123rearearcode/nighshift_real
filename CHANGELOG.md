@@ -39,6 +39,45 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.14.2 - 2026-11-13 - Click fix, grab the hose, rounder see-through hose, softer knocks
+- Author: Claude (Opus 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.14.1
+- Type: patch (fixes from the user's play of 0.14.1, plus hose handling)
+
+### Execution status
+**Godot was NOT run by me directly.** New this version: `tools/playtest_bench.gd`, a scripted playtest that drives the real bench (scripted pointer, real mouse events) on Godot 4.7.2 in GitHub Actions and prints a table. Its findings are below. Results of the regression run are recorded below once it has finished. Nothing has been seen in a window.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Fixed (confirmed by the scripted playtest): with a tool in hand, a left click could pick up the resting tool lying next to it instead of using the held tool. The held tool shoves resting tools right up against itself, and the old pickup box (unturned, 60 x 84) of the neighbour then covered the cursor. It happened in 19 of 80 tested angle/position combinations, and which ones depended on the tool's angle. This is the most likely cause of "the brush only works when tilted the right way" and "the vacuum stopped working once I rotated it". Now a left click with a tool in hand always uses it; picking up by click works with empty hands, and the pickup box turns with the tool.
+- Playtest findings that did NOT show a fault: with the scripted strokes, the brush tossed dust at every angle (8 angles x 2 stroke directions x 6 parts), and the vacuum cleaned every part equally at every angle. The vacuum cannot reach the top 40 px of the bench (the tool body is kept on the table); no dust zone is there.
+- Added: right-drag the hose to move it out of the way. A tool in hand is put down first. The bin side of the hose cannot be stretched by hand; pulling the vacuum side drags a resting vacuum along.
+- Changed: the hose curves round pieces. A bending limit (no joint folds past about 52 degrees; tested in a Python copy first so it adds no wriggle) and obstacles with rounded corners (12 px).
+- Changed: the hose is drawn as a see-through tube through a smooth curve (8 px, rims, ribs, highlight). Swallowed dust is visible riding inside it to the bin.
+- Changed: swallowed dust now fills the bin when it ARRIVES (0.7 s trip at full suction). With the suction off it waits in the hose; with the bin full it waits at the bin end. Cleaning progress still counts the moment dust is swallowed. `scripts/bench/hose_flow.gd`.
+- Changed: tools knock each other less. Bounce 0.35 -> 0.12, spin from sliding 0.004 -> 0.0015 (max 4 rad/s), and a piece shoved by a held piece moves at most 200 px/s.
+- Added: `scripted_pointer` and `_pointer()` in `bench_view.gd` (only the playtest sets it).
+- Added tests: rounded corners, no sharp folds, bending limit adds no wriggle, hose grab/follow/limit/release, dust riding the hose (delay, waits without suction, full bin), shove speed cap, and 80 real left clicks at 8 angles that must all use the held tool.
+- CI: the playtest runs as its own step with a 300 s timeout and a watchdog; it never fails the build.
+
+### Files changed
+`scripts/bench/hose_sim.gd`, `scripts/bench/hose_flow.gd` (new), `scripts/bench/tool_rig.gd`, `scripts/bench/piece_collision.gd`, `scripts/view/bench_view.gd`, `scripts/view/tool_renderer.gd`, `tools/playtest_bench.gd` (new), `tools/test_regressions.gd`, `.github/workflows/tests.yml`, `project.godot`, `README.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `CHANGELOG.md`.
+
+### Checks performed
+`python3 -I tools/check_project.py` (no Godot); hose bending limit simulated in Python (drift 0.0009 px over 30 steps after motion, worst joint 52 degrees). Godot checks via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Right mouse to grab the hose; left click never swaps tools while one is held; hose width 8 px and see-through look; 0.7 s trip through the hose; 200 px/s shove cap.
+
+### Known issues and open items
+- "The hose itself doesn't work" was not specific enough to diagnose; this version makes the hose grabbable and shows dust travelling through it. Needs the user's description if something else was meant.
+- "The brush only works on the component": not reproduced by the playtest; may have been the click bug.
+- Tossed dust still stays on its own part (moving it across parts is planned with the fans in 0.15.0).
+
+### Next action
+User playtest of 0.14.2. Then 0.15.0 (fans).
+
 ## 0.14.1 - 2026-11-13 - Hose calm-down, rotation fixes, middle-mouse turning, clogged filter
 - Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.14.0

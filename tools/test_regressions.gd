@@ -22,6 +22,7 @@ const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const Bin = preload("res://scripts/bench/dust_bin.gd")
 const Motes = preload("res://scripts/bench/dust_motes.gd")
+const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
 var failed: int = 0
 var checks: int = 0
 
@@ -198,6 +199,8 @@ func run_checks() -> void:
     test_bounds()
     test_hose_bin_motes()
     test_piece_physics(gs)
+    test_hose_handling()
+    test_bench_clicks(gs)
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
     gs.save_path = original_path
@@ -805,7 +808,8 @@ func test_piece_physics(gs: Node) -> void:
     check(Vector2(pair[1]["velocity"]).x > 100.0 and Vector2(pair[0]["velocity"]).x < 100.0 and bool(pair[0]["touched"]) and bool(pair[1]["touched"]), "a moving piece hands speed to the one it hits")
     var held: Array = [piece(Vector2(100,100),Vector2(20,34),0.0,Vector2(300,0)),piece(Vector2(130,100),Vector2(20,34),1.0)]
     PieceCollision.resolve(held)
-    check(Vector2(held[0]["center"]) == Vector2(100,100) and not bool(held[0]["touched"]) and Vector2(held[1]["center"]).x >= 139.9 and Vector2(held[1]["velocity"]).x > 300.0, "a held piece shoves others and is never pushed")
+    check(Vector2(held[0]["center"]) == Vector2(100,100) and not bool(held[0]["touched"]) and Vector2(held[1]["center"]).x >= 139.9 and Vector2(held[1]["velocity"]).x > 100.0, "a held piece shoves others and is never pushed")
+    check(Vector2(held[1]["velocity"]).length() <= PieceCollision.MAX_SHOVE_SPEED + 0.01, "a shoved piece is nudged, not batted across the bench")
     var flying: Array = [piece(Vector2(100,100),Vector2(20,34),1.0),piece(Vector2(110,100),Vector2(20,34),1.0)]
     flying[1]["solid"] = false
     check(PieceCollision.resolve(flying) == 0 and Vector2(flying[0]["center"]) == Vector2(100,100), "a piece in the air passes over others")
@@ -866,3 +870,105 @@ func test_piece_physics(gs: Node) -> void:
     gs.new_game()
     gs.money = 100
     check(gs.buy_upgrade("long_hose") and gs.money == 60 and gs.has_upgrade("long_hose") and not gs.buy_upgrade("long_hose"), "the longer hose is bought once")
+
+
+# 0.14.2: rounded hose corners, bending limit, grabbing the hose, dust riding the hose to the bin.
+func test_hose_handling() -> void:
+    var box: Dictionary = {"center":Vector2(300,300),"angle":0.0,"half":Vector2(30,30)}
+    var corner: Vector2 = Hose.push_out(Vector2(325,325),box,Hose.POINT_RADIUS)
+    var round_reach: float = corner.distance_to(Vector2(300,300) + Vector2(30,30) - Vector2(12,12))
+    check(absf(round_reach - (12.0 + Hose.POINT_RADIUS)) < 0.01, "obstacle corners are rounded, so the hose curves round them")
+    var hose := Hose.new()
+    hose.reset(Vector2(600,550),Vector2(300,300))
+    for frame in range(120):
+        var t: float = float(frame) / 120.0
+        hose.step(1.0/60.0,Vector2(600,550),Vector2(300+200*sin(t*TAU*2.0),300+80*cos(t*TAU*3.0)),[box])
+    var sharpest: float = 0.0
+    for i in range(1,Hose.POINTS-1):
+        sharpest = maxf(sharpest,absf((hose.pos[i]-hose.pos[i-1]).angle_to(hose.pos[i+1]-hose.pos[i])))
+    check(rad_to_deg(sharpest) < 70.0, "the hose never folds sharply (sharpest joint %.0f degrees)" % rad_to_deg(sharpest))
+    for frame in range(400): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
+    var before: PackedVector2Array = hose.pos.duplicate()
+    for frame in range(30): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
+    var drift: float = 0.0
+    for i in range(Hose.POINTS): drift = maxf(drift,hose.pos[i].distance_to(before[i]))
+    check(drift < 0.5, "the bending limit does not make a resting hose wriggle (drift %.2f)" % drift)
+    var rig := ToolRig.new()
+    rig.select("vacuum",Vector2(300,300))
+    for frame in range(200): rig.step(1.0/60.0,Vector2(300,300),false)
+    var grab_at: Vector2 = rig.hose.pos[8]
+    check(rig.hose_hit(grab_at) and not rig.hose_hit(Vector2(-500,-500)), "the hose can be found under the cursor")
+    check(rig.grab_hose(grab_at) and not rig.equipped and rig.hose_grab > 0, "grabbing the hose puts the held tool down")
+    var target: Vector2 = grab_at + Vector2(-60,40)
+    for frame in range(90): rig.step(1.0/60.0,target,false)
+    check(rig.hose.pos[rig.hose_grab].distance_to(target) < 1.0, "the grabbed point follows the cursor")
+    var far := Vector2(60,130)
+    for frame in range(240): rig.step(1.0/60.0,far,false)
+    var held_index: int = rig.hose_grab
+    check(rig.hose.pos[held_index].distance_to(Bin.hose_anchor()) <= rig.hose.segment*float(held_index) + 0.5, "the bin side of the hose cannot be stretched by hand")
+    check(rig.hose.worst_link_error() < 2.0, "a hose carried by hand keeps its length (worst link error %.2f)" % rig.hose.worst_link_error())
+    rig.release_hose()
+    check(rig.hose_grab == -1, "releasing lets go of the hose")
+    var flow := HoseFlow.new()
+    flow.add(5.0)
+    var got: float = flow.step(0.3,1.0,100.0)
+    check(got == 0.0 and flow.count() == 1, "swallowed dust takes time to ride the hose")
+    var waited: float = 0.0
+    for frame in range(60): waited += flow.step(1.0/60.0,0.0,100.0)
+    check(waited == 0.0 and flow.count() == 1, "with the suction off, dust stays in the hose")
+    for frame in range(60): got += flow.step(1.0/60.0,1.0,100.0)
+    check(absf(got-5.0) < 0.001 and flow.count() == 0, "with suction, the dust reaches the bin")
+    flow.add(10.0)
+    var room_left: float = 0.0
+    for frame in range(120): room_left += flow.step(1.0/60.0,1.0,4.0-room_left)
+    check(absf(room_left-4.0) < 0.001 and absf(flow.carried()-6.0) < 0.001, "a full bin leaves the rest waiting in the hose")
+
+
+# 0.14.2: a left click with a tool in hand must use THAT tool, at every angle, even with other tools
+# shoved right up against it (before the fix, about one click in four grabbed the neighbouring tool).
+func test_bench_clicks(gs: Node) -> void:
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    var wrong: int = 0
+    var tried: int = 0
+    for held: int in [0, 1]:
+        for angle_steps in [0, 3, 6, 9, 12, 15, 18, 21]:
+            for placed: Vector2 in [Vector2(-50,0), Vector2(50,0), Vector2(0,60), Vector2(0,-60), Vector2(-40,40)]:
+                bench.holding = false
+                bench._select_tool(held)
+                var held_id: String = bench.tools.selected
+                bench.tools.turns[held_id] = wrapf(float(angle_steps) * ToolRig.TURN_STEP, -PI, PI)
+                bench.scripted_pointer = Vector2(300,260)
+                for frame in range(40): bench._physics_process(1.0/60.0)
+                var offset: Vector2 = placed
+                for id: String in ["vacuum","brush","pick"]:
+                    if id == held_id: continue
+                    bench.tools.bodies[id].active = false
+                    bench.tools.motions[id].center = bench.tools.motions[held_id].center + offset
+                    offset = offset.rotated(PI * 0.5)
+                for frame in range(40): bench._physics_process(1.0/60.0)
+                var press := InputEventMouseButton.new()
+                press.button_index = MOUSE_BUTTON_LEFT
+                press.pressed = true
+                press.position = Vector2(300,260)
+                bench._input(press)
+                tried += 1
+                if bench.tools.selected != held_id or not bench.holding: wrong += 1
+                var release := InputEventMouseButton.new()
+                release.button_index = MOUSE_BUTTON_LEFT
+                release.pressed = false
+                release.position = Vector2(300,260)
+                bench._input(release)
+    check(wrong == 0, "a left click always uses the tool in hand (%d of %d clicks grabbed another tool)" % [wrong, tried])
+    bench.tools.park()
+    var resting_at: Vector2 = bench.tools.motions["brush"].center
+    var pick_up := InputEventMouseButton.new()
+    pick_up.button_index = MOUSE_BUTTON_LEFT
+    pick_up.pressed = true
+    pick_up.position = resting_at
+    bench._input(pick_up)
+    check(bench.tools.equipped and bench.tools.selected == "brush", "with empty hands, clicking a resting tool picks it up")
+    bench.scripted_pointer = null
+    bench.queue_free()
