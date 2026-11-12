@@ -45,6 +45,7 @@ func run() -> void:
     vacuum_table()
     reach_table()
     click_table()
+    paste_table()
     view.queue_free()
     gs.save_path = original_path
     print("Playtest finished")
@@ -168,3 +169,55 @@ func click_table() -> void:
                 release.pressed = false
                 release.position = pointer
                 view._input(release)
+
+
+# Thermal paste: squeeze a pattern, mount, press for a while, then let the cooler be secured.
+func paste_table() -> void:
+    print("PLAYTEST PASTE  pattern  squeeze_s  gauge                     press_s  grade        coverage  overflow  syringe_offset")
+    view.scripted_pointer = Vector2(320, 350)
+    view._select_stage(view.STAGE_PASTE)
+    var cpu_center: Vector2 = view.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(view.PASTE_CELL)
+    for pattern: String in ["dot", "x", "line", "five"]:
+        for squeeze in [1.5, 2.0, 2.5, 3.5]:
+            for press in [1.0, 2.5, 4.0, 6.0, 10.0]:
+                view._on_clear_pressed()
+                view.wiping = false
+                view.tools.select("syringe", cpu_center)
+                var points: Array = [cpu_center]
+                if pattern == "x":
+                    points = []
+                    for k in range(11):
+                        var f: float = (float(k) / 10.0 - 0.5) * 2.0
+                        points.append(cpu_center + Vector2(f, f) * 110.0)
+                    for k in range(11):
+                        var f2: float = (float(k) / 10.0 - 0.5) * 2.0
+                        points.append(cpu_center + Vector2(f2, -f2) * 110.0)
+                elif pattern == "line":
+                    points = []
+                    for k in range(11): points.append(cpu_center + Vector2((float(k) / 10.0 - 0.5) * 220.0, 0))
+                elif pattern == "five":
+                    points = [cpu_center, cpu_center + Vector2(-80,-80), cpu_center + Vector2(80,-80), cpu_center + Vector2(-80,80), cpu_center + Vector2(80,80)]
+                var frames: int = int(squeeze * 60.0)
+                var offset: float = 0.0
+                view.scripted_pointer = points[0]
+                for frame in range(20): view._physics_process(STEP)
+                view.holding = true
+                for frame in range(frames):
+                    view.scripted_pointer = points[mini(points.size() - 1, frame * points.size() / maxi(1, frames))]
+                    view._physics_process(STEP)
+                    offset = maxf(offset, view.tools.contact().distance_to(view.scripted_pointer))
+                view.holding = false
+                var gauge: String = view.paste.gauge_text()
+                view._on_mount_pressed()
+                view.scripted_pressing = true
+                var pressed_frames: int = int(press * 60.0)
+                var guard: int = 0
+                while view.mount.active and guard < 900:
+                    view.scripted_pressing = guard < pressed_frames
+                    view._physics_process(STEP)
+                    guard += 1
+                    if guard == pressed_frames + 30 and view.mount.active: view._finish_mount()
+                view.scripted_pressing = null
+                var r: Dictionary = view.mount_result
+                print("PLAYTEST PASTE  %-7s  %4.1f       %-24s  %4.1f     %-11s  %5.0f%%    %5.0f%%    %.1f" % [pattern, squeeze, gauge, press,
+                    str(r.get("grade", "-")), float(r.get("coverage", 0.0)) * 100.0, float(r.get("overflow", 0.0)) * 100.0, offset])

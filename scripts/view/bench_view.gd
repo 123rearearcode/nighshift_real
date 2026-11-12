@@ -77,6 +77,7 @@ const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 
 var turning_with_mouse: bool = false
 var turn_travel: float = 0.0
 var bin_notified: bool = false
+var scripted_pressing: Variant = null # tools/playtest_bench.gd: pressing the cooler during mounting
 var scripted_pointer: Variant = null  # tools/playtest_bench.gd sets this to drive the bench without a real mouse
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
@@ -679,6 +680,7 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
 
 func _step_mount(delta: float, mouse: Vector2) -> void:
     var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _work_rect().has_point(mouse))
+    if scripted_pressing is bool: pressing = scripted_pressing   # automated playtest only
     var expired: bool = mount.step(delta, pressing, paste)
     live_stats = paste.measure()
     paste_dirty = true
