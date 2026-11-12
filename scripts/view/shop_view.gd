@@ -13,6 +13,7 @@ var result_label: Label
 var note_label: Label
 var version_label: Label
 var upgrade_button: Button
+var hose_button: Button
 
 
 func _ready() -> void:
@@ -21,14 +22,15 @@ func _ready() -> void:
     cash_label = _make_label(Vector2(940, 20), Vector2(300, 40), 28)
     ticket_label = _make_label(Vector2(60, 125), Vector2(560, 300), 19)
     result_label = _make_label(Vector2(60, 470), Vector2(560, 190), 18)
-    note_label = _make_label(Vector2(700, 440), Vector2(520, 200), 15)
+    note_label = _make_label(Vector2(700, 490), Vector2(520, 170), 15)
     note_label.text = "Fix the ticket: vacuum the dust out of the whole PC, apply paste, then run the final check. The check estimates temperature from your work. All numbers are demo values. Progress and cash are saved automatically."
 
     _make_button("Open repair bench (clean + paste)", Vector2(700, 110), Vector2(420, 50), _go.bind("res://scenes/bench.tscn"))
     _make_button("Hardware bench (shaped board trial)", Vector2(700, 180), Vector2(420, 50), _go.bind("res://scenes/main.tscn"))
     _make_button("Run final check", Vector2(700, 250), Vector2(420, 50), _on_check_pressed)
     upgrade_button = _make_button("Buy square cloth", Vector2(700, 320), Vector2(420, 44), _on_upgrade_pressed)
-    _make_button("New game (reset save)", Vector2(700, 372), Vector2(420, 44), _on_new_game_pressed)
+    hose_button = _make_button("Buy longer hose", Vector2(700, 372), Vector2(420, 44), _on_hose_pressed)
+    _make_button("New game (reset save)", Vector2(700, 424), Vector2(420, 44), _on_new_game_pressed)
     version_label = _make_label(Vector2(40, 686), Vector2(900, 24), 13)
     version_label.text = "Nightshift foundation trial v%s  |  save format %d" % [GameState.game_version(), GameState.SAVE_FORMAT]
     version_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.7))
@@ -76,6 +78,12 @@ func _refresh() -> void:
     else:
         upgrade_button.text = "Buy square cloth ($%d)" % int(GameState.UPGRADE_PRICES["square_cloth"])
         upgrade_button.disabled = false
+    if GameState.has_upgrade("long_hose"):
+        hose_button.text = "Longer vacuum hose: owned"
+        hose_button.disabled = true
+    else:
+        hose_button.text = "Buy longer vacuum hose ($%d)" % int(GameState.UPGRADE_PRICES["long_hose"])
+        hose_button.disabled = false
     var grade: String = str(job["paste_grade"])
     var done: bool = job["state"] == "done"
     var temp: float = float(job["temp"])
@@ -115,6 +123,16 @@ func _on_upgrade_pressed() -> void:
         result_label.add_theme_color_override("font_color", Color(0.25, 0.95, 0.35))
     else:
         result_label.text = "Not enough cash for the square cloth ($%d needed)." % int(GameState.UPGRADE_PRICES["square_cloth"])
+        result_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+    _refresh()
+
+
+func _on_hose_pressed() -> void:
+    if GameState.buy_upgrade("long_hose"):
+        result_label.text = "Bought the longer hose. The vacuum reaches about 35% further from the bin."
+        result_label.add_theme_color_override("font_color", Color(0.25, 0.95, 0.35))
+    else:
+        result_label.text = "Not enough cash for the longer hose ($%d needed)." % int(GameState.UPGRADE_PRICES["long_hose"])
         result_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
     _refresh()
 
