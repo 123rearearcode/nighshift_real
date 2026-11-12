@@ -34,6 +34,11 @@ Format: `MAJOR.MINOR.PATCH`, for example `0.5.1`.
 
 Every change, however small, goes in `CHANGELOG.md` using the template at the top of that file.
 
+- **AI contributors sign with their model** (user rule, 2026-11-13): every edit an AI makes names the
+  model that made it, with the exact model id, in the changelog **Author** line, in the `HANDOFF.md`
+  signature when it updates the handoff, and in its git commit trailer
+  (`Co-Authored-By: <Name> <Model> <noreply@...>`). If the model changes mid-task, sign with each model
+  that made edits. `tools/check_project.py` fails a newest entry whose AI author has no `model id`.
 - Record author, base version, type, execution status, what changed, **every file touched** (added,
   modified, deleted, renamed), checks actually run, proposals, known issues, next action.
 - Say plainly whether Godot was run, by whom and on which version. Never describe code that has not

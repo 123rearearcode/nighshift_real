@@ -3,7 +3,7 @@
 
 This does NOT run Godot and does NOT prove the game works. It catches the mistakes
 that waste a contributor's time: version numbers that disagree, a changelog entry
-missing its required sections, broken res:// paths, tab indentation, unbalanced
+missing its required sections or an AI author's model signature, broken res:// paths, tab indentation, unbalanced
 brackets, and files missing from the file map in DEVELOPMENT.md.
 
 Usage (from anywhere):
@@ -56,6 +56,12 @@ def check_versions(root, problems, notes):
     for heading in REQUIRED_SECTIONS:
         if block and heading not in block:
             problems.append("Newest CHANGELOG entry (%s) is missing the section '%s'." % (log_version, heading))
+    author = re.search(r"^- Author:(.*)$", block, re.MULTILINE) if block else None
+    if block and not author:
+        problems.append("Newest CHANGELOG entry (%s) has no '- Author:' line." % log_version)
+    elif author and "human" not in author.group(1).lower() and "model id " not in author.group(1):
+        problems.append("Newest CHANGELOG entry (%s): an AI author must sign with its model, e.g. "
+                        "'- Author: Claude (Opus 5.5, model id claude-opus-5-5) ...'. A person writes '(human)'." % log_version)
     if block and "CHECKS_PLACEHOLDER" in block:
         problems.append("Newest CHANGELOG entry still contains CHECKS_PLACEHOLDER; record the checks actually run.")
     readme = read(root / "README.md")
