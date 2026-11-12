@@ -20,6 +20,8 @@ const DustZones = preload("res://scripts/data/dust_zones.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
 const PasteRenderer = preload("res://scripts/view/paste_renderer.gd")
 const CleaningRenderer = preload("res://scripts/view/cleaning_renderer.gd")
+const DustBin = preload("res://scripts/bench/dust_bin.gd")
+const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 
 const STAGE_CLEAN: int = 0
@@ -67,6 +69,9 @@ var part_offsets: Dictionary = {}
 var blocker_key: String = ""
 var move_button: Button
 var dust: DustSim = DustSim.new()
+var bin := DustBin.new()               # the vacuum's dust bin: fills while vacuuming, click it to empty
+var motes := DustMotes.new()           # floating dust, cosmetic only
+var bin_notified: bool = false
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
 var paste_texture: ImageTexture
@@ -405,6 +410,10 @@ func _input(event: InputEvent) -> void:
                         wipe_button.set_pressed_no_signal(wiping)
                         tools.select(resting,mb.position)
                     return
+            if mb.pressed and stage == STAGE_CLEAN and DustBin.RECT.has_point(mb.position):
+                _empty_bin()
+                holding = false
+                return
             if stage == STAGE_CLEAN and active_tool == 2:
                 if mb.pressed: _begin_part_drag(mb.position)
                 else: _finish_part_drag(mb.position)
@@ -470,7 +479,9 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
         var angle: float = tools.motions["brush"].angle
         for point: Vector2 in tools.brush.tips(): dust.brush_contacts.append(mouse+point.rotated(angle))
     var working: bool = holding and not modal_open and tools.equipped and not tools.carrying
-    dust.step(delta, active_tool, mouse, tools.speed, working)
+    var vacuum_ok: bool = not (active_tool == DustSim.TOOL_VACUUM and bin.is_full())   # a full bin stops the suction
+    dust.step(delta, active_tool, mouse, tools.speed, working and vacuum_ok)
+    _after_dust_step(delta, mouse)
     var target: String = _pick_target(mouse)
     var eligible: bool = active_tool == 3 and working and target != "" and not target in GameState.job["broken_parts"] and GameState.job["state"] != "done" and dust.trapped_count(target) > 0
     var stroke: Dictionary = pick.step(delta, target, eligible)
@@ -503,6 +514,29 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     case_rpm = lerpf(case_rpm, target_case, 1.0 - exp(-3.0 * delta))
     cooler_angle += cooler_rpm * TAU / 60.0 * delta   # RPM to radians per second
     case_angle += case_rpm * TAU / 60.0 * delta
+
+
+# Things that follow from one dust step: the bin fills, kicked dust sends up motes, motes float.
+func _after_dust_step(delta: float, nozzle: Vector2) -> void:
+    var taken: float = dust.take_swallowed()
+    if taken > 0.0:
+        bin.add(taken)
+        if bin.is_full() and not bin_notified:
+            bin_notified = true
+            _set_status("The dust bin is full! Click the bin (bottom right of the bench) to empty it, then keep vacuuming.", 2)
+    for point: Vector2 in dust.kicked:
+        motes.spawn(point, tools.speed.limit_length(200.0) * 0.15, 3, 45.0)
+    var suction: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
+    motes.step(delta, dust, nozzle, suction)
+
+
+func _empty_bin() -> void:
+    var had: float = bin.empty()
+    bin_notified = false
+    if had <= 0.0:
+        _set_status("The dust bin is already empty.", 0)
+    else:
+        _set_status("Emptied the dust bin (%d units of dust). The vacuum is ready again." % roundi(had), 1)
 
 
 func _announce_zone(i: int) -> void:
@@ -584,6 +618,8 @@ func _draw() -> void:
     if stage == STAGE_CLEAN:
         _draw_pc()
         _draw_dust()
+        CleaningRenderer.draw_bin(self, bin, DustBin.RECT.has_point(get_global_mouse_position()))
+        CleaningRenderer.draw_motes(self, motes)
         _draw_clean_panel()
         _draw_clean_cursor()
         _text(Vector2(40,690),"%s / %d visible dust groups / %s" % [loaded_job_id,dust.visible_count(),"CLEANED SAVE: continue paste or choose New dirty PC" if _done_count() == zones.size() else "saved progress resumed"],13)

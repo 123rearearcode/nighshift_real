@@ -17,6 +17,9 @@ const Rules = preload("res://scripts/rules/placement_rules.gd")
 const Data = preload("res://scripts/data/component_data.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
+const Hose = preload("res://scripts/bench/hose_sim.gd")
+const Bin = preload("res://scripts/bench/dust_bin.gd")
+const Motes = preload("res://scripts/bench/dust_motes.gd")
 var failed: int = 0
 var checks: int = 0
 
@@ -189,6 +192,9 @@ func run_checks() -> void:
     test_free_inventory(gs)
     test_tabletop_and_shared_stock(gs)
     test_save_store()
+    test_brush_dust()
+    test_bounds()
+    test_hose_bin_motes()
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
     gs.save_path = original_path
@@ -467,13 +473,11 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     dust.brush_contacts = PackedVector2Array([point])
     dust.step(0.1,Dust.TOOL_BRUSH,point,Vector2(500,0),true)
     check(dust.b_loosen[0] < grip, "bristle-tip contact drives dust loosening")
-    for frame in range(8): dust.step(0.1,Dust.TOOL_BRUSH,point,Vector2(500,0),true)
-    check(dust.b_state[0] != Dust.STUCK, "a loosened bundle is flicked off by a moving brush")
     var slow := Dust.new()
     slow.setup(Zones.zones(),Vector2.ZERO,12345)
     slow.brush_contacts = PackedVector2Array([slow.rest[0][0]])
     for frame in range(60): slow.step(0.1,Dust.TOOL_BRUSH,slow.rest[0][0],Vector2(20,0),true)
-    check(slow.b_state[0] == Dust.STUCK, "a nearly still brush does not flick dust away")
+    check(slow.b_state[0] == Dust.STUCK and slow.count == 85, "a nearly still brush neither tosses nor sheds dust")
     var paste := PasteSim.new()
     paste.deposit(2.0,2.0,30.0)
     var outside_gauge: float = paste.total_deposited
@@ -671,3 +675,109 @@ func test_save_store() -> void:
     check(SaveStore.read(path) == null, "all copies damaged returns null instead of a crash")
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(path + suffix)
+
+
+func inside_zone(dust: RefCounted, b: int) -> bool:
+    for p: Vector2 in dust.shown[b]:
+        if p.distance_to(dust.confine(dust.b_zone[b], p)) > 0.01: return false
+    return true
+
+func test_brush_dust() -> void:
+    var dust := Dust.new()
+    dust.setup(Zones.zones(),Vector2.ZERO,12345)
+    var start_count: int = dust.count
+    var weight: float = 0.0
+    for w: float in dust.zone_weight: weight += w
+    var home: Vector2 = dust.b_center[0]
+    var farthest: float = 0.0
+    var tossed_seen: bool = false
+    var kicked_seen: bool = false
+    var always_inside: bool = true
+    var never_gone: bool = true
+    for frame in range(150):
+        var contact: Vector2 = dust.shown[0][0]
+        dust.brush_contacts = PackedVector2Array([contact])
+        dust.step(1.0/60.0,Dust.TOOL_BRUSH,contact,Vector2(500,0),true)
+        tossed_seen = tossed_seen or dust.b_state[0] == Dust.TOSSED
+        kicked_seen = kicked_seen or dust.kicked.size() > 0
+        farthest = maxf(farthest,dust.b_center[0].distance_to(home))
+        never_gone = never_gone and dust.b_state[0] != Dust.GONE
+        for b in range(dust.count):
+            if dust.b_state[b] != Dust.GONE and not inside_zone(dust,b): always_inside = false
+    check(tossed_seen and kicked_seen, "a brushed bundle is tossed and reports where")
+    check(farthest > 8.0, "tossing really moves the dust")
+    check(never_gone and dust.removed_fraction(dust.b_zone[0]) == 0.0, "the brush removes nothing")
+    check(always_inside, "tossed and shed dust stays inside its own part")
+    var remaining: float = 0.0
+    for b in range(dust.count): remaining += dust.b_remaining[b]
+    check(absf(remaining-weight) < 0.001, "brushing never changes the total amount of dust")
+    for frame in range(120): dust.step(1.0/60.0,Dust.TOOL_BRUSH,Vector2(-999,-999),Vector2.ZERO,false)
+    check(dust.b_state[0] == Dust.STUCK, "tossed dust settles and sticks again")
+    var swallowed_before: float = dust.swallowed
+    var gone: bool = false
+    for frame in range(900):
+        var nodes: PackedVector2Array = dust.shown[0]
+        dust.step(1.0/60.0,Dust.TOOL_VACUUM,nodes[nodes.size()/2],Vector2.ZERO,true)
+        if dust.b_state[0] == Dust.GONE:
+            gone = true
+            break
+    check(gone and dust.take_swallowed() > swallowed_before, "tossed dust can still be vacuumed, and the vacuum reports what it took")
+    var shedder := Dust.new()
+    shedder.setup(Zones.zones(),Vector2.ZERO,12345)
+    var parent_nodes: int = shedder.b_n[0]
+    var total_before: float = 0.0
+    for w: float in shedder.zone_weight: total_before += w
+    shedder._shed(0,Vector2(400,0))
+    var last: int = shedder.count - 1
+    check(shedder.count == start_count + 1 and shedder.b_state[last] == Dust.TOSSED and shedder.b_n[last] == 1, "a brushed chain sheds one separate speck")
+    check(shedder.b_n[0] == parent_nodes - 1 and shedder.rest[0].size() == parent_nodes - 1, "the chain gets one node shorter")
+    var total_after: float = 0.0
+    for b in range(shedder.count): total_after += shedder.b_remaining[b]
+    check(absf(total_after-total_before) < 0.001, "shedding keeps the dust weight the same")
+    check(shedder.zone_bundles[shedder.b_zone[0]].has(last), "the shed speck belongs to the same part")
+
+func test_bounds() -> void:
+    var corners: Array = [Vector2(-900,-900),Vector2(3000,3000),Vector2(-900,3000),Vector2(3000,-900)]
+    for turns in [0,6,3]:
+        for corner: Vector2 in corners:
+            var rig := ToolRig.new()
+            rig.select("vacuum",Vector2(300,300))
+            for k in range(turns): rig.rotate_held(1)
+            for frame in range(180): rig.step(1.0/60.0,corner,false)
+            var center: Vector2 = rig.motions["vacuum"].center
+            check(center.distance_to(ToolRig.keep_inside(center,rig.motions["vacuum"].angle)) < 0.01 and ToolRig.TABLE.has_point(center),
+                "a held tool stays on the bench with the cursor far outside (turns %d)" % turns)
+    var acc := Access.new()
+    acc.setup(Zones.zones(),Vector2(40,110),[])
+    check(acc.begin(acc.homes["cooler"].get_center()), "the cooler can be picked up")
+    for corner: Vector2 in corners:
+        acc.move(corner)
+        check(Access.BOUNDS.grow(0.01).encloses(acc.drag_rect), "a dragged part cannot leave the bench")
+
+func test_hose_bin_motes() -> void:
+    var anchor := Vector2(600,550)
+    var hose := Hose.new()
+    hose.reset(anchor,Vector2(300,300))
+    for frame in range(300): hose.step(1.0/60.0,anchor,Vector2(300,300))
+    check(hose.pos[0] == anchor and hose.pos[Hose.POINTS-1] == Vector2(300,300), "the hose stays attached at both ends")
+    check(hose.worst_link_error() < Hose.SEGMENT*0.2, "hose links keep their length")
+    var before: Vector2 = hose.pos[Hose.POINTS/2]
+    for frame in range(300): hose.step(1.0/60.0,anchor,Vector2(150,200))
+    check(hose.pos[Hose.POINTS-1] == Vector2(150,200) and hose.pos[Hose.POINTS/2].distance_to(before) > 20.0, "the middle of the hose follows when the nozzle moves")
+    for frame in range(60): hose.step(1.0/60.0,anchor,Vector2(-1500,-1500))
+    check(hose.pos[Hose.POINTS/2].is_finite(), "a stretched hose stays stable")
+    var bin := Bin.new()
+    check(bin.add(40.0) == 40.0 and is_equal_approx(bin.fraction(),40.0/Bin.CAPACITY), "the bin fills with dust")
+    check(bin.add(1000.0) == Bin.CAPACITY-40.0 and bin.is_full() and bin.add(5.0) == 0.0, "the bin cannot hold more than its capacity")
+    check(bin.empty() == Bin.CAPACITY and bin.fill == 0.0 and not bin.is_full(), "emptying the bin resets it")
+    var dust := Dust.new()
+    dust.setup(Zones.zones(),Vector2.ZERO,12345)
+    var motes := Motes.new()
+    for frame in range(600): motes.step(1.0/60.0,dust,Vector2(300,300),0.0)
+    check(motes.count() > 0 and motes.count() <= Motes.MAX_MOTES, "floating dust appears above dusty parts")
+    motes.spawn(Vector2.ZERO,Vector2.ZERO,1000)
+    check(motes.count() <= Motes.MAX_MOTES, "floating dust is capped")
+    var calm := Motes.new()
+    calm.spawn(Vector2(300,300),Vector2.ZERO,20,0.0)
+    calm.step(1.0/60.0,dust,Vector2(300,300),1.0)
+    check(calm.count() == 0, "the vacuum swallows motes at the nozzle")

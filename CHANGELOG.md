@@ -39,6 +39,56 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.13.0 - 2026-11-12 - Dust tossing, bounds, vacuum hose and dust bin
+- Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.12.3
+- Type: minor (new features: dust tossing and shedding, floating dust, vacuum hose, dust bin)
+
+### Execution status
+**Godot was NOT run by me directly. GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless), run 43311306498 on branch `feature-0.13.0`: `Data schema checks: 172, failures: 0` and `Regression checks: 381, failures: 0`** (the suite grew from 344 to 381 checks for this version). The only warnings in the log are the two deliberate save-recovery lines. Not covered: anything seen in a window (looks, feel, mouse and keyboard play, how the hose and bin look), and the hardware bench clamp in `workshop_view.gd`.
+
+### Added / Changed / Fixed / Removed
+- **Brush tosses dust instead of removing it (interpretation: "displace and toss around"):** when a bundle's grip is loosened enough, the stroke sets it sliding and spinning along the stroke. It is kept inside its own part's dust area (the area moves and turns with the part), bounces off the area's edges, then settles and grips again at 75% of normal, so brushing again can toss it again. The brush removes nothing. A tossed bundle is not pulled by the vacuum until it settles (about one second at most).
+- **Brushed chains drop smaller dust:** a touched chain of 3 or more nodes sometimes chips its free end off as a separate speck (about 1.4 chances per second at full brush speed). The weight moves with it, so each part's dust total and cleaning progress do not change. Cap: 420 bundles in total.
+- **Floating dust:** cosmetic motes drift above dusty spots, burst up where dust is tossed or shed, and are drawn into the vacuum nozzle. They are never counted anywhere.
+- **Tools cannot leave the bench:** a held tool follows the cursor but its position is clamped to the bench (taking its turned size into account). Before, the tool stayed behind and was not drawn while the cursor was outside the bench, so it seemed to vanish. The same clamp now applies to a part being dragged in Move parts mode, and a drawer part held on the hardware bench is kept inside the window. Thrown tools and parts were already bounded by their physics.
+- **Vacuum hose:** a 24-point rope with fixed-length links, anchored to the dust bin and pinned to the vacuum. It swings and trails when the vacuum moves or is thrown. It does not limit how far the vacuum can go (its length, 736 px, covers the whole bench).
+- **Dust bin (a first version of dust management):** the vacuum's dust fills the bin (capacity 90 dust units; a dirty PC holds about 290, so expect three or so empties). When it is full the vacuum stops pulling and the status line says so. Click the bin (bottom right of the bench) to empty it. The bin level is not saved: leaving the bench empties it. Capacity and the instant, free emptying are proposals.
+- A loose bundle that is released mid-flight still vanishes without counting toward the bin (existing behaviour, unchanged).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/dust_sim.gd` | M | TOSSED state, toss/shed, confining zone areas, swallowed count, kicked positions |
+| `scripts/bench/hose_sim.gd` | A | vacuum hose rope |
+| `scripts/bench/dust_bin.gd` | A | dust bin rules and position |
+| `scripts/bench/dust_motes.gd` | A | floating dust |
+| `scripts/bench/tool_rig.gd` | M | keep_inside clamp, hose |
+| `scripts/bench/service_access.gd` | M | dragged part clamped to the bench |
+| `scripts/view/tool_renderer.gd` | M | tool no longer hidden outside the bench; hose drawing |
+| `scripts/view/cleaning_renderer.gd` | M | tossed dust colour, motes, bin drawing |
+| `scripts/view/bench_view.gd` | M | bin, motes, full-bin suction stop, click to empty |
+| `scripts/view/workshop_view.gd` | M | held part kept inside the window |
+| `tools/test_regressions.gd` | M | tests for tossing, shedding, bounds, hose, bin, motes |
+| `README.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | docs and version 0.13.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed.
+- GitHub Actions on Godot 4.7.2: 172 schema and 381 regression checks, 0 failures (see Execution status).
+- Not performed: any play in a window.
+
+### Decisions proposed (not approved)
+- Toss strength, friction, shed rate, bin capacity (90) and instant free emptying are all proposals.
+- Dust stays inside its own part's area when tossed. Dust tossed out of the PC, or onto other parts, was avoided on purpose: it could land under an installed part and become unreachable.
+
+### Known issues and open items
+- The hardware bench clamp (`workshop_view.gd`) has no regression check: it needs a running scene.
+- Tool pickup boxes still ignore rotation.
+- The bin is not saved; it resets when you leave the bench.
+
+### Next action
+Run the checks on GitHub, then play the bench: brush a dusty fan, vacuum until the bin fills, empty it, and report what feels wrong.
+
 ## 0.12.3 - 2026-11-12 - First verified run on Godot 4.7.2
 - Author: Claude (Sonnet 5.5) in a chat session, with the project now in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.12.2

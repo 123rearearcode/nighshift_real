@@ -99,6 +99,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/pc_layout.gd` | data | Shared cell-based case/board model profiles and uniform display fitting |
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
+| `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, one end on the bin, one on the nozzle |
+| `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
+| `scripts/bench/dust_motes.gd` | sim (cosmetic) | Floating dust specks; never counted in progress, bin or saves |
 | `tools/test_data_schemas.gd` | tooling | Checks every data dictionary has the right keys and types, and that parts, boards and cases agree with each other |
 | `scripts/data/component_data.gd` | data | RAM/GPU sandbox samples and demo L-shaped board |
 | `scripts/rules/placement_rules.gd` | rules | Placement checks, facings, board validation |

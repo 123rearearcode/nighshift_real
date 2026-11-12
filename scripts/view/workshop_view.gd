@@ -7,6 +7,7 @@ const Inventory = preload("res://scripts/bench/grid_inventory.gd")
 const PartMotion = preload("res://scripts/view/part_motion.gd")
 const HoverInfo = preload("res://scripts/rules/hover_info.gd")
 const HoverCard = preload("res://scripts/view/hover_card.gd")
+const HELD_BOUNDS := Rect2(0,0,1280,720)   # a held part is kept inside the window
 const DRAWER_CELL: float = 30.0
 const DRAWER_GRID_ORIGIN := Vector2(826, 148)
 const DRAWER_GRID_SIZE := Vector2i(12,8)
@@ -282,7 +283,9 @@ func _item_rect(i: int) -> Rect2:
     if i == inventory.held:
         var scale_cell: float = CELL if Rect2(60,165,640,420).has_point(pointer) else DRAWER_CELL
         var size: Vector2 = Vector2(fp)*scale_cell
-        return Rect2(pointer-grab_fraction*size,size)
+        # A held part follows the pointer but can never leave the window.
+        var farthest: Vector2 = (HELD_BOUNDS.end-size).max(HELD_BOUNDS.position)
+        return Rect2((pointer-grab_fraction*size).clamp(HELD_BOUNDS.position,farthest),size)
     if item["location"] == "drawer":
         return Rect2(DRAWER_GRID_ORIGIN+Vector2(item["cell"])*DRAWER_CELL,Vector2(fp)*DRAWER_CELL)
     for connector: Dictionary in board["connectors"]:

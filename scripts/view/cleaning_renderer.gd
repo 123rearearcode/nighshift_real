@@ -5,6 +5,8 @@ extends RefCounted
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
+const DustBin = preload("res://scripts/bench/dust_bin.gd")
+const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 
 const COLOR_DUST := Color(0.86, 0.76, 0.58, 1.0)
 const COLOR_DUST_LOOSENED := Color(0.86, 0.78, 0.58, 0.95)
@@ -19,6 +21,8 @@ static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
         var color: Color = COLOR_DUST
         if st == DustSim.STUCK:
             color = COLOR_DUST.lerp(COLOR_DUST_LOOSENED, (1.0 - dust.b_loosen[b]) / (1.0 - DustSim.LOOSEN_FLOOR))
+        elif st == DustSim.TOSSED:
+            color = COLOR_DUST_LOOSENED
         else:
             color.a = 0.85
         if nodes.size() > 1: canvas.draw_polyline(nodes, color, 3.0)
@@ -40,3 +44,30 @@ static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_don
         UiStyle.label(canvas, Vector2(panel_x + 442, y), "clean" if bool(zone_done[i]) else "%d%%" % roundi(part_removed * 100.0), 14, UiStyle.TONE_COLORS[1] if bool(zone_done[i]) else UiStyle.COLOR_TEXT)
     UiStyle.label(canvas, Vector2(panel_x, 510), "CPU cooler fan: %d RPM    Case fan: %d RPM" % [roundi(cooler_rpm), roundi(case_rpm)], 15)
     UiStyle.label(canvas, Vector2(panel_x, 526), "Blades turn at exactly these speeds (demo scale; real fans are faster).", 11)
+
+
+# Floating dust: faint specks that fade in and out as they drift.
+static func draw_motes(canvas: CanvasItem, motes: DustMotes) -> void:
+    for i in range(motes.count()):
+        var fade: float = sin(PI * clampf(motes.age[i] / motes.life[i], 0.0, 1.0))
+        canvas.draw_circle(motes.pos[i], motes.size[i], Color(COLOR_DUST.r, COLOR_DUST.g, COLOR_DUST.b, 0.55 * fade))
+
+
+# The vacuum's dust bin: a canister on the bench with a fill meter. The hose is anchored to it.
+static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
+    var rect: Rect2 = DustBin.RECT
+    var level: float = bin.fraction()
+    canvas.draw_rect(rect.grow(2), Color("171d22"))
+    canvas.draw_rect(rect, Color("46535e"))
+    var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, rect.size.y - 24))
+    canvas.draw_rect(meter, Color("0e1317"))
+    var tone: Color = UiStyle.TONE_COLORS[2] if level >= DustBin.WARN_AT else COLOR_DUST
+    var filled: float = meter.size.y * level
+    canvas.draw_rect(Rect2(meter.position + Vector2(0, meter.size.y - filled), Vector2(meter.size.x, filled)), tone)
+    canvas.draw_rect(meter, Color("8aa0ad"), false, 1.0)
+    canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
+    UiStyle.label(canvas, rect.position + Vector2(4, 10), "BIN %d%%" % roundi(level * 100.0), 10)
+    if bin.is_full():
+        UiStyle.label(canvas, rect.position + Vector2(-92, 30), "FULL: click to empty", 12, UiStyle.TONE_COLORS[2])
+    elif hovered and bin.fill > 0.0:
+        UiStyle.label(canvas, rect.position + Vector2(-82, 30), "click to empty", 12)

@@ -6,8 +6,8 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
     if rig.selected in order:
         order.erase(rig.selected)
         order.append(rig.selected)
+    if "vacuum" in order: draw_hose(canvas, rig)
     for id: String in order:
-        if id == rig.selected and rig.equipped and not Rig.TABLE.has_point(rig.point): continue
         var motion: RefCounted = rig.motions[id]
         var body: RefCounted = rig.bodies[id]
         var height: float = body.height if body.active else (motion.lift*5.0 if id == rig.selected and rig.equipped and not rig.active else 0.0)
@@ -44,3 +44,17 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         canvas.draw_set_transform(Vector2.ZERO)
         if id != rig.selected or not rig.equipped:
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
+
+
+# The vacuum hose: a corrugated tube following the simulated chain of points.
+static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
+    var points: PackedVector2Array = rig.hose.pos
+    if points.size() < 2: return
+    canvas.draw_set_transform(Vector2(3,5),0.0)
+    canvas.draw_polyline(points,Color(0,0,0,0.30),9.0,true)
+    canvas.draw_set_transform(Vector2.ZERO)
+    canvas.draw_polyline(points,Color("2c3640"),8.0,true)
+    canvas.draw_polyline(points,Color("56697a"),3.0,true)
+    for i in range(1,points.size()-1):
+        var rib: Vector2 = (points[i+1]-points[i-1]).normalized().orthogonal()*4.5
+        canvas.draw_line(points[i]-rib,points[i]+rib,Color("1d252c"),1.5)
