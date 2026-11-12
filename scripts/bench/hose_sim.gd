@@ -8,11 +8,13 @@ extends RefCounted
 const POINTS: int = 24
 const BASE_LENGTH: float = 640.0      # px; reaches every part of the PC from the bin
 const LONG_LENGTH: float = 860.0      # px; with the "longer hose" upgrade
-const DAMPING: float = 0.90           # share of speed kept each physics step (table friction)
+const DAMPING: float = 0.78           # share of speed kept each physics step (table friction)
 const ITERATIONS: int = 14
-const SMOOTHING: float = 0.05         # pulls each point toward its neighbours' middle, so it bends smoothly
+const SMOOTHING: float = 0.0          # bending stiffness: any value above ~0.002 keeps a slack hose wriggling forever (found by simulation), so none
 const END_STIFFNESS: float = 0.5      # how hard the nozzle end is drawn toward the vacuum each iteration
-const POINT_RADIUS: float = 4.0       # half the hose's thickness, used for obstacles
+const POINT_RADIUS: float = 3.0       # half the hose's thickness, used for obstacles
+const SLEEP_SPEED: float = 0.12       # px per step; a hose moving slower than this everywhere comes to a complete stop
+const MAX_STEP: float = 18.0          # px; no point may move further than this in one step (stops whipping)
 
 var pos := PackedVector2Array()
 var prev := PackedVector2Array()
@@ -71,7 +73,7 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
     if delta <= 0.0:
         return
     for i in range(1, POINTS):
-        var velocity: Vector2 = (pos[i] - prev[i]) * DAMPING
+        var velocity: Vector2 = ((pos[i] - prev[i]) * DAMPING).limit_length(MAX_STEP)
         prev[i] = pos[i]
         pos[i] += velocity
     pos[0] = anchor_point
@@ -92,11 +94,19 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
                 pos[i + 1] -= correction * 0.5
         for i in range(1, last):
             pos[i] = pos[i].lerp((pos[i - 1] + pos[i + 1]) * 0.5, SMOOTHING)
-        for i in range(1, POINTS):
+        for i in range(1, last):   # the nozzle end is exempt: it is always where the vacuum is
             for obstacle: Dictionary in obstacles:
                 pos[i] = push_out(pos[i], obstacle, POINT_RADIUS)
     pos[0] = anchor_point
     tug = pos[last] - desired_end
+    var calm: bool = true
+    for i in range(1, POINTS):
+        if pos[i].distance_to(prev[i]) > SLEEP_SPEED:
+            calm = false
+            break
+    if calm:
+        for i in range(1, POINTS):
+            prev[i] = pos[i]
 
 
 # Largest difference between a link's length and the nominal length (used by the regression suite).

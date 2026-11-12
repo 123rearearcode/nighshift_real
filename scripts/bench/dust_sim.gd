@@ -171,7 +171,7 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
             b_n.append(n)
             b_remaining.append(float(n))
             b_state.append(STUCK)
-            b_grip.append((0.55 if speck else GRIP_BASE + GRIP_PER_NODE * n) * rng.randf_range(GRIP_JITTER_LOW, GRIP_JITTER_HIGH))
+            b_grip.append((0.55 if speck else GRIP_BASE + GRIP_PER_NODE * n) * rng.randf_range(GRIP_JITTER_LOW, GRIP_JITTER_HIGH) * float(z.get("grip_scale", 1.0)))
             b_pull.append(0.0)
             b_loosen.append(1.0)
             b_stress.append(0.0)

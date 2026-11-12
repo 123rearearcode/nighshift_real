@@ -39,6 +39,43 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.14.1 - 2026-11-13 - Hose calm-down, rotation fixes, middle-mouse turning, clogged filter
+- Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.14.0
+- Type: patch (fixes after the user's first play of 0.14.0, plus small features)
+
+### Execution status
+**Godot was NOT run by me directly.** Results of the GitHub Actions run on Godot 4.7.2 are recorded below once it has finished. Nothing has been seen in a window. The cause of "the vacuum stops working once rotated" is a hypothesis (see Known issues), not a confirmed diagnosis.
+
+Actions result (Godot 4.7.2 headless, run 43317697722, branch feature-0.14.1): Data schema checks 172, failures 0; Regression checks 406, failures 0. Two earlier runs failed (zone schema did not know grip_scale; hose still wriggled) and were fixed.
+
+### Added / Changed / Fixed / Removed
+- Fixed (hypothesis): the hose could count as taut while merely bent around a piece, dragging the vacuum off the cursor after turning it. Now only a nearly straight hose (ends at least 90% of its length apart) tugs. The nozzle end of the hose is no longer pushed by obstacles.
+- Fixed: the hose wriggled for a long time after moving. Cause found by reproducing the hose maths in Python: the bending-smoothing term pumped energy into a slack hose forever (it drifted 30 px per half second). Smoothing is now 0, damping is stronger, speeds are capped, and a calm hose stops completely.
+- Changed: the hose is thinner (drawn 5 px instead of 8; obstacle radius 3).
+- Fixed: bristle bend ignored the tool's rotation (the sweep speed is now turned into the brush's own frame).
+- Added: middle mouse turns the held tool (wheel notches, or hold the middle button and drag sideways, 26 px per 15 degrees). Q/E still work. `ToolRig.rotate_steps`.
+- Added: the filter's dust grips 1.5 times harder (`grip_scale` on the `front_filter` zone), so the clogged filter is a deliberate time cost.
+- Added: parts still fitted in the PC (cooler, GPU) are obstacles the hose lies around. Parts lying on the bench already were.
+- Added tests: rotated vacuum keeps the nozzle on the cursor (7 angles, pieces around), a calm hose stops moving, the filter grip.
+
+### Files changed
+`scripts/bench/hose_sim.gd`, `scripts/bench/tool_rig.gd`, `scripts/bench/dust_sim.gd`, `scripts/data/dust_zones.gd`, `scripts/view/bench_view.gd`, `scripts/view/tool_renderer.gd`, `tools/test_regressions.gd`, `project.godot`, `README.md`, `HANDOFF.md`, `CHANGELOG.md`.
+
+### Checks performed
+`python3 -I tools/check_project.py` (no Godot). Godot checks via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Filter grip 1.5x, hose thickness, 26 px per turn step, wheel direction (wheel up turns anticlockwise) are proposals. Whether installed parts should also physically block the vacuum body is not decided.
+
+### Known issues and open items
+- Cause of the vacuum/brush stopping after rotation not reproduced; if it still happens, note the angle and what the status line says.
+- "Components do not interact with the vacuum": the vacuum already shoves parts lying on the bench; fitted parts only affect the hose. Needs clarification of what is expected.
+- Tool pickup boxes still ignore rotation.
+
+### Next action
+User playtest of 0.14.1. Then 0.15.0 (fans swirl dust, dust can slip under cooler/GPU).
+
 ## 0.14.0 - 2026-11-12 - Piece physics, hose tug and longer-hose upgrade
 - Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.13.0

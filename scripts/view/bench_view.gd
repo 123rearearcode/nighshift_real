@@ -73,6 +73,9 @@ var move_button: Button
 var dust: DustSim = DustSim.new()
 var bin := DustBin.new()               # the vacuum's dust bin: fills while vacuuming, click it to empty
 var motes := DustMotes.new()           # floating dust, cosmetic only
+const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 15 degree turn
+var turning_with_mouse: bool = false
+var turn_travel: float = 0.0
 var bin_notified: bool = false
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
@@ -255,7 +258,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag / release throws. 1 vacuum, 2 brush, 3 parts, 4 pick. Q/E turn the tool. Click a resting tool to pick up."
+        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag / release throws. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. Click a resting tool to pick up."
         if _done_count() == zones.size():
             _set_status("Resumed saved PC: already clean. Dust is intentionally absent. Choose New dirty PC to practise again, or continue to paste.", 1)
         else:
@@ -380,6 +383,12 @@ func _work_rect() -> Rect2:
 
 func _input(event: InputEvent) -> void:
     if is_instance_valid(replacement_panel) and replacement_panel.visible: return
+    if event is InputEventMouseMotion and turning_with_mouse:
+        turn_travel += (event as InputEventMouseMotion).relative.x
+        var steps: int = int(turn_travel / TURN_DRAG_PIXELS)
+        if steps != 0:
+            turn_travel -= float(steps) * TURN_DRAG_PIXELS
+            tools.rotate_steps(steps)
     if event is InputEventMouseMotion:
         var now: int = Time.get_ticks_msec()
         if pointer_tick > 0:
@@ -388,6 +397,14 @@ func _input(event: InputEvent) -> void:
         pointer_event = event.position
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
+        # Middle mouse turns the held tool: spin the wheel, or hold the middle button and drag sideways.
+        if mb.button_index == MOUSE_BUTTON_MIDDLE:
+            turning_with_mouse = mb.pressed
+            turn_travel = 0.0
+            return
+        if mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
+            tools.rotate_held(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
+            return
         if mb.button_index == MOUSE_BUTTON_RIGHT and active_tool != 2 and not mount.active:
             if mb.pressed:
                 var candidate: String = tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
@@ -534,6 +551,12 @@ func _step_pieces() -> void:
     for piece: Dictionary in pieces:
         if bool(piece["solid"]) and piece["id"] != "vacuum":
             obstacles.append(piece)
+    if stage == STAGE_CLEAN:
+        # Parts still fitted in the PC stand up from the board: the hose lies around them too.
+        for id: String in ServiceAccess.MOVABLE:
+            if id in access.removed_ids() or access.dragging == id: continue
+            var home: Rect2 = access.homes[id]
+            obstacles.append({"id": id, "center": home.get_center(), "angle": 0.0, "half": home.size * 0.5})
     tools.hose_obstacles = obstacles
 
 

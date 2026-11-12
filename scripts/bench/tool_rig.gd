@@ -13,6 +13,7 @@ const HALF_SIZE := Vector2(30,42)    # half of the 60 x 84 box a tool occupies (
 const HOSE_ATTACH := Vector2(21,-31) # where the hose joins the vacuum, in the vacuum's own frame
 const HOSE_TUG: float = 0.5          # share of the taut hose's pull that drags the vacuum back each step
 const HOSE_TUG_DEADBAND: float = 4.0 # a hose lagging less than this many px is slack, not taut
+const HOSE_TAUT_FROM: float = 0.9     # the hose counts as taut once its two ends are this share of its length apart
 const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
 const HOSE_STRETCH_LIMIT: float = 1.04 # the hose never stretches past this multiple of its length
 const COLLIDE_HALF := Vector2(20,34) # half size of the box tools collide with
@@ -90,6 +91,12 @@ func hose_end() -> Vector2:
     var motion: RefCounted = motions["vacuum"]
     return motion.center+HOSE_ATTACH.rotated(motion.angle)
 
+# Turn the held tool by a number of 15 degree steps (used by the mouse wheel and middle-button drag).
+func rotate_steps(steps: int) -> void:
+    if steps == 0: return
+    rotate_held(1 if steps > 0 else -1)
+    rotate_steps(steps - (1 if steps > 0 else -1))
+
 # Turn the held tool by `direction` (+1 clockwise, -1 anticlockwise). The working tip stays on the cursor.
 func rotate_held(direction: int) -> void:
     if not equipped or carrying: return
@@ -117,7 +124,8 @@ func step(delta: float, mouse: Vector2, using: bool) -> void:
     var tip: Vector2 = contact()
     speed = ((tip-last_tip)/maxf(delta,0.00001)).limit_length(2500)
     last_tip = tip
-    brush.step(delta,speed,active and selected in ["brush","cloth"])
+    # The bristles bend in the tool's own frame, so the sweep speed is turned into that frame first.
+    brush.step(delta,speed.rotated(-float(motions[selected].angle)),active and selected in ["brush","cloth"])
     hose.step(delta,DustBin.hose_anchor(),hose_end(),hose_obstacles)
     _apply_hose_tug()
 
@@ -133,10 +141,11 @@ func _apply_hose_tug() -> void:
     var body: RefCounted = bodies["vacuum"]
     var held: bool = selected == "vacuum" and equipped
     var pull := Vector2.ZERO
-    if hose.tug.length() > HOSE_TUG_DEADBAND:
-        pull += hose.tug.normalized() * (hose.tug.length() - HOSE_TUG_DEADBAND) * HOSE_TUG
     var reach: Vector2 = hose_end() - DustBin.hose_anchor()
     var length: float = hose.length()
+    # Only a nearly straight hose is taut. A bent hose lagging behind (caught on a piece) never drags the vacuum.
+    if hose.tug.length() > HOSE_TUG_DEADBAND and reach.length() > length * HOSE_TAUT_FROM:
+        pull += hose.tug.normalized() * (hose.tug.length() - HOSE_TUG_DEADBAND) * HOSE_TUG
     if reach.length() > length:
         pull -= reach.normalized() * (reach.length() - length) * HOSE_PULL_BACK
     var limit: float = length * HOSE_STRETCH_LIMIT
