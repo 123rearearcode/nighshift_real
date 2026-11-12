@@ -46,15 +46,59 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
 
 
-# The vacuum hose: a corrugated tube following the simulated chain of points.
+# The vacuum hose: a see-through corrugated tube following the simulated chain of points (drawn
+# through a smooth curve), with the dust it carries visible inside on its way to the bin.
+const HOSE_WIDTH: float = 8.0
 static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
-    var points: PackedVector2Array = rig.hose.pos
-    if points.size() < 2: return
-    canvas.draw_set_transform(Vector2(3,5),0.0)
-    canvas.draw_polyline(points,Color(0,0,0,0.30),6.0,true)
+    var raw: PackedVector2Array = rig.hose.pos
+    if raw.size() < 2: return
+    var points: PackedVector2Array = smooth_curve(raw, 4)
+    var lifted: bool = rig.hose.pinned()
+    canvas.draw_set_transform(Vector2(7,11) if lifted else Vector2(3,5),0.0)
+    canvas.draw_polyline(points,Color(0,0,0,0.20 if lifted else 0.26),HOSE_WIDTH+1.0,true)
     canvas.draw_set_transform(Vector2.ZERO)
-    canvas.draw_polyline(points,Color("2c3640"),5.0,true)
-    canvas.draw_polyline(points,Color("56697a"),2.0,true)
-    for i in range(1,points.size()-1):
-        var rib: Vector2 = (points[i+1]-points[i-1]).normalized().orthogonal()*3.0
-        canvas.draw_line(points[i]-rib,points[i]+rib,Color("1d252c"),1.0)
+    canvas.draw_polyline(points,Color(0.72,0.84,0.92,0.30),HOSE_WIDTH,true)
+    # Dust inside the tube.
+    var flow: RefCounted = rig.flow
+    for k in range(flow.count()):
+        var at: Vector2 = rig.hose.point_along(flow.t[k])
+        var ahead: Vector2 = rig.hose.point_along(minf(1.0,flow.t[k]+0.02))
+        var along: Vector2 = (ahead-at).normalized()
+        var specks: int = clampi(ceili(flow.amount[k]/2.0),1,4)
+        for j in range(specks):
+            var wobble: Vector2 = along.orthogonal()*sin(float(k*7+j*3))*1.6
+            canvas.draw_circle(at-along*float(j)*2.6+wobble,1.2+minf(1.4,flow.amount[k]*0.12),Color("8d867b"))
+    # Rims, ribs and a highlight make it read as a round, clear tube.
+    var left := PackedVector2Array()
+    var right := PackedVector2Array()
+    var shine := PackedVector2Array()
+    for i in range(points.size()):
+        var a: Vector2 = points[maxi(0,i-1)]
+        var b: Vector2 = points[mini(points.size()-1,i+1)]
+        var side: Vector2 = (b-a).normalized().orthogonal()
+        left.append(points[i]+side*HOSE_WIDTH*0.5)
+        right.append(points[i]-side*HOSE_WIDTH*0.5)
+        shine.append(points[i]+side*HOSE_WIDTH*0.2)
+        if i % 3 == 0:
+            canvas.draw_line(points[i]-side*HOSE_WIDTH*0.45,points[i]+side*HOSE_WIDTH*0.45,Color(0.85,0.93,1.0,0.16),1.0)
+    canvas.draw_polyline(left,Color(0.80,0.90,0.97,0.55),1.0,true)
+    canvas.draw_polyline(right,Color(0.30,0.40,0.48,0.55),1.0,true)
+    canvas.draw_polyline(shine,Color(1,1,1,0.30),1.0,true)
+
+
+# A smooth curve through `points` (Catmull-Rom), with `steps` drawn segments per link. Drawing only.
+static func smooth_curve(points: PackedVector2Array, steps: int) -> PackedVector2Array:
+    var out := PackedVector2Array()
+    var n: int = points.size()
+    for i in range(n - 1):
+        var p0: Vector2 = points[maxi(0, i - 1)]
+        var p1: Vector2 = points[i]
+        var p2: Vector2 = points[i + 1]
+        var p3: Vector2 = points[mini(n - 1, i + 2)]
+        for k in range(steps):
+            var t: float = float(k) / float(steps)
+            var t2: float = t * t
+            var t3: float = t2 * t
+            out.append(0.5 * ((2.0 * p1) + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (3.0 * p1 - p0 - 3.0 * p2 + p3) * t3))
+    out.append(points[n - 1])
+    return out

@@ -99,7 +99,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/pc_layout.gd` | data | Shared cell-based case/board model profiles and uniform display fitting |
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
-| `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, one end on the bin, one on the nozzle |
+| `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
+| `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, rounded obstacle corners, one end on the bin, one on the nozzle, a point the player can hold |
+| `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
 | `scripts/bench/piece_collision.gd` | sim | Rotated-box collisions between tools and loose parts (pure function on dictionaries; the caller copies results back) |
 | `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
 | `scripts/bench/dust_motes.gd` | sim (cosmetic) | Floating dust specks; never counted in progress, bin or saves |
