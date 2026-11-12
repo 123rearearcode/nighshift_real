@@ -21,7 +21,7 @@ const PROFILE_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "s
     "board_origin": TYPE_VECTOR2I, "board": TYPE_DICTIONARY, "fan": TYPE_RECT2, "psu": TYPE_RECT2, "filter": TYPE_RECT2}
 const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rect": TYPE_RECT2,
     "bundles": TYPE_INT, "specks": TYPE_INT, "temp_penalty": TYPE_FLOAT}
-const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING}
+const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING, "grip_scale": TYPE_FLOAT}
 const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT}
 
 var failed: int = 0
