@@ -18,6 +18,7 @@ const Data = preload("res://scripts/data/component_data.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const Hose = preload("res://scripts/bench/hose_sim.gd")
+const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const Bin = preload("res://scripts/bench/dust_bin.gd")
 const Motes = preload("res://scripts/bench/dust_motes.gd")
 var failed: int = 0
@@ -195,6 +196,7 @@ func run_checks() -> void:
     test_brush_dust()
     test_bounds()
     test_hose_bin_motes()
+    test_piece_physics(gs)
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
     gs.save_path = original_path
@@ -759,13 +761,13 @@ func test_hose_bin_motes() -> void:
     var hose := Hose.new()
     hose.reset(anchor,Vector2(300,300))
     for frame in range(300): hose.step(1.0/60.0,anchor,Vector2(300,300))
-    check(hose.pos[0] == anchor and hose.pos[Hose.POINTS-1] == Vector2(300,300), "the hose stays attached at both ends")
-    check(hose.worst_link_error() < Hose.SEGMENT*0.2, "hose links keep their length")
+    check(hose.pos[0] == anchor and hose.pos[Hose.POINTS-1].distance_to(Vector2(300,300)) < 2.0, "the hose stays attached at both ends")
+    check(hose.worst_link_error() < hose.segment*0.2, "hose links keep their length")
     var before: Vector2 = hose.pos[Hose.POINTS/2]
     for frame in range(300): hose.step(1.0/60.0,anchor,Vector2(150,200))
-    check(hose.pos[Hose.POINTS-1] == Vector2(150,200) and hose.pos[Hose.POINTS/2].distance_to(before) > 20.0, "the middle of the hose follows when the nozzle moves")
+    check(hose.pos[Hose.POINTS-1].distance_to(Vector2(150,200)) < 2.0 and hose.pos[Hose.POINTS/2].distance_to(before) > 20.0, "the middle of the hose follows when the nozzle moves")
     for frame in range(60): hose.step(1.0/60.0,anchor,Vector2(-1500,-1500))
-    check(hose.pos[Hose.POINTS/2].is_finite(), "a stretched hose stays stable")
+    check(hose.pos[Hose.POINTS/2].is_finite() and hose.tug.length() > 100.0, "a stretched hose stays stable and reports the pull")
     var bin := Bin.new()
     check(bin.add(40.0) == 40.0 and is_equal_approx(bin.fraction(),40.0/Bin.CAPACITY), "the bin fills with dust")
     check(bin.add(1000.0) == Bin.CAPACITY-40.0 and bin.is_full() and bin.add(5.0) == 0.0, "the bin cannot hold more than its capacity")
@@ -781,3 +783,62 @@ func test_hose_bin_motes() -> void:
     calm.spawn(Vector2(300,300),Vector2.ZERO,20,0.0)
     calm.step(1.0/60.0,dust,Vector2(300,300),1.0)
     check(calm.count() == 0, "the vacuum swallows motes at the nozzle")
+
+
+func piece(center: Vector2, half: Vector2, inv_mass: float, velocity: Vector2 = Vector2.ZERO, angle: float = 0.0) -> Dictionary:
+    return {"id":"x","kind":"tool","center":center,"angle":angle,"half":half,"velocity":velocity,"spin":0.0,
+        "inv_mass":inv_mass,"solid":true,"touched":false}
+
+func attach_distance(rig: RefCounted) -> float:
+    return rig.hose_end().distance_to(Bin.hose_anchor())
+
+func test_piece_physics(gs: Node) -> void:
+    var a: Dictionary = piece(Vector2(100,100),Vector2(20,34),1.0)
+    var hit: Dictionary = PieceCollision.overlap(a,piece(Vector2(130,100),Vector2(20,34),1.0))
+    check(not hit.is_empty() and absf(float(hit["depth"])-10.0) < 0.01 and Vector2(hit["normal"]).is_equal_approx(Vector2.RIGHT), "overlapping boxes report depth and direction")
+    check(PieceCollision.overlap(a,piece(Vector2(200,100),Vector2(20,34),1.0)).is_empty(), "boxes that are apart do not collide")
+    check(PieceCollision.overlap(a,piece(Vector2(150,100),Vector2(34,20),1.0,Vector2.ZERO,PI*0.5)).is_empty(), "a turned box is measured turned")
+    check(not PieceCollision.overlap(a,piece(Vector2(138,100),Vector2(34,20),1.0,Vector2.ZERO,PI*0.5)).is_empty(), "a turned box that reaches over the edge collides")
+    var pair: Array = [piece(Vector2(100,100),Vector2(20,34),1.0,Vector2(200,0)),piece(Vector2(130,100),Vector2(20,34),1.0)]
+    check(PieceCollision.resolve(pair) > 0 and PieceCollision.overlap(pair[0],pair[1]).is_empty(), "overlapping pieces are pushed apart")
+    check(Vector2(pair[1]["velocity"]).x > 100.0 and Vector2(pair[0]["velocity"]).x < 100.0 and bool(pair[0]["touched"]) and bool(pair[1]["touched"]), "a moving piece hands speed to the one it hits")
+    var held: Array = [piece(Vector2(100,100),Vector2(20,34),0.0,Vector2(300,0)),piece(Vector2(130,100),Vector2(20,34),1.0)]
+    PieceCollision.resolve(held)
+    check(Vector2(held[0]["center"]) == Vector2(100,100) and not bool(held[0]["touched"]) and Vector2(held[1]["center"]).x >= 139.9 and Vector2(held[1]["velocity"]).x > 300.0, "a held piece shoves others and is never pushed")
+    var flying: Array = [piece(Vector2(100,100),Vector2(20,34),1.0),piece(Vector2(110,100),Vector2(20,34),1.0)]
+    flying[1]["solid"] = false
+    check(PieceCollision.resolve(flying) == 0 and Vector2(flying[0]["center"]) == Vector2(100,100), "a piece in the air passes over others")
+    var rig := ToolRig.new()
+    rig.select("brush",Vector2(400,300))
+    for frame in range(30): rig.step(1.0/60.0,Vector2(400,300),false)
+    var held_center: Vector2 = rig.motions["brush"].center
+    rig.motions["pick"].center = held_center + Vector2(30,0)
+    var pieces: Array = rig.collision_pieces(["vacuum","brush","pick"])
+    var contacts: int = PieceCollision.resolve(pieces)
+    rig.apply_collisions(pieces)
+    check(contacts > 0 and rig.motions["pick"].center.x > held_center.x + 39.0, "a held tool shoves a resting tool aside")
+    check(rig.motions["brush"].center == held_center, "the held tool itself is not pushed")
+    for frame in range(120): rig.step(1.0/60.0,Vector2(400,300),false)
+    check(not rig.bodies["pick"].active, "a shoved tool comes to rest")
+    var wall: Dictionary = {"center":Vector2(300,300),"angle":0.0,"half":Vector2(20,34)}
+    check(Hose.push_out(Vector2(305,300),wall,4.0).x >= 323.9 and Hose.push_out(Vector2(500,300),wall,4.0) == Vector2(500,300), "the hose is pushed out of a piece and left alone elsewhere")
+    var hose := Hose.new()
+    var blocker: Dictionary = {"center":Vector2(450,430),"angle":0.0,"half":Vector2(60,60)}
+    hose.reset(Vector2(600,550),Vector2(300,300))
+    for frame in range(300): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,300),[blocker])
+    var clear: bool = true
+    for i in range(1,Hose.POINTS): clear = clear and Hose.push_out(hose.pos[i],blocker,Hose.POINT_RADIUS).distance_to(hose.pos[i]) < 0.6
+    check(clear, "the hose lies around a piece instead of through it")
+    var base_rig := ToolRig.new()
+    base_rig.select("vacuum",Vector2(400,300))
+    var long_rig := ToolRig.new()
+    long_rig.set_long_hose(true)
+    long_rig.select("vacuum",Vector2(400,300))
+    for frame in range(300):
+        base_rig.step(1.0/60.0,Vector2(50,115),false)
+        long_rig.step(1.0/60.0,Vector2(50,115),false)
+    check(attach_distance(base_rig) <= Hose.BASE_LENGTH*ToolRig.HOSE_STRETCH_LIMIT + 1.0, "the hose never stretches past its limit")
+    check(attach_distance(base_rig) < attach_distance(long_rig) - 8.0, "a taut hose holds the vacuum back, and a longer hose reaches further")
+    gs.new_game()
+    gs.money = 100
+    check(gs.buy_upgrade("long_hose") and gs.money == 60 and gs.has_upgrade("long_hose") and not gs.buy_upgrade("long_hose"), "the longer hose is bought once")

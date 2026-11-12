@@ -21,6 +21,7 @@ const MountSession = preload("res://scripts/bench/mount_session.gd")
 const PasteRenderer = preload("res://scripts/view/paste_renderer.gd")
 const CleaningRenderer = preload("res://scripts/view/cleaning_renderer.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
+const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 
@@ -35,6 +36,7 @@ const PANEL_X: float = 700.0
 const DEPOSIT_RATE: float = 60.0       # paste units per second while squeezing
 const WIPE_RADIUS_CELLS: float = 4.5   # reach of the cloth on the paste grid (a square cloth reaches 4.5 cells each way)
 const WIPE_STRENGTH: float = 0.12      # share of paste removed per tick at the cloth centre (a blob takes about 1 s)
+const PART_MASS: Dictionary = {"cooler": 2.0, "gpu": 2.5}   # loose parts on the bench: heavier than tools, so tools bounce off them
 const AUTOSAVE_SECONDS: float = 3.0    # dust progress is saved this often while cleaning
 
 # Fans: the blades turn at exactly the RPM shown. The range is low on purpose: with 7 blades and
@@ -112,6 +114,7 @@ func _ready() -> void:
     zones = DustZones.zones(str(GameState.job.get("layout", "tower")))
     cooler_zone = DustZones.index_of("cooler")
     case_fan_zone = DustZones.index_of("case_fan")
+    tools.set_long_hose(GameState.has_upgrade("long_hose"))
     dust.setup(zones, PC_ORIGIN, DUST_SEED)
     for i in range(zones.size()):
         var z: Dictionary = zones[i]
@@ -463,6 +466,7 @@ func _physics_process(delta: float) -> void:
     vfx_time += delta
 
     tools.step(delta,mouse,holding and _work_rect().has_point(mouse) and not replacement_panel.visible)
+    _step_pieces()
     if stage == STAGE_CLEAN:
         _step_clean(delta,mouse if active_tool == 2 else tools.contact())
     else:
@@ -514,6 +518,63 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     case_rpm = lerpf(case_rpm, target_case, 1.0 - exp(-3.0 * delta))
     cooler_angle += cooler_rpm * TAU / 60.0 * delta   # RPM to radians per second
     case_angle += case_rpm * TAU / 60.0 * delta
+
+
+# Tools and loose parts lying on the bench collide as rotated boxes. Held things push others away and are
+# never pushed. The solid pieces also become obstacles the vacuum hose has to lie around.
+func _step_pieces() -> void:
+    var visible_tools: Array = ["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"]
+    var pieces: Array = tools.collision_pieces(visible_tools)
+    if stage == STAGE_CLEAN and not (is_instance_valid(replacement_panel) and replacement_panel.visible):
+        pieces.append_array(_part_pieces())
+    PieceCollision.resolve(pieces)
+    tools.apply_collisions(pieces)
+    _apply_part_collisions(pieces)
+    var obstacles: Array = []
+    for piece: Dictionary in pieces:
+        if bool(piece["solid"]) and piece["id"] != "vacuum":
+            obstacles.append(piece)
+    tools.hose_obstacles = obstacles
+
+
+func _part_pieces() -> Array:
+    var out: Array = []
+    for id: String in ServiceAccess.MOVABLE:
+        var dragging: bool = access.dragging == id
+        if not dragging and not id in access.removed_ids(): continue
+        var motion: RefCounted = part_motions[id]
+        var body: RefCounted = part_bodies.get(id)
+        out.append({"id": id, "kind": "part", "center": motion.center, "angle": motion.angle,
+            "half": access.homes[id].size * 0.5,
+            "velocity": motion.velocity if dragging else (Vector2.ZERO if body == null else body.velocity),
+            "spin": 0.0 if (dragging or body == null) else body.angular_velocity,
+            "inv_mass": 0.0 if dragging else 1.0 / float(PART_MASS[id]),
+            "solid": dragging or body == null or not body.active or body.height < ToolRig.SOLID_HEIGHT,
+            "touched": false})
+    return out
+
+
+func _apply_part_collisions(pieces: Array) -> void:
+    for piece: Dictionary in pieces:
+        if piece["kind"] != "part" or not bool(piece["touched"]): continue
+        var id: String = piece["id"]
+        if access.dragging == id: continue
+        var body: RefCounted = part_bodies.get(id)
+        if body == null:
+            body = TableBody.new()
+            part_bodies[id] = body
+        var was_active: bool = body.active
+        body.half_size = access.homes[id].size * 0.5
+        body.center = piece["center"]
+        body.angle = piece["angle"]
+        body.velocity = piece["velocity"]
+        body.angular_velocity = piece["spin"]
+        if not was_active:
+            body.height = 0.0
+            body.vertical_velocity = 0.0
+            body.active = true
+        part_motions[id].center = body.center
+        part_motions[id].angle = body.angle
 
 
 # Things that follow from one dust step: the bin fills, kicked dust sends up motes, motes float.

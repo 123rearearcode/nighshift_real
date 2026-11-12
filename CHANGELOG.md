@@ -39,6 +39,51 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.14.0 - 2026-11-12 - Piece physics, hose tug and longer-hose upgrade
+- Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.13.0
+- Type: minor (new features: collisions between pieces, hose obstacles and tug, a shop upgrade)
+
+### Execution status
+**Godot was NOT run by me directly.** Results of the GitHub Actions run on Godot 4.7.2 for this version are recorded below once it has finished. Nothing has been seen in a window.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- **Piece physics (option B: rotated boxes):** tools and loose parts lying on the bench are solid boxes (`scripts/bench/piece_collision.gd`, a pure function on dictionaries). Overlaps are pushed apart, speed is passed on with some bounce, and sliding gives a little spin. A held tool or a dragged part is never pushed but shoves everything else; resting pieces wake up when shoved and slide to a stop. Pieces hopping higher than 16 px fly over others. Masses (proposals): vacuum 3.0, GPU 2.5, cooler 2.0, brush 0.6, pick 0.4, syringe 0.4, cloth 0.3. Parts sitting snapped in the service tray get a physics body only when shoved. Tools collide with a smaller box (40 x 68 px) than their click box.
+- **Hose goes around pieces:** the hose is no longer pinned to the vacuum. Its end is drawn toward the vacuum by a spring, solid pieces (except the vacuum) push hose points out of them, and the fixed end stays on the bin (option a, as chosen).
+- **Soft tug (as chosen):** when the hose is taut it cannot follow, and the gap drags the vacuum back toward the bin; the hose can stretch at most 12% past its length. This also reels in a thrown or resting vacuum that ends up out of reach. Base hose length is 640 px (reaches every part of the PC from the bin; around obstacles it reaches less).
+- **Longer hose upgrade (option d):** a new shop upgrade, "Buy longer vacuum hose ($40, demo price)", makes the hose 860 px. Saved with the other upgrades.
+- Shop screen: the buttons were rearranged to make room (New game moved down, the note moved down).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/piece_collision.gd` | A | box collisions |
+| `scripts/bench/hose_sim.gd` | M | free end with spring, obstacles, tug, variable length |
+| `scripts/bench/tool_rig.gd` | M | collision pieces, apply collisions, hose tug, long-hose switch |
+| `scripts/view/bench_view.gd` | M | runs piece collisions each step, part pieces, long-hose on entry |
+| `scripts/state/game_state.gd` | M | `long_hose` upgrade price |
+| `scripts/view/shop_view.gd` | M | upgrade button and layout |
+| `tools/test_regressions.gd` | M | tests for collisions, hose obstacles, tug and the upgrade |
+| `README.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | docs and version 0.14.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed.
+- Not performed: any play in a window.
+
+### Decisions proposed (not approved)
+- Masses, bounce (0.35), the 12% stretch limit, hose lengths (640 / 860) and the upgrade price ($40) are proposals.
+- Installed parts are not obstacles: the hose lies over the PC itself.
+
+### Known issues and open items
+- A taut hose does not push pieces (only the vacuum is tugged).
+- Tool pickup boxes still ignore rotation.
+- The hardware bench (`workshop_view.gd`) pieces have their own, separate physics and do not use the new collisions.
+
+### Next action
+Play the bench: shove tools and parts around, drag the vacuum to the far corners, and report the feel. Then 0.15.0: fans swirl unsettled dust, and dust can slip under the cooler and GPU.
+
 ## 0.13.0 - 2026-11-12 - Dust tossing, bounds, vacuum hose and dust bin
 - Author: Claude (Sonnet 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.12.3

@@ -17,7 +17,7 @@ const START_MONEY: int = 100
 const PAYOUT: int = 60
 const PASS_TEMP: float = 75.0        # final check passes below this temperature (C)
 const BASE_TEMP: float = 42.0
-const UPGRADE_PRICES: Dictionary = {"square_cloth": 40}   # demo prices
+const UPGRADE_PRICES: Dictionary = {"square_cloth": 40, "long_hose": 40}   # demo prices
 const NO_PASTE_PENALTY: float = 40.0
 const PASTE_PENALTY: Dictionary = {
     "PERFECT": 0.0,
