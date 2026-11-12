@@ -9,8 +9,8 @@ const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const MOUNT_TIME: float = 10.0         # seconds before the cooler is secured automatically
 const PRESS_RISE: float = 0.45         # pressure gained per second while pressing
 const PRESS_FALL: float = 0.9          # pressure lost per second when released
-const TARGET_COVER: float = 0.95       # coverage that counts as PERFECT
-const OVERFLOW_LIMIT: float = 0.20     # squeezed-out share that starts to count as messy
+const TARGET_COVER: float = PasteSim.PERFECT_COVER      # coverage that counts as PERFECT
+const OVERFLOW_LIMIT: float = PasteSim.MESSY_OVERFLOW   # squeezed-out share that starts to count as messy
 const OVERFLOW_SCALE: float = 0.60     # squeezed-out share that fills its bar
 
 var active: bool = false

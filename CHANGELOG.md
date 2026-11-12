@@ -39,6 +39,42 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.15.0 - 2026-11-13 - Complete repaste, toothpaste scam, paste retune, bigger bin, design docs
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.14.3
+- Type: minor (new player-visible feature and job data fields)
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs the checker, the data-schema suite, the regression suite and the scripted playtest on Godot 4.7.2 headless; results below. The user had playtested 0.14.2/0.14.3 by hand before this version; 0.15.0 itself is not hand-tested.
+
+Actions result (Godot 4.7.2 headless, run 43332509024, branch feature-0.15.0): checker passed; Data schema checks 179, failures 0; Regression checks 439, failures 0; scripted playtest ran (paste table recorded in the log).
+
+### Added / Changed / Fixed / Removed
+- Added: **Complete repaste** button after mounting. Works only on PERFECT or GOOD ENOUGH; otherwise it says to wipe and retry. Thermal paste costs $3 when completed (proposal). The final check now counts the paste only once completed (`job.paste_done`); an older save with a grade counts as completed thermal paste.
+- Added: **toothpaste** (`scripts/data/paste_materials.gd`). Switch with the **Paste:** button while the CPU is bare. Free; yield thickness x1.5 and mobility x0.75 (needs more pressure); +14 C in the final check; the customer still pays; `job.scams` records "toothpaste". Minty-white drawing. Wiping or clearing the paste removes the completion and the scam record. All numbers are proposals.
+- Changed (paste retune from the scripted playtest table): gauge "about right" is 100-160 units (was 110-145, which did not match the outcomes); PERFECT needs 93% coverage (was 95%) and up to 25% squeezed out (was 20%); GOOD ENOUGH from 88% (was 90%). The mounting bars use the same lines as the grade (`PasteSim.PERFECT_COVER`, `PasteSim.MESSY_OVERFLOW`). Effect in the table: a pea-sized dot now gives PERFECT with a 2.5 s press and MESSY by 4 s; before, only a narrow window worked.
+- Changed: dust bin 90 -> 140 units (user: "the tank is just a bit too small").
+- Added: playtest paste table (4 patterns x 4 squeeze times x 5 press times) and `scripted_pressing` hook.
+- Docs: DECISIONS (D45-D56: catch-up of 0.12-0.14 decisions, Complete repaste, toothpaste, scam direction, dust minigame purpose open, fans postponed), DESIGN sections 18-19, ROADMAP position after 0.15.0, CURRENT_STATE update note, DESIGN_PROPOSALS section 5, new `docs/DESIGN_AGENT_PROMPT.md`.
+- Tests: schema checks for paste materials; regression checks for completion rules and cost, no double charge, toothpaste free/recorded/saved/hotter-but-passing, final-check notes, wipe undoes completion, old-save migration, toothpaste spreads less, mounting bars match grades, and a full bench run (squeeze, press, secure, Complete repaste).
+
+### Files changed
+A `scripts/data/paste_materials.gd`, A `docs/DESIGN_AGENT_PROMPT.md`; M `scripts/bench/paste_sim.gd`, M `scripts/bench/mount_session.gd`, M `scripts/bench/dust_bin.gd`, M `scripts/state/game_state.gd`, M `scripts/view/bench_view.gd`, M `scripts/view/paste_renderer.gd`, M `tools/test_regressions.gd`, M `tools/test_data_schemas.gd`, M `tools/playtest_bench.gd`, M `docs/DECISIONS.md`, M `docs/DESIGN.md`, M `docs/ROADMAP.md`, M `docs/CURRENT_STATE.md`, M `docs/DESIGN_PROPOSALS.md`, M `DEVELOPMENT.md`, M `HANDOFF.md`, M `README.md`, M `CHANGELOG.md`, M `project.godot`.
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+$3 thermal paste, toothpaste +14 C / x1.5 yield / x0.75 mobility / free, new grade lines and gauge zone, 140-unit bin, MESSY not completable.
+
+### Known issues and open items
+- What "fixing the thermal paste game" should cover beyond this was not specified; the retune and completion step are my reading. The mount readability idea (two squares) is still open.
+- Toothpaste has no later consequence yet (D53/D54).
+- The dust minigame's purpose is open (D55). Fans moving dust are postponed (D56).
+
+### Next action
+User playtest of the paste game; design pass on the scam direction using `docs/DESIGN_AGENT_PROMPT.md`.
+
 ## 0.14.3 - 2026-11-13 - Rule: AI contributors sign with their model
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.14.2

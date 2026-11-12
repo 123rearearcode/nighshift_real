@@ -11,6 +11,8 @@ const COLOR_CPU := Color(0.26, 0.32, 0.47)
 const COLOR_CPU_EDGE := Color(0.62, 0.70, 0.88)
 const PASTE_THIN := Color(0.55, 0.85, 0.95)
 const PASTE_THICK := Color(1.0, 1.0, 1.0)
+const TOOTH_THIN := Color(0.70, 0.95, 0.85)    # toothpaste: minty white
+const TOOTH_THICK := Color(0.98, 1.0, 0.98)
 const PASTE_EDGE := Color(0.20, 0.55, 0.70)
 const COLOR_BARE := Color(1.0, 0.25, 0.25, 0.55)
 const COLOR_SQUEEZED := Color(1.0, 0.72, 0.2, 0.95)
@@ -33,7 +35,7 @@ static func refresh_image(paste: PasteSim, image: Image, texture: ImageTexture, 
             var c := Color(0, 0, 0, 0)
             if v >= 0.015:
                 var t: float = clampf(sqrt(v) / 1.2, 0.0, 1.0)
-                c = PASTE_THIN.lerp(PASTE_THICK, t)
+                c = TOOTH_THIN.lerp(TOOTH_THICK, t) if paste.material == "toothpaste" else PASTE_THIN.lerp(PASTE_THICK, t)
                 c.a = 0.92
                 var rim: bool = _paste_at(paste, x + 1, y) < 0.015 or _paste_at(paste, x - 1, y) < 0.015 or _paste_at(paste, x, y + 1) < 0.015 or _paste_at(paste, x, y - 1) < 0.015
                 if show_outside and not on_cpu:
@@ -89,11 +91,11 @@ static func draw_panel(canvas: CanvasItem, paste: PasteSim, panel_x: float, moun
     var tone: int = paste.gauge_tone()
     UiStyle.label(canvas, Vector2(panel_x, 310), "Paste on the CPU socket: %d units" % roundi(paste.total_deposited), 17)
     UiStyle.label(canvas, Vector2(panel_x, 332), "Gauge: " + paste.gauge_text(), 15, UiStyle.TONE_COLORS[tone])
-    var full: float = 220.0
+    var full: float = PasteSim.GAUGE_FULL
     var bar := Rect2(panel_x, 342, 520, 14)
     UiStyle.bar(canvas, bar, paste.total_deposited / full, UiStyle.TONE_COLORS[tone])
-    var ideal_a: float = bar.position.x + bar.size.x * 110.0 / full
-    var ideal_b: float = bar.position.x + bar.size.x * 145.0 / full
+    var ideal_a: float = bar.position.x + bar.size.x * PasteSim.GAUGE_GOOD_MIN / full
+    var ideal_b: float = bar.position.x + bar.size.x * PasteSim.GAUGE_GOOD_MAX / full
     canvas.draw_rect(Rect2(ideal_a, bar.position.y - 4.0, ideal_b - ideal_a, bar.size.y + 8.0), Color(0.25, 0.95, 0.35, 0.25))
     UiStyle.label(canvas, Vector2(panel_x + 280, 330), "Green zone = about a pea of paste", 12)
     if mount.active or has_result:

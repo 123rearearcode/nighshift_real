@@ -7,6 +7,8 @@
 # makes a mess, too little leaves bare spots.
 extends RefCounted
 
+const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+
 const GRID: int = 51
 const CPU_MIN: int = 8        # CPU covers cells CPU_MIN .. CPU_MAX-1 on both axes
 const CPU_MAX: int = 43
@@ -22,10 +24,22 @@ const PRESS_STEPS_PER_TICK: int = 3   # flow steps run per 60 Hz tick while moun
 const EDGE_EPS: float = 0.004
 const WIPE_EXTRA: float = 0.05       # extra paste removed per wipe tick so thin films vanish
 const WIPE_ZERO_BELOW: float = 0.02  # a cell thinner than this after wiping is set to empty
+# Squeeze gauge: paste on the CPU (units). Retuned in 0.15.0 from the scripted playtest table:
+# 100-160 units gives a PERFECT result with a sensible press; more always squeezes out.
+const GAUGE_LIGHT: float = 70.0
+const GAUGE_GOOD_MIN: float = 100.0
+const GAUGE_GOOD_MAX: float = 160.0
+const GAUGE_FULL: float = 240.0       # the gauge bar is full here
+# Grades (0.15.0: a little more forgiving than 0.14; real dot-method mounts leave the corners thin).
+const PERFECT_COVER: float = 0.93
+const GOOD_COVER: float = 0.88
+const BALD_COVER: float = 0.60
+const MESSY_OVERFLOW: float = 0.25
 
 var h: PackedFloat32Array = PackedFloat32Array()
 var flow: PackedFloat32Array = PackedFloat32Array()
 var total_deposited: float = 0.0
+var material: String = "thermal"    # "thermal" or "toothpaste" (see scripts/data/paste_materials.gd)
 var min_x: int = GRID
 var max_x: int = -1
 var min_y: int = GRID
@@ -127,13 +141,17 @@ func step(yield_h: float = YIELD_H) -> float:
     var y0: int = maxi(min_y - 1, 0)
     var y1: int = mini(max_y + 1, GRID - 1)
     var moved: float = 0.0
+    var kind: Dictionary = PasteMaterials.material(material)
+    if kind.is_empty(): kind = PasteMaterials.material("thermal")
+    yield_h *= float(kind["yield_scale"])          # toothpaste is stiffer: it needs more pressure to spread
+    var mobility: float = MOBILITY * float(kind["mobility_scale"])
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             var i: int = y * GRID + x
             var hi: float = h[i]
             if hi <= yield_h:
                 continue
-            var k: float = FLOW_K * minf(1.0, (hi - yield_h) * MOBILITY)
+            var k: float = FLOW_K * minf(1.0, (hi - yield_h) * mobility)
             var diff: float
             var f: float
             if x + 1 < GRID:
@@ -191,11 +209,11 @@ func step(yield_h: float = YIELD_H) -> float:
 func gauge_text() -> String:
     if total_deposited < 1.0:
         return "no paste yet"
-    if total_deposited < 70.0:
+    if total_deposited < GAUGE_LIGHT:
         return "too little"
-    if total_deposited < 110.0:
+    if total_deposited < GAUGE_GOOD_MIN:
         return "a bit light"
-    if total_deposited <= 145.0:
+    if total_deposited <= GAUGE_GOOD_MAX:
         return "pea-sized, about right"
     return "a lot - it will squeeze out"
 
@@ -203,7 +221,7 @@ func gauge_text() -> String:
 func gauge_tone() -> int:
     if total_deposited < 1.0:
         return 0
-    if total_deposited >= 110.0 and total_deposited <= 145.0:
+    if total_deposited >= GAUGE_GOOD_MIN and total_deposited <= GAUGE_GOOD_MAX:
         return 1
     return 2
 
@@ -238,19 +256,19 @@ func evaluate() -> Dictionary:
     var grade: String
     var message: String
     var tone: int
-    if coverage < 0.60:
+    if coverage < BALD_COVER:
         grade = "TOO LITTLE"
         message = "Most of the CPU is bare. It will overheat. Wipe it and use more paste."
         tone = 3
-    elif coverage < 0.90:
+    elif coverage < GOOD_COVER:
         grade = "BALD SPOTS"
         message = "Parts of the CPU are bare, which causes hot spots. Add more paste."
         tone = 3
-    elif coverage < 0.95 and overflow <= 0.20:
+    elif coverage < PERFECT_COVER and overflow <= MESSY_OVERFLOW:
         grade = "GOOD ENOUGH"
         message = "Nearly full coverage; a few corners are bare."
         tone = 2
-    elif overflow <= 0.20:
+    elif overflow <= MESSY_OVERFLOW:
         grade = "PERFECT"
         message = "Even film across the whole CPU with very little squeezed out."
         tone = 1

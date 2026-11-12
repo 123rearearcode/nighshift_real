@@ -86,6 +86,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `HANDOFF.md` | docs | Signed handoff: state, rules for every bot, how to update the changelog, open tasks |
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
+| `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for a design agent (scam direction, dust minigame purpose) |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.4 |
@@ -123,6 +124,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/part_motion.gd` | view | Critically damped follow/lift/sway/smooth turns, presentation only |
 | `scripts/bench/dust_pick.gd` | sim/controller | Pick stroke timing and per-attempt random risk; injectable rolls for checks |
 | `scripts/data/service_parts.gd` | data | Two generic replacement tiers for cooler/GPU; trial only |
+| `scripts/data/paste_materials.gd` | data | What can go under the cooler: thermal paste ($3) or toothpaste (free, stiffer, +14 C, a scam) |
 | `scripts/bench/service_access.gd` | sim/controller | Service mount/tray geometry and drag state; no drawing/input |
 | `scripts/bench/dust_sim.gd` | sim | Dust bundle physics: vacuum suction, brush loosening, per-part progress |
 | `scripts/bench/paste_sim.gd` | sim | Paste spreading physics and grading |
@@ -165,6 +167,15 @@ cutout, no connector, wrong type, wrong size or orientation, wrong facing, occup
 `dust` Dictionary (zone id -> share removed, 0..1; `cleaned` is true only when every zone is at least `DustZones.CLEAN_AT`, and is recomputed, never set by hand),
 `paste_grade` String ("" = none, else PERFECT, GOOD ENOUGH, MESSY, BALD SPOTS or TOO LITTLE),
 `paste_coverage` float, `paste_overflow` float, `temp` float (0 = not checked), `payout` int.
+0.15.0 adds `paste_done` bool (Complete repaste was pressed on a PERFECT or GOOD ENOUGH result; the final
+check counts the paste only then), `paste_material` String (`thermal` or `toothpaste`) and `scams` Array of
+Strings (currently only `toothpaste`; recorded, consequences not simulated). A save without `paste_done`
+counts a stored grade as a completed thermal repaste. `GameState.can_complete_repaste()`,
+`GameState.complete_repaste(material) -> {ok, cost, message}`; `set_paste` and `clear_paste` reset `paste_done`.
+
+**Paste material** (`PasteMaterials.material(id)`): `id`, `label`, `cost` int, `heat_penalty` float (C added
+by the final check once completed), `yield_scale` and `mobility_scale` floats (how the paste flows under
+pressure in `PasteSim.step`), `scam` bool. `PasteSim.material` holds the id in the syringe.
 
 **Save file** (`user://nightshift_save.json`): `save_format` int, `game_version` String, `money` int,
 `upgrades` Dictionary (id -> true; currently only `square_cloth`), `job` Dictionary. Before 0.5.1 the format was stored as `"version": 1`; the loader still accepts that.

@@ -13,6 +13,7 @@ const DustPick = preload("res://scripts/bench/dust_pick.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
+const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const ServiceAccess = preload("res://scripts/bench/service_access.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
@@ -77,6 +78,7 @@ const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 
 var turning_with_mouse: bool = false
 var turn_travel: float = 0.0
 var bin_notified: bool = false
+var scripted_pressing: Variant = null # tools/playtest_bench.gd: pressing the cooler during mounting
 var scripted_pointer: Variant = null  # tools/playtest_bench.gd sets this to drive the bench without a real mouse
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
@@ -106,6 +108,8 @@ var wipe_button: Button
 var mount_button: Button
 var clear_button: Button
 var secure_button: Button
+var material_button: Button           # thermal paste or toothpaste (a scam)
+var complete_button: Button           # Complete repaste: appears after a mount, works on a good result
 var clean_controls: Array = []
 var paste_controls: Array = []
 var tool_buttons: Array = []
@@ -225,9 +229,14 @@ func _build_ui() -> void:
     clear_button = _make_button("Clear all paste (instant)", Vector2(PANEL_X, 210), Vector2(250, 40), _on_clear_pressed)
     secure_button = _make_button("Secure cooler (Enter)", Vector2(PANEL_X + 270, 210), Vector2(250, 40), _finish_mount)
     secure_button.visible = false
-    paste_controls = [mount_button, wipe_button, clear_button]
+    material_button = _make_button("Paste: thermal ($%d)" % int(PasteMaterials.material("thermal")["cost"]), Vector2(PANEL_X, 260), Vector2(250, 40), _on_material_toggled)
+    material_button.toggle_mode = true
+    complete_button = _make_button("Complete repaste", Vector2(PANEL_X + 270, 260), Vector2(250, 40), _on_complete_pressed)
+    paste_controls = [mount_button, wipe_button, clear_button, material_button, complete_button]
 
     _make_button("Back to shop", Vector2(PANEL_X, 645), Vector2(250, 44), _on_back_pressed)
+    paste.material = str(GameState.job["paste_material"]) if str(GameState.job["paste_material"]) in PasteMaterials.IDS else "thermal"
+    _refresh_material_button()
     _build_replacements()
 
 
@@ -271,8 +280,10 @@ func _select_stage(new_stage: int) -> void:
         var saved_grade: String = str(GameState.job["paste_grade"])
         if mount.active:
             _set_status("Mounting: hold the mouse over the socket (or Space) to press. Release once CPU covered passes the line.", 0)
+        elif bool(GameState.job["paste_done"]) and mount_result.is_empty():
+            _set_status("Repaste complete (%s, %s). (The paste picture is not saved.) Press Clear all paste to redo it." % [saved_grade, PasteMaterials.material(str(GameState.job["paste_material"]))["label"].to_lower()], 1)
         elif saved_grade != "" and mount_result.is_empty():
-            _set_status("Saved result: %s. (The paste picture is not saved.) Press Clear all paste to redo it." % saved_grade, 0)
+            _set_status("Saved result: %s, not completed yet. (The paste picture is not saved.) Press Clear all paste to redo it." % saved_grade, 0)
         elif mount_result.is_empty():
             _set_status("Squeeze a pea-sized blob in the centre of the CPU (the green zone on the gauge), then press Mount cooler and time the press.", 0)
     queue_redraw()
@@ -328,6 +339,41 @@ func _on_mount_pressed() -> void:
     wiping = false
     wipe_button.button_pressed = false
     _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Enter or Secure cooler finishes early.", 0)
+
+
+# Thermal paste or toothpaste. Only while the CPU is bare: the two are never mixed.
+func _on_material_toggled() -> void:
+    var want: String = "toothpaste" if material_button.button_pressed else "thermal"
+    if paste.total_deposited > 0.0 or mount.active or not mount_result.is_empty():
+        material_button.set_pressed_no_signal(paste.material == "toothpaste")
+        _set_status("Wipe the CPU clean (or press Clear all paste) before switching what you squeeze.", 2)
+        return
+    paste.material = want
+    _refresh_material_button()
+    if want == "toothpaste":
+        _set_status("Toothpaste in the syringe. It is free and looks the part, but it is stiffer, so press harder, and it cools badly. The customer pays for a real repaste: this is a scam.", 2)
+    else:
+        _set_status("Thermal paste in the syringe ($%d, paid when you complete the repaste)." % int(PasteMaterials.material("thermal")["cost"]), 0)
+
+
+func _refresh_material_button() -> void:
+    var kind: Dictionary = PasteMaterials.material(paste.material)
+    material_button.text = "Paste: thermal ($%d)" % int(kind["cost"]) if paste.material == "thermal" else "Paste: TOOTHPASTE (scam)"
+    material_button.set_pressed_no_signal(paste.material == "toothpaste")
+
+
+# Complete repaste: only a PERFECT or GOOD ENOUGH mount can be completed.
+func _on_complete_pressed() -> void:
+    if mount.active or mount_result.is_empty():
+        return
+    var result: Dictionary = GameState.complete_repaste(paste.material)
+    if not result["ok"]:
+        _set_status(str(result["message"]) + " Wipe the paste off (cloth or Clear all paste) and try again.", 3)
+        return
+    if paste.material == "toothpaste":
+        _set_status("Repaste \"complete\": toothpaste under the cooler. The customer will pay for thermal paste. It will pass today's check but run hotter and dry out.", 2)
+    else:
+        _set_status("Repaste complete: %s with thermal paste ($%d). Run the final check in the shop." % [str(GameState.job["paste_grade"]), int(result["cost"])], 1)
 
 
 func _on_clear_pressed() -> void:
@@ -672,6 +718,11 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
     wipe_button.disabled = mount.active
     clear_button.disabled = mount.active
     secure_button.visible = mount.active
+    material_button.disabled = mount.active
+    var done: bool = bool(GameState.job["paste_done"])
+    complete_button.visible = not mount.active and (not mount_result.is_empty() or done)
+    complete_button.disabled = done or not GameState.can_complete_repaste()
+    complete_button.text = "Repaste complete" if done else ("Complete repaste" if GameState.can_complete_repaste() else "Complete repaste (needs a good result)")
     if paste_dirty:
         _refresh_paste_image()
         paste_dirty = false
@@ -679,6 +730,7 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
 
 func _step_mount(delta: float, mouse: Vector2) -> void:
     var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _work_rect().has_point(mouse))
+    if scripted_pressing is bool: pressing = scripted_pressing   # automated playtest only
     var expired: bool = mount.step(delta, pressing, paste)
     live_stats = paste.measure()
     paste_dirty = true

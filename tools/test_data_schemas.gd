@@ -8,6 +8,7 @@ const ComponentData = preload("res://scripts/data/component_data.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 
 # key -> Variant.Type. REQUIRED keys must exist; OPTIONAL keys may exist; any other key is a problem.
 const COMPONENT_REQUIRED: Dictionary = {"id": TYPE_STRING, "category": TYPE_STRING, "display_name": TYPE_STRING,
@@ -22,6 +23,8 @@ const PROFILE_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "s
 const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rect": TYPE_RECT2,
     "bundles": TYPE_INT, "specks": TYPE_INT, "temp_penalty": TYPE_FLOAT}
 const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING, "grip_scale": TYPE_FLOAT}
+const MATERIAL_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "cost": TYPE_INT, "heat_penalty": TYPE_FLOAT,
+    "yield_scale": TYPE_FLOAT, "mobility_scale": TYPE_FLOAT, "scam": TYPE_BOOL}
 const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT}
 
 var failed: int = 0
@@ -75,6 +78,7 @@ func run_checks() -> void:
     test_components()
     test_boards_and_cases()
     test_zones()
+    test_paste_materials()
     print("Data schema checks: %d, failures: %d" % [checks, failed])
     quit(1 if failed else 0)
 
@@ -159,3 +163,12 @@ func test_zones() -> void:
         if zone.has("covered_by"):
             check(ids.has(zone["covered_by"]), label + " is covered by a zone that exists")
     check(DustZones.index_of("cooler") >= 0 and DustZones.index_of("nonsense") == -1, "index_of finds zones by id")
+
+
+func test_paste_materials() -> void:
+    for id: String in PasteMaterials.IDS:
+        var kind: Dictionary = PasteMaterials.material(id)
+        check_schema(kind, MATERIAL_REQUIRED, {}, "paste material " + id)
+        check(kind.get("id", "") == id, "paste material %s knows its own id" % id)
+        check(int(kind.get("cost", -1)) >= 0 and float(kind.get("yield_scale", 0.0)) > 0.0 and float(kind.get("mobility_scale", 0.0)) > 0.0, "paste material %s has sensible numbers" % id)
+    check(PasteMaterials.material("ketchup").is_empty(), "an unknown paste material gives nothing")

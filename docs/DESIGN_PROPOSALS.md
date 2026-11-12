@@ -109,3 +109,9 @@ layout; take the ideas, not the assets.
   the Shop; reuse one grid component for stash, case and board; add quick-transfer modifiers and a hint
   overlay (useful for a beginner audience). The user said Nightshift does not have to be a single view
   as the reference is: separate scenes for hub, bench and map, with popups as overlays, are fine.
+
+## 5. Queued after 0.15.0 (PROPOSED; added 2026-11-13 by Claude Opus 5.5, model id claude-opus-5-5)
+1. **Fans move loose dust** (planned as 0.15.0 before the user redirected it): spinning fans swirl unsettled dust (brush-tossed or blown) and blow it across to other parts; there is a chance per second, scaled by fan speed, that it slips under the cooler or GPU, where only removing the part or using the pick gets it out. Purpose: careless brushing creates extra work. The GPU fan needs its own speed.
+2. **Mount readability** (section 4 item 2) is still open; 0.15.0 only retuned the lines.
+3. **Scam direction:** see DESIGN.md section 19. Nothing beyond toothpaste is designed yet.
+4. **Dust minigame purpose:** the user is thinking about it (D55). Ideas are welcome as proposals only.
