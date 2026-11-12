@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.12.3 - 2026-11-12 - First verified run on Godot 4.7.2
+- Author: Claude (Sonnet 5.5) in a chat session, with the project now in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.12.2
+- Type: patch (documentation and version only; no script or workflow change)
+
+### Execution status
+**Godot was run, by GitHub Actions, not by me directly.** The workflow ran on the merged-candidate branch of 0.12.2 (pull request #1, run 43307104479, event pull_request; the push run 43307071658 also passed) on Ubuntu with `Godot Engine v4.7.2.stable.official.ed1daf0bf`, headless. Results read from the log: `Data schema checks: 172, failures: 0` and `Regression checks: 344, failures: 0`. The hygiene checker and project import also ran. The log contains two `WARNING: Save file ...` lines, which are printed on purpose by the save-recovery test.
+
+### Added / Changed / Fixed / Removed
+- Recorded the 4.7.2 result in README, HANDOFF, `docs/CURRENT_STATE.md` and DEVELOPMENT.md. Earlier changelog entries keep their original wording (they were true when written).
+- Repository note: the first upload to GitHub lacked the `docs`, `scenes`, `scripts` and `tools` folders (browser drag-and-drop dropped them), which made the first workflow run fail at its first step. Fixed by pull request #1 (0.12.2 content). GitHub access for Claude was set up afterwards.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.12.3 |
+| `README.md`, `HANDOFF.md`, `docs/CURRENT_STATE.md`, `DEVELOPMENT.md` | M | 4.7.2 verification recorded |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- The GitHub Actions run described above (on 0.12.2).
+- `python3 -I tools/check_project.py` on this version (result in the delivery message).
+- Not performed: human play on 4.7.2. The tests run without a window, so they do not cover how the brush looks or feels, mouse dragging, or the Q/E keys.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+- Human interactive validation on 4.7.2 is still pending.
+- Workflow actions `actions/checkout@v4` and `actions/upload-artifact@v4` produce a Node.js 20 deprecation warning; harmless now, upgrade later.
+
+### Next action
+Play the repair bench on 4.7.2 (brush, paste wipe, Q/E) and report what feels wrong. Then continue the `bench_view.gd` split, one extraction per patch, with the Actions run after each.
+
 ## 0.12.2 - 2026-11-12 - Workflow finds the project folder
 - Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
 - Based on: 0.12.1

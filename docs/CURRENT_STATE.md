@@ -5,7 +5,7 @@ Version 1.6 · 12 November 2026
 ## Active baseline
 Active Godot foundation trial 0.11.0, based on supplied 0.7.1 and reconciliation patch 0.7.2. Servicing, shared model geometry, persistence fixes, removable parts and risky pick/replacement choices implemented. No GitHub push or full production migration was performed.
 
-Engine: Godot 4.7.2 is the user's real version, confirmed 2026-11-12 (a short-lived 4.6.3 claim in 0.11.1/0.11.2 was wrong). The review engine available to Codex was 4.6.3.stable.official.7d41c59c4, so the automated checks ran close to, but not on, the real engine; 4.7.2 verification and human playtesting are pending.
+Engine: Godot 4.7.2 is the user's real version, confirmed 2026-11-12 (a short-lived 4.6.3 claim in 0.11.1/0.11.2 was wrong). The review engine available to Codex was 4.6.3.stable.official.7d41c59c4, so the automated checks ran close to, but not on, the real engine; 4.7.2 verification and human playtesting are pending. **Update 0.12.3:** the automated checks (172 data schema, 344 regression, 0 failures) ran on Godot 4.7.2.stable.official via GitHub Actions on 0.12.2; human playtesting is still pending.
 
 ## Implemented in Godot
 - Three code-built Node2D screens: placeholder Shop/job menu, repair bench, hardware bench.
