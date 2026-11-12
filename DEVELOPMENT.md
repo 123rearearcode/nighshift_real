@@ -199,7 +199,7 @@ and final-check constants at the top of `game_state.gd`. All are demo values.
 
 ## 8. Verification rules
 
-- Claude's original sandbox had no Godot; Codex review used Godot 4.6.3, not the user's real version 4.7.2. `tools/check_project.py` is a hygiene check, not a test.
+- Claude's original sandbox had no Godot; Codex review used Godot 4.6.3, not the user's real version 4.7.2. `tools/check_project.py` is a hygiene check, not a test. (Since 0.12.3: the Actions workflow runs the real tests on 4.7.2; first green run on 0.12.2.)
 - On any machine with Godot 4.7.2: open the project, press F5, read the Output and Debugger panels,
   and click through every screen you changed. Report the exact red error text with file and line.
 - A contributor who cannot run Godot must say so in the changelog entry.

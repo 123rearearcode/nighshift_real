@@ -1,14 +1,14 @@
-# Nightshift - Godot Foundation Trial (v0.12.2)
+# Nightshift - Godot Foundation Trial (v0.12.3)
 
 A small playable foundation for the PC repair/shop game. Placeholder shapes and text, one overheating repair ticket, shared player parts storage, tabletop handling and thermal-paste activity. This is not the complete game.
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.12.2.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.12.3.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** to open the shop.
 
-Engine: **Godot 4.7.2** is the user's real version (confirmed by the user on 2026-11-12; a brief 4.6.3 claim in 0.11.1 and 0.11.2 was a mistake). Codex's automated checks ran in Godot 4.6.3, so they are close but are not a run on 4.7.2. See CHANGELOG.md for exact checks.
+Engine: **Godot 4.7.2** is the user's real version (confirmed by the user on 2026-11-12; a brief 4.6.3 claim in 0.11.1 and 0.11.2 was a mistake). Codex's automated checks ran in Godot 4.6.3, so they are close but are not a run on 4.7.2. **Since 0.12.3 the automated checks also run on Godot 4.7.2 itself** (GitHub Actions, headless): 172 data schema checks and 344 regression checks, 0 failures on version 0.12.2. That does not cover looks, feel or mouse and keyboard play. See CHANGELOG.md for exact checks.
 
 ## Repair bench: tools and dust
 Open **Repair bench** from the shop.
