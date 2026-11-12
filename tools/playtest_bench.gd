@@ -44,6 +44,7 @@ func run() -> void:
     brush_table()
     vacuum_table()
     reach_table()
+    click_table()
     view.queue_free()
     gs.save_path = original_path
     print("Playtest finished")
@@ -135,3 +136,35 @@ func reach_table() -> void:
         for frame in range(240): view._physics_process(STEP)
         print("PLAYTEST REACH  %-16s %6.1f px      %6.1f px" % [str(p), view.tools.contact().distance_to(p),
             view.tools.hose_end().distance_to(DustBin.hose_anchor())])
+
+
+# Clicking: a held tool next to resting tools that it shoved. Does a real left click use the held
+# tool, or does it grab the tool lying next to it instead? (Uses real mouse events through _input.)
+func click_table() -> void:
+    print("PLAYTEST CLICK  held     angle  placed  after_click_holding  now_in_hand")
+    for held: int in [Dust.TOOL_VACUUM, Dust.TOOL_BRUSH]:
+        for angle_steps in [0, 3, 6, 9, 12, 15, 18, 21]:
+            for placed: Vector2 in [Vector2(-50, 0), Vector2(50, 0), Vector2(0, 60), Vector2(0, -60), Vector2(-40, 40)]:
+                reset_bench(held, angle_steps)
+                var pointer := Vector2(300, 260)
+                view.scripted_pointer = pointer
+                for frame in range(40): view._physics_process(STEP)
+                var held_id: String = view.tools.selected
+                for id: String in ["vacuum", "brush", "pick"]:
+                    if id == held_id: continue
+                    view.tools.bodies[id].active = false
+                    view.tools.motions[id].center = view.tools.motions[held_id].center + placed
+                    placed = placed.rotated(PI * 0.5)
+                for frame in range(40): view._physics_process(STEP)
+                var press := InputEventMouseButton.new()
+                press.button_index = MOUSE_BUTTON_LEFT
+                press.pressed = true
+                press.position = pointer
+                view._input(press)
+                view._physics_process(STEP)
+                print("PLAYTEST CLICK  %-7s  %5d  %-14s  %-19s  %s" % [held_id, angle_steps * 15, str(placed), str(view.holding), view.tools.selected])
+                var release := InputEventMouseButton.new()
+                release.button_index = MOUSE_BUTTON_LEFT
+                release.pressed = false
+                release.position = pointer
+                view._input(release)
