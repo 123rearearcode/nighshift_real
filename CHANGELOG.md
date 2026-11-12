@@ -1,0 +1,1017 @@
+# Changelog
+
+Every change to this project is recorded here, newest first. Rules, the version scheme and
+the release checklist are in `DEVELOPMENT.md`. Versions follow `MAJOR.MINOR.PATCH`; the source
+of truth for the current version is `config/version` in `project.godot`.
+
+**Entry template** (copy for each new version; keep these headings, `tools/check_project.py` checks them):
+
+```
+## X.Y.Z - YYYY-MM-DD - short title
+- Author: who made the change (human, or AI name and where it ran)
+- Based on: previous version
+- Type: major / minor / patch (and why)
+
+### Execution status
+Was Godot actually run? By whom? Say so plainly. Never imply untested code was tested.
+
+### Added / Changed / Fixed / Removed
+What changed, from a player's point of view and a developer's.
+
+### Files changed
+| File | Change | What |
+Every file added (A), modified (M), deleted (D) or renamed (R), docs included.
+
+### Checks performed
+Only checks that were actually run, with their results.
+
+### Decisions proposed (not approved)
+Anything the user has not yet accepted. Numbers are proposals unless stated.
+
+### Known issues and open items
+### Next action
+```
+
+Contributors working in parallel add their notes under **Unreleased** on their own branch;
+the integrating contributor turns them into a numbered entry at merge time.
+
+## Unreleased
+
+(nothing yet)
+
+## 0.12.1 - 2026-11-12 - Automatic tests and data schema checks
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.12.0
+- Type: patch (tooling and documentation only; no game script changed)
+
+### Execution status
+**Godot was NOT run by me, and the GitHub workflow was NOT run.** Both new files are unexecuted. I only confirmed that Godot 4.7.2 stable is published and that its release file address answers with a redirect, not an error. The first GitHub run is the first real test of everything, including `test_data_schemas.gd` and the 0.12.0 checks.
+
+### Added / Changed / Fixed / Removed
+- **Added `.github/workflows/tests.yml`.** On every push or pull request GitHub downloads Godot 4.7.2, runs the hygiene checker, the data schema checks and the regression suite, and keeps the logs. It fails if a summary line is missing, a check failed, or the log contains `SCRIPT ERROR` or `Parse Error`, because a script that fails to load could otherwise look like a pass.
+- **Added `tools/test_data_schemas.gd`.** Checks components, service options, boards, connectors, case profiles and dust zones for exact keys and value types (an unexpected key is a failure, to catch typos), plus consistency: board fits in the case, parts inside the case, connectors on usable board cells, unique ids, rotations 0-3, `covered_by` pointing at a real zone. It also proves the validator can fail by feeding it a deliberately broken dictionary.
+- Docs: README, DEVELOPMENT.md (file map, new Automated tests section, queued bench split).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | A | automatic test run |
+| `tools/test_data_schemas.gd` | A | data schema checks |
+| `DEVELOPMENT.md`, `README.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | docs and version 0.12.1 |
+
+### Checks performed
+- `python3 -I tools/check_project.py` (result in the delivery message).
+- Manual read-through of the board rows and connector positions against the checks in `test_data_schemas.gd`: all connectors lie on `#` cells in both profiles; the board, fan, PSU and filter lie inside both cases.
+- Not performed: any run in Godot, any run of the workflow.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+- If the schema checks fail on first run, the data or the check may be wrong; read the label first.
+- The log grep (`SCRIPT ERROR|Parse Error`) might trip on a message the save-recovery test prints on purpose. If so, narrow the grep.
+
+### Next action
+Put the project on GitHub (or push this version), open the Actions tab, read the first result and send it to me. Then continue the `bench_view.gd` split, one extraction per patch.
+
+## 0.12.0 - 2026-11-12 - Working brush, CPU-only paste gauge, tool rotation
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.11.3
+- Type: minor (new feature: tool rotation; plus two behaviour fixes)
+
+### Execution status
+**Godot was NOT run by me.** Nothing here has been executed in any Godot version. The new regression checks are written but unrun. Run `godot --headless --path . --script res://tools/test_regressions.gd` on 4.7.2 and report failures with file and line.
+
+### Added / Changed / Fixed / Removed
+- **Brush now visibly works (interpretation, please confirm).** Before, the brush only lowered a bundle's grip and never removed anything, so it looked dead unless you then vacuumed. Now a moving brush loosens a bundle, and once its grip is below 35% of normal the stroke flicks it off along the brushing direction; it flies a short way and vanishes. Brushing slower than a quarter of full speed only loosens. The vacuum still works and is still faster on stubborn dust. Touch distance widened from 8 to 12 px.
+- **Paste gauge counts only paste on the CPU.** Squeezing or wiping paste beside the CPU no longer moves the gauge. `total_deposited` is now paste on the CPU cells only; wiping lowers it only by paste removed from CPU cells.
+- **Rotate tools:** Q turns the held tool 15 degrees anticlockwise, E clockwise (hold to keep turning). The working tip stays on the cursor, and the brush bristle contacts follow the rotation. Each tool remembers its angle. Not held tools cannot be turned.
+- Square cloth wiping area is not rotated (still an axis-aligned square); rotation is visual for the cloth.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/dust_sim.gd` | M | flick constants, `_step_stuck` flick, loose-bundle slowdown, touch distance 12 |
+| `scripts/bench/paste_sim.gd` | M | `deposit` and `wipe` count CPU cells only for the gauge |
+| `scripts/bench/tool_rig.gd` | M | `turns`, `TURN_STEP`, `rotate_held`, tip-correct follow target |
+| `scripts/view/part_motion.gd` | M | optional `turn` argument to `step` |
+| `scripts/view/bench_view.gd` | M | Q/E keys, hint text |
+| `tools/test_regressions.gd` | M | checks for flick, gauge, rotation |
+| `project.godot`, `README.md`, `HANDOFF.md`, `CHANGELOG.md` | M | version 0.12.0, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py` (see result in the delivery message).
+- Not performed: any run in Godot.
+
+### Decisions proposed (not approved)
+- Flick threshold 35%, flick speed 240 px/s, 15 degree turn step are proposals.
+
+### Known issues and open items
+- Brush feel (how fast dust comes off) is untested; tune `BRUSH_LOOSEN_RATE`, `FLICK_AT` in `dust_sim.gd`.
+- Tool pickup hit boxes ignore rotation.
+
+### Next action
+Run the regression suite on 4.7.2, then try the brush on a dusty PC and Q/E on each tool.
+
+## 0.11.3 - 2026-11-12 - Engine version restored to 4.7.2
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.11.2
+- Type: patch (documentation and project metadata only; no script changes)
+
+### Execution status
+**Godot was NOT run by me.** No GDScript changed in this version. All earlier caveats stand: the 0.11.1 split and the 0.11.2 save changes have not been run in Godot by anyone, and Codex's 325 checks ran in 4.6.3, not 4.7.2.
+
+### Added / Changed / Fixed / Removed
+- **Reverted the 0.11.1 engine change.** The user first said 4.6.3, then confirmed the real engine is Godot 4.7.2. `config/features` in `project.godot` is "4.7" again, and every document and the checker text that I changed to 4.6.3 in 0.11.1 says 4.7.2 again.
+- What is true now: the real engine is 4.7.2; the only engine any AI has run is 4.6.3 (Codex); so nothing has been verified on 4.7.2 yet. The earlier 0.11.1 statement that Codex's checks ran "on the real engine" was wrong.
+- Added Correction notes inside the 0.11.1 and 0.11.2 entries instead of rewriting them. Everything else in those entries stands.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.11.3; `config/features` back to "4.7" |
+| `AGENTS.md`, `README.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `STABILISATION.md`, `docs/CURRENT_STATE.md`, `docs/PROJECT_BRIEF.md` | M | engine statements back to 4.7.2, version references |
+| `tools/check_project.py` | M | message text says 4.7.2 |
+| `CHANGELOG.md` | M | this entry and two Correction notes |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (version 0.11.3, required sections, 29 scripts scanned, `res://` references resolve, file map complete, five core documents present).
+- `grep` over `project.godot`, `AGENTS.md`, `README.md` and `tools/check_project.py`: every engine statement says 4.7.2, and `config/features` is "4.7".
+- Not performed: any run in Godot.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+- Nothing has been run on Godot 4.7.2. If 4.7.2 behaves differently from 4.6.3, the regression suite is the first place to find out.
+
+### Next action
+On Godot 4.7.2 run `python3 -I tools/check_project.py`, then `godot --headless --path . --script res://tools/test_regressions.gd`, then click through the shop, repair bench and hardware bench, and report any red error text with file and line.
+
+## 0.11.2 - 2026-11-12 - Safe save writing and recovery
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.11.1
+- Type: patch (bug-risk fix: a crash or full disk while saving could destroy the save; no save format change)
+
+### Execution status
+**Godot was NOT run by me.** The new checks in `tools/test_regressions.gd` were written but never executed. Run the suite and report the result.
+
+**Correction (0.11.3):** the claim below that the real engine is Godot 4.6.3 was wrong. The user later confirmed the real engine is **Godot 4.7.2**. Codex's checks ran in 4.6.3, which is not the user's engine. The rest of this entry is unchanged history.
+
+### Added / Changed / Fixed / Removed
+- `SaveStore.write` now writes `<save>.tmp`, reads it back to confirm it parses, moves the previous save to `<save>.bak`, then moves the new file into place. If any step fails the previous save is left in place and a warning is printed.
+- `SaveStore.read` now falls back to `.bak`, then `.tmp`, when the main file is missing or damaged, with a warning saying so. If every copy is unreadable it returns null and the game starts a new game, as before for a missing save.
+- Parsing uses `JSON.new().parse()` so a damaged file no longer prints an engine error.
+- Seven new regression checks (`test_save_store`): empty read, write/read, no leftover temp file, `.bak` holds the previous save, recovery from a damaged main file, all-damaged returns null. The suite's cleanup also deletes `.bak`/`.tmp` of its test save.
+- `.bak` is only the previous save, written on every save (autosave included). It is crash protection, not a long-term backup.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.11.2 |
+| `scripts/state/save_store.gd` | M | safe write, fallback read |
+| `tools/test_regressions.gd` | M | `test_save_store` and cleanup of `.bak`/`.tmp` |
+| `docs/DESIGN_PROPOSALS.md` | M | notes from the reference footage the user supplied |
+| `README.md`, `HANDOFF.md`, `DEVELOPMENT.md` | M | version, file map and save notes |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (version 0.11.2, required sections, 29 scripts scanned, `res://` references resolve, file map complete, five core documents present).
+- Python port of the `SaveStore` read/write logic run against a real temporary folder with the same sequence as the new regression checks plus a simulated crash (half-written temp file with an intact main save): all 9 assertions passed. This verifies the algorithm, not the GDScript or Godot's `DirAccess`/`FileAccess` behaviour.
+- NOT performed: any run in Godot, the regression suite (including the 7 new checks), import or click-through.
+
+### Decisions proposed (not approved)
+Keeping one previous generation (`.bak`) is a proposal. A longer backup history (for example one per night) can come with the night loop.
+
+### Known issues and open items
+- Never run in Godot by this author; the new checks are unexecuted. On Windows `DirAccess.rename_absolute` may remove the target first, so the swap is safe against a failed write but not strictly atomic; the `.bak` fallback covers that window.
+- `GameState.load_game()` still does not validate every field type inside a loaded save.
+
+### Next action
+Run the regression suite in Godot 4.6.3 and report any failing label. Then continue the bench split with the replacement panel.
+
+## 0.11.1 - 2026-11-12 - Bench split step 1 and Godot 4.6.3 correction
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: user-supplied 0.11.0 ZIP (built by Codex).
+- Type: patch (refactor with no intended behaviour change, plus documentation correction)
+
+### Execution status
+**Godot was NOT run by me** (the sandbox has none). I could not run `tools/test_regressions.gd`. The 325-check suite and the 0.11.0 behaviour were verified by Codex in Godot 4.6.3 on the unsplit code; this split has NOT been through that suite. First action for anyone with Godot: run the suite (command in README) and report failures.
+
+**Correction (0.11.3):** the claim below that the real engine is Godot 4.6.3 was wrong. The user later confirmed the real engine is **Godot 4.7.2**. Codex's checks ran in 4.6.3, which is not the user's engine. The rest of this entry is unchanged history.
+
+### Added / Changed / Fixed / Removed
+- **Engine version corrected:** the user confirmed on 2026-11-12 that the real engine is Godot 4.6.3, not 4.7.2. README, HANDOFF, DEVELOPMENT, STABILISATION, CURRENT_STATE, PROJECT_BRIEF, AGENTS and the checker text now say 4.6.3, and `config/features` in `project.godot` is "4.6" (was "4.7"). Older changelog entries and per-version notes that mention a 4.7.2 target are history; they were wrong, not rewritten. Consequence: Codex's automated checks ran on the real engine; only human playtesting is pending.
+- **Split of `bench_view.gd` (991 to 841 lines), step 1:** moved the paste drawing into `paste_renderer.gd`, the dust and cleaning-panel drawing into `cleaning_renderer.gd`, the mounting pressure session into `mount_session.gd` (no input, no drawing), and shared text/bar helpers into `ui_style.gd`. Code was moved, not rewritten; the numbers are unchanged. `bench_view.gd` keeps every member name the regression suite uses.
+- **Save I/O split out of `game_state.gd`:** `save_store.gd` holds reading and writing the JSON file with the same behaviour as before.
+- Not extracted yet, deliberately: the replacement panel (the suite touches its members directly), service-part dragging, and the input handler. One extraction per patch, retested each time, as STABILISATION.md asks.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.11.1; `config/features` 4.7 to 4.6 |
+| `scripts/view/bench_view.gd` | M | delegates drawing/mounting to the new files; uses `mount.active`, `mount.pressure` |
+| `scripts/view/ui_style.gd` | A | shared colours, `label`, `bar` |
+| `scripts/view/paste_renderer.gd` | A | paste stage/panel drawing and paste picture |
+| `scripts/view/cleaning_renderer.gd` | A | dust and cleaning panel drawing |
+| `scripts/bench/mount_session.gd` | A | timed mounting session and its constants |
+| `scripts/state/save_store.gd` | A | JSON save read/write |
+| `scripts/state/game_state.gd` | M | uses `SaveStore` |
+| `tools/check_project.py` | M | message text says 4.6.3 |
+| `AGENTS.md`, `README.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `STABILISATION.md`, `docs/CURRENT_STATE.md`, `docs/PROJECT_BRIEF.md` | M | engine version correction; file map, contracts and handoff version |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (version agreement 0.11.1, required sections, 29 scripts scanned for tabs, brackets and `extends`, 85 `res://` references resolve, file map covers 47 files, five core documents present).
+- Ad hoc static check (script not shipped): none of the names removed from `bench_view.gd` (`_paste_at`, `_legend_item`, paste/dust colour constants, mount constants, `mount_time_left`) is referenced anywhere outside the new files that define them, including `tools/test_regressions.gd`; every call to `UiStyle`, `PasteRenderer`, `CleaningRenderer` and `SaveStore` names an existing function with a matching number of arguments (0 problems).
+- Read-through: moved functions were compared against the 0.11.0 text; the only intended differences are `mounting`/`pressure`/`mount_time_left` becoming `mount.active`/`mount.pressure`/`mount.time_left`, and `_step_mount` calling `MountSession.step` (same order: pressure, paste steps, time, then finish).
+- NOT performed: any run in Godot, the regression suite, import, scene start-up or a click-through. GDScript syntax and type errors in the new files are therefore possible and unproven absent.
+
+### Decisions proposed (not approved)
+Next extractions in order: replacement panel as its own node with signals (and update the suite's direct member access), service-part dragging as a controller, then splitting input handling. Separate stage nodes or scenes for cleaning and paste can follow once these are done.
+
+### Known issues and open items
+- Not run through the regression suite or in Godot by this author.
+- `bench_view.gd` is still 841 lines.
+- Behaviour that was already open stays open: unsafe save writes (addressed next in 0.11.2), full damaged-save validation, human playtest.
+
+### Next action
+Run `python3 -I tools/check_project.py`, then `godot --headless --path . --script res://tools/test_regressions.gd`, then open the project in Godot 4.6.3 and click through the shop, repair bench (both stages, mounting) and hardware bench. Report red error text with file and line.
+
+## 0.11.0 - 2026-11-12 - Tabletop throws, flexible brush and shared replacement stock
+- Author: Codex in ChatGPT workspace; source ZIP, no GitHub push.
+- Based on:0.10.0.
+- Type: minor (shared stock/save contracts, physical tabletop motion and repair-tool rig).
+
+### Execution status
+Executed Godot4.6.3 regression/import/scene startup and native GUI checks. Target4.7.2 is unavailable; complete human repair/payment playthrough not performed. Fresh-ticket dust absence was not reproduced; do not claim a proven original root cause.
+
+### Added / Changed / Fixed / Removed
+Shared TableBody dynamics: momentum/spin, edge reflection, separate vertical hop/gravity/floor bounce, friction/rest and rotated-extent fit checks. Hardware flick-release throws, Shift-release precisely places, flight reserves committed cells and settlement chooses nearest free grid space with recovery/exit handling. Repair-tool rig gives vacuum/brush/pick/cloth/syringe damped follow, physical shapes, shadows and right-drag toss/recovery. Replaced circular brush drawing/contact with13 bending bristles; actual tips loosen dust after broad-phase/access checks. Added service GPU/cooler spring pickup, tabletop throws, physical-position recovery, saved resting poses and rigid surface-dust transforms. Fixed edge reflection to use captured collision side rather than exact float equality; fixed topmost tool hit order and hidden-stage tool click filtering. No measured FPS claim.
+Player inventory now persists one unique owned stock list and one shared layout. Hardware and replacement UI use the same records. Buy adds stock only with funds/space; fit consumes an available owned UID once without a second charge and keeps customer originals separate. Installed hardware stock is unavailable for fitting. Old snapshots migrate once; empty stock never respawns. Existing replacement prices, payout and cloth price unchanged. Six initial demo items are a trial allowance, not a final catalogue. Fixed cooler drawing/labels which initially inherited GPU appearance.
+Fresh jobs explicitly initialise all dust fractions0. Added brighter dust and ticket/visible-count status. New dirty PC starts a new practice ticket preserving money/stock/upgrades; stale scene save guard protects its dust. Cleaned saved PCs still stay clean. Full intake/customer storage remains unimplemented. Updated five core docs to1.6 and contributor contracts.
+
+### Files changed
+- M: CHANGELOG.md
+- M: DEVELOPMENT.md
+- M: HANDOFF.md
+- M: README.md
+- M: STABILISATION.md
+- M: docs/CURRENT_STATE.md
+- M: docs/DECISIONS.md
+- M: docs/DESIGN.md
+- M: docs/PROJECT_BRIEF.md
+- M: docs/ROADMAP.md
+- M: project.godot
+- A: scripts/bench/brush_shape.gd
+- M: scripts/bench/dust_sim.gd
+- M: scripts/bench/grid_inventory.gd
+- A: scripts/bench/table_body.gd
+- A: scripts/bench/tool_rig.gd
+- M: scripts/data/service_parts.gd
+- M: scripts/state/game_state.gd
+- M: scripts/view/bench_view.gd
+- M: scripts/view/pc_renderer.gd
+- A: scripts/view/tool_renderer.gd
+- M: scripts/view/workshop_view.gd
+- M: tools/test_regressions.gd
+
+### Checks performed
+- Godot4.6.3 regression suite:325 checks, zero failures. Existing repair/paste/access/payment cases retained; changed purchase/fit assertions reflect explicit buying then owned-stock consumption.
+- Added edge velocity reversal, floor bounce/rest, rotated containment at30/60/144Hz, large GPU boundary fit, all five tools' toss/recovery, bristle deformation/relaxation and contact-based loosening, topmost/visible tool pickup and paste-rack pickup, stock costs/UID conservation/ownership/installed exclusion/full-empty inventory, legacy migration, fresh/partial/new-ticket dust and stale save protection, service toss/recovery/refit, hardware throw/resnap/rotation/conservation.
+- GUI observed dust immediately on opening and on a new ticket without Reset; physical brush use/drop; stock purchase appearing in the same hardware drawer; corrected cooler shapes and readable replacement menu. Quantitative bounce/settlement was checked by actual GDScript tests rather than a claimed human visual timing/FPS measurement.
+- Editor import and all three10-frame headless scene startups passed in Godot4.6.3 with no reported script errors. GUI launched with dummy audio; no new sound claimed.
+- Python consistency checker passed:24 GDScript files,73 resource references,42 mapped files and five core docs. Fresh extracted ZIP checker/regressions passed; final package repeats these after the cloth-rack pickup guard check.
+
+### Decisions proposed (not approved)
+Restitution0.60,floor rebound0.33,gravity950,tool/body shapes,13-bristle shape,fast-release threshold450 and friction values are trial tuning. Model is bounded2.5D/tabletop, not full3D or body-body collisions. Starter stock is a small demonstration allowance. No engine migration chosen. Broader particle physics and material-dependent collisions/audio remain open.
+
+### Known issues and open items
+No inter-object collision, throw-induced damage or persistent flight velocities. Free tools return to rack on re-entry. Full part catalogue/suppliers/customer PC storage and discovery/reputation/disclosure are not implemented. GPU downgrade remains specification metadata rather than a benchmark. New dirty PC replaces current practice work, not a customer queue. Atomic saves/full validation remain future work. Target4.7.2 and full human payment path unverified. Saved clean work is not automatically re-dirtied.
+
+### Next action
+User playtests toss versus precise placement, repair-tool contact and shared stock flow. If fresh dust still appears absent, report visible-group count/ticket status and whether it was a clean saved job; preserve save for diagnosis. Choose body-pair collision/material/audio feel or next shared-PC task afterwards. Include five docs and changelog in future handoffs.
+
+## 0.10.0 - 2026-11-12 - Risky pick, substitutions and free inventory handling
+- Author: Codex in ChatGPT workspace; manual ZIP, no GitHub push.
+- Based on: 0.9.0.
+- Type: minor (new pick/damage/replacement and free inventory interaction, additive saved fields).
+
+### Execution status
+Executed Godot4.6.3 regressions and native GUI checks. Target4.7.2 not available; complete human repair/payment session not performed. This single delivery includes the user's inventory follow-up while pick implementation was still underway.
+
+### Added / Changed / Fixed / Removed
+Pick key4: safe hover inspection, timed extraction under installed GPU/cooler, visible per-attempt damage risk. Damage persists, stops picking that part and blocks final check. Equivalent/budget replacements require damaged part in tray, charge once, fit and save tier; inferior functional parts can pass. Cooler downgrade changes thermal estimate; GPU quality is stored/reported only. Fresh paste required for replacement cooler. Shop reports downgrade notes on passing check too. Opaque replacement window fixes visual overlap.
+Hardware sandbox: separate storage rules from installation. Three generic sample pieces,12x8 free drawer cells, rotated footprints, overlap/bounds checks, compatible socket highlights, gentle nonmodal rollback hints, Esc cancel. Damped pickup following/lift/shadow/sway/turning and soft settling; no rigid-body throw simulation. Per-profile arrangements/rotations/installations save. Added pure inventory controller and presentation motion helper. Fixed in-place rotation to use committed logical center rather than delayed animated position. Canonical installed snapshot cells avoid irrelevant coordinate drift. Sample stock is not the release catalogue; sandbox stays separate from repair-PC stock. Updated five core docs to1.5.
+
+### Files changed
+- M: CHANGELOG.md
+- M: DEVELOPMENT.md
+- M: HANDOFF.md
+- M: README.md
+- M: STABILISATION.md
+- M: docs/CURRENT_STATE.md
+- M: docs/DECISIONS.md
+- M: docs/DESIGN.md
+- M: docs/PROJECT_BRIEF.md
+- M: docs/ROADMAP.md
+- M: project.godot
+- A: scripts/bench/dust_pick.gd
+- M: scripts/bench/dust_sim.gd
+- A: scripts/bench/grid_inventory.gd
+- M: scripts/data/component_data.gd
+- A: scripts/data/service_parts.gd
+- M: scripts/state/game_state.gd
+- M: scripts/view/bench_view.gd
+- A: scripts/view/part_motion.gd
+- M: scripts/view/shop_view.gd
+- M: scripts/view/workshop_view.gd
+- M: tools/test_regressions.gd
+
+### Checks performed
+- Godot4.6.3 regression suite:246 checks, zero failures. Pick success/damage, attempt timing, broken-part payment gate, purchases/prices/insufficient funds/repeat rejection, degradation, cooler penalty, load validation and previous payment/dust/access checks retained.
+- Grid checks include500 randomized rearrangements, bounds/overlap/conservation, installed slot occupancy, canonical save/load, cancelled/queued-event drops, in-place rotation, vertical GPU packing, profile/re-entry persistence. Presentation motion converges at30/60/144Hz in scripted simulation, not an FPS benchmark.
+- Native GUI: safe inspection and successful trapped-dust extraction observed; replacement overlay readability corrected and verified. Hardware RAM moved to a new drawer location then rotated successfully, with neutral success feedback.
+- Final editor import and all three ten-frame headless scene startups passed in Godot4.6.3 without script errors. GUI environment emits missing-audio-device/VSync driver warnings and falls back to dummy audio; no new game audio is claimed.
+- Python consistency checker passed:20 GDScript files,52 resolved resource references,38 mapped files and five core docs. Fresh extracted ZIP checker passed and all246 GDScript regressions passed again.
+
+### Decisions proposed (not approved)
+Demo pick0.8s/12% risk, GPU equivalent/budget$40/$18, cooler$16/$7; budget65% specification/cooler+8C.12x8 drawer and motion parameters are playtest choices. Controlled tactile motion rather than full rigid-body inventory physics is provisional; no engine switch selected. Reference recording used to understand interaction only, no assets/code reused.
+
+### Known issues and open items
+No customer discovery/disclosure/relationship/reputation effects or full part stock/catalogue. GPU downgrade has no actual performance benchmark yet. Service pick/removal only GPU/cooler. Separate hardware sandbox does not modify the repair-PC's components. No pickup/drop sounds or throw/collision simulation. Atomic saves/full malformed-save validation still open; target4.7.2 and complete human repair payment unverified. No measured FPS improvement claim. Particle identities/paste picture not saved, only prior documented progress/result fields.
+
+### Next action
+User playtests pickup/rotation/snapping and risk versus safe disassembly. Then decide feel refinements and broader dust physics approach; integrate shared PC/owned stock in a separate task. Preserve five docs and logs in future handoffs.
+
+## 0.9.0 - 2026-11-12 - Restrained vacuum, specks and service access
+- Author: Codex in ChatGPT workspace; manual ZIP, no GitHub push.
+- Based on: 0.8.0.
+- Type: minor (new service removal/access and additive saved job fields).
+
+### Execution status
+Godot4.6.3 regression/GUI checks performed; target4.7.2 not available. Full human repair/payment session not performed. Broader physics redesign deferred by user.
+
+### Added / Changed / Fixed / Removed
+Removed redundant dedicated syringe button; paste tab still selects syringe and clears cloth mode. Base suction7.5->4, radius72->50, ramp0.12->0.2. Added independent specks and increased dust to51 bundles/34 specks. Added GPU/cooler drag-to-tray/refit, hidden dust underneath and tool blockers/path checks. Surface dust follows parts. Added saved removal state and reassembly gate for final check. Cooler removal invalidates old paste. Preserved payouts/prices. Cached blocker geometry, frame-driven redraw and time-based smoothing; fixed both benches' pickup/drop to use mouse event positions. Core docs1.4 bundled.
+
+### Files changed
+- M: CHANGELOG.md
+- M: DEVELOPMENT.md
+- M: HANDOFF.md
+- M: README.md
+- M: STABILISATION.md
+- M: docs/CURRENT_STATE.md
+- M: docs/DECISIONS.md
+- M: docs/DESIGN.md
+- M: docs/PROJECT_BRIEF.md
+- M: docs/ROADMAP.md
+- M: project.godot
+- M: scripts/bench/dust_sim.gd
+- A: scripts/bench/service_access.gd
+- M: scripts/data/dust_zones.gd
+- M: scripts/state/game_state.gd
+- M: scripts/view/bench_view.gd
+- M: scripts/view/pc_renderer.gd
+- M: scripts/view/workshop_view.gd
+- M: tools/test_regressions.gd
+
+
+### Checks performed
+- Godot4.6.3 GDScript regressions:96 checks, zero failures. Includes old persistence/payment cases plus specks/access/part removal/refit/invalid drops/queued mouse event positions and removed-state saves.
+- Unobstructed scripted vacuum timing20.45s; previous same-model0.8.0 benchmark8.20s. Does not measure human play or removal time.
+- GUI GPU dragged to tray, exposed underlying dust visible, GPU refitted to original slot. Single paste selection control checked by code/UI tree regression; no separate syringe button created.
+- Final three-scene headless startup checks: all exited0 without reported errors.
+- Python consistency checker passed; fresh extracted ZIP consistency/regression checks passed.
+
+### Decisions proposed (not approved)
+Counts, suction rates, exact tray geometry and simplified access boundaries are tuning. Stronger late-game vacuum direction noted but no upgrade purchase added. Broad physics model deliberately unchanged.
+
+### Known issues and open items
+Only GPU/cooler removable; no general parts inventory or case assembly. Exact particle identities not saved (zone fractions are). Target4.7.2 and full human payment path unverified. Loose-bundle lifetime and motion remain simplified. No measured FPS improvement claim. Old saves preserve legitimately clean progress.
+
+### Next action
+User tests weaker vacuum, specks and remove/clean/refit sequence; then discuss future physics representation. Preserve logs and five core docs in all future handoffs.
+
+## 0.8.0 - 2026-11-12 - Shared PC grids, faster cleaning and tool/persistence fixes
+- Author: Codex in ChatGPT workspace; manual ZIP delivery, no GitHub push.
+- Based on: 0.7.2 (gameplay originally from Claude 0.7.1).
+- Type: minor (new shared layout/height contract and preview models; bug fixes/tuning included).
+
+### Execution status
+Godot 4.6.3 headless and GUI checks performed. Target Godot 4.7.2 not available. No complete human repair/payment session; payout verified in isolated regression save.
+
+### Added / Changed / Fixed / Removed
+Shared PCLayout used by cleaning and hardware; components now on model grid rather than disconnected panels. Two explicit case/board previews fit uniformly into their display area; height and board validation added. Extracted PC drawing into PCRenderer. Cleaning reduced from 110 to 36 bundles; suction 2.5 to 7.5, radius 55 to 72, ramp 0.25 to 0.12. Fresh dust verified; genuine saved clean PCs preserved with clear notice. Paste stage selects syringe; explicit syringe button/key 3; redo deposit or effective wipe clears stale grade. Exact partial-bundle restore prevents reload progress gains. Existing monetary amounts and single-payout gate retained and tested. Improved numeric dust-field validation. Five core docs updated to 1.3.
+
+### Files changed
+- M: CHANGELOG.md
+- M: DEVELOPMENT.md
+- M: HANDOFF.md
+- M: README.md
+- M: STABILISATION.md
+- M: docs/CURRENT_STATE.md
+- M: docs/DECISIONS.md
+- M: docs/DESIGN.md
+- M: docs/PROJECT_BRIEF.md
+- M: docs/ROADMAP.md
+- M: project.godot
+- M: scripts/bench/dust_sim.gd
+- M: scripts/data/component_data.gd
+- M: scripts/data/dust_zones.gd
+- A: scripts/data/pc_layout.gd
+- A: scripts/rules/layout_rules.gd
+- M: scripts/rules/placement_rules.gd
+- M: scripts/state/game_state.gd
+- M: scripts/view/bench_view.gd
+- A: scripts/view/pc_renderer.gd
+- M: scripts/view/workshop_view.gd
+- A: tools/test_regressions.gd
+
+### Checks performed
+- Godot 4.6.3 engine regression suite: 71 checks, zero failures. Includes initial dust, 20 reloads per sample fraction, board/case geometry at three display sizes, type/rotation/cutout/occupancy/depth validation, actual bench stage/tool state, saved-paste invalidation, payout once/reload and upgrade money/persistence.
+- Scripted GDScript vacuum sweep: 8.20 s over all 36 bundles. Ideal pointer motion, not a human-time estimate.
+- GUI: fresh bench visibly dusty without Reset; syringe visible after cloth then Apply paste; valid RAM dragged/snapped into slot; tower and compact previews observed. Visual inspection caught overlapping progress labels and prompted spacing corrections.
+- Final scene smoke checks in Godot 4.6.3: all three scenes exited 0 without reported errors.
+- Python checker and fresh extraction passed; regression suite also rerun from the fresh extracted archive.
+
+### Decisions proposed (not approved)
+All timing/dust density and demo model dimensions remain tuning. Display fitting preserves logical footprints; does not auto-enlarge incompatible cases/boards. Case profile buttons are previews. Full catalogue and persistent PC assembly not introduced.
+
+### Known issues and open items
+No target 4.7.2 run; exact paste picture not saved; RAM installation resets on scene/profile change; save writes not atomic; full schema validation pending. Saved clean machines intentionally remain dust-free. Clock/hub/economy expansion not built. Remaining bench UI/mount-session split still open.
+
+### Next action
+User imports separate 0.8.0 folder, verifies controls/cleaning pace and completes the repair once. Report any errors and actual editor version. Review persistent hardware state as a separate task; keep catalogue work with user.
+
+## 0.7.2 - 2026-11-12 - Reconciled design and stabilisation baseline
+- Author: Codex in ChatGPT workspace; no GitHub push.
+- Based on: user-supplied 0.7.1 ZIP.
+- Type: patch (documentation and application version metadata only).
+
+### Execution status
+Godot 4.6.3 headless import and three scene-start smoke checks run; target Godot 4.7.2 and interactive testing NOT run. Gameplay scripts/scenes unchanged from 0.7.1. This does not certify stability.
+
+### Added / Changed / Fixed / Removed
+Checker now rejects handoffs missing any of the five non-empty core documents. Included all five original documents, updated to document v1.2; reconciled daytime/continuous-night timing; incorporated recorded nested grids, height, parody brands, catalogue fields and hub direction without promoting proposals. Added stabilisation checklist and a proposed small-step bench refactor. Corrected current verification status; original changelog history is preserved.
+
+### Files changed
+- M: project.godot
+- M: README.md
+- M: HANDOFF.md
+- M: AGENTS.md
+- M: DEVELOPMENT.md
+- M: docs/DESIGN_PROPOSALS.md
+- M: CHANGELOG.md
+- M: tools/check_project.py (require all five non-empty core documents)
+- A: STABILISATION.md
+- A: docs/PROJECT_BRIEF.md
+- A: docs/DESIGN.md
+- A: docs/ROADMAP.md
+- A: docs/DECISIONS.md
+- A: docs/CURRENT_STATE.md
+
+### Checks performed
+- Godot 4.6.3 headless editor import: exit 0, no reported script errors.
+- Shop, repair bench and hardware bench: ten-frame headless startup each exited 0 without reported errors.
+- Byte comparison against supplied ZIP: all 11 GDScript files and three scenes unchanged.
+- Updated Python consistency checker: passed, zero problems; five core documents required.
+- Negative guard check: a temporary copy missing DESIGN.md correctly failed.
+- Fresh ZIP extraction: consistency checker passed (result verified during packaging).
+- Target Godot 4.7.2, GUI input and save/reload playtest: not performed.
+
+### Decisions proposed (not approved)
+Bench split into cleaning presentation, paste presentation and mounting-session control is explained, not implemented. Exact hierarchy, catalogue format/condition placement, balance and save changes remain open.
+
+### Known issues and open items
+Partial persistence, dust reload rounding, possible stale paste grade, unvalidated save field types, RAM state not saved, target-editor tests pending. See STABILISATION.md. Original scripts have not been functionally changed.
+
+### Next action
+Target-editor manual test checklist, then bounded persistence bug-fix patch. Do not add catalogue/hub mechanics or broadly refactor as a side effect.
+
+## 0.7.1 - 2026-11-12 - Handoff package, design proposals, shop button order
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.7.0
+- Type: patch (documentation and one menu reorder; no rules, data or save changes)
+
+### Execution status
+**Godot was NOT run.** Only one code file changed: the order of buttons in `shop_view.gd`. Everything else
+is documentation. The user asked mid-task to leave the parts catalogue for later, so none of it was started.
+
+### Added / Changed
+- `HANDOFF.md`: signed handoff with the project state, rules for every bot, step-by-step changelog update
+  instructions, open tasks and the first thing to do on a machine with Godot.
+- `AGENTS.md`: short pointer so any AI agent finds `HANDOFF.md` first.
+- `docs/DESIGN_PROPOSALS.md`: records what was agreed in chat (night hub, limited time, carry-over tickets,
+  Shop as a hub option, three nested grids, case fittings as grid items, the height number, catalogue
+  fields, parody brands) and what is still open. Nothing in it is built.
+- Shop screen: **Hardware bench** now comes before **Run final check**, as requested.
+- `DEVELOPMENT.md` file map updated; README first line and ZIP name now say 0.7.1.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.7.1 |
+| `scripts/view/shop_view.gd` | M | button order and labels (repair bench, hardware bench, final check) |
+| `HANDOFF.md` | A | signed handoff and bot instructions |
+| `AGENTS.md` | A | pointer for AI agents |
+| `docs/DESIGN_PROPOSALS.md` | A | design notes, status-marked |
+| `DEVELOPMENT.md` | M | file map |
+| `README.md` | M | version, button order |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (version agreement 0.7.1, required sections, 11 scripts scanned for tabs, brackets and `extends`, `res://` references resolve, file map covers all 23 files). It does not run Godot.
+- Read back the shop button list in `shop_view.gd` after the edit: order is repair bench, hardware bench, final check, square cloth, new game.
+- Not performed: any run in Godot.
+
+### Decisions proposed (not approved)
+See `docs/DESIGN_PROPOSALS.md`; each item is marked AGREED, PROPOSED or OPEN there.
+
+### Known issues and open items
+- Queued but not built: loose dust specks, mount-minigame redesign (matching squares), parts catalogue,
+  night hub, ticket board, grid inventory.
+- Untested in Godot: all code from 0.5.0 onward.
+
+### Next action
+The user works on the parts catalogue. Meanwhile, open the project in Godot 4.7.2, press F5, and report any
+red error text.
+
+## 0.7.0 - 2026-11-12 - Whole-PC dust bundles with a vacuum, timed mount minigame, square cloth upgrade
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.6.0
+- Type: minor (new tools, new minigame, new upgrade, new data file, new job/save keys)
+
+### Execution status
+**Godot was NOT run** (the sandbox has none). Nothing here has been seen working in Godot. The dust-bundle
+tuning and the paste-pressure tuning were done in separate Python models of the same maths; those models are not
+the GDScript, so a typo or a different feel in Godot is possible. If anything errors, look first in `dust_sim.gd`
+and `bench_view.gd`, which were rewritten.
+
+### Added / Changed
+- **Square cloth upgrade:** bought in the shop ($40, demo price; start cash $100, payout $60). `PasteSim.wipe` has a
+  `square` flag using the larger of the x and y distances, so the cloth covers a 9 x 9 cell square (81 cells, about
+  17% more than the round cloth's 69, and it reaches corners). Cursor outline is a square when owned. Stored in
+  `GameState.upgrades` and saved; New game resets it.
+- **Vacuum replaces the air blower.** It only pulls toward the nozzle; nothing is pushed away. Suction builds over
+  0.25 s and fades with distance.
+- **Dust is now bundles:** chains of 3 to 14 nodes anchored at one end, each with a grip that grows with length. Suction
+  builds "pull" on a bundle; at pull = grip it comes free and is swallowed at the nozzle. Pull fades if you move
+  away. Gripped bundles stretch toward the nozzle. Longest bundle about 2 s of full-suction holding.
+- **Brush changed role:** it no longer removes anything; it lowers a bundle's grip (down to 20%), shown as a lighter
+  colour, so vacuuming it afterwards is quicker.
+- **Whole-PC cleaning:** six parts (case fan, CPU cooler, motherboard + RAM, graphics card, power supply, front dust
+  filter), 110 bundles, defined in new `scripts/data/dust_zones.gd`. Each part has a percent bar and counts as clean at
+  95% (the rest drops away). The cooler fan and the case fan each spin at an RPM tied to their own part (30 to 240).
+  Dust progress is saved per part (autosave every 3 s while cleaning, and on leaving).
+- **Final check:** dust penalty is now the sum over parts of `temp_penalty * (1 - removed)` (max 60 C), and the job
+  fails unless every part is at least 95% clean, even if the temperature is low enough.
+- **Timed mount minigame:** replaces the automatic 600-step spread. Hold the mouse over the socket (or Space) to raise
+  pressure, release to lower it; pressure lowers the paste yield thickness (0.25 to 0.01), running 3 flow steps per
+  tick. 10 s limit, Enter or Secure cooler ends early. Live bars: pressure, CPU covered (line at 95%), squeezed out
+  (line at 20%), time. Squeezed-out paste shows orange live; bare CPU shows red only after mounting. Grade still from
+  `evaluate()`.
+- Save: additive keys `upgrades` and `job.dust`; SAVE_FORMAT stays 1. Old saves with `cleaned: true` load as only the
+  cooler clean. `mark_cleaned()` removed (`set_dust()` replaces it).
+- `PasteSim.MOUNT_STEPS` removed; `step()` takes an optional yield thickness.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | version 0.7.0 |
+| `scripts/data/dust_zones.gd` | A | six dust zones, penalties, CLEAN_AT |
+| `scripts/bench/dust_sim.gd` | M | rewritten: bundles, vacuum, brush loosening, per-zone progress |
+| `scripts/bench/paste_sim.gd` | M | square wipe, `step(yield_h)`, `yield_for_pressure`, press constants, removed MOUNT_STEPS |
+| `scripts/view/bench_view.gd` | M | rewritten: whole-PC view, tools, zone list, timed mount minigame, square cloth cursor |
+| `scripts/state/game_state.gd` | M | upgrades, dust per part, new final check rules, save keys |
+| `scripts/view/shop_view.gd` | M | parts-clean count, square cloth button |
+| `DEVELOPMENT.md` | M | file map, data contracts, APIs |
+| `README.md` | M | version, screens, controls |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (version agreement, required sections, 11 scripts scanned for tabs, brackets and `extends`, 20 `res://` references resolve, file map complete). It does not run Godot.
+- Python model of the bundle/vacuum system (`proto_bundles.py` in the session scratch folder, same constants, a scripted nearest-bundle player that never wastes movement): at PULL_RATE 2.5 the whole PC (110 bundles) cleared in about 80 s, shortest bundle 0.58 s and longest 2.07 s of full-suction holding. Whole-PC time is a best case; a human will be slower. This is a model, not the GDScript.
+- Python model of the mount minigame (numpy, same flow equations): holding all 10 s gave coverage 100% / squeezed out 47% (MESSY); releasing at coverage >= 95% gave PERFECT (95% / 13%); releasing at 90% gave GOOD ENOUGH; a 1.5 s tap gave BALD SPOTS. Release up to about 0.4 s late still PERFECT, 0.6 s late MESSY.
+- Cell count of the cloth shapes at radius 4.5 on the 51 x 51 grid: round 69 cells, square 81 cells (ratio 1.17).
+- Not performed: any run in Godot; any test of keyboard/mouse input, drawing, save/load round trip, or the old-save migration.
+
+### Decisions proposed (not approved)
+- Zone list, bundle counts and per-part temperature penalties (total 60 C).
+- Brush as a loosener only; vacuum as the only remover.
+- Clean threshold 95% per part, and "every part must be clean" as a hard rule for the job.
+- Square cloth price $40 and its 9 x 9 size; pressure rates (0.45 up, 0.9 down per second) and the 10 s limit.
+- Fan RPM scale 30 to 240 for both fans.
+
+### Known issues and open items
+- Not run in Godot: feel, hold times and input handling are unverified in the real engine.
+- A bundle flung loose while the nozzle is far away is removed after 1.5 s; this can look like it vanished.
+- The mount minigame is easiest if you release as soon as covered passes the line; a human reaction delay of about
+  0.4 s still reaches PERFECT in the model, 0.6 s late tends to MESSY.
+- The "Reset all dust" button saves progress as zero immediately.
+- `scenes/main.tscn` is still the legacy name of the hardware bench.
+
+### Next action
+Open in Godot 4.7.2, press F5, go through the shop, the repair bench (both stages) and the final check, and send any red
+error text with its file and line. Then tune hold times and the paste pressure feel by playing.
+
+## 0.6.0 - 2026-11-12 - Fan RPM matches the spin; paste wiped with a cloth
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.5.1
+- Type: minor (new wipe-cloth tool; also fixes the fan readout)
+
+### Execution status
+**Godot was NOT run** (the sandbox has none). This release answers two things the user reported
+after running the earlier versions: the fan's RPM text did not match how fast it spun, and the
+"Wipe paste off" button seemed to just take you back to applying paste. The changes are in
+`bench_view.gd` and `paste_sim.gd`; if the cooler bench errors, look there first.
+
+### Fixed
+- **Fan RPM:** the readout was a formula of dust removed (300 to 2200 RPM) while the blades turned at a
+  separate, unrelated value (1.5 to 16 rad/s, which is only about 14 to 153 RPM), so the two never agreed.
+  Now one smoothed value, `fan_rpm`, drives both: the blades turn at `fan_rpm * TAU / 60` radians per second
+  and the readout shows `fan_rpm`.
+- The range is now 30 RPM (clogged) to 240 RPM (clean). It is low on purpose: with 7 blades and 60
+  updates per second, motion above about 250 RPM looks like it stutters or runs backwards. At 240 RPM the
+  fan turns 24 degrees per update, under half the 51 degree blade spacing. Real PC fans run faster; a
+  note on the screen says this is a demo scale.
+
+### Added
+- **Wipe with cloth:** a toggle button. Hold the left mouse button and rub over the paste; the cloth has a
+  round reach, removes a share of paste per tick (strongest at its centre) and clears thin films completely.
+  Works before and after mounting. If the cooler was already mounted, the grade is cleared as soon as you
+  start wiping, since that paste no longer exists. The cursor becomes a cloth with a reach ring.
+- **Clear all paste (instant):** the old reset behaviour, kept as its own button for quick retries.
+- A hint appears if you try to squeeze more paste while the cooler is still mounted.
+- `PasteSim.wipe(cx, cy, radius, strength) -> float` returns the amount removed and keeps `total_deposited`
+  equal to the paste actually on the grid.
+
+### Changed
+- The paste panel reads "Paste on the CPU socket" (it was "Paste squeezed") because wiping lowers it.
+- Mounting turns the cloth off. The saved-result message now points to Clear all paste.
+- Fan panel text: "The blades turn at exactly this speed; dust slows them down" plus the demo-scale note.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | `config/version` 0.6.0 |
+| `scripts/view/bench_view.gd` | M | `fan_rpm` replaces `fan_speed`; cloth tool, buttons, cursor, hints, panel text |
+| `scripts/bench/paste_sim.gd` | M | added `wipe()` and its two constants |
+| `README.md` | M | version, fan and wipe descriptions |
+| `DEVELOPMENT.md` | M | PasteSim API line, constants location, bench file purpose |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- Python port of `paste_sim.gd` (`deposit`, `step`, `wipe`; a line-by-line copy, not Godot):
+  - `total_deposited` equals the sum of the grid after deposit, spreading and wiping.
+  - A cloth held still on a fresh 120-unit blob clears it in about 0.9 s at strength 0.12 (0.4 s at the
+    first value tried, 0.25, which I judged too instant and lowered).
+  - One 6-row sweep of the CPU at 300 px/s clears the CPU; a spread-out film needed a second pass for a few
+    faint traces (0.85 units left of 120). The paste squeezed out past the CPU stays until wiped.
+  - Wiping an empty grid removes nothing.
+- Fan maths in Python: 30, 135 and 240 RPM each convert to a blade speed and back to the same RPM; 240 RPM is
+  24 degrees per 60 Hz update, under half the 51.4 degree blade spacing, so no aliasing. The old build turned
+  the blades at most 153 RPM while the readout said 2200.
+- Read the edited `bench_view.gd` back around the new branches and the grep of every new name; no stale
+  `fan_speed` or `_on_wipe_pressed` references remain.
+- Ran `python3 -I tools/check_project.py`: passed with 0 problems (version 0.6.0 agrees across `project.godot`,
+  the newest changelog entry and the README header; 10 `.gd` scripts have no tabs, balanced brackets and an
+  `extends`; 16 `res://` references resolve; file map covers 19 files).
+- Not performed: any run in Godot 4.7.2. Cloth feel, and whether the blades visibly match the readout on screen,
+  are untested.
+
+### Decisions proposed (not approved)
+- Reading of the wipe report: I took "it just takes you back to apply thermal paste" to mean the wipe
+  button behaved like an instant reset rather than a wipe. If you meant something else, say so.
+- Fan scale 30 to 240 RPM, cloth reach 4.5 cells and cloth strength 0.12 are demo values to tune by feel.
+  A realistic RPM range would need motion blur and is not done.
+
+### Known issues and open items
+- Carried over: dust and paste pictures are not saved, one ticket only, leaving the bench half-cleaned loses
+  progress, GUI/UX deliberately plain.
+- Wiping a spread-out film takes a second pass: one quick pass over the CPU leaves faint traces.
+- Squeezed-out paste outside the CPU also has to be wiped if you want the socket clean; it does not block anything.
+
+### Next action
+Run it in Godot 4.7.2: watch the fan against its RPM readout, mount paste, then wipe it off. Report the feel.
+
+## 0.5.1 - 2026-11-12 - Versioning and handoff documentation
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.5.0
+- Type: patch (versioning, documentation and tooling; one small player-visible addition, the version label)
+
+### Execution status
+**Godot was NOT run** (the sandbox has none). Nothing in 0.5.1 has been opened in Godot 4.7.2.
+The version plumbing touches `project.godot`, `game_state.gd` and `shop_view.gd`, so if the
+project fails to open or the shop screen errors, look there first. The user has run earlier
+versions up to 0.4.0 (reported that cleaning and paste "don't feel bad"); 0.5.0 has not been
+reported on yet.
+
+### Added
+- `config/version="0.5.1"` in `project.godot`: the single source of truth for the version.
+- Version label at the bottom-left of the shop screen: "Nightshift foundation trial v0.5.1 | save format 1".
+- `GameState.game_version()` (reads `config/version`) and `GameState.SAVE_FORMAT` (integer, currently 1).
+- `DEVELOPMENT.md`: version scheme, logging rules, release checklist, architecture layers, file map,
+  data contracts, GDScript conventions, verification rules and a handoff template for other contributors.
+- `tools/check_project.py`: consistency checker (version agreement, required changelog sections,
+  `res://` paths exist, no tabs, brackets balanced, file map complete). It does not run Godot.
+- `tools/.gdignore` so Godot skips the `tools/` folder.
+- CHANGELOG restructured: rules and template at the top, an Unreleased section, and per-entry
+  author, base version, type, files changed and checks. Entries 0.1.0 to 0.5.0 were reconstructed
+  with their file lists (see their notes).
+
+### Changed
+- Save file now stores `save_format` and `game_version` instead of `"version": 1`. Older saves still
+  load (the reader falls back to the old key). A save from a newer format logs a warning and loads
+  what it recognises. Saved data shape is otherwise unchanged, so `SAVE_FORMAT` stays 1.
+- ZIP files are now named with the version, `nightshift_godot_trial_v0.5.1.zip`. The folder inside
+  keeps the name `nightshift_godot_trial` so importing is unchanged.
+- README: header version, new Versioning section, structure list updated, unzip step uses the versioned name.
+- CHANGELOG: correction and addendum added to the 0.5.0 entry (see there).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | M | added `config/version` |
+| `scripts/state/game_state.gd` | M | `SAVE_FORMAT`, `game_version()`, new save keys, format check on load |
+| `scripts/view/shop_view.gd` | M | `version_label` |
+| `DEVELOPMENT.md` | A | contributor guide |
+| `tools/check_project.py` | A | consistency checker |
+| `tools/.gdignore` | A | keeps Godot out of `tools/` |
+| `CHANGELOG.md` | M | restructured, history reconstructed, this entry |
+| `README.md` | M | version, versioning section, structure list |
+
+### Checks performed
+- Ran `python3 -I tools/check_project.py` on the finished project: passed with 0 problems (version
+  0.5.1 agrees across `project.godot`, the newest changelog entry and the README header; 10 `.gd` scripts
+  have no tabs, balanced brackets and an `extends` line; 16 `res://` references resolve; the file map in
+  `DEVELOPMENT.md` covers all 19 tracked files).
+- Negative test: on a scratch copy I injected five faults (version mismatch, a tab, an unclosed bracket,
+  a broken `res://` path, a file missing from the file map). The checker reported all five. It also
+  caught an unfilled placeholder in this entry before the results above were recorded.
+- Found and fixed during that test: the checker's summary lines said "ok" even when a check had failed;
+  they are now labelled "info".
+- Reviewed the edits to `game_state.gd` and `shop_view.gd` by reading them back; no other check applies.
+- Not performed: any run in Godot 4.7.2. The checker is a hygiene check, not a test of the game.
+
+### Decisions proposed (not approved)
+- The version scheme in `DEVELOPMENT.md` (0.MINOR.PATCH while a trial; 1.0.0 reserved for when you
+  declare a real production build) and the rule that every delivered change gets a new number.
+- Placing this project in `game/` of your repository, with the five design documents in `docs/`.
+  This matches the layout proposed in PROJECT_BRIEF.md but has not been confirmed.
+
+### Known issues and open items
+- Carried over from 0.5.0 (below): dust and paste pictures are not saved, one ticket only, the
+  half-cleaned cooler loses progress, GUI/UX deliberately plain.
+- `scenes/main.tscn` is the hardware bench but keeps its original name; renaming it would touch the
+  shop scene and README, so it is deferred and noted in `DEVELOPMENT.md`.
+- No git history exists for this project. This changelog is the only record of 0.1.0 to 0.5.0.
+
+### Next action
+Run 0.5.0 or 0.5.1 in Godot 4.7.2 and report errors and feel. Then the next feature is the day/night
+skeleton (Open/Close shop, pausable night clock, several tickets), as a 0.6.0 minor release.
+
+## 0.5.0 - 2026-11-12 - Repair ticket, saving, clearer paste
+- Author: Claude (Sonnet 5.5) in a chat session. Reconstructed entry: written from the build
+  history on 2026-11-12; no git log existed.
+- Based on: 0.4.0
+- Type: minor (new game state, save/load and a new main screen)
+
+### Execution status
+**Godot was NOT run by me** (the sandbox has none). You ran v0.4.0 and reported the cleaning
+and paste "don't feel bad" but the paste needs work and clearer visuals. Nothing in 0.5.0 has
+been opened in Godot.
+
+### Changed: paste clarity
+- CPU is now dark blue and the paste light cyan to white (it was silver on grey), shaded by thickness
+  with a dark rim on every paste edge so blobs and lines read clearly.
+- Faint "aim here" crosshair at the CPU centre until paste is down.
+- Live "CPU covered / squeezed out" readout and a progress bar while the cooler presses.
+- After mounting, the cooler lifts and shows red = bare CPU cells, orange = squeezed-out paste, with a legend.
+- The plate drawn over the socket is slightly more transparent so the spreading stays visible.
+- Paste physics, numbers and grading are unchanged.
+
+### Added: first game loop
+- `GameState` autoload (`scripts/state/game_state.gd`): cash ($100 start), one ticket
+  (overheating PC, placeholder customer), final check, auto-save/load to `user://nightshift_save.json`.
+- New main screen `scenes/shop.tscn` with the ticket checklist, cash, final check and New game.
+- Final check: 42 C base, +40 C if the cooler is not clean, plus a paste penalty
+  (PERFECT 0, MESSY 3, GOOD ENOUGH 4, BALD SPOTS 18, TOO LITTLE 35, no paste 40). Passes under 75 C and pays $60 once.
+  Cleaned + any paste except TOO LITTLE passes; a dusty cooler always fails.
+- The bench saves "cleaned" and the paste grade; re-entering a cleaned cooler starts clean.
+- Navigation: shop opens the cooler bench and the hardware bench; both have a way back.
+- `project.godot`: main scene is now the shop; GameState registered as an autoload.
+
+### Correction and addendum (added in 0.5.1)
+- Correction: the original wording said the socket plate was "slightly lighter". In the code the plate
+  fill is slightly more transparent (peak alpha 0.20, was 0.25) and its border slightly stronger (alpha 0.7, was 0.6).
+- Changes found while reconstructing this entry that were not logged at the time: the status text
+  panel on the cooler bench moved down to y=440 to make room for the live readout; "Back to workshop"
+  became "Back to shop" (y=645) and now returns to the shop scene; the paste socket background is
+  slightly darker; the "CPU heat spreader" label colour changed to suit the new CPU colour; the
+  workshop screen's bench button was repurposed as "Back to shop".
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/game_state.gd` | A | cash, ticket, final check, save/load (autoload) |
+| `scenes/shop.tscn` | A | main scene, uses `shop_view.gd` |
+| `scripts/view/shop_view.gd` | A | shop screen: ticket checklist, cash, buttons |
+| `project.godot` | M | main scene is `shop.tscn`; `GameState` autoload |
+| `scripts/view/bench_view.gd` | M | rewritten: clearer paste visuals, live stats, saves progress via GameState |
+| `scripts/bench/paste_sim.gd` | M | added `measure()`; `evaluate()` uses it |
+| `scripts/bench/dust_sim.gd` | M | added `clear_all()` |
+| `scripts/view/workshop_view.gd` | M | bench button became "Back to shop" |
+| `README.md` | M | rewritten for the new screens |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- Bracket-balance check of every script.
+- A Python check of the final-check temperature table (which paste grades pass or fail).
+- The earlier line-by-line Python port of the paste rules (unchanged logic).
+- Not performed: any run in Godot.
+
+### Known issues and open items
+- The dust and paste pictures are not saved; only "cleaned" and the paste grade are.
+- One ticket only; no day/night, customers, parts consumption or timers. Ticket values are demo values.
+- Leaving the bench half-cleaned loses that progress.
+- GUI and UX are deliberately plain (planned for later).
+
+## 0.4.0 - 2026-11-12 - Cooler bench: dust cleaning and thermal paste
+- Author: Claude (Sonnet 5.5) in a chat session. Reconstructed entry (no git log existed).
+- Based on: 0.3.0
+- Type: minor (new bench screen and two simulations)
+
+### Execution status
+**Godot was NOT run.** The sandbox has no Godot, so no version of this project had been
+opened, parsed or played in Godot 4.7.2 when this was written. The user later ran it and
+reported it "doesn't feel bad", with paste needing work and clearer visuals (addressed in 0.5.0).
+
+### Added
+- `scenes/bench.tscn` and a button on the workshop screen to open it (and Back to return).
+- Step 1, cleaning: 450 dust specks in clumps on a cooler with a spinning fan.
+  - Air blower: strength ramps up over 0.3 s, falls off with distance, wears down each
+    speck's grip (specks shake as they loosen), then blows loose specks away with drag and gravity.
+  - Brush: small radius, effectiveness scales with how fast you drag.
+  - Fan speed and an RPM readout recover as dust is removed; 95% counts as clean and leftovers drop off.
+  - Air streak particles and a cursor ring show the tool's reach.
+- Step 2, thermal paste: squeeze paste on a 51 x 51 grid (hold to build a blob, drag to draw lines),
+  gauge with a "pea-sized" green zone, Mount cooler (paste spreads like thick paste: only cells above a
+  yield thickness flow, thicker flows faster, so it stops as a thin film), then a grade:
+  PERFECT / GOOD ENOUGH / MESSY / BALD SPOTS / TOO LITTLE from CPU coverage and overflow. Wipe to retry.
+
+### Changed
+- `workshop_view.gd`: bench button; hover card variable typed more strictly.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/dust_sim.gd` | A | dust physics |
+| `scripts/bench/paste_sim.gd` | A | paste spreading physics and grading |
+| `scripts/view/bench_view.gd` | A | bench drawing, input, buttons |
+| `scenes/bench.tscn` | A | bench scene |
+| `scripts/view/workshop_view.gd` | M | bench button; `HoverCard` type |
+| `README.md` | M | bench instructions |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- Dust physics and paste spreading were prototyped and tuned in Python (numpy), not in Godot.
+- The paste rules were re-checked with a line-by-line Python port of `paste_sim.gd`
+  (a pea of 120 units gives 97% coverage and 16% squeezed out; 60 units gives 76%; 200 units
+  gives 100% and 30% squeezed out; total paste is conserved).
+- A crude bracket-balance check of every script.
+- Not performed: any run in Godot. Feel could not be judged until played.
+
+### Decisions proposed (not approved)
+Scoring follows common PC-building guidance found online: a thin even film is the goal, the single
+"pea" dot is the standard method, too much paste is mostly a mess while too little causes hot spots,
+and spreading by hand can trap air (not modelled). All numbers are demo values, not approved balance.
+
+### Known issues and open items
+- The bench is not tied to any PC or job; dust and paste results are not stored anywhere.
+- No sound. No time pressure. Compressed-air can limits were left out on purpose.
+- Paste is graded by coverage and overflow only (no thickness or air-bubble model).
+- Brush and air numbers are untested by hand; the brush may need retuning.
+- The paste step can be done without cleaning first (kept open so you can test each part).
+
+## 0.3.0 - 2026-11-12 - Four-direction rotation
+- Author: Claude (Sonnet 5.5) in a chat session. Reconstructed entry (no git log existed).
+- Based on: 0.2.0
+- Type: minor (rotation model changed from two states to four facings)
+
+### Execution status
+**Godot was NOT run.** The sandbox has no Godot. Treat as untested at the time of writing.
+
+### Changed
+- Rotation is now a facing: Up, Right, Down, Left (0-3), not two states.
+- R rotates clockwise, Shift+R counter-clockwise. It works while dragging and also
+  while hovering the part in the drawer. Right-click and mouse wheel still rotate while dragging.
+  An installed part must be picked up before it can rotate.
+- A black triangle on the part shows its facing. Rotation is restored if a drop is rejected.
+- Connectors can list `allowed_rotations`. Demo values (not real hardware rules):
+  R1 = Up, R2 = Up or Down, R3 = Right. New rejection message: "Wrong facing".
+- Hover cards show the part's facing and the facings a slot needs; the legend lists them.
+- `check_placement` and `hover_info.for_component` take an integer facing instead of a bool.
+- Slot R3 renamed "RAM slot 3" (its facing now explains the orientation).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/component_data.gd` | M | `allowed_rotations` on RAM slots; R3 renamed |
+| `scripts/rules/placement_rules.gd` | M | facings, direction names, `allowed_rotations`, "Wrong facing" |
+| `scripts/rules/hover_info.gd` | M | facing lines; now preloads `placement_rules.gd` |
+| `scripts/view/workshop_view.gd` | M | R / Shift+R / wheel rotation, facing marker, legend |
+| `README.md` | M | controls and things to try |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- A Python script confirming board data is consistent. Not performed: any run in Godot.
+
+### Known issues and open items
+- The "slot already occupied" rule still cannot be triggered with a single part.
+- Drop target is the cell under the pointer, not the part's corner.
+- Hover cards appear immediately (no delay).
+
+## 0.2.0 - 2026-11-12 - Rotation and hover cards
+- Author: Claude (Sonnet 5.5) in a chat session. Reconstructed entry (no git log existed).
+- Based on: 0.1.0
+- Type: minor (rotation and hover cards)
+
+### Execution status
+**Godot was NOT run.** The sandbox has no Godot, so neither this version nor 0.1.0 had been
+opened, parsed or played in Godot 4.7.2 when this was written.
+
+### Added
+- Rotation: R key or right-click while dragging turns the part a quarter turn
+  (1x4 becomes 4x1). Rotation is kept when the part is installed and restored if a
+  drop is rejected.
+- New sideways RAM slot R3 (4x1) so rotation matters: upright RAM fits R1/R2,
+  rotated RAM fits R3. A wrong-orientation drop explains how to fix it.
+- Hover cards (fade in near the mouse): RAM (category, model, capacity, standard,
+  speed, connector, size - placeholder values), each slot (accepted type, required
+  size, free/occupied), the board (grid size, usable cells, connector count), cutouts.
+  Hovered RAM or slot gets a white outline. Cards hide while dragging.
+- `check_placement` now takes a `rotated` flag.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/component_data.gd` | M | RAM `details`; third RAM slot R3 |
+| `scripts/rules/placement_rules.gd` | M | `rotated_footprint`, rotated flag, wrong-orientation message |
+| `scripts/rules/hover_info.gd` | A | hover card text |
+| `scripts/view/hover_card.gd` | A | fading hover card drawing |
+| `scripts/view/workshop_view.gd` | M | rewritten: rotation and hover |
+| `README.md` | M | controls |
+| `CHANGELOG.md` | M | this entry |
+
+### Checks performed
+- A Python script confirming the board data is consistent (all connector cells on board cells,
+  none overlapping). Not performed: any run in Godot.
+
+### Known issues and open items
+- The "slot already occupied" rule exists but cannot be triggered yet: there is only one
+  part, and picking it up empties its slot. It needs a second part to test.
+- Rotation is two states (upright/sideways), not four 90-degree directions (fixed in 0.3.0).
+- The drop target is the cell under the mouse pointer, not the part's corner.
+- Hover cards fade in immediately (no delay).
+
+## 0.1.0 - 2026-11-12 - Foundation trial
+- Author: Claude (Sonnet 5.5) in a chat session. Reconstructed entry (no git log existed).
+- Based on: nothing (first version)
+- Type: minor (initial project)
+
+### Execution status
+**Godot was NOT run.** The sandbox has no Godot. The only check was a Python script confirming
+the board data was consistent.
+
+### Added
+- Project settings: 1280x720 window, Compatibility renderer, main scene `res://scenes/main.tscn` (F5 runs it).
+- Workshop screen: labelled PC CASE, MOTHERBOARD and PARTS DRAWER, status panel, slot legend.
+- One motherboard: 10x10 grid, L-shaped (top-right 4x4 block is a cutout), drawn cell by cell.
+- Connectors: two DDR4_DIMM RAM slots (1x4), a CPU socket (3x3), a PCIe x16 slot (8x1).
+- One RAM stick (DDR4_DIMM, 1x4 cells) in the drawer.
+- Drag and drop with the left mouse button; green/red target highlight while dragging.
+- Placement rules, checked in order: off grid, cutout, no connector, wrong connector type,
+  footprint mismatch, slot occupied. Invalid drops return the RAM to where it came from
+  and show a red explanation.
+- Installed RAM can be picked up again and moved. Reset button.
+- Board data validation at startup (warnings appear in Output if data is inconsistent).
+- `.gitignore` for Godot's `.godot/` cache.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `project.godot` | A | settings, main scene |
+| `.gitignore` | A | ignore `.godot/` and exports |
+| `scenes/main.tscn` | A | workshop scene (later renamed in role to "hardware bench") |
+| `scripts/data/component_data.gd` | A | RAM stick and demo board data |
+| `scripts/rules/placement_rules.gd` | A | placement rules and board validation |
+| `scripts/view/workshop_view.gd` | A | drawing, mouse input, status text |
+| `README.md` | A | run instructions |
+| `CHANGELOG.md` | A | this file |
+
+### Checks performed
+- A Python script confirming the board data is consistent. Not performed: any run in Godot.
+
+### Known issues and open items
+- Drop target is the cell under the pointer, not the part's corner. No rotation.
