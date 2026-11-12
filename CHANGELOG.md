@@ -45,7 +45,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new features: dust tossing and shedding, floating dust, vacuum hose, dust bin)
 
 ### Execution status
-**Godot was NOT run by me.** GitHub Actions runs the checks on Godot 4.7.2; the result of this version's run is recorded in the pull request and in the next changelog entry. Until then every behaviour below is unverified, and none of it has been seen in a window (looks, feel, mouse play).
+**Godot was NOT run by me directly. GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless), run 43311306498 on branch `feature-0.13.0`: `Data schema checks: 172, failures: 0` and `Regression checks: 381, failures: 0`** (the suite grew from 344 to 381 checks for this version). The only warnings in the log are the two deliberate save-recovery lines. Not covered: anything seen in a window (looks, feel, mouse and keyboard play, how the hose and bin look), and the hardware bench clamp in `workshop_view.gd`.
 
 ### Added / Changed / Fixed / Removed
 - **Brush tosses dust instead of removing it (interpretation: "displace and toss around"):** when a bundle's grip is loosened enough, the stroke sets it sliding and spinning along the stroke. It is kept inside its own part's dust area (the area moves and turns with the part), bounces off the area's edges, then settles and grips again at 75% of normal, so brushing again can toss it again. The brush removes nothing. A tossed bundle is not pulled by the vacuum until it settles (about one second at most).
@@ -73,8 +73,9 @@ the integrating contributor turns them into a numbered entry at merge time.
 | `README.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | docs and version 0.13.0 |
 
 ### Checks performed
-- `python3 -I tools/check_project.py` (result in the delivery message).
-- Not performed: any run in Godot by me; any play in a window.
+- `python3 -I tools/check_project.py`: passed.
+- GitHub Actions on Godot 4.7.2: 172 schema and 381 regression checks, 0 failures (see Execution status).
+- Not performed: any play in a window.
 
 ### Decisions proposed (not approved)
 - Toss strength, friction, shed rate, bin capacity (90) and instant free emptying are all proposals.
