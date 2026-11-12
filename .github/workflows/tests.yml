@@ -1,0 +1,55 @@
+# Runs the project checks on every push and pull request, using the real engine version.
+# Written without being able to run it: if the first run is red, read the log before assuming
+# the game is broken, the workflow itself may need a small fix.
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Project hygiene (versions, changelog, file map)
+        run: python3 -I tools/check_project.py
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          godot --version
+
+      - name: Import project (builds the .godot cache)
+        # Only preparation. The test steps below decide pass or fail, so a quirky exit code here is ignored.
+        run: godot --headless --path . --import || true
+
+      - name: Data schema checks
+        run: |
+          godot --headless --path . --script res://tools/test_data_schemas.gd 2>&1 | tee schema.log
+          grep -q "Data schema checks: .*failures: 0" schema.log
+          ! grep -E "SCRIPT ERROR|Parse Error" schema.log
+
+      - name: Regression suite
+        run: |
+          godot --headless --path . --script res://tools/test_regressions.gd 2>&1 | tee regression.log
+          grep -q "Regression checks: .*failures: 0" regression.log
+          ! grep -E "SCRIPT ERROR|Parse Error" regression.log
+
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: "*.log"
