@@ -12,7 +12,9 @@ const TURN_STEP: float = PI / 12.0   # one Q/E press turns the held tool 15 degr
 const HALF_SIZE := Vector2(30,42)    # half of the 60 x 84 box a tool occupies (before turning)
 const HOSE_ATTACH := Vector2(21,-31) # where the hose joins the vacuum, in the vacuum's own frame
 const HOSE_TUG: float = 0.5          # share of the taut hose's pull that drags the vacuum back each step
-const HOSE_STRETCH_LIMIT: float = 1.12 # the hose never stretches past this multiple of its length
+const HOSE_TUG_DEADBAND: float = 4.0 # a hose lagging less than this many px is slack, not taut
+const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
+const HOSE_STRETCH_LIMIT: float = 1.04 # the hose never stretches past this multiple of its length
 const COLLIDE_HALF := Vector2(20,34) # half size of the box tools collide with
 const SOLID_HEIGHT: float = 16.0     # a tool hopping higher than this flies over others
 const MASSES: Dictionary = {"vacuum": 3.0, "brush": 0.6, "pick": 0.4, "cloth": 0.3, "syringe": 0.4}
@@ -130,12 +132,17 @@ func _apply_hose_tug() -> void:
     var motion: RefCounted = motions["vacuum"]
     var body: RefCounted = bodies["vacuum"]
     var held: bool = selected == "vacuum" and equipped
-    var pull: Vector2 = hose.tug * HOSE_TUG
-    var anchor_point: Vector2 = DustBin.hose_anchor()
-    var reach: Vector2 = hose_end() - anchor_point
-    var limit: float = hose.length() * HOSE_STRETCH_LIMIT
-    if reach.length() > limit:
-        pull += reach.normalized() * (limit - reach.length())
+    var pull := Vector2.ZERO
+    if hose.tug.length() > HOSE_TUG_DEADBAND:
+        pull += hose.tug.normalized() * (hose.tug.length() - HOSE_TUG_DEADBAND) * HOSE_TUG
+    var reach: Vector2 = hose_end() - DustBin.hose_anchor()
+    var length: float = hose.length()
+    if reach.length() > length:
+        pull -= reach.normalized() * (reach.length() - length) * HOSE_PULL_BACK
+    var limit: float = length * HOSE_STRETCH_LIMIT
+    var after: Vector2 = reach + pull
+    if after.length() > limit:
+        pull -= after.normalized() * (after.length() - limit)
     if pull.length() < 0.05: return
     if held:
         motion.center += pull

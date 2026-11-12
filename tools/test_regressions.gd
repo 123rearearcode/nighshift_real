@@ -837,8 +837,10 @@ func test_piece_physics(gs: Node) -> void:
     for frame in range(300):
         base_rig.step(1.0/60.0,Vector2(50,115),false)
         long_rig.step(1.0/60.0,Vector2(50,115),false)
-    check(attach_distance(base_rig) <= Hose.BASE_LENGTH*ToolRig.HOSE_STRETCH_LIMIT + 1.0, "the hose never stretches past its limit")
-    check(attach_distance(base_rig) < attach_distance(long_rig) - 8.0, "a taut hose holds the vacuum back, and a longer hose reaches further")
+    var base_reach: float = attach_distance(base_rig)
+    var long_reach: float = attach_distance(long_rig)
+    check(base_reach <= Hose.BASE_LENGTH*ToolRig.HOSE_STRETCH_LIMIT + 1.0, "the hose never stretches past its limit (reach %.1f)" % base_reach)
+    check(base_reach < long_reach - 8.0, "a taut hose holds the vacuum back, and a longer hose reaches further (base %.1f, long %.1f)" % [base_reach, long_reach])
     gs.new_game()
     gs.money = 100
     check(gs.buy_upgrade("long_hose") and gs.money == 60 and gs.has_upgrade("long_hose") and not gs.buy_upgrade("long_hose"), "the longer hose is bought once")

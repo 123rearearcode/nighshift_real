@@ -52,7 +52,7 @@ Actions result: not yet recorded.
 ### Added / Changed / Fixed / Removed
 - **Piece physics (option B: rotated boxes):** tools and loose parts lying on the bench are solid boxes (`scripts/bench/piece_collision.gd`, a pure function on dictionaries). Overlaps are pushed apart, speed is passed on with some bounce, and sliding gives a little spin. A held tool or a dragged part is never pushed but shoves everything else; resting pieces wake up when shoved and slide to a stop. Pieces hopping higher than 16 px fly over others. Masses (proposals): vacuum 3.0, GPU 2.5, cooler 2.0, brush 0.6, pick 0.4, syringe 0.4, cloth 0.3. Parts sitting snapped in the service tray get a physics body only when shoved. Tools collide with a smaller box (40 x 68 px) than their click box.
 - **Hose goes around pieces:** the hose is no longer pinned to the vacuum. Its end is drawn toward the vacuum by a spring, solid pieces (except the vacuum) push hose points out of them, and the fixed end stays on the bin (option a, as chosen).
-- **Soft tug (as chosen):** when the hose is taut it cannot follow, and the gap drags the vacuum back toward the bin; the hose can stretch at most 12% past its length. This also reels in a thrown or resting vacuum that ends up out of reach. Base hose length is 640 px (reaches every part of the PC from the bin; around obstacles it reaches less).
+- **Soft tug (as chosen):** when the hose is taut it cannot follow, and the gap drags the vacuum back toward the bin; the hose can stretch at most 4% past its length. This also reels in a thrown or resting vacuum that ends up out of reach. Base hose length is 640 px (reaches every part of the PC from the bin; around obstacles it reaches less).
 - **Longer hose upgrade (option d):** a new shop upgrade, "Buy longer vacuum hose ($40, demo price)", makes the hose 860 px. Saved with the other upgrades.
 - Shop screen: the buttons were rearranged to make room (New game moved down, the note moved down).
 
@@ -73,7 +73,7 @@ Actions result: not yet recorded.
 - Not performed: any play in a window.
 
 ### Decisions proposed (not approved)
-- Masses, bounce (0.35), the 12% stretch limit, hose lengths (640 / 860) and the upgrade price ($40) are proposals.
+- Masses, bounce (0.35), the 4% stretch limit, hose lengths (640 / 860) and the upgrade price ($40) are proposals.
 - Installed parts are not obstacles: the hose lies over the PC itself.
 
 ### Known issues and open items
