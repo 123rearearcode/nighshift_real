@@ -9,6 +9,8 @@ const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
+const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
 # Bump only when the saved data changes shape incompatibly (and log it in CHANGELOG.md).
@@ -73,6 +75,9 @@ func _make_job() -> Dictionary:
         "paste_grade": "",        # "" = no fresh paste
         "paste_coverage": 0.0,
         "paste_overflow": 0.0,
+        "paste_done": false,      # the player pressed Complete repaste on a good result
+        "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
+        "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
         "payout": PAYOUT,
     }
@@ -137,6 +142,8 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
         job["paste_grade"] = ""
         job["paste_coverage"] = 0.0
         job["paste_overflow"] = 0.0
+        job["paste_done"] = false
+        job["scams"].erase("toothpaste")
     save_game()
     return true
 
@@ -226,10 +233,12 @@ func buy_upgrade(upgrade_id: String) -> bool:
     return true
 
 
+# A finished mount: the result is recorded, but the repaste only counts once completed.
 func set_paste(result: Dictionary) -> void:
     job["paste_grade"] = result["grade"]
     job["paste_coverage"] = result["coverage"]
     job["paste_overflow"] = result["overflow"]
+    job["paste_done"] = false
     save_game()
 
 
@@ -237,7 +246,33 @@ func clear_paste() -> void:
     job["paste_grade"] = ""
     job["paste_coverage"] = 0.0
     job["paste_overflow"] = 0.0
+    job["paste_done"] = false
+    job["scams"].erase("toothpaste")
     save_game()
+
+
+func can_complete_repaste() -> bool:
+    return job["state"] != "done" and not bool(job["paste_done"]) and str(job["paste_grade"]) in GOOD_PASTE
+
+
+# The Complete repaste button. `material` is what was squeezed ("thermal" or "toothpaste").
+# Thermal paste costs a little; toothpaste is free and is recorded as a scam on this job.
+# Returns {ok, cost, message}.
+func complete_repaste(material: String) -> Dictionary:
+    var kind: Dictionary = PasteMaterials.material(material)
+    if kind.is_empty() or not can_complete_repaste():
+        return {"ok": false, "cost": 0, "message": "Only a PERFECT or GOOD ENOUGH result can be completed."}
+    var cost: int = int(kind["cost"])
+    if money < cost:
+        return {"ok": false, "cost": cost, "message": "You need $%d for the thermal paste." % cost}
+    money -= cost
+    job["paste_done"] = true
+    job["paste_material"] = material
+    job["scams"].erase("toothpaste")
+    if bool(kind["scam"]):
+        job["scams"].append("toothpaste")
+    save_game()
+    return {"ok": true, "cost": cost, "message": ""}
 
 
 # Estimated CPU temperature from the work done. Pays out once, the first time it passes.
@@ -256,13 +291,21 @@ func run_final_check() -> Dictionary:
             notes.append("%s still has dust (+%d C)." % [z["label"], roundi(add)])
     var grade: String = str(job["paste_grade"])
     var penalty: float = NO_PASTE_PENALTY
-    if grade != "":
+    var completed: bool = grade != "" and bool(job["paste_done"])
+    if completed:
         penalty = float(PASTE_PENALTY.get(grade, NO_PASTE_PENALTY))
     temp += penalty
     if grade == "":
         notes.append("There is no fresh thermal paste on the CPU (+%d C)." % int(NO_PASTE_PENALTY))
+    elif not completed:
+        notes.append("The repaste was not completed: press Complete repaste on the bench after a good mount (+%d C)." % int(NO_PASTE_PENALTY))
     elif penalty > 0.0:
         notes.append("Paste result was %s (+%d C)." % [grade, int(penalty)])
+    if completed:
+        var under: Dictionary = PasteMaterials.material(str(job["paste_material"]))
+        if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
+            temp += float(under["heat_penalty"])
+            notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
     var removed_parts: Array = job.get("removed_parts", [])
     if not removed_parts.is_empty(): notes.append("Refit removed components before testing: " + ", ".join(removed_parts))
     var broken: Array = job["broken_parts"]
@@ -366,6 +409,16 @@ func load_game() -> bool:
         var old_layout: Variant = job["hardware_trial"].get(str(job["layout"]),{})
         if old_layout is Dictionary: inventory_layout = old_layout.duplicate(true)
     if not job["removed_component_records"] is Array: job["removed_component_records"] = []
+    # 0.15.0: a save from before Complete repaste existed counts its grade as completed thermal paste.
+    if typeof(saved) == TYPE_DICTIONARY and not (saved as Dictionary).has("paste_done"):
+        job["paste_done"] = str(job["paste_grade"]) != ""
+    job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
+    if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
+    var valid_scams: Array = []
+    if job["scams"] is Array:
+        for scam in job["scams"]:
+            if str(scam) == "toothpaste" and not "toothpaste" in valid_scams: valid_scams.append("toothpaste")
+    job["scams"] = valid_scams
     if not job["service_replacement_ids"] is Dictionary: job["service_replacement_ids"] = {}
     var valid_broken: Array = []
     if typeof(job["broken_parts"]) == TYPE_ARRAY:

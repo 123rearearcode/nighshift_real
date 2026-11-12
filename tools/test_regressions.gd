@@ -23,6 +23,8 @@ const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const Bin = preload("res://scripts/bench/dust_bin.gd")
 const Motes = preload("res://scripts/bench/dust_motes.gd")
 const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
+const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const MountSession = preload("res://scripts/bench/mount_session.gd")
 var failed: int = 0
 var checks: int = 0
 
@@ -173,7 +175,7 @@ func run_checks() -> void:
     check(clean_bench.dust.remaining_fraction() < 0.00001, "saved clean PC stays clean")
     check(clean_bench.status_label.text.contains("Resumed saved PC"), "clean resume clearly explained")
     clean_bench.free()
-    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    pasted(gs)
     gs.job["removed_parts"] = ["gpu"]
     gs.save_game()
     gs.load_game()
@@ -201,6 +203,7 @@ func run_checks() -> void:
     test_piece_physics(gs)
     test_hose_handling()
     test_bench_clicks(gs)
+    test_repaste_and_toothpaste(gs)
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
     gs.save_path = original_path
@@ -277,7 +280,7 @@ func test_pick_service(gs: Node) -> void:
     var fractions: Dictionary = {}
     for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
     gs.set_dust(fractions)
-    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    pasted(gs)
     var final: Dictionary = gs.run_final_check()
     check(final["passed"] and final["paid"] == 60, "functional downgrade may complete repair")
     check(str(final["notes"]).contains("Downgrade"), "final check exposes lower specification")
@@ -290,16 +293,16 @@ func test_pick_service(gs: Node) -> void:
     gs.money = 0
     check(not gs.buy_service_stock("cooler", "similar") and "cooler" in gs.job["broken_parts"], "insufficient funds prevents stock purchase and preserves damage")
     gs.money = 100
-    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    pasted(gs)
     check(gs.buy_service_stock("cooler","budget"), "cooler purchase charges before installation")
     check(gs.replace_service_part("cooler", "budget") and gs.money == 93 and gs.job["paste_grade"] == "", "new cooler needs fresh paste")
     gs.set_dust(fractions)
-    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    pasted(gs)
     final = gs.run_final_check()
     check(is_equal_approx(final["temp"], 50.0), "budget cooler imposes real temperature penalty")
     gs.new_game()
     gs.set_dust(fractions)
-    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    pasted(gs)
     gs.damage_service_part("gpu")
     var damaged_check: Dictionary = gs.run_final_check()
     check(not damaged_check["passed"] and damaged_check["paid"] == 0 and gs.money == 100, "broken GPU alone blocks otherwise perfect repair payment")
@@ -973,3 +976,98 @@ func test_bench_clicks(gs: Node) -> void:
     check(bench.tools.equipped and bench.tools.selected == "brush", "with empty hands, clicking a resting tool picks it up")
     bench.scripted_pointer = null
     bench.queue_free()
+
+
+# A finished, completed thermal-paste repaste (what the bench's Complete repaste button leaves behind).
+func pasted(gs: Node) -> void:
+    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    gs.job["paste_done"] = true
+    gs.job["paste_material"] = "thermal"
+
+
+# 0.15.0: the repaste only counts once completed; toothpaste is a free scam that runs hotter.
+func test_repaste_and_toothpaste(gs: Node) -> void:
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
+    gs.new_game()
+    gs.set_dust(fractions)
+    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    var unfinished: Dictionary = gs.run_final_check()
+    check(not unfinished["passed"] and str(unfinished["notes"]).contains("not completed"), "a mount that was never completed does not count as a repaste")
+    gs.set_paste({"grade":"BALD SPOTS", "coverage":0.7, "overflow":0.0})
+    check(not gs.can_complete_repaste() and not gs.complete_repaste("thermal")["ok"] and gs.money == 100, "a bad result cannot be completed and costs nothing")
+    gs.set_paste({"grade":"GOOD ENOUGH", "coverage":0.9, "overflow":0.1})
+    var cost: int = int(PasteMaterials.material("thermal")["cost"])
+    check(gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost and gs.job["paste_done"] and gs.job["scams"].is_empty(), "completing with thermal paste charges for the paste once")
+    check(not gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost, "a completed repaste cannot be completed (or charged) twice")
+    var honest: Dictionary = gs.run_final_check()
+    check(honest["passed"] and honest["paid"] == 60, "a completed thermal repaste on a clean PC passes and pays")
+    gs.new_game()
+    gs.set_dust(fractions)
+    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    check(gs.complete_repaste("toothpaste")["ok"] and gs.money == 100 and gs.job["scams"] == ["toothpaste"], "toothpaste is free and is recorded as a scam")
+    gs.save_game()
+    gs.load_game()
+    check(gs.job["paste_material"] == "toothpaste" and gs.job["paste_done"] and gs.job["scams"] == ["toothpaste"], "the toothpaste scam survives save and load")
+    var scam: Dictionary = gs.run_final_check()
+    check(scam["passed"] and scam["paid"] == 60 and is_equal_approx(scam["temp"], GameState_base(gs) + float(PasteMaterials.material("toothpaste")["heat_penalty"])), "toothpaste passes today's check, runs hotter, and the customer still pays")
+    check(str(scam["notes"]).contains("Toothpaste"), "the final check tells the player what is under the cooler")
+    gs.new_game()
+    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    gs.complete_repaste("toothpaste")
+    gs.clear_paste()
+    check(not gs.job["paste_done"] and gs.job["scams"].is_empty(), "wiping the paste off undoes the completed repaste and the scam record")
+    # Older saves: a stored grade without the new field counts as a completed thermal repaste.
+    gs.new_game()
+    gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
+    var data: Dictionary = SaveStore.read(gs.save_path)
+    data["job"].erase("paste_done")
+    data["job"].erase("paste_material")
+    data["job"].erase("scams")
+    SaveStore.write(gs.save_path, data)
+    gs.load_game()
+    check(gs.job["paste_done"] and gs.job["paste_material"] == "thermal" and gs.job["scams"].is_empty(), "an older save's paste grade still counts as a completed repaste")
+    # The physics: toothpaste is stiffer, so the same press spreads it less.
+    var thermal := PasteSim.new()
+    var tooth := PasteSim.new()
+    tooth.material = "toothpaste"
+    for sim: RefCounted in [thermal, tooth]:
+        sim.deposit(25.0, 25.0, 130.0)
+        for k in range(150): sim.step(PasteSim.yield_for_pressure(0.6))
+    check(float(tooth.measure()["coverage"]) < float(thermal.measure()["coverage"]) - 0.05, "toothpaste spreads less than thermal paste under the same press")
+    check(MountSession.TARGET_COVER == PasteSim.PERFECT_COVER and MountSession.OVERFLOW_LIMIT == PasteSim.MESSY_OVERFLOW, "the mounting bars use the same lines as the grade")
+    # On the bench: squeeze, press, release, secure, complete.
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(120): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    bench.material_button.button_pressed = true
+    bench._on_material_toggled()
+    check(bench.paste.material == "thermal", "the paste cannot be switched to toothpaste while paste is on the CPU")
+    bench._on_mount_pressed()
+    bench.scripted_pressing = true
+    for frame in range(170): bench._physics_process(1.0/60.0)
+    bench.scripted_pressing = false
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench._finish_mount()
+    bench._physics_process(1.0/60.0)
+    var grade: String = str(bench.mount_result.get("grade", ""))
+    check(grade in ["PERFECT", "GOOD ENOUGH"], "a pea-sized dot pressed for about 3 seconds gives a good result (got %s)" % grade)
+    check(bench.complete_button.visible and not bench.complete_button.disabled, "the Complete repaste button is offered after a good mount")
+    bench._on_complete_pressed()
+    bench._physics_process(1.0/60.0)
+    check(gs.job["paste_done"] and bench.complete_button.disabled and gs.money == 100 - cost, "Complete repaste finishes the job step and pays for the paste")
+    bench.scripted_pointer = null
+    bench.scripted_pressing = null
+    bench.queue_free()
+
+
+func GameState_base(gs: Node) -> float:
+    return gs.BASE_TEMP
