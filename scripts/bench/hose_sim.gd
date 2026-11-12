@@ -10,14 +10,16 @@ const POINTS: int = 24
 const BASE_LENGTH: float = 640.0      # px; reaches every part of the PC from the bin
 const LONG_LENGTH: float = 860.0      # px; with the "longer hose" upgrade
 const DAMPING: float = 0.78           # share of speed kept each physics step (table friction)
-const ITERATIONS: int = 14
+const ITERATIONS: int = 20           # fewer than ~20 lets the bending limit and obstacles fight (found by simulation)
 const SMOOTHING: float = 0.0          # bending smoothing: any value above ~0.002 keeps a slack hose wriggling forever (found by simulation), so none
 const BEND_LIMIT: float = 0.9         # points two apart stay at least this share of two links apart: no joint bends more than ~52 degrees
 const END_STIFFNESS: float = 0.5      # how hard the nozzle end is drawn toward the vacuum each iteration
 const POINT_RADIUS: float = 3.5       # half the hose's thickness, used for obstacles
-const CORNER_RADIUS: float = 12.0     # obstacles count as boxes with corners rounded this much, so the hose curves round them
+const CORNER_RADIUS: float = 20.0     # obstacles count as boxes with corners rounded up to this much, so the hose curves round them
 const SLEEP_SPEED: float = 0.12       # px per step; a hose moving slower than this everywhere comes to a complete stop
 const MAX_STEP: float = 18.0          # px; no point may move further than this in one step (stops whipping)
+const SETTLE_FRAMES: int = 30         # once nothing has moved for this many steps, the hose lies still (table friction)
+const STILL_DISTANCE: float = 0.3     # px; the nozzle or a piece moving less than this per step counts as not moving
 const PIN_LIFT: int = 2               # points this close to a grabbed point are lifted off the bench (they pass over obstacles)
 
 var pos := PackedVector2Array()
@@ -27,6 +29,9 @@ var segment: float = BASE_LENGTH / float(POINTS - 1)
 var tug := Vector2.ZERO               # where the hose end is relative to where it was drawn to (0 when slack)
 var pin: int = -1                     # index of the point the player is holding, or -1
 var pin_point := Vector2.ZERO         # where that point is now
+var still_steps: int = 0              # steps in a row in which nothing touching the hose moved
+var _last_end := Vector2.INF
+var _last_obstacles := Vector2.INF
 
 
 func length() -> float:
@@ -58,6 +63,7 @@ func reset(anchor_point: Vector2, end_point: Vector2) -> void:
         prev[i] = p
     tug = Vector2.ZERO
     pin = -1
+    still_steps = 0
 
 
 # Push a point out of an obstacle (a piece lying on the bench). `obstacle` has center, angle, half.
@@ -110,6 +116,20 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
         # The bin side of the hose cannot stretch: the held point stays within reach of the bin.
         pin_point = anchor_point + (pin_target - anchor_point).limit_length(segment * float(pin) * 0.98)
     if delta <= 0.0:
+        return
+    # A hose on a table stops once nothing moves it. Without this, the bending limit and the
+    # obstacles can keep nudging each other for ever and the hose creeps (found by simulation).
+    var obstacle_key := Vector2.ZERO
+    for obstacle: Dictionary in obstacles:
+        obstacle_key += Vector2(obstacle["center"]) + Vector2(float(obstacle["angle"]), float(obstacles.size()))
+    var quiet: bool = not pinned() and desired_end.distance_to(_last_end) < STILL_DISTANCE \
+        and obstacle_key.distance_to(_last_obstacles) < STILL_DISTANCE
+    _last_end = desired_end
+    _last_obstacles = obstacle_key
+    still_steps = still_steps + 1 if quiet else 0
+    if still_steps > SETTLE_FRAMES:
+        for i in range(1, POINTS):
+            prev[i] = pos[i]
         return
     for i in range(1, POINTS):
         var velocity: Vector2 = ((pos[i] - prev[i]) * DAMPING).limit_length(MAX_STEP)

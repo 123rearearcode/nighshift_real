@@ -876,17 +876,18 @@ func test_piece_physics(gs: Node) -> void:
 func test_hose_handling() -> void:
     var box: Dictionary = {"center":Vector2(300,300),"angle":0.0,"half":Vector2(30,30)}
     var corner: Vector2 = Hose.push_out(Vector2(325,325),box,Hose.POINT_RADIUS)
-    var round_reach: float = corner.distance_to(Vector2(300,300) + Vector2(30,30) - Vector2(12,12))
-    check(absf(round_reach - (12.0 + Hose.POINT_RADIUS)) < 0.01, "obstacle corners are rounded, so the hose curves round them")
+    var round_reach: float = corner.distance_to(Vector2(300,300) + Vector2(15,15))
+    check(absf(round_reach - (15.0 + Hose.POINT_RADIUS)) < 0.01, "obstacle corners are rounded, so the hose curves round them (reach %.2f)" % round_reach)
     var hose := Hose.new()
     hose.reset(Vector2(600,550),Vector2(300,300))
     for frame in range(120):
         var t: float = float(frame) / 120.0
         hose.step(1.0/60.0,Vector2(600,550),Vector2(300+200*sin(t*TAU*2.0),300+80*cos(t*TAU*3.0)),[box])
+    for frame in range(60): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,380),[box])
     var sharpest: float = 0.0
     for i in range(1,Hose.POINTS-1):
         sharpest = maxf(sharpest,absf((hose.pos[i]-hose.pos[i-1]).angle_to(hose.pos[i+1]-hose.pos[i])))
-    check(rad_to_deg(sharpest) < 70.0, "the hose never folds sharply (sharpest joint %.0f degrees)" % rad_to_deg(sharpest))
+    check(rad_to_deg(sharpest) < 62.0, "a hose lying round a piece never folds sharply (sharpest joint %.0f degrees)" % rad_to_deg(sharpest))
     for frame in range(400): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
     var before: PackedVector2Array = hose.pos.duplicate()
     for frame in range(30): hose.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
@@ -899,7 +900,7 @@ func test_hose_handling() -> void:
     var grab_at: Vector2 = rig.hose.pos[8]
     check(rig.hose_hit(grab_at) and not rig.hose_hit(Vector2(-500,-500)), "the hose can be found under the cursor")
     check(rig.grab_hose(grab_at) and not rig.equipped and rig.hose_grab > 0, "grabbing the hose puts the held tool down")
-    var target: Vector2 = grab_at + Vector2(-60,40)
+    var target: Vector2 = Bin.hose_anchor() + (grab_at - Bin.hose_anchor()).rotated(0.3) * 0.7
     for frame in range(90): rig.step(1.0/60.0,target,false)
     check(rig.hose.pos[rig.hose_grab].distance_to(target) < 1.0, "the grabbed point follows the cursor")
     var far := Vector2(60,130)

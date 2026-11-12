@@ -53,7 +53,7 @@ Actions result: not yet recorded.
 - Fixed (confirmed by the scripted playtest): with a tool in hand, a left click could pick up the resting tool lying next to it instead of using the held tool. The held tool shoves resting tools right up against itself, and the old pickup box (unturned, 60 x 84) of the neighbour then covered the cursor. It happened in 19 of 80 tested angle/position combinations, and which ones depended on the tool's angle. This is the most likely cause of "the brush only works when tilted the right way" and "the vacuum stopped working once I rotated it". Now a left click with a tool in hand always uses it; picking up by click works with empty hands, and the pickup box turns with the tool.
 - Playtest findings that did NOT show a fault: with the scripted strokes, the brush tossed dust at every angle (8 angles x 2 stroke directions x 6 parts), and the vacuum cleaned every part equally at every angle. The vacuum cannot reach the top 40 px of the bench (the tool body is kept on the table); no dust zone is there.
 - Added: right-drag the hose to move it out of the way. A tool in hand is put down first. The bin side of the hose cannot be stretched by hand; pulling the vacuum side drags a resting vacuum along.
-- Changed: the hose curves round pieces. A bending limit (no joint folds past about 52 degrees; tested in a Python copy first so it adds no wriggle) and obstacles with rounded corners (12 px).
+- Changed: the hose curves round pieces. A bending limit (no joint folds past about 52 degrees at rest) and obstacles with rounded corners (up to 20 px). A Python copy of the hose showed the bending limit and obstacles keep nudging each other for ever (creep of up to 70 px per half second) unless there are 20 solver iterations and the hose comes to rest once nothing has moved it for 30 steps; both are in.
 - Changed: the hose is drawn as a see-through tube through a smooth curve (8 px, rims, ribs, highlight). Swallowed dust is visible riding inside it to the bin.
 - Changed: swallowed dust now fills the bin when it ARRIVES (0.7 s trip at full suction). With the suction off it waits in the hose; with the bin full it waits at the bin end. Cleaning progress still counts the moment dust is swallowed. `scripts/bench/hose_flow.gd`.
 - Changed: tools knock each other less. Bounce 0.35 -> 0.12, spin from sliding 0.004 -> 0.0015 (max 4 rad/s), and a piece shoved by a held piece moves at most 200 px/s.
@@ -65,7 +65,7 @@ Actions result: not yet recorded.
 `scripts/bench/hose_sim.gd`, `scripts/bench/hose_flow.gd` (new), `scripts/bench/tool_rig.gd`, `scripts/bench/piece_collision.gd`, `scripts/view/bench_view.gd`, `scripts/view/tool_renderer.gd`, `tools/playtest_bench.gd` (new), `tools/test_regressions.gd`, `.github/workflows/tests.yml`, `project.godot`, `README.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `CHANGELOG.md`.
 
 ### Checks performed
-`python3 -I tools/check_project.py` (no Godot); hose bending limit simulated in Python (drift 0.0009 px over 30 steps after motion, worst joint 52 degrees). Godot checks via Actions: see Execution status.
+`python3 -I tools/check_project.py` (no Godot); hose bending limit, rounded obstacles and resting simulated in Python before writing the GDScript (sweeps over obstacle positions, end positions and both hose lengths). Godot checks via Actions: see Execution status.
 
 ### Decisions proposed (not approved)
 Right mouse to grab the hose; left click never swaps tools while one is held; hose width 8 px and see-through look; 0.7 s trip through the hose; 200 px/s shove cap.
