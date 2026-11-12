@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** Results of the GitHub Actions run on Godot 4.7.2 for this version are recorded below once it has finished. Nothing has been seen in a window.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43314496463, branch feature-0.14.0): Data schema checks 172, failures 0; Regression checks 397, failures 0. A first run failed 2 checks (hose tug woke a resting thrown vacuum; stretch test too loose); fixed by a 4px slack deadband, pull-back past full length, 4% stretch limit and 14 hose iterations. Game feel is still untested by me.
 
 ### Added / Changed / Fixed / Removed
 - **Piece physics (option B: rotated boxes):** tools and loose parts lying on the bench are solid boxes (`scripts/bench/piece_collision.gd`, a pure function on dictionaries). Overlaps are pushed apart, speed is passed on with some bounce, and sliding gives a little spin. A held tool or a dragged part is never pushed but shoves everything else; resting pieces wake up when shoved and slide to a stop. Pieces hopping higher than 16 px fly over others. Masses (proposals): vacuum 3.0, GPU 2.5, cooler 2.0, brush 0.6, pick 0.4, syringe 0.4, cloth 0.3. Parts sitting snapped in the service tray get a physics body only when shoved. Tools collide with a smaller box (40 x 68 px) than their click box.
