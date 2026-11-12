@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs the checker, the data-schema suite, the regression suite and the scripted playtest on Godot 4.7.2 headless; results below. The user had playtested 0.14.2/0.14.3 by hand before this version; 0.15.0 itself is not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43332509024, branch feature-0.15.0): checker passed; Data schema checks 179, failures 0; Regression checks 439, failures 0; scripted playtest ran (paste table recorded in the log).
 
 ### Added / Changed / Fixed / Removed
 - Added: **Complete repaste** button after mounting. Works only on PERFECT or GOOD ENOUGH; otherwise it says to wipe and retry. Thermal paste costs $3 when completed (proposal). The final check now counts the paste only once completed (`job.paste_done`); an older save with a grade counts as completed thermal paste.
