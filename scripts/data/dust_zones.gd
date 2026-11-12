@@ -13,7 +13,7 @@ static func zones(profile_id: String = "tower") -> Array:
         {"id": "motherboard", "label": "RAM", "rect": PCLayout.connector_rect(pc, fit, "ram_2").merge(PCLayout.connector_rect(pc, fit, "ram_1")), "bundles": 6, "specks": 4, "temp_penalty": 6.0},
         {"id": "gpu", "label": "Graphics card", "rect": PCLayout.connector_rect(pc, fit, "pcie"), "bundles": 8, "specks": 5, "temp_penalty": 12.0},
         {"id": "psu", "label": "Power supply", "rect": PCLayout.cell_rect(pc["psu"], fit), "bundles": 6, "specks": 4, "temp_penalty": 6.0},
-        {"id": "front_filter", "label": "Filter", "rect": PCLayout.cell_rect(pc["filter"], fit), "bundles": 8, "specks": 5, "temp_penalty": 8.0},
+        {"id": "front_filter", "label": "Filter", "rect": PCLayout.cell_rect(pc["filter"], fit), "bundles": 8, "specks": 5, "temp_penalty": 8.0, "grip_scale": 1.5},
         {"id": "under_cooler", "label": "Under cooler", "rect": PCLayout.connector_rect(pc, fit, "cpu").grow(-8), "bundles": 4, "specks": 3, "covered_by": "cooler", "temp_penalty": 0.0},
         {"id": "under_gpu", "label": "Under GPU", "rect": PCLayout.connector_rect(pc, fit, "pcie").grow(-4), "bundles": 4, "specks": 3, "covered_by": "gpu", "temp_penalty": 0.0}]
 

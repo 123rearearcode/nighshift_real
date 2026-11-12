@@ -18,6 +18,7 @@ const Data = preload("res://scripts/data/component_data.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const Hose = preload("res://scripts/bench/hose_sim.gd")
+const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const Bin = preload("res://scripts/bench/dust_bin.gd")
 const Motes = preload("res://scripts/bench/dust_motes.gd")
@@ -841,6 +842,27 @@ func test_piece_physics(gs: Node) -> void:
     var long_reach: float = attach_distance(long_rig)
     check(base_reach <= Hose.BASE_LENGTH*ToolRig.HOSE_STRETCH_LIMIT + 1.0, "the hose never stretches past its limit (reach %.1f)" % base_reach)
     check(base_reach < long_reach - 8.0, "a taut hose holds the vacuum back, and a longer hose reaches further (base %.1f, long %.1f)" % [base_reach, long_reach])
+    # Turning the vacuum must not make the hose drag the nozzle off the cursor, even with pieces around.
+    for turns in [0, 3, 6, 9, 12, -3, -6]:
+        var spin_rig := ToolRig.new()
+        spin_rig.hose_obstacles = [{"center":Vector2(520,470),"angle":0.0,"half":Vector2(20,34)},
+            {"center":Vector2(380,330),"angle":0.4,"half":Vector2(30,30)}]
+        spin_rig.select("vacuum",Vector2(300,300))
+        spin_rig.rotate_steps(turns)
+        for frame in range(240): spin_rig.step(1.0/60.0,Vector2(300,300),true)
+        check(spin_rig.contact().distance_to(Vector2(300,300)) < 2.0, "a vacuum turned %d steps keeps its nozzle on the cursor (off by %.1f)" % [turns, spin_rig.contact().distance_to(Vector2(300,300))])
+    var quiet := Hose.new()
+    quiet.reset(Vector2(600,550),Vector2(300,300))
+    for frame in range(400): quiet.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
+    var before: PackedVector2Array = quiet.pos.duplicate()
+    for frame in range(30): quiet.step(1.0/60.0,Vector2(600,550),Vector2(300,300))
+    var drift: float = 0.0
+    for i in range(Hose.POINTS): drift = maxf(drift, quiet.pos[i].distance_to(before[i]))
+    check(drift < 0.5, "a hose left alone stops wriggling (drift %.2f)" % drift)
+    var filter_zone: Dictionary = {}
+    for zone: Dictionary in DustZones.zones():
+        if zone["id"] == "front_filter": filter_zone = zone
+    check(float(filter_zone.get("grip_scale",1.0)) > 1.0, "the clogged filter grips its dust harder")
     gs.new_game()
     gs.money = 100
     check(gs.buy_upgrade("long_hose") and gs.money == 60 and gs.has_upgrade("long_hose") and not gs.buy_upgrade("long_hose"), "the longer hose is bought once")

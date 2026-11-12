@@ -51,10 +51,10 @@ static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
     var points: PackedVector2Array = rig.hose.pos
     if points.size() < 2: return
     canvas.draw_set_transform(Vector2(3,5),0.0)
-    canvas.draw_polyline(points,Color(0,0,0,0.30),9.0,true)
+    canvas.draw_polyline(points,Color(0,0,0,0.30),6.0,true)
     canvas.draw_set_transform(Vector2.ZERO)
-    canvas.draw_polyline(points,Color("2c3640"),8.0,true)
-    canvas.draw_polyline(points,Color("56697a"),3.0,true)
+    canvas.draw_polyline(points,Color("2c3640"),5.0,true)
+    canvas.draw_polyline(points,Color("56697a"),2.0,true)
     for i in range(1,points.size()-1):
-        var rib: Vector2 = (points[i+1]-points[i-1]).normalized().orthogonal()*4.5
-        canvas.draw_line(points[i]-rib,points[i]+rib,Color("1d252c"),1.5)
+        var rib: Vector2 = (points[i+1]-points[i-1]).normalized().orthogonal()*3.0
+        canvas.draw_line(points[i]-rib,points[i]+rib,Color("1d252c"),1.0)
