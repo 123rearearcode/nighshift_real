@@ -51,7 +51,7 @@ Actions result: not yet recorded.
 
 ### Added / Changed / Fixed / Removed
 - Fixed (hypothesis): the hose could count as taut while merely bent around a piece, dragging the vacuum off the cursor after turning it. Now only a nearly straight hose (ends at least 90% of its length apart) tugs. The nozzle end of the hose is no longer pushed by obstacles.
-- Fixed: the hose wriggled for a long time after moving. Stronger damping, a per-step speed cap, and it now stops completely when calm.
+- Fixed: the hose wriggled for a long time after moving. Cause found by reproducing the hose maths in Python: the bending-smoothing term pumped energy into a slack hose forever (it drifted 30 px per half second). Smoothing is now 0, damping is stronger, speeds are capped, and a calm hose stops completely.
 - Changed: the hose is thinner (drawn 5 px instead of 8; obstacle radius 3).
 - Fixed: bristle bend ignored the tool's rotation (the sweep speed is now turned into the brush's own frame).
 - Added: middle mouse turns the held tool (wheel notches, or hold the middle button and drag sideways, 26 px per 15 degrees). Q/E still work. `ToolRig.rotate_steps`.
