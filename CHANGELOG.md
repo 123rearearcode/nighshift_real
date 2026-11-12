@@ -8,7 +8,7 @@ of truth for the current version is `config/version` in `project.godot`.
 
 ```
 ## X.Y.Z - YYYY-MM-DD - short title
-- Author: who made the change (human, or AI name and where it ran)
+- Author: who made the change. A person: name and "(human)". An AI: name, model name and exact model id, and where it ran, e.g. "Claude (Opus 5.5, model id claude-opus-5-5) in a chat session". The checker fails without it.
 - Based on: previous version
 - Type: major / minor / patch (and why)
 
@@ -38,6 +38,37 @@ the integrating contributor turns them into a numbered entry at merge time.
 ## Unreleased
 
 (nothing yet)
+
+## 0.14.3 - 2026-11-13 - Rule: AI contributors sign with their model
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.14.2
+- Type: patch (workflow rule, docs and tooling only; no game change)
+
+### Execution status
+No game code changed, so Godot behaviour is the same as 0.14.2. GitHub Actions runs the checker and the Godot 4.7.2 suites on this branch; result recorded below once it has finished.
+
+Actions result (Godot 4.7.2 headless, run 43328137536, branch feature-0.14.3): checker passed; Data schema checks 172, failures 0; Regression checks 422, failures 0.
+
+### Added / Changed / Fixed / Removed
+- Added (user rule): every AI edit is signed with the model that made it, with the exact model id, in the changelog Author line, the HANDOFF signature and git commit messages. A person writes "(human)".
+- Added: `tools/check_project.py` fails when the newest changelog entry has no Author line, or an AI author without "model id".
+- Changed: changelog template, `DEVELOPMENT.md` section 2, `HANDOFF.md` section 4 step 4 and its Signed line (now names both models that worked in this session), `AGENTS.md` rule 4.
+- Note: older entries are not rewritten (changelog rule). Entries 0.14.1 and earlier were made by Claude Sonnet 5.5 (model id claude-sonnet-5-5); 0.14.2 by Claude Opus 5.5 (model id claude-opus-5-5).
+
+### Files changed
+M `tools/check_project.py`, M `CHANGELOG.md`, M `DEVELOPMENT.md`, M `HANDOFF.md`, M `AGENTS.md`, M `project.godot`, M `README.md`.
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED; also confirmed it FAILS on a copy whose newest Author line lacks "model id".
+
+### Decisions proposed (not approved)
+The exact wording and the "(human)" marker for people are proposals.
+
+### Known issues and open items
+None new.
+
+### Next action
+User playtest of 0.14.2 (this version plays the same). Then 0.15.0 (fans).
 
 ## 0.14.2 - 2026-11-13 - Click fix, grab the hose, rounder see-through hose, softer knocks
 - Author: Claude (Opus 5.5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.

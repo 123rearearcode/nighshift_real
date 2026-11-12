@@ -1,10 +1,10 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.14.2.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.14.3.**
 **Owner:** the user, the creative director, a complete beginner. Files are exchanged as ZIPs.
 
-**Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12.
+**Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 and 0.14.3.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
 
 ## 1. Historical foundation features (see current update below)
@@ -45,7 +45,10 @@ The user said they will work on the parts catalogue themselves first. Do not sta
    "Unreleased", with the heading `## X.Y.Z - YYYY-MM-DD - short title`. Keep every required heading:
    Execution status, Added/Changed/Fixed/Removed, Files changed, Checks performed, Decisions proposed
    (not approved), Known issues and open items, Next action.
-4. Fill in **Author** (your name, which tool or model, where it ran) and **Based on** (previous version).
+4. Fill in **Author** and **Based on** (previous version). **An AI must sign with its model:** name, model
+   name and exact model id, and where it ran, e.g. `Claude (Opus 5.5, model id claude-opus-5-5) in a chat
+   session`. Sign the same way when you update this file's **Signed** line and in your commit messages.
+   If the model changed during your work, name every model that made edits. A person writes `(human)`.
 5. In **Files changed** list every file added (A), modified (M), deleted (D) or renamed (R), docs included.
 6. In **Execution status** say plainly whether Godot was run, by whom, on which version.
 7. In **Checks performed** write only what you actually ran. Put the text `CHECKS_PLACEHOLDER` there while
