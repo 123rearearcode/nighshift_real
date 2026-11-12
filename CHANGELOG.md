@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** Results of the GitHub Actions run on Godot 4.7.2 are recorded below once it has finished. Nothing has been seen in a window. The cause of "the vacuum stops working once rotated" is a hypothesis (see Known issues), not a confirmed diagnosis.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43317697722, branch feature-0.14.1): Data schema checks 172, failures 0; Regression checks 406, failures 0. Two earlier runs failed (zone schema did not know grip_scale; hose still wriggled) and were fixed.
 
 ### Added / Changed / Fixed / Removed
 - Fixed (hypothesis): the hose could count as taut while merely bent around a piece, dragging the vacuum off the cursor after turning it. Now only a nearly straight hose (ends at least 90% of its length apart) tugs. The nozzle end of the hose is no longer pushed by obstacles.
