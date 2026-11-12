@@ -5,7 +5,6 @@
 # only works at some angles". It never fails the build; read its table in the Actions log.
 extends SceneTree
 
-const BenchScene = preload("res://scenes/bench.tscn")
 const Dust = preload("res://scripts/bench/dust_sim.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
@@ -35,7 +34,8 @@ func run() -> void:
     var original_path: String = gs.save_path
     gs.save_path = "user://playtest_only.json"
     gs.new_game()
-    view = BenchScene.instantiate()
+    # Loaded here, not preloaded: the bench script uses the GameState autoload, which exists only once the tree runs.
+    view = (load("res://scenes/bench.tscn") as PackedScene).instantiate()
     root.add_child(view)
     print("PLAYTEST zones (screen rects):")
     for i in range(view.zones.size()):
