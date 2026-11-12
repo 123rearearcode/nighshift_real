@@ -39,6 +39,36 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.12.2 - 2026-11-12 - Workflow finds the project folder
+- Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
+- Based on: 0.12.1
+- Type: patch (workflow only; no game script changed)
+
+### Execution status
+**Godot was NOT run by me and this workflow change was not run.** The first GitHub run of 0.12.1 (user's log) failed at the first step: `tools/check_project.py` was not found in the checkout. Cause not confirmed; most likely the files were uploaded inside an extra folder or the `tools` folder was not uploaded. Nothing after that step has run yet.
+
+### Added / Changed / Fixed / Removed
+- `.github/workflows/tests.yml` now first looks for `project.godot` anywhere in the repository and uses that folder for every step. If none exists, or `tools/check_project.py` is missing, it stops with a plain message and lists what is there. Logs are written to the workspace root so they upload from any layout.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | project-folder discovery, `cd` in each step |
+| `project.godot`, `README.md`, `HANDOFF.md`, `CHANGELOG.md` | M | version 0.12.2, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py` (result in the delivery message).
+- Not performed: any run of the workflow.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+- Everything after the first step is still unproven: the Godot download, the import step, both test scripts.
+
+### Next action
+Replace `.github/workflows/tests.yml` in the repository with this version, open Actions and send the new log.
+
 ## 0.12.1 - 2026-11-12 - Automatic tests and data schema checks
 - Author: Claude (Sonnet 5.5) in a chat session; no git repository was involved.
 - Based on: 0.12.0
