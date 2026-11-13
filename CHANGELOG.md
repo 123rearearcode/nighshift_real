@@ -39,6 +39,56 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.18.0 - 2026-11-13 - Trapped dust tails, clamp dragging and mounting put-down
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.17.1 (user reports tested and working)
+- Type: minor (new precision extraction option plus reach/handling fixes)
+
+### Execution status
+Godot 4.7.2.stable.official.ed1daf0bf run headlessly by Codex. Inspected user's 23-second mounting recording: right input was blocked by mount.active until the lever finished; paste also inherited the cleaning parts-mode gate. Automated checks cover those states and the new dust/clamp/reach rules. No human graphical acceptance of this patch is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added representative tails/count for real hidden dust; precise vacuuming outside a housing slowly extracts pinned clumps. Normal center access stays blocked; disassembly remains easier and pick risky. Threads are derived from existing mass, with smaller speck tails as chains clear.
+- Clamp can be left- or right-dragged; stationary left-click unclips on release. Quick drags use release position; selection cancels capture. Replacement-stock button moved below desk to stop overlapping fixture controls. Footprint/case/bin/occupied-reach restrictions retained.
+- Standard hose 640 -> 560 px; longer upgrade 860 -> 760 px (provisional). Actual tower/compact corner tests verify tight reach with rotated nozzle. Upgrade ownership/cost unchanged.
+- Mount start parks tools. Right-drag put-down works during mounting and after its timer expires, without clicking the lever, grading or resetting. Paste input no longer inherits the cleaning parts-mode restriction.
+- Added dedicated feedback regression/CI step and reconciled five core docs/minigame rules. Cooler visual improvements are documented as proposals, not coded changes.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Bench feedback, control fixes, verification or current design record |
+| `CHANGELOG.md` | M | Bench feedback, control fixes, verification or current design record |
+| `DEVELOPMENT.md` | M | Bench feedback, control fixes, verification or current design record |
+| `HANDOFF.md` | M | Bench feedback, control fixes, verification or current design record |
+| `README.md` | M | Bench feedback, control fixes, verification or current design record |
+| `project.godot` | M | Bench feedback, control fixes, verification or current design record |
+| `scripts/bench/dust_sim.gd` | M | Bench feedback, control fixes, verification or current design record |
+| `scripts/bench/hose_sim.gd` | M | Bench feedback, control fixes, verification or current design record |
+| `scripts/view/bench_view.gd` | M | Bench feedback, control fixes, verification or current design record |
+| `scripts/view/cleaning_renderer.gd` | M | Bench feedback, control fixes, verification or current design record |
+| `tools/test_regressions.gd` | M | Bench feedback, control fixes, verification or current design record |
+| `tools/test_bench_feedback.gd` | A | Trapped-thread/fixture/reach/mount regression |
+| `docs/PROJECT_BRIEF.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/DESIGN.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/DECISIONS.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/CURRENT_STATE.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/ROADMAP.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/MINIGAME_RULES.md` | M | Bench feedback, control fixes, verification or current design record |
+| `docs/DESIGN_PROPOSALS.md` | M | Bench feedback, control fixes, verification or current design record |
+
+### Checks performed
+Godot 4.7.2 headless: regression 461, schema 182, menu 10, dust flow 43, pickup/parts interaction 26 and new bench feedback 27 checks — 749 total, zero failures. Feedback checks cover tail-only slow extraction, covered-center blocking, clamp left/right drag and UI exclusion, occupied release, capture cancellation, tower/compact corner reach, and put-down before/after mount timeout without securing. Python project checker PASSED: 43 scripts, 148 resource references, 66 mapped files, five core docs; git diff --check passed. No graphical acceptance claimed.
+
+### Decisions proposed (not approved)
+Tail count, precision radius, resistance, hose lengths and drag threshold are trial tuning. Cooler silhouette/compression/cutaway/material/lever/UI ideas in DESIGN_PROPOSALS section 6 are proposals only; current pressure rules are unchanged.
+
+### Known issues and open items
+Human visual/feel acceptance pending. Clamp arrangement remains session-local. Owned longer-hose upgrade intentionally still adds reach. Partial tails represent a few hidden groups, not every particle; dirt mass is unchanged. Cooler art/animation redesign remains open.
+
+### Next action
+Playtest tail extraction versus disassembly, clamp drag, base/upgrade reach and tool put-down before lever. Discuss/select the first cooler presentation slice.
+
 ## 0.17.1 - 2026-11-13 - Restore same-press tool pickup and component removal
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.17.0

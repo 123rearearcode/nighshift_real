@@ -1164,6 +1164,8 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     press.position = ToolRig.CLAMP_POINT
     press.button_index = MOUSE_BUTTON_LEFT
     bench._input(press)
+    release.button_index = MOUSE_BUTTON_LEFT
+    bench._input(release)
     check(bench.tools.hose_clamp < 0, "empty-hand click releases parked hose")
     press.button_index = MOUSE_BUTTON_RIGHT
     bench.tools.motions["pick"].center = mouse

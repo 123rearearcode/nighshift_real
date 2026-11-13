@@ -1,6 +1,10 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.11 · 13 November 2026
+Version 1.12 · 13 November 2026
+
+## Current baseline — trial 0.18.0
+
+User confirmed 0.17.1 works. New: visible representative tails/count for hidden dirt with slow precision extraction, clamp left/right drag without replacement-button overlap, shorter standard hose (560; upgrade 760), and tool put-down allowed during active/expired cooler mounting. No save-format change; tails are derived from existing real dirt. User recording identified mount.active input gating; put-down does not complete mounting. Cooler art/animation changes are proposed, not implemented. Target-engine automated results are in CHANGELOG.
 
 ## Current baseline — trial 0.17.1
 

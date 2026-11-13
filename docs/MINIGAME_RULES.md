@@ -135,3 +135,10 @@ Add exact files/new modules to DEVELOPMENT.md when each later feature is scoped.
 The user approved brush-driven cross-case transport and a movable clamp outside the PC. Dust can now settle in another area or trap under GPU/cooler and in the filter, with conserved physical mass and saved positions/looseness. The new Case interior row tracks scattered dirt; previously cleaned areas can become dirty again. No automatic quality-threshold shake-off deletes remaining dirt, and a stopped vacuum does not delete loose dirt on a timer. These changes do not implement promises, false handoff claims or consequences. D56 fan transport remains queued.
 
 Clamp controls: right-drag moves the fixture, with its full footprint outside PC/bin and inside desk bounds. Empty-hand left-click unclips. Occupied-hose reach is respected; fixture position remains session-local. Initial/reopened/reset tool response is tested in Godot; human acceptance of the user's original first-entry symptom remains necessary. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+## Implementation update 0.18.0 — exposed tails and mounting hands
+
+Trapped dirt has a partial visible thread and count. The vacuum can slowly extract the real pinned clump with precise contact outside the housing; brush cannot remove it and ordinary covered-center cleaning remains blocked. Disassembly is easier; pick remains risky. Extraction updates actual mass/bin/progress, not a cosmetic flag. Tail rates/count and hose lengths remain tuning.
+
+Clamp supports left/right drag; stationary left click releases its hose. Standard hose is shorter and just reaches the far-left corner with rotation/routing; owned longer hose retains more reach. Mount start parks held tools; right-drag put-down stays available while pressing or waiting for the lever. D52/D57 remain: putting down a tool does not secure, grade or complete the repaste. Cooler visual proposals remain unimplemented. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

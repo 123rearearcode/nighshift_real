@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.11 · 13 November 2026
+Version 1.12 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -150,3 +150,12 @@ Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 ## Recorded interaction correction — trial 0.17.1
 
 D67 (confirmed repair request): tools must work after put-down/pickup and parts must remain removable for cleaning. Reproduced causes: a left pickup discarded its held stroke, and parts clicks were intercepted by resting-tool selection. Same-press pickup/use and parts-mode click priority restore the intended interaction. D64's earlier unresolved first-entry symptom is now reproduced for this concrete sequence. No balance or physics scope change. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Trapped dust and reach/handling refinement — 0.18.0
+
+D68 (confirmed request): when dirt catches under a part, show protruding dust chains which can be removed with difficulty. Implement representative partial threads/count and slow precision suction outside the housing; removing the part remains easier, pick remains risky. Tails are real existing mass, not cosmetic progress or an evidence system. Exact rate/visibility count are trial tuning.
+D69 (confirmed requests): clamp must be movable outside the PC, and vacuum hose should only just reach the far-left case corner. Implement left/right drag, stationary left-click unclip, no UI overlap, and retuned base/upgrade lengths with actual corner-reach tests. Existing longer-hose ownership persists. Lengths and gesture threshold remain provisional.
+D70 (confirmed bug report): a held tool must be put-down-able during cooler mounting without pulling the lever first. Mount start parks tools; right-drag put-down is available while pressing or waiting at zero time. It does not lock/grade/complete the cooler. The user confirms 0.17.1's previous fixes work.
+D71 (discussion only): improve cooler visuals/satisfaction. Presentation directions in DESIGN_PROPOSALS section 6 are proposals, not blanket approval to implement a new pressure/screw/tilt mechanic. Preserve D52/D57.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
