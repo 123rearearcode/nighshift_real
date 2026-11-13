@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs the checker and the Godot 4.7.2 suites; results below. Not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43335195703, branch feature-0.15.1): checker passed; Data schema checks 179, failures 0; Regression checks 442, failures 0.
 
 ### Added / Changed / Fixed / Removed
 - Changed (user request): the cooler is secured by physically clicking a retention **lever** drawn beside the socket (`SECURE_LEVER` in `bench_view.gd`, drawn by `PasteRenderer.draw_lever`). It stands up and glows while it can be pulled and folds down once locked. The Secure cooler button and the Enter shortcut are removed (my reading of "physically click"; easy to restore). When the 10 s of pressing run out, pressing stops and the lever waits; nothing secures automatically (`MountSession.step`).
