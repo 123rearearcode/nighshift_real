@@ -1056,7 +1056,20 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     for frame in range(170): bench._physics_process(1.0/60.0)
     bench.scripted_pressing = false
     for frame in range(20): bench._physics_process(1.0/60.0)
-    bench._finish_mount()
+    for frame in range(600): bench._physics_process(1.0/60.0)
+    check(bench.mount.active and bench.mount_result.is_empty(), "running out of time never secures the cooler by itself")
+    var miss := InputEventMouseButton.new()
+    miss.button_index = MOUSE_BUTTON_LEFT
+    miss.pressed = true
+    miss.position = Vector2(700, 600)
+    bench._input(miss)
+    check(bench.mount.active, "clicking somewhere else does not secure the cooler")
+    var lever := InputEventMouseButton.new()
+    lever.button_index = MOUSE_BUTTON_LEFT
+    lever.pressed = true
+    lever.position = bench.SECURE_LEVER.get_center()
+    bench._input(lever)
+    check(not bench.mount.active and not bench.mount_result.is_empty(), "clicking the lever beside the socket secures the cooler")
     bench._physics_process(1.0/60.0)
     var grade: String = str(bench.mount_result.get("grade", ""))
     check(grade in ["PERFECT", "GOOD ENOUGH"], "a pea-sized dot pressed for about 3 seconds gives a good result (got %s)" % grade)

@@ -81,6 +81,26 @@ static func draw_stage(canvas: CanvasItem, paste: PasteSim, texture: ImageTextur
     _legend_item(canvas, Vector2(origin.x + 330, ly), COLOR_SQUEEZED, "squeezed out")
 
 
+# The cooler's retention lever beside the socket. Up = open (while mounting it can be pulled), down =
+# locked. It glows while it can be pulled and brighter under the cursor. Drawing only.
+static func draw_lever(canvas: CanvasItem, rect: Rect2, can_pull: bool, locked: bool, hovered: bool, time: float) -> void:
+    var pivot := Vector2(rect.get_center().x, rect.end.y - 18.0)
+    canvas.draw_rect(Rect2(pivot - Vector2(16, 10), Vector2(32, 22)), Color(0.30, 0.33, 0.38))
+    canvas.draw_rect(Rect2(pivot - Vector2(16, 10), Vector2(32, 22)), Color(0.62, 0.66, 0.72), false, 2.0)
+    var up: bool = not locked
+    # Open: standing straight up. Locked: folded down flat, pointing away from the socket.
+    var tip: Vector2 = pivot + (Vector2(0, -(rect.size.y - 46.0)) if up else Vector2(84, 0))
+    var arm: Color = Color(0.78, 0.80, 0.84) if not can_pull else Color(0.95, 0.85, 0.45)
+    if can_pull:
+        var glow: float = 0.35 + 0.25 * sin(time * 6.0) + (0.3 if hovered else 0.0)
+        canvas.draw_line(pivot, tip, Color(1.0, 0.85, 0.3, glow * 0.5), 16.0)
+    canvas.draw_line(pivot, tip, arm, 7.0)
+    canvas.draw_circle(tip, 9.0, Color(0.85, 0.22, 0.20) if can_pull else Color(0.55, 0.58, 0.62))
+    canvas.draw_circle(pivot, 5.0, Color(0.15, 0.16, 0.18))
+    var label: String = "LEVER\nclick to lock" if can_pull else ("locked" if locked else "lever")
+    UiStyle.label(canvas, Vector2(rect.position.x - 4, rect.end.y + 16), label, 12, Color(1.0, 0.9, 0.5) if can_pull else Color(0.7, 0.75, 0.8))
+
+
 static func _legend_item(canvas: CanvasItem, pos: Vector2, color: Color, text: String) -> void:
     canvas.draw_rect(Rect2(pos, Vector2(16, 16)), color)
     canvas.draw_rect(Rect2(pos, Vector2(16, 16)), Color(1, 1, 1, 0.6), false, 1.0)

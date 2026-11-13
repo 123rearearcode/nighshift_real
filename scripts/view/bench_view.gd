@@ -107,7 +107,8 @@ var status_label: Label
 var wipe_button: Button
 var mount_button: Button
 var clear_button: Button
-var secure_button: Button
+const SECURE_LEVER := Rect2(552, 250, 44, 210)   # the cooler's retention lever beside the socket: click it to secure the cooler
+var time_up_told: bool = false
 var material_button: Button           # thermal paste or toothpaste (a scam)
 var complete_button: Button           # Complete repaste: appears after a mount, works on a good result
 var clean_controls: Array = []
@@ -227,8 +228,6 @@ func _build_ui() -> void:
     wipe_button = _make_button("Wipe with cloth", Vector2(PANEL_X + 270, 160), Vector2(250, 40), _on_wipe_toggled)
     wipe_button.toggle_mode = true
     clear_button = _make_button("Clear all paste (instant)", Vector2(PANEL_X, 210), Vector2(250, 40), _on_clear_pressed)
-    secure_button = _make_button("Secure cooler (Enter)", Vector2(PANEL_X + 270, 210), Vector2(250, 40), _finish_mount)
-    secure_button.visible = false
     material_button = _make_button("Paste: thermal ($%d)" % int(PasteMaterials.material("thermal")["cost"]), Vector2(PANEL_X, 260), Vector2(250, 40), _on_material_toggled)
     material_button.toggle_mode = true
     complete_button = _make_button("Complete repaste", Vector2(PANEL_X + 270, 260), Vector2(250, 40), _on_complete_pressed)
@@ -264,7 +263,6 @@ func _select_stage(new_stage: int) -> void:
         c.visible = (stage == STAGE_CLEAN)
     for c: Control in paste_controls:
         c.visible = (stage == STAGE_PASTE)
-    secure_button.visible = (stage == STAGE_PASTE and mount.active)
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
@@ -338,7 +336,8 @@ func _on_mount_pressed() -> void:
     holding = false
     wiping = false
     wipe_button.button_pressed = false
-    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Enter or Secure cooler finishes early.", 0)
+    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Then click the lever beside the socket to lock the cooler down.", 0)
+    time_up_told = false
 
 
 # Thermal paste or toothpaste. Only while the CPU is bare: the two are never mixed.
@@ -480,6 +479,11 @@ func _input(event: InputEvent) -> void:
                 holding = false
             return
         if mb.button_index == MOUSE_BUTTON_LEFT:
+            # The cooler is secured by physically clicking its retention lever (there is no button for it).
+            if mb.pressed and stage == STAGE_PASTE and mount.active and SECURE_LEVER.has_point(mb.position):
+                holding = false
+                _finish_mount()
+                return
             if mb.pressed:
                 # With a tool in hand a left click always uses it (it never swaps to a tool lying next to it).
                 var resting: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
@@ -526,8 +530,6 @@ func _input(event: InputEvent) -> void:
                     _select_tool(3)
             elif key.keycode == KEY_3:
                 _select_dispense()
-            elif mount.active and (key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER):
-                _finish_mount()
 
 
 # ---------- simulation tick (fixed 60 Hz) ----------
@@ -717,7 +719,6 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
     mount_button.disabled = mount.active
     wipe_button.disabled = mount.active
     clear_button.disabled = mount.active
-    secure_button.visible = mount.active
     material_button.disabled = mount.active
     var done: bool = bool(GameState.job["paste_done"])
     complete_button.visible = not mount.active and (not mount_result.is_empty() or done)
@@ -734,8 +735,9 @@ func _step_mount(delta: float, mouse: Vector2) -> void:
     var expired: bool = mount.step(delta, pressing, paste)
     live_stats = paste.measure()
     paste_dirty = true
-    if expired:
-        _finish_mount()
+    if expired and not time_up_told:
+        time_up_told = true
+        _set_status("Time is up: the paste has set. Click the lever beside the socket to lock the cooler down.", 2)
 
 func _finish_mount() -> void:
     if not mount.active:
@@ -870,6 +872,8 @@ func _draw_clean_cursor() -> void:
 
 func _draw_paste_stage() -> void:
     PasteRenderer.draw_stage(self, paste, paste_texture, PASTE_ORIGIN, PASTE_CELL, mount)
+    var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
+    PasteRenderer.draw_lever(self, SECURE_LEVER, mount.active, locked, SECURE_LEVER.has_point(get_global_mouse_position()), vfx_time)
 
 func _draw_paste_panel() -> void:
     PasteRenderer.draw_panel(self, paste, PANEL_X, mount, not mount_result.is_empty(), live_stats)

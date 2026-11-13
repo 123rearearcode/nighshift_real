@@ -111,6 +111,7 @@ Written by Claude (Opus 5.5, model id claude-opus-5-5). Decisions D45–D56 in D
 - Dust management: swallowed dust rides a see-through hose to a dust bin (140 units, proposal) and the vacuum stops when the bin is full until the player clicks it to empty it. The hose is a rope with a length limit, curves round pieces, can be right-dragged out of the way, and tugs the vacuum back when taut; a longer hose is a $40 shop upgrade (proposal).
 - Handling: tools and loose parts collide gently as rotated boxes; nothing leaves its area; tools turn with the middle mouse (wheel/drag) or Q/E.
 - Thermal paste (0.15.0): squeeze, mount and press, inspect, then Complete repaste. Only PERFECT or GOOD ENOUGH can be completed; a bad result must be wiped and redone. Real thermal paste costs $3 per repaste (proposal); the final check counts the paste only when completed. Gauge and grade lines were retuned from a scripted playtest: about 100–160 units on the CPU and a 2.5–4 s press give a good result (proposal).
+- Securing (0.15.1, D57): the cooler is locked by clicking a retention lever beside the socket; when the 10 s of pressing are over, the paste has set and the lever waits.
 - Toothpaste (0.15.0, D53): selectable instead of thermal paste while the CPU is bare. Free; stiffer, so it needs more pressure; +14 C in the final check; the customer still pays; recorded in `job.scams`. Nothing happens afterwards yet.
 - Verification: automated suites and a scripted playtest run on Godot 4.7.2 in GitHub Actions; the user playtests by hand. Feel numbers remain proposals.
 

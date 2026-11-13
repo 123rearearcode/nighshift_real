@@ -1,10 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.15.0)
+# Nightshift - Godot Foundation Trial (v0.15.1)
 
 A small playable foundation for the PC repair/shop game. Placeholder shapes and text, one overheating repair ticket, shared player parts storage, tabletop handling and thermal-paste activity. This is not the complete game.
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.15.0.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.15.1.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** to open the shop.
 
@@ -31,7 +31,7 @@ Click **2. Apply thermal paste** to select the syringe. Left-hold on the CPU to 
 
 **Wipe with cloth** toggles the physical cloth. Press the paste tab again to return to syringe. The cloth and syringe also use right-drag toss/recovery. **Clear all paste** is a practice reset.
 
-**Mount cooler** starts the existing 10-second pressure activity. Hold mouse over the socket or Space to press; release to ease off. Watch coverage and overflow. Enter/**Secure cooler** finishes early. Aim for about a pea (the green zone on the gauge, 100-160 units) and a press of roughly 2.5-4 seconds. Starting a new deposit or effective wipe clears the previous grade. The paste picture itself is not saved, only its result.
+**Mount cooler** starts the existing 10-second pressure activity. Hold mouse over the socket or Space to press; release to ease off. Watch coverage and overflow. To lock the cooler down, click the **lever** beside the socket (it glows while it can be pulled). Nothing secures it for you: when the 10 seconds of pressing are up, the paste has set and the lever is waiting. Aim for about a pea (the green zone on the gauge, 100-160 units) and a press of roughly 2.5-4 seconds. Starting a new deposit or effective wipe clears the previous grade. The paste picture itself is not saved, only its result.
 
 **Complete repaste** appears after mounting. It only works on a PERFECT or GOOD ENOUGH result; otherwise wipe the paste off and try again. Completing with thermal paste costs $3. The final check only counts the paste once the repaste is completed.
 

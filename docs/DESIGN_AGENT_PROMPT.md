@@ -1,47 +1,52 @@
-# Prompt for a design agent (copy everything below the line)
+# Prompt for Codex (design pass) — copy everything below the line
 
-Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5) for the user. Give the agent this
-prompt plus the project documents: `docs/PROJECT_BRIEF.md`, `docs/DESIGN.md`, `docs/DECISIONS.md`,
-`docs/ROADMAP.md`, `docs/CURRENT_STATE.md`, `docs/DESIGN_PROPOSALS.md` (and `CHANGELOG.md` if it
-can take more).
+Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5) for the user. Give Codex this prompt
+together with the project (repository access or the v0.15.1 ZIP). Codex worked on this project up to
+0.11.0; `docs/HANDOFF_FOR_CODEX.md` tells it what changed since.
 
 ---
 
-You are a game designer helping me design **Nightshift**, a 2D pixel-art PC repair and shop-management
-game for Steam (Godot 4). I am the creative director and a complete beginner at programming; other AIs
-write the code. I have attached the project's design documents. Read them first. They are the source of
-truth: `DECISIONS.md` lists what I have already decided (D01–D56), `DESIGN.md` explains it, and
-`CURRENT_STATE.md` says what is actually built. Do not contradict a confirmed decision; if you think one
-should change, say so separately and explain why.
+Hi Codex. You worked on Nightshift before: your last version was 0.11.0 (tabletop throws, flexible brush,
+shared replacement stock). The project is now at **0.15.1** and lives in the GitHub repository
+`123rearearcode/nighshift_real`. Claude built 0.11.1 to 0.15.1 since then.
 
-**Where we are.** The repair bench works as a hands-on trial: you clean a dusty PC (brush, vacuum with a
-hose and dust bin, a risky pick, removing the cooler and GPU) and repaste the CPU (squeeze paste, press the
-cooler, inspect, then Complete repaste). You can secretly use **toothpaste instead of thermal paste**: it is
-free, passes today's check, runs hotter, and the customer still pays. Nothing happens afterwards yet.
+**Read first, in this order:** `docs/HANDOFF_FOR_CODEX.md` (what changed since your 0.11.0 and how the
+project is run now), `docs/DECISIONS.md` (D45–D56 are new), `docs/DESIGN.md` sections 18–19,
+`docs/ROADMAP.md` (the "Position after trial 0.15.0" section), `docs/DESIGN_PROPOSALS.md` section 5, then
+the 0.15.0 and 0.15.1 entries in `CHANGELOG.md`. If you have the code, `scripts/data/paste_materials.gd`
+and `GameState.complete_repaste` show how the toothpaste scam works today.
 
-**Where I want to go.** After the bench part is finished, I want the game to go further in this
-direction: **scamming customers through the hands-on repair work itself**, with the same tools as honest
-work, and with consequences. The documents already confirm the general idea (D17, D18, D53, D54) but not
-the details. I also want to give the **dust minigame** a further purpose or twist (D55), and I have not
-decided what yet.
+**This time I need design help, not code.** The repair bench is almost finished. Next I want the game
+to go further in the **scam direction**: cheating customers through the hands-on repair work itself, with
+the same tools as honest work, and with consequences. The first example is already in: you can secretly
+use toothpaste instead of thermal paste (free, passes today's check, runs hotter, the customer still pays;
+the job records it in `job.scams`, but nothing reads that yet). I also want to give the **dust minigame**
+a further purpose or twist, and I have not decided what.
 
-**What I need from you:**
-1. A short list (5–10) of hands-on scam ideas that fit the bench as it is now (cleaning, paste,
-   removable parts, replacement parts, the pick). For each: what the player physically does, what they
-   gain (money, time, stock), what the risk is, and how a customer could find out.
-2. A proposal for **discovery and consequences** that works with D18 (persona-based chance for now):
-   delays (for example toothpaste drying out over days), comebacks, refunds, trust and closeness (D15),
-   shop reputation (D16), online reviews. Keep it simple enough for a first version, and say what can wait.
-3. How to keep **honest work a real, rewarding choice**, so the game is not just "always scam".
-4. Three to five ideas for the **dust minigame's extra purpose**, each in two or three sentences, with
-   one you recommend and why. Say if any idea ties into scams (for example what a customer can and cannot
-   check).
-5. The **questions you need me to answer** before any of this can be built, in priority order.
+**Please deliver one proposal document** with these parts:
+1. **Hands-on scams (5–10 ideas)** that fit the bench as it is now: cleaning (dust under parts, the
+   filter), paste, removable cooler/GPU, budget replacements, the risky pick. For each: what the player
+   physically does, what they gain (money, time, stock), what could go wrong, and how a customer could
+   find out. Mark which ones need nothing new except data, and which need a new system.
+2. **Discovery and consequences, first version:** consistent with D18 (persona-based chance for now; no
+   evidence system). Cover delay (for example toothpaste drying out over days), comebacks, refunds, trust
+   versus closeness (D15), shop reputation (D16). Say exactly what reads `job.scams` and when.
+3. **Keeping honesty worth it:** how honest work stays a real, rewarding choice.
+4. **Dust minigame purpose:** 3–5 ideas in two or three sentences each, one recommendation with reasons,
+   and whether it ties into scams (for example what a customer can and cannot check).
+5. **Smallest fun version:** which 2–3 items you would build first in the trial, in what order, and which
+   files they would touch (from `DEVELOPMENT.md`'s file map), so Claude can implement them later.
+6. **Questions for me**, most important first.
 
-**Rules for your answer:**
-- Use the documents' status words: anything I have not approved is a PROPOSAL. Give numbers only as
-  examples, clearly marked.
-- No code. Plain words; I am a beginner. Short sections and lists are welcome.
-- Do not invent lore, real brand names or real people; brands in this game are parodies.
-- Keep scope small: what is the smallest version that would already be fun?
-- Sign your answer with your name, model name and exact model id (a project rule for every AI).
+**Rules:**
+- Do not contradict a confirmed decision; if you think one should change, say so separately with reasons.
+- Anything I have not approved is a PROPOSAL; numbers are examples only.
+- Plain words, short sections; I am a beginner. No code in the document.
+- Parody brands only; no invented lore, real brands or real people.
+- **Sign the document and its changelog entry with your name, model name and exact model id** (project
+  rule D51), e.g. `Codex (<model name>, model id <id>) in <where you ran>`.
+- **Delivery:** with repository access, create branch `design/scam-direction`, add
+  `docs/SCAM_DESIGN_PROPOSAL.md`, list it in `DEVELOPMENT.md`'s file map, add a patch-version changelog
+  entry (0.15.2, docs only; follow the template and run `python3 -I tools/check_project.py`), and open a
+  pull request. Do not change game code and do not merge. Without repository access, return the document
+  as a file and I will pass it on.

@@ -6,7 +6,7 @@ extends RefCounted
 
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 
-const MOUNT_TIME: float = 10.0         # seconds before the cooler is secured automatically
+const MOUNT_TIME: float = 10.0         # seconds of pressing; after that the paste has set and only the lever is left
 const PRESS_RISE: float = 0.45         # pressure gained per second while pressing
 const PRESS_FALL: float = 0.9          # pressure lost per second when released
 const TARGET_COVER: float = PasteSim.PERFECT_COVER      # coverage that counts as PERFECT
@@ -29,8 +29,11 @@ func finish() -> void:
     pressure = 0.0
 
 
-# One tick. Returns true when time has run out (the caller then finishes the mount).
+# One tick. Returns true once time has run out: pressing then does nothing more and the cooler waits
+# for the player to pull the securing lever (0.15.1: securing is never automatic).
 func step(delta: float, pressing: bool, paste: PasteSim) -> bool:
+    if time_left <= 0.0:
+        pressing = false
     if pressing:
         pressure = minf(1.0, pressure + PRESS_RISE * delta)
     else:
@@ -38,5 +41,5 @@ func step(delta: float, pressing: bool, paste: PasteSim) -> bool:
     var yield_h: float = PasteSim.yield_for_pressure(pressure)
     for k in range(PasteSim.PRESS_STEPS_PER_TICK):
         paste.step(yield_h)
-    time_left -= delta
+    time_left = maxf(0.0, time_left - delta)
     return time_left <= 0.0
