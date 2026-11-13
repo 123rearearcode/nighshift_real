@@ -128,6 +128,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
 | `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
 | `scripts/bench/hand_state.gd` | rules | The hand-state machine: derives the state from flags and says which state changes are allowed (docs/HAND_STATES.md) |
+| `scripts/bench/bench_items.gd` | state/rules | Loose items on the bench (coin, screw): pick up with empty hands, carry, drop; the trash can destroys them; session-local, not saved |
 | `scripts/bench/piece_collision.gd` | sim | Rotated-box collisions between tools and loose parts (pure function on dictionaries; the caller copies results back) |
 | `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
 | `scripts/bench/dust_motes.gd` | sim (cosmetic) | Floating dust specks; never counted in progress, bin or saves |

@@ -178,6 +178,13 @@ func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
     hose_grab = -1
 
 
+# The spool beside the bin: clicking it rewinds the hose. Any clamped point is unclipped and the hose
+# re-lays itself neatly from the bin to wherever the nozzle is now (tangles around pieces are undone).
+func rewind_hose() -> void:
+    unclamp_hose()
+    hose.reset(DustBin.hose_anchor(), hose_end())
+
+
 func unclamp_hose() -> void:
     hose_clamp = -1
 

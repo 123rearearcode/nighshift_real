@@ -39,6 +39,7 @@ const MESSY_OVERFLOW: float = 0.25
 var h: PackedFloat32Array = PackedFloat32Array()
 var flow: PackedFloat32Array = PackedFloat32Array()
 var total_deposited: float = 0.0
+var last_wipe_on_cpu: float = 0.0   # how much the LAST wipe call removed from the CPU itself (not the overflow beside it)
 var material: String = "thermal"    # "thermal" or "toothpaste" (see scripts/data/paste_materials.gd)
 var min_x: int = GRID
 var max_x: int = -1
@@ -106,6 +107,7 @@ func wipe(cx: float, cy: float, radius: float, strength: float, square: bool = f
     var center := Vector2(cx, cy)
     var removed: float = 0.0
     var removed_on_cpu: float = 0.0   # only this part lowers the gauge: paste beside the CPU never counted
+    last_wipe_on_cpu = 0.0
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             var i: int = y * GRID + x
@@ -128,6 +130,7 @@ func wipe(cx: float, cy: float, radius: float, strength: float, square: bool = f
                 removed_on_cpu += v - nv
             h[i] = nv
     total_deposited = maxf(0.0, total_deposited - removed_on_cpu)
+    last_wipe_on_cpu = removed_on_cpu
     return removed
 
 

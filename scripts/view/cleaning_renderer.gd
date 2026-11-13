@@ -4,6 +4,7 @@ extends RefCounted
 
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const Layout = preload("res://scripts/data/layout.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
@@ -58,6 +59,57 @@ static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_don
 
 
 # Floating dust: faint specks that fade in and out as they drift.
+# The hose spool beside the bin. Clicking it rewinds the hose; it glows a little under the cursor.
+static func draw_spool(canvas: CanvasItem, hovered: bool) -> void:
+    var rect: Rect2 = Layout.BENCH_SPOOL
+    canvas.draw_rect(rect.grow(2), Color("171d22"))
+    canvas.draw_rect(rect, Color("3b4752"))
+    var center: Vector2 = rect.get_center()
+    var radius: float = minf(rect.size.x, rect.size.y) * 0.38
+    canvas.draw_circle(center, radius + 3.0, Color("222a31"))
+    canvas.draw_circle(center, radius, Color(0.72, 0.84, 0.92, 0.55) if hovered else Color(0.52, 0.64, 0.72, 0.45))
+    for k in range(3):
+        canvas.draw_arc(center, radius - 2.0 - float(k) * 3.0, 0.0, TAU, 20, Color("2c3640"), 2.0)
+    canvas.draw_circle(center, 4.0, Color("171d22"))
+    UiStyle.label(canvas, Vector2(rect.position.x + 6, rect.end.y + 14), "spool", 12, Color(0.7, 0.75, 0.8))
+
+
+# The trash can. It opens its lid while a carried item hovers over it.
+static func draw_trash(canvas: CanvasItem, ready_to_eat: bool) -> void:
+    var rect: Rect2 = Layout.BENCH_TRASH
+    var body := Rect2(rect.position + Vector2(4, 12), rect.size - Vector2(8, 12))
+    canvas.draw_rect(body, Color("37414b"))
+    canvas.draw_rect(body, Color("5a6872"), false, 2.0)
+    for k in range(3):
+        var x: float = body.position.x + body.size.x * (0.3 + 0.2 * float(k))
+        canvas.draw_line(Vector2(x, body.position.y + 6), Vector2(x, body.end.y - 6), Color("2a333b"), 2.0)
+    var lid := Rect2(rect.position + Vector2(0, 4), Vector2(rect.size.x, 8))
+    if ready_to_eat:
+        canvas.draw_set_transform(lid.position + Vector2(2, 8), -0.5)
+        canvas.draw_rect(Rect2(Vector2.ZERO, lid.size), Color("72d9ad"))
+        canvas.draw_set_transform(Vector2.ZERO, 0.0)
+    else:
+        canvas.draw_rect(lid, Color("46535e"))
+    UiStyle.label(canvas, Vector2(rect.position.x + 2, rect.end.y + 14), "trash", 12, Color(0.7, 0.75, 0.8))
+
+
+# Loose items on the bench (scripts/bench/bench_items.gd). The carried one rides the cursor, lifted.
+static func draw_items(canvas: CanvasItem, items: RefCounted) -> void:
+    for i in range(items.count()):
+        var at: Vector2 = items.centers[i]
+        var held: bool = i == items.carried
+        if held:
+            canvas.draw_circle(at + Vector2(4, 7), 9.0, Color(0, 0, 0, 0.3))
+            at -= Vector2(0, 6)
+        if items.kinds[i] == "coin":
+            canvas.draw_circle(at, 8.0, Color("8a6d1a"))
+            canvas.draw_circle(at, 6.5, Color("d9b13b"))
+            canvas.draw_arc(at, 4.0, 0.0, TAU, 14, Color("8a6d1a"), 1.5)
+        else:
+            canvas.draw_rect(Rect2(at - Vector2(3, 8), Vector2(6, 16)), Color("9aa4ad"))
+            canvas.draw_rect(Rect2(at - Vector2(7, 10), Vector2(14, 5)), Color("7f8a93"))
+
+
 static func draw_motes(canvas: CanvasItem, motes: DustMotes) -> void:
     for i in range(motes.count()):
         var fade: float = sin(PI * clampf(motes.age[i] / motes.life[i], 0.0, 1.0))
