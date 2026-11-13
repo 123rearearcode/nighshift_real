@@ -508,6 +508,12 @@ func _input(event: InputEvent) -> void:
                 holding = false
                 _finish_mount()
                 return
+            # In explicit parts mode, tools lying on a component must not steal its click.
+            if stage == STAGE_CLEAN and active_tool == 2:
+                if mb.pressed: _begin_part_drag(mb.position)
+                else: _finish_part_drag(mb.position)
+                holding = false
+                return
             if mb.pressed:
                 # With a tool in hand a left click always uses it (it never swaps to a tool lying next to it).
                 var resting: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
@@ -518,14 +524,12 @@ func _input(event: InputEvent) -> void:
                         wiping = resting == "cloth"
                         wipe_button.set_pressed_no_signal(wiping)
                         tools.select(resting,mb.position)
+                    # The pickup press is also the beginning of this tool stroke. Waiting for
+                    # a second click made every freshly picked-up tool look broken.
+                    holding = not mount.active
                     return
             if mb.pressed and stage == STAGE_CLEAN and DustBin.RECT.has_point(mb.position):
                 _empty_bin()
-                holding = false
-                return
-            if stage == STAGE_CLEAN and active_tool == 2:
-                if mb.pressed: _begin_part_drag(mb.position)
-                else: _finish_part_drag(mb.position)
                 holding = false
                 return
             if mb.pressed:

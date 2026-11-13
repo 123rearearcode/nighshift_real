@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.10 · 13 November 2026
+Version 1.11 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -146,3 +146,7 @@ D65 (confirmed): overbrushed real dust can move across the case instead of remai
 D66 (confirmed): the clamp is movable but cannot be placed inside the PC. Implementation keeps its whole footprint outside case/bin and on the table; parked hose reach is enforced. Right-drag moves; empty-hand left-click unclips. Position is session-local, not yet persisted.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Recorded interaction correction — trial 0.17.1
+
+D67 (confirmed repair request): tools must work after put-down/pickup and parts must remain removable for cleaning. Reproduced causes: a left pickup discarded its held stroke, and parts clicks were intercepted by resting-tool selection. Same-press pickup/use and parts-mode click priority restore the intended interaction. D64's earlier unresolved first-entry symptom is now reproduced for this concrete sequence. No balance or physics scope change. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

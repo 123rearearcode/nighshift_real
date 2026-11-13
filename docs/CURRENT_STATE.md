@@ -1,6 +1,10 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.10 · 13 November 2026
+Version 1.11 · 13 November 2026
+
+## Current baseline — trial 0.17.1
+
+A user recording enabled reproduction of the previously uncertain tool stall: left pickup consumed the press without starting work. That same-press use now works for cleaning tools and paste tools. Parts-mode input also takes priority over parked tools, restoring GPU/cooler removal, cleaning beneath and refit. No dust tuning/save schema changes. See newest changelog for before/after and target-engine checks. Earlier first-entry uncertainty is superseded for this specific gesture, not an assertion that every possible input issue is solved.
 
 ## Current baseline — trial 0.17.0
 

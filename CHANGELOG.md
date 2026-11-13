@@ -39,6 +39,48 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.17.1 - 2026-11-13 - Restore same-press tool pickup and component removal
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.17.0
+- Type: patch (reproduced input bugs; no new feature or save contract)
+
+### Execution status
+Codex inspected the user's 42-second recording and reproduced both paths on active 0.17.0 with Godot 4.7.2.stable.official.ed1daf0bf headless. Before the fix, 7 of 11 recording-led checks failed. Expanded post-fix coverage includes cleaning tools, paste-tool rack pickup, and both removable components. No interactive graphical acceptance of this patch is claimed.
+
+### Added / Changed / Fixed / Removed
+- Fixed: left-click pickup of a resting tool returned with holding=false, so moving it during that press did no work until release/reclick. Pickup now starts the same held stroke, including cloth/syringe moved from rack onto CPU. Releasing left still stops use.
+- Fixed: Move parts clicks were intercepted by tools lying over a component. Explicit parts-mode press/release now routes to component dragging first. GPU/cooler can be removed, cleaned underneath and refitted even with a parked vacuum covering them.
+- Added: recording-led regression and CI step. Updated current handoff/core documents to supersede prior uncertainty with the reproduced input cause. No dust strength, physics, inventory, payment or save-format change.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Input correction, verification or current handoff |
+| `CHANGELOG.md` | M | Input correction, verification or current handoff |
+| `DEVELOPMENT.md` | M | Input correction, verification or current handoff |
+| `HANDOFF.md` | M | Input correction, verification or current handoff |
+| `README.md` | M | Input correction, verification or current handoff |
+| `project.godot` | M | Input correction, verification or current handoff |
+| `scripts/view/bench_view.gd` | M | Input correction, verification or current handoff |
+| `tools/test_bench_interactions.gd` | A | Recording-led interaction regression |
+| `docs/PROJECT_BRIEF.md` | M | Input correction, verification or current handoff |
+| `docs/DESIGN.md` | M | Input correction, verification or current handoff |
+| `docs/DECISIONS.md` | M | Input correction, verification or current handoff |
+| `docs/CURRENT_STATE.md` | M | Input correction, verification or current handoff |
+| `docs/ROADMAP.md` | M | Input correction, verification or current handoff |
+
+### Checks performed
+Godot 4.7.2 headless: 461 regression, 182 schema, 43 dust-flow, 10 menu and 26 recording-led bench-interaction checks; 722 total, zero failures. New baseline reproduction failed 7 of its original 11 checks before the fix. The expanded suite verifies actual under-dust vacuuming and refit for both components plus cloth/syringe rack pickup. Python project checker PASSED: 42 scripts, 141 resource references, 65 mapped files, five core docs; git diff --check passed. No graphical acceptance claimed.
+
+### Decisions proposed (not approved)
+None. This restores intended interactions rather than adding mechanics or retuning the minigames.
+
+### Known issues and open items
+User graphical acceptance still needed. The supplied recording uses the earlier eight-region UI, but both faults were reproduced on the current nine-region 0.17.0 code. Previous broad first-entry uncertainty is resolved for this input sequence; do not claim every possible unrelated input issue is fixed.
+
+### Next action
+Playtest put-down/pickup without an extra click, and component remove/clean/refit. Then resume the existing work-order/consequences scope.
+
 ## 0.17.0 - 2026-11-13 - Physical dust restoration, case-wide scattering and movable clamp
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.16.0

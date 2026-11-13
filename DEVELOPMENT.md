@@ -92,11 +92,11 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
-| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.10 |
-| `docs/DESIGN.md` | docs | Reconciled core project document version 1.10 |
-| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.10 |
-| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.10 |
-| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.10 |
+| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.11 |
+| `docs/DESIGN.md` | docs | Reconciled core project document version 1.11 |
+| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.11 |
+| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.11 |
+| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.11 |
 | `DEVELOPMENT.md` | docs | This guide |
 | `tools/check_project.py` | tooling | Consistency checker (does not run Godot) |
 | `tools/.gdignore` | tooling | Keeps Godot from scanning `tools/` |
@@ -113,6 +113,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
+| `tools/test_bench_interactions.gd` | tooling | Recording-led put-down/pickup/use regression, rack pickup and remove/clean/refit with tool overlap |
 | `tools/test_dust_flow.gd` | tooling | Actual first-entry/reopen/reset input, transport/traps/mass/snapshot and movable-clamp regressions |
 | `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
 | `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
@@ -321,3 +322,10 @@ Controls: Shift + right-drag hose (or right-drag with empty hands); drop into CL
 `zone_done` is recalculated as dust moves, and saving uses actual fractions rather than overwriting them with 100% for a cached flag. No automatic shake-off deletes particles at the quality threshold. Dislodged dirt is saved while moving even without continued tool input. Vacuum may collect tossed dust immediately; stopping suction makes loose dust settle rather than vanish. Only vacuum/pick extraction removes real dirt (pick remains the approved controlled access exception).
 
 `ToolRig.clamp_position`, `clamp_rect()`, `begin_clamp_drag(point)`, `move_clamp(point)` and `end_clamp_drag()` own session-local clamp placement. Whole fixture stays in TABLE, outside clamp_pc and DustBin.RECT, with reach checked when occupied. Right-drag moves it; empty-hand left-click unclips the hose. Selecting a tool ends a fixture drag. Rendering consumes current pose/blocked flag. CI runs test_dust_flow.gd in addition to existing suites.
+
+
+## 0.17.1 input correction
+
+`bench_view._input` keeps the left press alive (`holding`) after a physical tool pickup, including cloth/syringe picked up outside the CPU area. The same press can pick up a tool and begin its stroke; ordinary release stops use. Explicit Move parts mode routes left press/release to component dragging before resting-tool hit tests, so a parked tool over a GPU/cooler cannot change the mode instead of selecting the component. No dust constants/save fields changed.
+
+The recording-led regression first failed 7 of 11 checks on unchanged 0.17.0. Expanded tests cover both cleaning tools, cloth/syringe rack pickup, and each removable component's remove/under-dust cleaning/refit sequence. CI runs test_bench_interactions.gd. This supersedes the earlier inability to reproduce an undifferentiated first-entry report: the concrete drop/pickup gesture now reproduces it.
