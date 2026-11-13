@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 No game code changed. GitHub Actions ran everything on Godot 4.7.2 headless; results below.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43490915074, branch feature/gdlint): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures). First gdlint report: 767 findings, of which 737 are lines over 100 characters; the substantive rest: 13 duplicated scene/script loads, 9 definitions out of order, 2 files over the length limit (bench_view, test_regressions), 2 classes with too many public methods, 1 function with too many returns (_input), 2 naming complaints (GameState_base, CELL).
 
 ### Added / Changed / Fixed / Removed
 - Added: a `gdlint` step (gdtoolkit 4.x) in the workflow, over `scripts/` and `tools/`. Report-only: it never fails the build while the style backlog exists; the log keeps the full report. Once the backlog is cleared, removing its `continue-on-error` line makes it blocking.
