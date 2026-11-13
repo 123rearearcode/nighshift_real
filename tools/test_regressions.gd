@@ -26,6 +26,7 @@ const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
 const HandState = preload("res://scripts/bench/hand_state.gd")
+const Ids = preload("res://scripts/data/ids.gd")
 
 func _initialize() -> void:
     call_deferred("run_checks")
@@ -1220,15 +1221,15 @@ func test_hand_machine(gs: Node) -> void:
     for frame in range(60): bench._physics_process(1.0/60.0)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "the parked hose can be grabbed")
     check(bench.hand_state() == HandState.CARRYING_HOSE, "carrying the hose is its own hand state")
-    bench._select_tool(DustSim.TOOL_BRUSH)
-    check(not bench.tools.equipped and bench.active_tool != DustSim.TOOL_BRUSH, "keyboard tool switch is refused while carrying the hose")
+    bench._select_tool(Dust.TOOL_BRUSH)
+    check(not bench.tools.equipped and bench.active_tool != Dust.TOOL_BRUSH, "keyboard tool switch is refused while carrying the hose")
     var vacuum_at: Vector2 = bench.tools.motions[Ids.VACUUM].center
     click(bench, MOUSE_BUTTON_LEFT, true, vacuum_at)
     check(not bench.tools.equipped and bench.hand_state() == HandState.CARRYING_HOSE, "a left click on a resting tool is refused while carrying the hose")
     click(bench, MOUSE_BUTTON_LEFT, false, vacuum_at)
     bench.tools.release_hose(bench.tools.hose.pos[8])
     check(bench.hand_state() == HandState.FREE, "letting go of the hose frees the hands")
-    bench._select_tool(DustSim.TOOL_BRUSH)
+    bench._select_tool(Dust.TOOL_BRUSH)
     check(bench.tools.equipped and bench.tools.selected == Ids.BRUSH, "with free hands the same switch works")
     bench.scripted_pointer = null
     bench.queue_free()
