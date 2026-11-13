@@ -91,7 +91,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
-| `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation from today's flags and the allowed moves (specification for work-plan step 6) |
+| `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
@@ -127,6 +127,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_dust_flow.gd` | tooling | Actual first-entry/reopen/reset input, transport/traps/mass/snapshot and movable-clamp regressions |
 | `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
 | `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
+| `scripts/bench/hand_state.gd` | rules | The hand-state machine: derives the state from flags and says which state changes are allowed (docs/HAND_STATES.md) |
 | `scripts/bench/piece_collision.gd` | sim | Rotated-box collisions between tools and loose parts (pure function on dictionaries; the caller copies results back) |
 | `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
 | `scripts/bench/dust_motes.gd` | sim (cosmetic) | Floating dust specks; never counted in progress, bin or saves |

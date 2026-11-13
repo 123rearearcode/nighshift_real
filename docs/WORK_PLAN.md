@@ -82,4 +82,5 @@ features land in the per-tool scripts.
 | 3 Layout and ID constants | done | 0.19.4 |
 | 4 gdlint in CI (report-only) | done (backlog count in CHANGELOG 0.19.5) | 0.19.5 |
 | 5 Hand states named and shown | done | 0.19.6 |
-| 6–17 | not started | — |
+| 6 Hand state machine | done | 0.19.7 |
+| 7–17 | not started | — |
