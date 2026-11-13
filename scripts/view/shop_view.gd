@@ -1,6 +1,7 @@
 # VIEW for the shop screen: shows the repair ticket and cash, and links to the other screens.
 # This is a stand-in for the future day/night loop, kept deliberately plain.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 
 const COLOR_BG := Color(0.11, 0.12, 0.15)
 const COLOR_CARD := Color(0.17, 0.19, 0.24)
@@ -145,8 +146,8 @@ func _on_main_menu_pressed() -> void:
 
 
 func _draw() -> void:
-    draw_rect(Rect2(0, 0, 1280, 720), COLOR_BG)
-    draw_rect(Rect2(40, 105, 600, 340), COLOR_CARD)
-    draw_rect(Rect2(40, 105, 600, 340), Color(0.6, 0.62, 0.7), false, 2.0)
-    draw_rect(Rect2(40, 455, 600, 215), COLOR_CARD)
-    draw_rect(Rect2(40, 455, 600, 215), Color(0.6, 0.62, 0.7), false, 2.0)
+    draw_rect(Layout.SCREEN, COLOR_BG)
+    draw_rect(Layout.SHOP_JOB_CARD, COLOR_CARD)
+    draw_rect(Layout.SHOP_JOB_CARD, Color(0.6, 0.62, 0.7), false, 2.0)
+    draw_rect(Layout.SHOP_LOWER_CARD, COLOR_CARD)
+    draw_rect(Layout.SHOP_LOWER_CARD, Color(0.6, 0.62, 0.7), false, 2.0)

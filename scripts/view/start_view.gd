@@ -1,5 +1,6 @@
 # Title/menu presentation only. The existing shop is the current playable demo.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 
 const DEMO: String = "res://scenes/shop.tscn"
 var load_button: Button
@@ -80,7 +81,7 @@ func _on_achievements() -> void:
 
 
 func _draw() -> void:
-    draw_rect(Rect2(0, 0, 1280, 720), Color("141b24"))
-    draw_rect(Rect2(410, 108, 460, 500), Color("202d39"))
-    draw_rect(Rect2(410, 108, 460, 500), Color("526d7a"), false, 2.0)
+    draw_rect(Layout.SCREEN, Color("141b24"))
+    draw_rect(Layout.START_CARD, Color("202d39"))
+    draw_rect(Layout.START_CARD, Color("526d7a"), false, 2.0)
     draw_line(Vector2(460, 266), Vector2(820, 266), Color("dfad66"), 3.0)

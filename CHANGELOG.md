@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.4 - 2026-11-13 - Layout and ID constants in one place
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.3
+- Type: patch (code health; no behaviour change). Work plan Phase 1 step 3. Touched the hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) for literal replacement only.
+
+### Execution status
+GitHub Actions ran the checker, all suites and the scripted playtest on Godot 4.7.2 headless; results below, including a comparison of the playtest tables with 0.19.3.
+
+Actions result (Godot 4.7.2 headless, run 43488415071, branch feature/constants): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures). All 293 scripted-playtest rows (brush, vacuum, reach, click and paste tables) are identical to 0.19.3 (run 43486404945), compared line by line; only the frame-time rows, which are timings, differ.
+
+### Added / Changed / Fixed / Removed
+- Added `scripts/data/layout.gd`: every fixed screen position that was typed in more than one place or is a physical work area (bench table, PC area, tray, bin, clamp, socket, lever, side panel; shop, hardware-bench and start-screen cards; the window). Values unchanged.
+- Added `scripts/data/ids.gd`: tool ids, tool groups per stage, the cleaning-stage tool slots, stage numbers, serviceable part ids. Values unchanged, so saves are unaffected.
+- Changed: the scripts that owned these values keep their constant names as aliases (`ToolRig.TABLE`, `ServiceAccess.TRAY`, `DustBin.RECT`, `bench_view.PANEL_X`, `SECURE_LEVER`, ...), so other code and the tests did not change. Typed literals such as `"vacuum"`, `["vacuum","brush","pick"]`, `{"vacuum":0,"brush":1,"pick":3}` and `Rect2(0, 0, 1280, 720)` were replaced in `bench_view.gd`, `tool_rig.gd`, `tool_renderer.gd`, `service_access.gd`, `dust_bin.gd`, `dust_zones.gd`, `service_parts.gd`, `pc_renderer.gd`, `game_state.gd`, `shop_view.gd`, `start_view.gd`, `workshop_view.gd`, `hover_card.gd`. Player-visible text (e.g. "cloth", "Under cooler") was left as text.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/layout.gd`, `scripts/data/ids.gd` | A | constants |
+| the 13 scripts listed above | M | literals replaced by constants |
+| `DEVELOPMENT.md`, `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | map, status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. A search confirms no tool/part id string remains outside `ids.gd` except player-visible text, and no screen rectangle literal remains outside `layout.gd` and `pc_layout.gd`. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+Other numbers (tool sizes, hose attach point, panel button positions inside `_build_ui`) were left where they are: they are each used in one place. Step 14 (layout controls) will handle the buttons.
+
+### Next action
+Claude: Phase 1 step 4 (gdlint in CI, report-only). Hot files are free again for Codex after this merge.
+
 ## 0.19.3 - 2026-11-13 - Frame-time measurement in the scripted playtest
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.2
