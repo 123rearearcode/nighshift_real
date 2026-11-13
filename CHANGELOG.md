@@ -47,7 +47,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 GitHub Actions ran the checker, all suites and the scripted playtest on Godot 4.7.2 headless; results below. Headless means the drawing *script* runs but nothing reaches a graphics card: GPU time is not measured, and the machine is GitHub's, not the user's.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43483351739, branch feature/frame-times): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures).
+
+First frame-time table (microseconds; one frame at 60 fps allows 16,667):
+
+| Scene | Physics avg | Physics worst | Redraw avg | Redraw worst |
+| --- | --- | --- | --- | --- |
+| idle bench | 1,348 | 3,921 | 1,081 | 1,456 |
+| brushing | 2,024 | 5,174 | 1,175 | 2,916 |
+| vacuum + moving hose | 3,733 | 5,973 | 1,079 | 1,382 |
+| paste flowing | 3,550 | 9,014 | 98 | 269 |
+| idle paste stage | 4,364 | 6,085 | 91 | 143 |
+
+Reading: nothing is close to the frame budget on this machine (worst single frame about 9 ms of 16.7). The hose costs about 2.4 ms per tick when it moves. Odd: the idle paste stage spends more per tick (4.4 ms) than the idle cleaning bench; something keeps working there while nothing happens. Worth a look in a later step; no change now.
 
 ### Added / Changed / Fixed / Removed
 - Added: a frame-time table at the end of `tools/playtest_bench.gd` (`PLAYTEST FRAMES` lines). Five scenes (idle bench, brushing, vacuum with a moving hose, paste flowing, idle paste stage), 180 real engine frames each; per scene the average and worst physics tick and the average and worst redraw (CPU side), in microseconds. It never fails the build.
