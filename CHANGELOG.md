@@ -39,6 +39,37 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.5 - 2026-11-13 - Code-style checker in CI (report-only)
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`. Earlier 0.19.x steps were made by Claude (Opus 5.5, model id claude-opus-5-5); the session's model changed before this version.
+- Based on: 0.19.4
+- Type: patch (CI only; no game change). Work plan Phase 1 step 4, the last Phase 1 step.
+
+### Execution status
+No game code changed. GitHub Actions ran everything on Godot 4.7.2 headless; results below.
+
+Actions result (Godot 4.7.2 headless, run 43490915074, branch feature/gdlint): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures). First gdlint report: 767 findings, of which 737 are lines over 100 characters; the substantive rest: 13 duplicated scene/script loads, 9 definitions out of order, 2 files over the length limit (bench_view, test_regressions), 2 classes with too many public methods, 1 function with too many returns (_input), 2 naming complaints (GameState_base, CELL).
+
+### Added / Changed / Fixed / Removed
+- Added: a `gdlint` step (gdtoolkit 4.x) in the workflow, over `scripts/` and `tools/`. Report-only: it never fails the build while the style backlog exists; the log keeps the full report. Once the backlog is cleared, removing its `continue-on-error` line makes it blocking.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | gdlint step |
+| `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 suites and the gdlint report via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Which style rules to enforce (or silence) when making the step blocking is an open choice; the default rules are in use for the report.
+
+### Known issues and open items
+The style backlog itself is untouched; clearing it is routine follow-up work inside later steps, not a step of its own.
+
+### Next action
+Phase 1 is complete. Claude: Phase 2 step 5 (naming the hand states, no behaviour change) next; from then until the end of Phase 2, the hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) are owned by Claude, so Codex should not edit them (design docs and non-hot gameplay files remain free).
+
 ## 0.19.4 - 2026-11-13 - Layout and ID constants in one place
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.3
