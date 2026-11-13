@@ -1,5 +1,11 @@
 # Nightshift — Current State and Technical Handoff
 
+Engineering update 0.22.1 (13 November 2026), Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work:
+performance branch only, awaiting Claude cross-review/user playtest. Clamped hose idle sleep with wake
+checks, paste/UI caches and separate static drawing are implemented. Eight automated suites pass on
+Godot 4.7.2; this is not interactive visual acceptance. No gameplay scope/save-format change. Exact
+measurements and limitations: PERFORMANCE.md; delivery validation: latest CHANGELOG entry.
+
 Version 1.13 · 13 November 2026
 
 ## Current baseline — trial 0.19.0

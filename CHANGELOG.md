@@ -39,6 +39,77 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.22.1 - 2026-11-13 - Reduce idle bench work and add a quick CPU profiler
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.22.0, main 9d9be8ec868ae1f02bfdf1c5e38b292309df257e.
+- Type: patch — performance/tooling only; no intended gameplay, balance or save-format change.
+
+### Execution status
+Codex ran Godot 4.7.2.stable.official.ed1daf0bf locally, headless. All eight required suites passed
+(854 checks, zero failures). No interactive graphics/feel acceptance is claimed. Full baseline/changed
+scripted comparisons and a separate sequential quick profile were run; details below and in PERFORMANCE.md.
+GitHub Actions is not claimed here; inspect the PR checks for its independent result.
+
+### Added / Changed / Fixed / Removed
+- Settled clamped hoses can sleep; nozzle/pin/anchor/length/obstacle changes wake them. Small nozzle
+  movements accumulate while asleep. Existing rope iterations, recovery, tug, spool and attachment stay intact.
+- Idle stuck dust skips unnecessary tool-distance/access queries. Residual pull decay, airborne dust,
+  hose flow, fans and saving continue. The existing stationary component-transform guard was already sufficient.
+- Paste measurements and texture uploads cache unchanged state, with material/overlay/identity invalidation;
+  bin and paste controls skip redundant updates. Stage entry resets the paste UI key.
+- Static background/case/grid/tray drawing moved to its own CanvasItem; animated drawing remains in the bench.
+- Added correctness tests and an optional short CPU profiler (mean, p50/p95/p99/max). Safe save writing is
+  unchanged: dirty-PC saves measured about 2.3 ms mean / 4.0 ms p99 here; no asynchronous-save rewrite justified.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/hose_sim.gd` | M | clamped idle sleep, complete constraint wake key, diagnostic counters |
+| `scripts/bench/dust_sim.gd` | M | skip inactive tool-distance/access work on stuck dust |
+| `scripts/bench/paste_sim.gd` | M | revision invalidation and isolated cached measurements |
+| `scripts/view/bench_view.gd` | M | narrow static-layer and cached-control integration |
+| `scripts/view/bench_backdrop.gd` | A | retained static background, tray and PC drawing |
+| `scripts/view/pc_renderer.gd` | M | reusable static PC draw and compatible optional dynamic-only path |
+| `scripts/view/paste_renderer.gd` | M | texture-local revision/material/overlay cache |
+| `tools/test_performance.gd` | A | 24 correctness checks, no host timing thresholds |
+| `tools/profile_bench.gd` | A | short isolated CPU/draw/full-save percentile profile |
+| `.github/workflows/tests.yml` | M | eighth required suite and optional manual quick profile |
+| `docs/PERFORMANCE.md` | A | measured comparison, cache/wake contracts, limitations and handoff |
+| `docs/TESTING.md` | M | eight-suite policy, profiler instructions, clarify fixed pending cases |
+| `docs/CURRENT_STATE.md` | M | scoped engineering progress note |
+| `DEVELOPMENT.md` | M | file map and cache/static-layer contracts |
+| `HANDOFF.md` | M | version, signature, scoped ownership exception and review handoff |
+| `README.md` | M | version heading |
+| `project.godot` | M | version metadata |
+| `CHANGELOG.md` | M | this signed delivery entry |
+
+### Checks performed
+Godot target-engine suites: data schema 182, regression 506, start screen 10, dust flow 43, bench
+interaction 26, bench feedback 27, audio and vacuum 36, performance contracts 24: all passed, zero failures.
+The new suite initially exposed mistakes in its fixtures (pin arguments, CPU deposit coordinates and
+bin capacity name); these were corrected before the passing run. Existing suites passed on the first run.
+Python CI-scope integration tests: 9 passed. Workflow YAML parsed. git diff --check passed.
+Project hygiene: PASSED, zero problems. Fresh source ZIP extracted and checked: PASSED, zero problems; all five core documents included.
+All 311 non-timing PLAYTEST rows match untouched 0.22.0 exactly; both full runs completed without script
+errors. Same-host sequential profiler: clamped idle cleaning mean 3.264 -> 0.300 ms (~91% less work);
+idle clean CPU drawing 1.267 -> 0.926 ms. Detailed percentiles and limits: docs/PERFORMANCE.md.
+
+### Decisions proposed (not approved)
+None. No new mechanic or balance number. Timings are observations on this host, not a player FPS target.
+
+### Known issues and open items
+Headless CPU timings exclude GPU/display latency. Small save samples and container storage cannot
+predict every player's disk spikes; repeat profiling as inventory grows. Active paste spreading remains
+broadly unchanged. Human check of static layering, tool feel, spool and clamp still required.
+This is the user's explicit performance pass during Claude's Phase 2 ownership: only narrow bench_view
+integration edits; tool_rig.gd, game_state.gd, hand-state rules and WORK_PLAN.md are untouched.
+
+### Next action
+Claude cross-reviews this PR before Phase 2 step 7; user playtests, then decides integration. Do not merge
+automatically. Preserve cache invalidation/static redraw contracts during the view split. Who goes next:
+Claude. Hot files free: none (Claude retains Phase 2 ownership; this PR reserves bench_view integration
+until reviewed/integrated).
+
 ## 0.22.0 - 2026-11-14 - Hose attached for good, spool reels the vacuum in, PC power button
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.21.0

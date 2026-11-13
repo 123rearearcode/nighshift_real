@@ -9,6 +9,10 @@ on:
         description: Run the complete brush/angle/paste matrix and frame measurements
         type: boolean
         default: false
+      quick_profile:
+        description: Also run the short CPU percentile profile
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -75,7 +79,8 @@ jobs:
           test_dust_flow|Dust flow
           test_bench_interactions|Bench interaction
           test_bench_feedback|Bench feedback
-          test_audio_and_vacuum|Audio and vacuum"
+          test_audio_and_vacuum|Audio and vacuum
+          test_performance|Performance contracts"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"
@@ -118,6 +123,14 @@ jobs:
           timeout "$limit" godot --headless --path . --script res://tools/playtest_bench.gd -- "${mode_args[@]}" 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
           grep -q "Playtest finished" "$GITHUB_WORKSPACE/playtest.log"
           ! grep -qE "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/playtest.log"
+
+      - name: Quick CPU profile (manual, observational)
+        if: steps.scope.outputs.runtime == 'true' && inputs.quick_profile
+        run: |
+          cd "$PROJECT_DIR"
+          timeout 90 godot --headless --path . --script res://tools/profile_bench.gd 2>&1 | tee "$GITHUB_WORKSPACE/profile.log"
+          grep -q "Profile finished" "$GITHUB_WORKSPACE/profile.log"
+          ! grep -qE "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/profile.log"
 
       - name: Keep the logs
         if: always()

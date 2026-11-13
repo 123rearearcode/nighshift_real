@@ -27,6 +27,8 @@ static func _paste_at(paste: PasteSim, x: int, y: int) -> float:
 # Paste picture: thickness shading, a dark rim on every edge. Paste outside the CPU is orange
 # while mounting and after; red = bare CPU cells is shown only after mounting.
 static func refresh_image(paste: PasteSim, image: Image, texture: ImageTexture, show_result: bool, show_outside: bool) -> void:
+    var stamp: Array = [paste.get_instance_id(),paste.revision,paste.material,show_result,show_outside,image.get_instance_id()]
+    if texture.get_meta("paste_stamp",[]) == stamp: return
     var grid: int = PasteSim.GRID
     for y in range(grid):
         for x in range(grid):
@@ -46,6 +48,8 @@ static func refresh_image(paste: PasteSim, image: Image, texture: ImageTexture, 
                 c = COLOR_BARE
             image.set_pixel(x, y, c)
     texture.update(image)
+    texture.set_meta("paste_stamp",stamp)
+    texture.set_meta("paste_uploads",int(texture.get_meta("paste_uploads",0))+1)
 
 
 static func draw_stage(canvas: CanvasItem, paste: PasteSim, texture: ImageTexture, origin: Vector2, cell_px: int, mount: MountSession) -> void:
