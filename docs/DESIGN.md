@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.8 · 13 November 2026
+Version 1.9 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -136,3 +136,11 @@ Paste retains the good-result Complete repaste gate and physical retention lever
 MINIGAME_RULES.md is the detailed rule specification and completion checklist. Finish the coherent promise/work/claim/handoff/one-consequence loop, including saved progress, no duplicate payments and a human playtest, before describing the minigames as complete. Full campaign, all seven scams and airflow/liquid cooling are separate milestones. D56's fan redistribution remains queued.
 
 Documentation revision signed by Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. No gameplay code changed.
+
+## 21. Start screen and hose refinement — trial 0.16.0
+
+F5 opens New game / Load game / Achievements. New game resets and enters the current shop demo; Load restores a readable save. Achievements is an unavailable placeholder. Starting over confirms replacement of existing progress; normal startup without a save does not create one. Main menu in the shop saves and returns.
+
+The hose follows full cooler/GPU rectangular housings, not fan circles; links must also clear housing corners. Held tools and carried parts pass above it. Shift + right-drag lifts a section (or right-drag with empty hands); dropping it in the desk clamp parks that section. Empty-hand clamp click or re-grabbing releases it. A held-tool throw has priority so the hose cannot steal pickup/throw input. Clamp/hose arrangements are session-local. Other approved dust/paste/scam rules remain unchanged; promises/claims/consequences are still not implemented by this feature.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

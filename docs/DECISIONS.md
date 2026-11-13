@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.8 · 13 November 2026
+Version 1.9 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -130,3 +130,11 @@ D60 (intended rule consequence of accepted B and promise information): distingui
 D55 update: accepted B and customer promises give dust an agreed honesty-versus-speed purpose. Other dust twists remain proposals; D56 fans remain queued. D39 integration facts are superseded: GitHub is connected and this documentation change targets a PR in `123rearearcode/nighshift_real`, without merge.
 
 Signed: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. Exact deployment id is unavailable, so D51 exact-id compliance cannot be claimed; do not fabricate an id.
+
+## Start/menu and hose update — 13 November 2026, trial 0.16.0
+
+D61 (confirmed request): a simple start screen has New game, Load game and Achievements; New game currently leads into the existing demo. Achievements is a clearly labelled placeholder, not a completed achievement system. Existing-save replacement confirmation and no-save Load disabling are protective implementation choices.
+D62 (confirmed request): the hose routes around the cooler's outside housing rather than its round fan. Tools must not get trapped in it. The hose is grabbable and can optionally be parked in a desk clamp. Implementation: full rectangular component obstacles and link clearance, hose below tools/held parts, explicit Shift-right pickup, visible session-local clamp with release. Exact placement and controls remain playtest tuning.
+D63 (workflow update): the user identifies Codex as GPT 6.1 Sol, and explicitly authorises merging all open PRs, including tested work by the other AI. This supersedes the previous task's no-merge instruction. At task start only #10 was open; it was merged. Future unrelated approvals are not inferred from this task.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

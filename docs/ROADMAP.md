@@ -1,6 +1,12 @@
 # Nightshift — Roadmap
 
-Version 1.8 · 13 November 2026
+Version 1.9 · 13 November 2026
+
+## Position after 0.16.0
+
+The requested start/menu and hose refinement are implemented and covered by headless checks. Next human test: New/Load/main-menu flow, hose routing at cooler corners, brush/other tool pickup over hose, clamp/release and taut-hose reach. Achievements remains a placeholder. No new scam/campaign systems were added.
+
+After acceptance, continue the promises/work/claim/one-consequence sequence below. Its previous 0.15.2 gameplay baseline note is historical; the ordering still applies. No release date/completion percentage is inferred from these changes.
 
 ## Current position
 

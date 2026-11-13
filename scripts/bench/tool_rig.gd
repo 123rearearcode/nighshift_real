@@ -16,6 +16,8 @@ const HOSE_TUG: float = 0.5          # share of the taut hose's pull that drags 
 const HOSE_TUG_DEADBAND: float = 4.0 # a hose lagging less than this many px is slack, not taut
 const HOSE_TAUT_FROM: float = 0.9     # the hose counts as taut once its two ends are this share of its length apart
 const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
+const CLAMP_RECT := Rect2(550, 612, 88, 30)
+const CLAMP_POINT := Vector2(594, 627)
 const HOSE_GRAB_RADIUS: float = 12.0  # px; how close to the hose a right click must be to grab it
 const HOSE_GRAB_KEEP: int = 3         # the last points by the nozzle cannot be grabbed (that is the vacuum itself)
 const HOSE_STRETCH_LIMIT: float = 1.04 # the hose never stretches past this multiple of its length
@@ -31,6 +33,7 @@ var flow := HoseFlow.new()           # dust inside the hose on its way to the bi
 var hose_obstacles: Array = []       # pieces on the bench the hose has to lie around (set by the view each step)
 var hose_grab: int = -1              # hose point the player is carrying with the right mouse button, or -1
 var hose_grab_point := Vector2.ZERO
+var hose_clamp: int = -1             # parked rope point; session-local desk arrangement
 var selected: String = "vacuum"
 var equipped: bool = true
 var carrying: bool = false
@@ -51,6 +54,7 @@ func _init() -> void:
 func select(id: String, mouse: Vector2) -> void:
     if not id in IDS: return
     if equipped: park()
+    release_hose()   # selecting another tool never leaves an invisible hand gripping the hose
     selected = id
     bodies[id].active = false
     equipped = true
@@ -135,8 +139,11 @@ func step(delta: float, mouse: Vector2, using: bool) -> void:
     last_tip = tip
     # The bristles bend in the tool's own frame, so the sweep speed is turned into that frame first.
     brush.step(delta,speed.rotated(-float(motions[selected].angle)),active and selected in ["brush","cloth"])
-    if hose_grab >= 0: hose_grab_point = mouse
-    hose.step(delta,DustBin.hose_anchor(),hose_end(),hose_obstacles,hose_grab,hose_grab_point)
+    if hose_grab >= 0:
+        hose_grab_point = mouse.clamp(TABLE.position + Vector2.ONE * 6.0, TABLE.end - Vector2.ONE * 6.0)
+    var pinned_index: int = hose_grab if hose_grab >= 0 else hose_clamp
+    var pinned_at: Vector2 = hose_grab_point if hose_grab >= 0 else CLAMP_POINT
+    hose.step(delta,DustBin.hose_anchor(),hose_end(),hose_obstacles,pinned_index,pinned_at)
     _apply_hose_tug()
 
 
@@ -148,12 +155,41 @@ func grab_hose(point: Vector2) -> bool:
     var index: int = hose.nearest_point(point,HOSE_GRAB_RADIUS,HOSE_GRAB_KEEP)
     if index <= 0: return false
     if equipped: park()
+    hose_clamp = -1
     hose_grab = index
     hose_grab_point = point
     return true
 
-func release_hose() -> void:
+# Drop a carried section into the visible clamp. Too-short sections remain free.
+func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
+    if hose_grab > 0 and CLAMP_RECT.has_point(drop_point):
+        var reach: float = hose.segment * float(hose_grab) * 0.98
+        if DustBin.hose_anchor().distance_to(CLAMP_POINT) <= reach:
+            hose_clamp = hose_grab
     hose_grab = -1
+
+
+func unclamp_hose() -> void:
+    hose_clamp = -1
+
+
+# The hose slides below tools, including held tools, so picking one up cannot trap it.
+# Component housings remain obstacles and use their full rectangular silhouette.
+func set_hose_obstacles(pieces: Array, fitted: Array) -> void:
+    hose_obstacles = []
+    for piece: Dictionary in pieces:
+        if piece.get("kind", "") != "part" or not bool(piece.get("solid", false)):
+            continue
+        # A lifted/dragged component passes above the hose, like a held tool.
+        if float(piece.get("inv_mass", 0.0)) <= 0.0:
+            continue
+        var housing: Dictionary = piece.duplicate()
+        housing["corner_radius"] = 0.0
+        hose_obstacles.append(housing)
+    for piece: Dictionary in fitted:
+        var housing: Dictionary = piece.duplicate()
+        housing["corner_radius"] = 0.0
+        hose_obstacles.append(housing)
 
 
 # The "longer hose" upgrade makes the hose longer.

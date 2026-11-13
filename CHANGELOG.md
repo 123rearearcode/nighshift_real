@@ -39,8 +39,61 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.16.0 - 2026-11-13 - Start menu and snag-free hose with desk clamp
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work. Model identified by the user.
+- Based on: 0.15.2 (PR #10 merged by explicit user instruction)
+- Type: minor (new player-visible start screen and optional hose-clamp mechanic)
+
+### Execution status
+Godot 4.7.2.stable.official.ed1daf0bf was run headlessly by Codex for schema, regression and start-screen integration checks. Earlier intermediate checks used locally installed 4.6.3; the final results below are on 4.7.2. Native graphical launch failed because no display server was available, so visual/mouse-feel acceptance is not claimed. The user reports testing prior AI work, not this new feature.
+
+### Added / Changed / Fixed / Removed
+- Added New game / Load game / Achievements start screen. New enters the existing demo, Load restores progress; achievements clearly unavailable. Confirm before replacing an existing save; disable Load if no readable save. Menu-only startup without a save does not create one. Shop Main menu saves before returning.
+- Fixed hose routing around complete cooler/GPU housings rather than rounded fan-like obstacles; links as well as nodes clear housing corners. Renderer follows the collision-tested links.
+- Fixed tools snagging/stealing hose input: hose slides under tools/held parts; held-tool right-drag wins. Shift-right-drag (or empty-hand right-drag) grabs along the hose, including between nodes. Optional visible desk clamp parks a carried section; click with empty hands or re-grab to release. Too-short sections cannot stretch into it.
+- Added menu/save integration coverage and hose regressions; CI runs the new suite. No save format or cleaning/paste/economy balance changes.
+- Merged the only open PR at inventory (#10); older other-AI PRs were already merged. User's new merge instruction supersedes the earlier docs-only no-merge restriction. Signed current work with the user-identified model; historical signature correction appended without rewriting history.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Menu/hose implementation, verification or reconciled documentation |
+| `CHANGELOG.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `DEVELOPMENT.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `HANDOFF.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `README.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `project.godot` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scenes/start.tscn` | A | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/view/start_view.gd` | A | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/state/game_state.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/bench/hose_sim.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/bench/tool_rig.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/view/bench_view.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/view/shop_view.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `scripts/view/tool_renderer.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `tools/test_regressions.gd` | M | Menu/hose implementation, verification or reconciled documentation |
+| `tools/test_start_screen.gd` | A | Menu/hose implementation, verification or reconciled documentation |
+| `docs/PROJECT_BRIEF.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `docs/DESIGN.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `docs/DECISIONS.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `docs/CURRENT_STATE.md` | M | Menu/hose implementation, verification or reconciled documentation |
+| `docs/ROADMAP.md` | M | Menu/hose implementation, verification or reconciled documentation |
+
+### Checks performed
+Godot 4.7.2: data schema 179 checks, 0 failures; regression 461 checks, 0 failures; start-screen integration 10 checks, 0 failures. Save recovery warnings are intentional tests of damaged saves. Python project checker PASSED: 39 scripts, 130 resource references, 62 mapped files, five core documents; git diff --check passed. Target-engine headless startup smoke checks passed for start, shop, repair bench and hardware bench (isolated smoke save directory).
+
+### Decisions proposed (not approved)
+Clamp position/appearance, Shift-right input and collision/render tuning are implementation choices for playtest. Achievements content/unlocks and existing scam balance remain open. No new campaign or scam system is approved by this feature.
+
+### Known issues and open items
+No interactive graphical validation in this runtime. Clamp/bin/hose arrangements are session-local; this does not add their persistence. Achievements is a placeholder; no Steam integration. Original work-order/claims/consequence backlog remains. User acceptance needed for hose feel/corner clearance and menu layout.
+
+### Next action
+Run/check the feature PR, integrate under the user's merge instruction, then human-playtest menu/load and hose/clamp controls. Continue promises/claims/one-consequence work afterwards.
+
 ## 0.15.2 - 2026-11-13 - Approved scams, customer promises and minigame rules
 - Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. Exact deployment model id is unavailable; see Known issues.
+- Correction (2026-11-13): the user identifies this Codex session as GPT 6.1 Sol; current contributions are signed `Codex (GPT 6.1 Sol, model id gpt-6.1-sol)`. Preserve the original unavailable-id disclosure as the state of knowledge when that patch was written.
 - Based on: 0.15.1
 - Type: patch (documentation and version metadata only)
 

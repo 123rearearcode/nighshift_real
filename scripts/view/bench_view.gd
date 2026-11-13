@@ -266,7 +266,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag / release throws; right-drag the hose to move it. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. With empty hands, click a resting tool to pick it up."
+        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag throws. Shift + right-drag grabs the hose; drop it in the desk clamp. Click the clamp with empty hands to release. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. With empty hands, click a resting tool to pick it up."
         if _done_count() == zones.size():
             _set_status("Resumed saved PC: already clean. Dust is intentionally absent. Choose New dirty PC to practise again, or continue to paste.", 1)
         else:
@@ -457,14 +457,24 @@ func _input(event: InputEvent) -> void:
         if mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
             tools.rotate_held(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
             return
-        # Right mouse grabs things: a resting tool (hand empty), else the hose, else it throws the held tool.
+        # The clamp never steals a held-tool click. Empty hands can unclip it.
         if mb.button_index == MOUSE_BUTTON_RIGHT and not mb.pressed and tools.hose_grab >= 0:
-            tools.release_hose()
+            tools.release_hose(mb.position)
+            if tools.hose_clamp > 0:
+                _set_status("Hose parked in the clamp. Pick up a tool to keep working; click the clamp with empty hands to release.", 1)
+            elif ToolRig.CLAMP_RECT.has_point(mb.position):
+                _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
+            holding = false
             return
-        if mb.button_index == MOUSE_BUTTON_RIGHT and active_tool != 2 and not mount.active:
+        if mb.pressed and stage == STAGE_CLEAN and not tools.equipped and tools.hose_clamp > 0 and ToolRig.CLAMP_RECT.has_point(mb.position):
+            tools.unclamp_hose()
+            _set_status("Hose unclipped. Shift + right-drag to move it again.", 0)
+            holding = false
+            return
+        if mb.button_index == MOUSE_BUTTON_RIGHT and (active_tool != 2 or mb.shift_pressed) and not mount.active:
             if mb.pressed:
                 var candidate: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
-                if candidate == "" and stage == STAGE_CLEAN and tools.grab_hose(mb.position):
+                if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and tools.grab_hose(mb.position):
                     holding = false
                     return
                 if stage == STAGE_CLEAN and candidate in ["vacuum","brush","pick"]:
@@ -610,17 +620,14 @@ func _step_pieces() -> void:
     PieceCollision.resolve(pieces)
     tools.apply_collisions(pieces)
     _apply_part_collisions(pieces)
-    var obstacles: Array = []
-    for piece: Dictionary in pieces:
-        if bool(piece["solid"]) and piece["id"] != "vacuum":
-            obstacles.append(piece)
+    var fitted: Array = []
     if stage == STAGE_CLEAN:
-        # Parts still fitted in the PC stand up from the board: the hose lies around them too.
         for id: String in ServiceAccess.MOVABLE:
             if id in access.removed_ids() or access.dragging == id: continue
             var home: Rect2 = access.homes[id]
-            obstacles.append({"id": id, "center": home.get_center(), "angle": 0.0, "half": home.size * 0.5})
-    tools.hose_obstacles = obstacles
+            fitted.append({"id": id, "center": home.get_center(), "angle": 0.0, "half": home.size * 0.5})
+    tools.set_hose_obstacles(pieces, fitted)
+
 
 
 func _part_pieces() -> Array:

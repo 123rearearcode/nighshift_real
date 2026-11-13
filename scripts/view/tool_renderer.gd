@@ -6,7 +6,9 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
     if rig.selected in order:
         order.erase(rig.selected)
         order.append(rig.selected)
-    if "vacuum" in order: draw_hose(canvas, rig)
+    if "vacuum" in order:
+        draw_hose(canvas, rig)
+        draw_clamp(canvas, rig)
     for id: String in order:
         var motion: RefCounted = rig.motions[id]
         var body: RefCounted = rig.bodies[id]
@@ -47,16 +49,18 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
 
 
 # The vacuum hose: a see-through corrugated tube following the simulated chain of points (drawn
-# through a smooth curve), with the dust it carries visible inside on its way to the bin.
+# along the same collision-tested links), with the dust it carries visible inside on its way to the bin.
 const HOSE_WIDTH: float = 8.0
 static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
     var raw: PackedVector2Array = rig.hose.pos
     if raw.size() < 2: return
-    var points: PackedVector2Array = smooth_curve(raw, 4)
+    var points: PackedVector2Array = raw
     var lifted: bool = rig.hose.pinned()
     canvas.draw_set_transform(Vector2(7,11) if lifted else Vector2(3,5),0.0)
     canvas.draw_polyline(points,Color(0,0,0,0.20 if lifted else 0.26),HOSE_WIDTH+1.0,true)
     canvas.draw_set_transform(Vector2.ZERO)
+    if rig.hose_hit(rig.point):
+        canvas.draw_polyline(points,Color(0.95,0.77,0.4,0.18),HOSE_WIDTH+5.0,true)
     canvas.draw_polyline(points,Color(0.72,0.84,0.92,0.30),HOSE_WIDTH,true)
     # Dust inside the tube.
     var flow: RefCounted = rig.flow
@@ -86,19 +90,14 @@ static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
     canvas.draw_polyline(shine,Color(1,1,1,0.30),1.0,true)
 
 
-# A smooth curve through `points` (Catmull-Rom), with `steps` drawn segments per link. Drawing only.
-static func smooth_curve(points: PackedVector2Array, steps: int) -> PackedVector2Array:
-    var out := PackedVector2Array()
-    var n: int = points.size()
-    for i in range(n - 1):
-        var p0: Vector2 = points[maxi(0, i - 1)]
-        var p1: Vector2 = points[i]
-        var p2: Vector2 = points[i + 1]
-        var p3: Vector2 = points[mini(n - 1, i + 2)]
-        for k in range(steps):
-            var t: float = float(k) / float(steps)
-            var t2: float = t * t
-            var t3: float = t2 * t
-            out.append(0.5 * ((2.0 * p1) + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (3.0 * p1 - p0 - 3.0 * p2 + p3) * t3))
-    out.append(points[n - 1])
-    return out
+static func draw_clamp(canvas: CanvasItem, rig: RefCounted) -> void:
+    var occupied: bool = rig.hose_clamp > 0
+    var hovered: bool = Rig.CLAMP_RECT.has_point(rig.point)
+    var color := Color("76c7b0") if occupied else Color("92a2ad")
+    if hovered: color = Color("f3ca7a")
+    canvas.draw_rect(Rig.CLAMP_RECT, Color("1c2a33"))
+    canvas.draw_rect(Rig.CLAMP_RECT, color, false, 2.0)
+    canvas.draw_arc(Rig.CLAMP_POINT, 7.0, 0.0, PI, 12, color, 3.0, true)
+    canvas.draw_string(ThemeDB.fallback_font, Rig.CLAMP_RECT.position + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
+    if occupied:
+        canvas.draw_circle(Rig.CLAMP_POINT, 4.0, Color("d0e5e3"))

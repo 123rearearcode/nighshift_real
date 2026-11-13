@@ -1,11 +1,21 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.15.2.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.16.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.16.0 — start screen and hose
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026. The user identified the model as GPT 6.1 Sol; use this signature going forward. Earlier truthful unavailable-id notes remain historical. The user authorises merging all open PRs and reports testing the other AI's work. Only #10 was open at inventory; it is now merged. Older PRs were already merged.
+
+F5 opens `start.tscn`: New game starts the existing shop demo; Load resumes saved state (disabled if no readable save); Achievements explicitly says unavailable. Existing saves are replaced only after confirmation. Startup without a save initialises memory without writing a new save. Shop's Main menu saves first. No save-format change.
+
+Hose collisions use full square cooler/GPU housings (including link/corner checks); tools and hand-carried parts pass above the hose. Right-drag of a held tool takes priority. Shift + right-drag explicitly grabs the hose; right-drag also works with empty hands. Drop it in the visible desk clamp; empty-hand click or re-grab releases. Clamp arrangement is session-local and does not change upgrades/bin/paste/economy rules. Geometry/placement and hover are trial UI tuning.
+
+Checks: target Godot 4.7.2 headless schema, regression and start-screen suites; see newest changelog for results. No interactive graphical acceptance is claimed: no display server was available for the attempted native launch. User playtest remains the next step.
 
 ## Documentation update 0.15.2 — read before historical notes
 
