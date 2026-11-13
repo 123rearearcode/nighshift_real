@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43513412848, branch feature/0.21.0): checker passed; all suites green (data schema 182, regression 492 including the promoted and new checks, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures); the pending-defects lane reports 0 known defects. A first run failed 4 checks: the clamp refused to turn at its default spot (it sits so close to the table edge that a 15 degree turn poked 3 px out; turning now nudges it inward instead of refusing) and two of Codex`s 0.19-era tests enforced exactly the refusal the user reported as "the hose does not attach"; they now test the D80 rule (the nearest reachable section clips).
 
 ### Added / Changed / Fixed / Removed
 - Added (D79): graphics power. `ServiceParts.option` gains `power` (similar 100, budget 65); the job gains `required_power` (trial: 60) with save migration; the final check reports "Graphics output is X; this PC needs at least Y" and fails when short (a broken GPU outputs 0). This is the first cut of the user's "PC needs to output at least as much" rule; naming is provisional. The hardware bench's status line now says it is the shop's own spare-parts bench and points to Replacement stock on the repair bench for the customer's parts (the user tried to fix the customer's GPU there; connecting the customer's PC to the hardware bench is open).
