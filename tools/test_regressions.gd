@@ -198,6 +198,7 @@ func run_checks() -> void:
     test_bench_0_20(gs)
     test_promoted_contracts(gs)
     test_0_21(gs)
+    test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
@@ -1298,17 +1299,32 @@ func test_bench_0_20(gs: Node) -> void:
     for frame in range(40): bench._physics_process(1.0/60.0)
     bench.holding = false
     check(bench.mount_result.is_empty() and not gs.can_complete_repaste(), "wiping the CPU itself still clears the result")
-    # The spool rewinds a tangled hose.
+    # The spool reels the vacuum in (0.22.0: it retracts, not just re-lays).
     bench._select_stage(0)
     bench._select_tool(0)
     var corner := Vector2(90, 150)
     bench.scripted_pointer = corner
     for frame in range(240): bench._physics_process(1.0/60.0)
-    var before: float = bench.tools.hose.worst_link_error()
+    bench.tools.park()
     click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_SPOOL.get_center())
-    check(bench.tools.hose.worst_link_error() < maxf(before, 0.5) + 0.001, "clicking the spool re-lays the hose (link error %.2f -> %.2f)" % [before, bench.tools.hose.worst_link_error()])
-    check(bench.tools.hose_clamp == -1, "rewinding unclips the hose from the clamp")
+    check(bench.tools.spool_retracting and bench.tools.hose_clamp == -1, "clicking the spool starts reeling and unclips")
     click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_SPOOL.get_center())
+    var reeled: int = 0
+    while bench.tools.spool_retracting and reeled < 300:
+        bench._physics_process(1.0/60.0)
+        reeled += 1
+    check(not bench.tools.spool_retracting and reeled < 300, "the spool finishes reeling (%d frames)" % reeled)
+    check(bench.tools.motions[Ids.VACUUM].center.distance_to(LayoutData.BENCH_SPOOL.get_center()) < 90.0, "the vacuum ends up at the spool")
+    for frame in range(30): bench._physics_process(1.0/60.0)
+    check(bench.tools.hose.worst_link_error() < 2.0, "the reeled-in hose lies tidily (worst link error %.2f)" % bench.tools.hose.worst_link_error())
+    bench._select_tool(0)
+    bench.scripted_pointer = Vector2(300, 300)
+    for frame in range(5): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_SPOOL.get_center())
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_SPOOL.get_center())
+    check(bench.tools.spool_retracting, "the spool can start with a tool in hand (it is put down first)")
+    bench._equip_tool(Ids.VACUUM, Vector2(300, 300))
+    check(not bench.tools.spool_retracting, "taking the vacuum stops the reel")
     # Loose items: pick up with empty hands, not past the machine, and the trash can eats them.
     bench._select_tool(2)
     var spot := Vector2(400, 300)
@@ -1472,3 +1488,63 @@ func test_0_21(gs: Node) -> void:
     gs.save_game()
     gs.load_game()
     check(int(gs.job["required_power"]) == 100, "the power requirement survives save and load")
+
+
+# 0.22.0: the hose end is attached to the vacuum, the clipped hose is a short leash, the PC power
+# button, and a stress test for "tools disappear when there is no room".
+func test_0_22(gs: Node) -> void:
+    var rig := ToolRig.new()
+    rig.select(Ids.VACUUM, Vector2(560, 380))
+    rig.park()
+    for frame in range(60): rig.step(1.0/60.0, Vector2(560, 380), false)
+    rig.hose_grab = Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1   # a section near the nozzle
+    rig.release_hose(rig.clamp_position)
+    var pin: int = rig.hose_clamp
+    check(pin == Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1, "the hose is clipped near its nozzle end")
+    for frame in range(360): rig.step(1.0/60.0, Vector2(100, 200), false)
+    var last: int = Hose.POINTS - 1
+    check(rig.hose.pos[last].distance_to(rig.hose_end()) < 10.0, "the simulated hose end stays at the vacuum (lag %.1f px; the drawing bridges it)" % rig.hose.pos[last].distance_to(rig.hose_end()))
+    var leash: float = rig.hose.segment * float(last - pin) * ToolRig.HOSE_STRETCH_LIMIT
+    var apart: float = rig.hose.pin_point.distance_to(rig.hose_end())
+    check(apart <= leash + 6.0, "a hose clipped near the nozzle keeps the vacuum on a short leash (%.0f of %.0f px)" % [apart, leash])
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # PC power button: fans stop while off, and the switch survives save and load.
+    check(bool(gs.job["pc_powered"]), "a new job starts powered on")
+    for frame in range(30): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())
+    check(not bool(gs.job["pc_powered"]), "clicking the case button powers the PC off")
+    for frame in range(400): bench._physics_process(1.0/60.0)
+    check(bench.cooler_rpm < 1.0 and bench.case_rpm < 1.0, "the fans wind down to a stop (%.1f / %.1f RPM)" % [bench.cooler_rpm, bench.case_rpm])
+    gs.save_game()
+    gs.load_game()
+    check(not bool(gs.job["pc_powered"]), "the power state survives save and load")
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())
+    for frame in range(240): bench._physics_process(1.0/60.0)
+    check(bool(gs.job["pc_powered"]) and bench.case_rpm > 5.0, "powering back on spins the fans up")
+    # Stress: hurl tools into the crowded tray corner; nothing may vanish or leave the table.
+    var generator := RandomNumberGenerator.new()
+    generator.seed = 777
+    for throw in range(12):
+        var id: String = ["vacuum", "brush", "pick"][throw % 3]
+        bench._select_tool({"vacuum": 0, "brush": 1, "pick": 3}[id])
+        var start := Vector2(generator.randf_range(80, 600), generator.randf_range(140, 600))
+        bench.scripted_pointer = start
+        for frame in range(3): bench._physics_process(1.0/60.0)
+        bench.tools.begin_throw(start)
+        bench.tools.release_throw((Vector2(620, 620) - start).normalized() * generator.randf_range(600, 1500))
+        for frame in range(100): bench._physics_process(1.0/60.0)
+    var lost: Array = []
+    for id: String in ["vacuum", "brush", "pick"]:
+        var at: Vector2 = bench.tools.motions[id].center
+        if not is_finite(at.x) or not is_finite(at.y) or not ToolRig.TABLE.grow(4.0).has_point(at):
+            lost.append("%s at %s" % [id, str(at)])
+    check(lost.is_empty(), "after 12 corner throws every tool is still on the table (%s)" % str(lost))
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    check(bench.tools.hose.pos[Hose.POINTS - 1].distance_to(bench.tools.hose_end()) < 12.0, "the hose end settles at the vacuum after the barrage")
+    bench.scripted_pointer = null
+    bench.queue_free()

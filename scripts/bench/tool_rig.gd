@@ -17,6 +17,8 @@ const HOSE_ATTACH := Vector2(21,-31) # where the hose joins the vacuum, in the v
 const HOSE_TUG: float = 0.5          # share of the taut hose's pull that drags the vacuum back each step
 const HOSE_TUG_DEADBAND: float = 4.0 # a hose lagging less than this many px is slack, not taut
 const HOSE_TAUT_FROM: float = 0.9     # the hose counts as taut once its two ends are this share of its length apart
+const MAX_TUG_STEP: float = 24.0     # px; the hard length limit corrects at most this much per step (no teleports)
+const SPOOL_SPEED: float = 520.0     # px/s; how fast the spool reels the vacuum in
 const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
 const CLAMP_RECT: Rect2 = Layout.BENCH_CLAMP
 const CLAMP_POINT: Vector2 = Layout.BENCH_CLAMP_POINT
@@ -33,6 +35,7 @@ var brush := Brush.new()
 var hose := Hose.new()
 var flow := HoseFlow.new()           # dust inside the hose on its way to the bin (moved by the view)
 var hose_obstacles: Array = []       # pieces on the bench the hose has to lie around (set by the view each step)
+var spool_retracting: bool = false   # the spool is reeling the vacuum in (click the spool; any click on the vacuum stops it)
 var hose_grab: int = -1              # hose point the player is carrying with the right mouse button, or -1
 var hose_grab_point := Vector2.ZERO
 var clamp_position: Vector2 = CLAMP_POINT
@@ -61,6 +64,7 @@ func _init() -> void:
 
 func select(id: String, mouse: Vector2) -> void:
     if not id in IDS: return
+    if id == Ids.VACUUM: spool_retracting = false   # taking the vacuum interrupts the spool
     if equipped: park()
     end_clamp_drag()
     release_hose()   # selecting another tool never leaves an invisible hand gripping the hose
@@ -133,6 +137,7 @@ func contact() -> Vector2:
 
 func step(delta: float, mouse: Vector2, using: bool) -> void:
     point = mouse
+    if spool_retracting: _step_spool(delta)
     if clamp_dragging: move_clamp(mouse)
     for id: String in IDS:
         var body: RefCounted = bodies[id]
@@ -165,6 +170,7 @@ func hose_hit(point: Vector2) -> bool:
     return hose.nearest_point(point,HOSE_GRAB_RADIUS,HOSE_GRAB_KEEP) > 0
 
 func grab_hose(point: Vector2) -> bool:
+    if spool_retracting and hose_hit(point): spool_retracting = false
     var index: int = hose.nearest_point(point,HOSE_GRAB_RADIUS,HOSE_GRAB_KEEP)
     if index <= 0: return false
     if equipped: park()
@@ -194,6 +200,36 @@ func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
 func rewind_hose() -> void:
     unclamp_hose()
     hose.reset(DustBin.hose_anchor(), hose_end())
+
+
+# Clicking the spool starts reeling the vacuum in: the hose winds up and drags the vacuum to the
+# spool. A held vacuum is put down first. Taking the vacuum (or grabbing the hose) stops the reel.
+func start_spool_retract() -> void:
+    unclamp_hose()
+    if equipped and selected == Ids.VACUUM:
+        park()
+    spool_retracting = true
+
+
+func _step_spool(delta: float) -> void:
+    var motion: RefCounted = motions[Ids.VACUUM]
+    var body: RefCounted = bodies[Ids.VACUUM]
+    if selected == Ids.VACUUM and equipped:
+        spool_retracting = false   # it is back in the hand
+        return
+    var target: Vector2 = Layout.BENCH_SPOOL.get_center()
+    var to_spool: Vector2 = target - motion.center
+    if to_spool.length() <= SPOOL_SPEED * delta + 34.0:
+        # Reeled in: the vacuum rests beside the spool and the hose lies in a tidy coil.
+        motion.center = keep_inside(target + Vector2(-52.0, -6.0), motion.angle)
+        motion.velocity = Vector2.ZERO
+        body.active = false
+        spool_retracting = false
+        hose.reset(DustBin.hose_anchor(), hose_end())
+        return
+    body.active = false
+    motion.velocity = to_spool.normalized() * SPOOL_SPEED
+    motion.center = keep_inside(motion.center + motion.velocity * delta, motion.angle)
 
 
 func unclamp_hose() -> void:
@@ -230,21 +266,22 @@ func _apply_hose_tug() -> void:
     var body: RefCounted = bodies[Ids.VACUUM]
     var held: bool = selected == Ids.VACUUM and equipped
     var pull := Vector2.ZERO
-    # The hose runs from the bin, through the point the player holds (if any), to the vacuum.
+    # The hose runs from the bin, through the pinned point (a hand or the clamp, if any), to the
+    # vacuum. Past a pin, only the remaining segments are available: a hose clipped near its nozzle
+    # holds the vacuum on a short leash (0.22.0; before this, the end just hung loose, which looked
+    # like the vacuum head detaching).
     var from: Vector2 = hose.pin_point if hose.pinned() else DustBin.hose_anchor()
-    var used: float = hose.segment*float(hose.pin) if hose.pinned() else 0.0
     var reach: Vector2 = hose_end() - from
-    var length: float = hose.length()
-    var span: float = used + reach.length()
-    # Only a nearly straight hose is taut. A bent hose lagging behind (caught on a piece) never drags the vacuum.
-    if hose.tug.length() > HOSE_TUG_DEADBAND and span > length * HOSE_TAUT_FROM:
+    var available: float = hose.segment * float(Hose.POINTS - 1 - hose.pin) if hose.pinned() else hose.length()
+    var span: float = reach.length()
+    if hose.tug.length() > HOSE_TUG_DEADBAND and span > available * HOSE_TAUT_FROM:
         pull += hose.tug.normalized() * (hose.tug.length() - HOSE_TUG_DEADBAND) * HOSE_TUG
-    if span > length:
-        pull -= reach.normalized() * (span - length) * HOSE_PULL_BACK
-    var limit: float = length * HOSE_STRETCH_LIMIT
+    if span > available:
+        pull -= reach.normalized() * (span - available) * HOSE_PULL_BACK
+    var limit: float = available * HOSE_STRETCH_LIMIT
     var after: Vector2 = reach + pull
-    if used + after.length() > limit:
-        pull -= after.normalized() * (used + after.length() - limit)
+    if after.length() > limit:
+        pull -= after.normalized() * minf(after.length() - limit, MAX_TUG_STEP)
     if pull.length() < 0.05: return
     if held:
         motion.center += pull

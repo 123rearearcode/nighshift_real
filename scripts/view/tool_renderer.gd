@@ -53,8 +53,12 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
 # along the same collision-tested links), with the dust it carries visible inside on its way to the bin.
 const HOSE_WIDTH: float = 8.0
 static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
-    var raw: PackedVector2Array = rig.hose.pos
+    var raw: PackedVector2Array = rig.hose.pos.duplicate()
     if raw.size() < 2: return
+    # The drawn hose is ATTACHED to the vacuum: the simulated end may lag a few pixels behind the
+    # nozzle (more while a clipped-short hose leashes the vacuum); the drawing bridges that, so the
+    # hose never appears to come off (0.22.0, from the user's video).
+    raw[raw.size() - 1] = rig.hose_end()
     var points: PackedVector2Array = raw
     var lifted: bool = rig.hose.pinned()
     canvas.draw_set_transform(Vector2(7,11) if lifted else Vector2(3,5),0.0)
