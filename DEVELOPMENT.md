@@ -86,7 +86,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `HANDOFF.md` | docs | Signed handoff: state, rules for every bot, how to update the changelog, open tasks |
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
-| `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for a design agent (scam direction, dust minigame purpose) |
+| `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for Codex: design pass on the scam direction and the dust minigame purpose |
+| `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.4 |

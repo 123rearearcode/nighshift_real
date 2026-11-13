@@ -39,6 +39,37 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.15.1 - 2026-11-13 - Physical cooler lever; handoff and prompt for Codex
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.15.0
+- Type: patch (interaction change and docs)
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs the checker and the Godot 4.7.2 suites; results below. Not hand-tested.
+
+Actions result (Godot 4.7.2 headless, run 43335195703, branch feature-0.15.1): checker passed; Data schema checks 179, failures 0; Regression checks 442, failures 0.
+
+### Added / Changed / Fixed / Removed
+- Changed (user request): the cooler is secured by physically clicking a retention **lever** drawn beside the socket (`SECURE_LEVER` in `bench_view.gd`, drawn by `PasteRenderer.draw_lever`). It stands up and glows while it can be pulled and folds down once locked. The Secure cooler button and the Enter shortcut are removed (my reading of "physically click"; easy to restore). When the 10 s of pressing run out, pressing stops and the lever waits; nothing secures automatically (`MountSession.step`).
+- Added: `docs/HANDOFF_FOR_CODEX.md` (what changed since Codex's 0.11.0, workflow, what the user will ask). Rewrote `docs/DESIGN_AGENT_PROMPT.md` as a prompt addressed to Codex, with a delivery path (branch, docs-only 0.15.2, PR, no merge).
+- Docs: D57 in DECISIONS, DESIGN section 18, README.
+- Tests: time running out never secures; a click elsewhere does not secure; a click on the lever does.
+
+### Files changed
+A `docs/HANDOFF_FOR_CODEX.md`; M `docs/DESIGN_AGENT_PROMPT.md`, M `scripts/view/bench_view.gd`, M `scripts/view/paste_renderer.gd`, M `scripts/bench/mount_session.gd`, M `tools/test_regressions.gd`, M `docs/DECISIONS.md`, M `docs/DESIGN.md`, M `DEVELOPMENT.md`, M `HANDOFF.md`, M `README.md`, M `CHANGELOG.md`, M `project.godot`.
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Lever position (right of the socket), removing Enter, no automatic securing.
+
+### Known issues and open items
+The lever's look is placeholder shapes, like everything else.
+
+### Next action
+User playtest of the lever; give Codex the prompt.
+
 ## 0.15.0 - 2026-11-13 - Complete repaste, toothpaste scam, paste retune, bigger bin, design docs
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.14.3
