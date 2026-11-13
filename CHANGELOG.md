@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 No game code changed. GitHub Actions ran all suites on Godot 4.7.2 headless; result below. The check counts must equal 0.19.1's.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43454879880, branch feature/test-support): checker passed; same counts as 0.19.1: data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures. A first run did not start because the new step name contained ": " (invalid YAML); fixed.
 
 ### Added / Changed / Fixed / Removed
 - Added `tools/test_support.gd`: the shared base for test suites (`check`, `use_test_save`/`restore_save`, `click`, `finish`). Each of the 7 suites now `extends "res://tools/test_support.gd"` instead of `SceneTree`; their copied `checks`/`failed` counters, `check()` functions, the two copied `click()` helpers and the summary/quit lines were removed. The summary text is unchanged. Save-path handling inside the suites is untouched for now (the helper is there for new suites).
