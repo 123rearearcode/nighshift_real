@@ -39,7 +39,9 @@ button held in the work area, `holding`) is a property inside `USING_TOOL`, not 
 - `DRAGGING_CLAMP` → `FREE` (release: the clamp parks on a valid spot).
 - `MOUNTING` → `FREE` (the lever is clicked; the result panel shows). Nothing else may interrupt a
   mount; a stage switch mid-mount behaves like pulling the lever (the cooler is secured as it lies),
-  and leaving the bench must behave like releasing everything first.
+  and leaving the bench must behave like releasing everything first. Letting go still works: a
+  right-click that would normally wind up a throw parks the tool gently instead (putting a tool down
+  mid-mount is allowed; flinging it is not).
 - `PANEL_OPEN` → `FREE` (the panel closes; any drag or throw was already cancelled when it opened).
 
 Everything not listed is forbidden and refused by the machine since 0.19.7. One superseded behaviour:

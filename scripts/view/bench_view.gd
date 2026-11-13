@@ -611,7 +611,13 @@ func _input(event: InputEvent) -> void:
                     if _equip_tool(candidate,mb.position):
                         wiping = candidate == Ids.CLOTH
                         wipe_button.set_pressed_no_signal(wiping)
-                if tools.equipped and _may_enter(HandState.THROWING): tools.begin_throw(mb.position)
+                if tools.equipped and _may_enter(HandState.THROWING):
+                    tools.begin_throw(mb.position)
+                elif tools.equipped:
+                    # Letting go is always allowed: where a throw is forbidden (mid-mount), the same
+                    # right-click sets the tool down gently instead of winding up.
+                    _sound("handling.putdown",{"kind":tools.selected})
+                    _park_tool()
             else:
                 var was_carrying: bool = tools.carrying
                 tools.release_throw(event_velocity if Time.get_ticks_msec()-pointer_tick < 140 else Vector2.ZERO)
