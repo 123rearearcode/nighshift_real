@@ -1,6 +1,6 @@
 # Run: godot --headless --path . --script res://tools/test_regressions.gd
 # Uses a dedicated test save path and restores the autoload's original in-memory state.
-extends SceneTree
+extends "res://tools/test_support.gd"
 const TableBody = preload("res://scripts/bench/table_body.gd")
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
 const BrushShape = preload("res://scripts/bench/brush_shape.gd")
@@ -25,17 +25,10 @@ const Motes = preload("res://scripts/bench/dust_motes.gd")
 const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
-var failed: int = 0
-var checks: int = 0
 
 func _initialize() -> void:
     call_deferred("run_checks")
 
-func check(ok: bool, label: String) -> void:
-    checks += 1
-    if not ok:
-        failed += 1
-        push_error("FAIL: " + label)
 
 func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
@@ -208,8 +201,7 @@ func run_checks() -> void:
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
     gs.save_path = original_path
-    print("Regression checks: %d, failures: %d" % [checks, failed])
-    quit(1 if failed else 0)
+    finish("Regression")
 
 
 func test_pick_service(gs: Node) -> void:

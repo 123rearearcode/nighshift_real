@@ -1,26 +1,13 @@
 # Visible trapped tails, real clamp input, short hose reach and mount-phase put-down regression.
-extends SceneTree
+extends "res://tools/test_support.gd"
 const Dust = preload("res://scripts/bench/dust_sim.gd")
 const Zones = preload("res://scripts/data/dust_zones.gd")
 const Access = preload("res://scripts/bench/service_access.gd")
 const Rig = preload("res://scripts/bench/tool_rig.gd")
 const Hose = preload("res://scripts/bench/hose_sim.gd")
-var checks: int = 0
-var failed: int = 0
 
 func _initialize() -> void: call_deferred("run_checks")
-func check(ok: bool, message: String) -> void:
-    checks += 1
-    if not ok:
-        failed += 1
-        push_error("FAIL: "+message)
 
-func click(bench: Node, button: int, pressed: bool, at: Vector2) -> void:
-    var event := InputEventMouseButton.new()
-    event.button_index = button
-    event.pressed = pressed
-    event.position = at
-    bench._input(event)
 
 func new_bench(gs: Node) -> Node:
     gs.new_game()
@@ -108,8 +95,7 @@ func run_checks() -> void:
     for suffix in ["", ".bak", ".tmp"]: DirAccess.remove_absolute(gs.save_path+suffix)
     gs.save_path = original
     gs.new_game(false)
-    print("Bench feedback checks: %d, failures: %d"%[checks,failed])
-    quit(1 if failed else 0)
+    finish("Bench feedback")
 
 func test_tails() -> void:
     var dust := Dust.new()

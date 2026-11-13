@@ -77,4 +77,5 @@ features land in the per-tool scripts.
 | Step | State | Version |
 | --- | --- | --- |
 | Plan | approved | 0.19.1 |
-| 1–17 | not started | — |
+| 1 Shared test helper, workflow loop | done | 0.19.2 |
+| 2–17 | not started | — |

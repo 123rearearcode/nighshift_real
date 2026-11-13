@@ -1,17 +1,10 @@
 # Menu integration test. Dedicated save path; never writes the player's save.
-extends SceneTree
+extends "res://tools/test_support.gd"
 const Store = preload("res://scripts/state/save_store.gd")
-var checks: int = 0
-var failed: int = 0
 
 func _initialize() -> void:
     call_deferred("run_checks")
 
-func check(ok: bool, message: String) -> void:
-    checks += 1
-    if not ok:
-        failed += 1
-        push_error("FAIL: " + message)
 
 func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
@@ -69,5 +62,4 @@ func run_checks() -> void:
     gs.save_path = original_path
     current_scene.free()
     gs.new_game(false)
-    print("Start screen checks: %d, failures: %d" % [checks, failed])
-    quit(1 if failed else 0)
+    finish("Start screen")
