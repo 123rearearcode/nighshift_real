@@ -1,5 +1,7 @@
 # Prompt for Codex (design pass) — copy everything below the line
 
+**Historical prompt:** its first design pass is complete. For new tasks read D58–D60, SCAM_DESIGN_PROPOSAL.md and MINIGAME_RULES.md first; do not reopen seven accepted concepts or rejected C.
+
 Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5) for the user. Give Codex this prompt
 together with the project (repository access or the v0.15.1 ZIP). Codex worked on this project up to
 0.11.0; `docs/HANDOFF_FOR_CODEX.md` tells it what changed since.

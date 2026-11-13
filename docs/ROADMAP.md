@@ -1,9 +1,23 @@
 # Nightshift — Roadmap
 
-Version 1.7 · 13 November 2026
+Version 1.8 · 13 November 2026
 
 ## Current position
-Browser prototype v0.9 is historical reference. Active Godot foundation trial reached 0.7.1; patch 0.7.2 reconciled documentation; 0.8.0 implements servicing/layout fixes and regression tests. Current milestone remains stabilisation before campaign expansion. No release date or completion percentage is promised.
+
+Documentation patch 0.15.2 records approvals on the unchanged gameplay baseline 0.15.1. The bench is a substantial trial, not a complete shop game. Seven scam concepts are accepted, C is rejected, and the next connected slice needs visible promises, separate actual work/claims and consequences. No completion percentage or release date is justified yet.
+
+## Immediate sequence and exit gates
+
+| Order | Work | Exit condition |
+| --- | --- | --- |
+| 1 | Human acceptance of the 0.15.1 physical bench | Honest paste and toothpaste paths, dust tools, lever, save/reopen are understandable and enjoyable |
+| 2 | Persistent customer agreement and work-order display | Promises stay visible across views/reload; hidden real budget stays private |
+| 3 | Separate quality/function/claim/handoff | Honest and dishonest cleaning remain physically distinct; no false dirt credit or broken-part bypass |
+| 4 | Archive delivery and one toothpaste consequence | Delayed complaint and chosen remedy happen once, survive a new ticket/reload and affect the correct social records |
+| 5 | Review pacing, ownership and economy | No lost customer parts, duplicate charges/payouts or unclear remaining work; see MINIGAME_RULES section 6 |
+| 6 | Expand the shop cycle and remaining accepted scams in bounded tasks | Quotes/diagnosis/condition/residual paste exist before their dependent scams; preserve the broader milestones below |
+
+This sequence is an implementation recommendation, not a claim that its code exists or that its example consequence balance is approved. D56 fan redistribution stays queued. Finish the core bench loop before requiring every accepted scam or full airflow simulation.
 
 ## Milestones and exit conditions
 | Stage | Work | Exit condition |

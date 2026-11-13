@@ -39,6 +39,49 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.15.2 - 2026-11-13 - Approved scams, customer promises and minigame rules
+- Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. Exact deployment model id is unavailable; see Known issues.
+- Based on: 0.15.1
+- Type: patch (documentation and version metadata only)
+
+### Execution status
+Godot was NOT run for this patch. Gameplay scripts/scenes are unchanged. Current gameplay is 0.15.1; this patch does not implement its newly documented design. Human acceptance is still needed. Branch `design/scam-direction`, PR without merge.
+
+### Added / Changed / Fixed / Removed
+- Record user acceptance of A/B/D/E/F/G/H and rejection of C. Preserve stable IDs, normal filter work and ownership rules.
+- Specify visible customer promises and intended separation of agreement, actual work, completion claim and functional result. Retain physical dust/paste rules; document the current cleanliness gate as an implementation gap.
+- Add a completion checklist and scoped next steps; reconcile the five core document summaries and current GitHub workflow. Consequence numbers/UI/limited-service details stay proposals.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Approved design, state tracking or contributor handoff |
+| `DEVELOPMENT.md` | M | Approved design, state tracking or contributor handoff |
+| `HANDOFF.md` | M | Approved design, state tracking or contributor handoff |
+| `README.md` | M | Approved design, state tracking or contributor handoff |
+| `project.godot` | M | Version metadata only |
+| `docs/PROJECT_BRIEF.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/DESIGN.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/DECISIONS.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/CURRENT_STATE.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/ROADMAP.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/DESIGN_PROPOSALS.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/DESIGN_AGENT_PROMPT.md` | M | Approved design, state tracking or contributor handoff |
+| `docs/SCAM_DESIGN_PROPOSAL.md` | A | Approved design, state tracking or contributor handoff |
+| `docs/MINIGAME_RULES.md` | A | Approved design, state tracking or contributor handoff |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems; 37 scripts scanned, 121 resource references, 59 mapped files, all five core documents present. `git diff --check`: passed. File-scope review confirms only Markdown documents and project.godot version metadata changed; no scripts/scenes. Godot was not run.
+
+### Decisions proposed (not approved)
+Exact limited-service zone lists, functional thresholds, promise-strip UI, quote revision flow, complaint delays/odds/remedies and numerical balance. Accepted concepts do not approve all earlier examples. D56 fans remain queued.
+
+### Known issues and open items
+D51 requests an exact model id; this session exposes no deployment id. The truthful signature above is not full exact-id compliance. The checker only recognises the words `model id`, not their truth/completeness. No gameplay implementation or human acceptance is claimed. A delivered-job archive and a reader for `job.scams` are still missing.
+
+### Next action
+Review this documentation PR without merging automatically; human-test the baseline, then implement persistent promises, claim separation and the first delayed toothpaste consequence in bounded gameplay changes.
+
 ## 0.15.1 - 2026-11-13 - Physical cooler lever; handoff and prompt for Codex
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.15.0

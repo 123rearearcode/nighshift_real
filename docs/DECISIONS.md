@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.7 · 13 November 2026
+Version 1.8 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -118,3 +118,15 @@ D54 (confirmed direction): after the current bench/servicing part of the project
 D55 (open): the dust minigame needs a further purpose or twist; the user is thinking about it. Do not build changes to its goal until the user decides.
 D57 (confirmed, 0.15.1): securing the cooler is a physical action: click the retention lever beside the socket. No Secure button, no Enter shortcut, no automatic securing.
 D56 (superseded plan): fans swirling dust and blowing it under components were planned as 0.15.0; the user redirected 0.15.0 to the paste game. The fan idea stays queued (DESIGN_PROPOSALS.md section 5), not cancelled.
+
+## Approved scam/minigame update — 13 November 2026, docs 1.8 / patch 0.15.2
+
+D58 (confirmed concepts; supersedes D54's OPEN concept selection): the user accepts A toothpaste, B visible-only cleaning sold as full, D budget part presented as quoted spec, E used-as-new, F pick damage blamed on the original fault, G old paste billed as fresh, H unnecessary replacement presented as needed. C filter face-lift is rejected. Preserve stable letter IDs and ordinary filter cleaning D50. Details/numbers in the proposal are not blanket-approved; no gameplay implementation accompanies this entry.
+
+D59 (confirmed requirement): make customer promises available to the player while working: agreed work, parts/material/condition where specified, price/spending authorisation, collection date and revisions, with customer/PC identity. Unknown terms stay unknown; the hidden true budget stays hidden. Exact UI is proposed.
+
+D60 (intended rule consequence of accepted B and promise information): distinguish agreement, actual work, completion claim and functional result. Leave real dirt/material/specification unchanged when lying; do not auto-detect lies through private records. Full-clean grading and return eligibility must be separable, while functional assembly/damage checks remain. MINIGAME_RULES.md supplies the intended rules; exact service menus, thresholds and revision approval are proposals. Current 0.15.1 gates are unchanged by this docs patch.
+
+D55 update: accepted B and customer promises give dust an agreed honesty-versus-speed purpose. Other dust twists remain proposals; D56 fans remain queued. D39 integration facts are superseded: GitHub is connected and this documentation change targets a PR in `123rearearcode/nighshift_real`, without merge.
+
+Signed: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. Exact deployment id is unavailable, so D51 exact-id compliance cannot be claimed; do not fabricate an id.
