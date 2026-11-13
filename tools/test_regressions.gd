@@ -1262,12 +1262,13 @@ func test_bench_0_20(gs: Node) -> void:
     click(bench, MOUSE_BUTTON_LEFT, false, tray_spot)
     check(Ids.COOLER in bench.access.removed_ids(), "releasing on the tray removes the cooler")
     check(Ids.COOLER in gs.job["removed_parts"], "the removal reaches the save state")
-    for frame in range(5): bench._physics_process(1.0/60.0)
-    click(bench, MOUSE_BUTTON_LEFT, true, bench.access.current_rect(Ids.COOLER).get_center())
+    for frame in range(90): bench._physics_process(1.0/60.0)   # the parked part eases to its spot; click where it is DRAWN, like a player
+    var drawn: Vector2 = (bench._part_rects()[Ids.COOLER] as Rect2).get_center()
+    click(bench, MOUSE_BUTTON_LEFT, true, drawn)
     check(bench.access.dragging == Ids.COOLER, "the removed cooler can be lifted from the tray")
     var home_spot: Vector2 = bench.access.homes[Ids.COOLER].get_center()
-    for frame in range(30):
-        bench.scripted_pointer = tray_spot.lerp(home_spot, float(frame) / 29.0)
+    for frame in range(40):
+        bench.scripted_pointer = drawn.lerp(home_spot, float(frame) / 39.0)
         bench._physics_process(1.0/60.0)
     click(bench, MOUSE_BUTTON_LEFT, false, home_spot)
     check(not Ids.COOLER in bench.access.removed_ids(), "releasing on the mount refits the cooler")
@@ -1286,11 +1287,12 @@ func test_bench_0_20(gs: Node) -> void:
     click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
     var grade: String = str(bench.mount_result.get("grade", ""))
     check(grade in ["PERFECT", "GOOD ENOUGH"], "the lever secures a good mount (got %s)" % grade)
+    var outside: Vector2 = bench.PASTE_ORIGIN + Vector2(3.0, 25.0) * float(bench.PASTE_CELL)   # left of the CPU square
+    bench.scripted_pointer = outside   # the cloth equips snapped to the cursor, so it starts here, off the CPU
     bench.wipe_button.button_pressed = true
     bench._on_wipe_toggled()
     check(bench.wiping and bench.tools.selected == Ids.CLOTH, "after the lever the cloth can be taken")
-    var outside: Vector2 = bench.PASTE_ORIGIN + Vector2(3.0, 25.0) * float(bench.PASTE_CELL)   # left of the CPU square
-    bench.scripted_pointer = outside
+    for frame in range(10): bench._physics_process(1.0/60.0)
     bench.holding = true
     for frame in range(40): bench._physics_process(1.0/60.0)
     bench.holding = false
