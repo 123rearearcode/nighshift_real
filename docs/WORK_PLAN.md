@@ -81,4 +81,5 @@ features land in the per-tool scripts.
 | 2 Frame-time measurement | done (first numbers in CHANGELOG 0.19.3) | 0.19.3 |
 | 3 Layout and ID constants | done | 0.19.4 |
 | 4 gdlint in CI (report-only) | done (backlog count in CHANGELOG 0.19.5) | 0.19.5 |
-| 5–17 | not started | — |
+| 5 Hand states named and shown | done | 0.19.6 |
+| 6–17 | not started | — |

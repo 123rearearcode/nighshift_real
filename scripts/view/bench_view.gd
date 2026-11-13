@@ -502,6 +502,19 @@ func _on_back_pressed() -> void:
 # ---------- input ----------
 
 # Where the pointer is: the real mouse, or a scripted position during an automated playtest.
+# Which hand state the bench is in (docs/HAND_STATES.md). Step 5 of the work plan: read-only, derived
+# from today's flags in priority order; nothing acts on it yet. Step 6 will route input through it.
+func hand_state() -> String:
+    if is_instance_valid(replacement_panel) and replacement_panel.visible: return "PANEL_OPEN"
+    if mount.active: return "MOUNTING"
+    if tools.clamp_dragging: return "DRAGGING_CLAMP"
+    if tools.hose_grab >= 0: return "CARRYING_HOSE"
+    if access.dragging != "": return "DRAGGING_PART"
+    if tools.carrying: return "THROWING"
+    if tools.equipped: return "USING_TOOL"
+    return "FREE"
+
+
 func _pointer() -> Vector2:
     return scripted_pointer if scripted_pointer is Vector2 else get_global_mouse_position()
 
