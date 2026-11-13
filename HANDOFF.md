@@ -1,11 +1,21 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.18.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.19.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.19.0 — bin feedback, hose recovery and silent audio
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
+
+Read AUDIO_DESIGN.md for the new silent contract. AudioFeedback only emits events, never sound; sim/rules/state do not depend on it. View owners stop loops on stage exit/tree exit, cooldowns/history are bounded and freed owners are pruned. New test_audio_and_vacuum.gd runs in CI. No save migration.
+
+Video: bin fills around 35 seconds, intentionally stopping extraction; switching tools used to overwrite its only warning. Persistent status and Empty bin action fix that confusion. Tool/service rows are regrouped. Hose 2-opt untangling plus rare pinned-fold arc reseeding fix replayed crossings. Pinned reach now reserves segment count, not straight-line distance. Exact recovery feel needs human testing; no claim of graphics QA.
+
+Cooler request is interaction design, not art. Pressure/release and lever feedback goals accepted; exact new puzzle still proposed. Back cancels unfinished mounting rather than bypassing the physical lever. Preserve existing grading/completion gates.
 
 ## Current update 0.18.0 — trapped threads, clamp, reach and mount put-down
 

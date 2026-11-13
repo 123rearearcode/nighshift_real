@@ -1,6 +1,14 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.12 · 13 November 2026
+Version 1.13 · 13 November 2026
+
+## Current baseline — trial 0.19.0
+
+Recording diagnosis: the bin reaches 100% around 35 seconds; suction stops by the intended capacity rule, but switching tools overwrote its transient explanation. A persistent status and nearby Empty bin action now expose that state. No capacity bypass or vacuum-power change. Tool, maintenance and thermal controls are regrouped. Hose self-crossings lacked a constraint; recovery now untangles them, including pin transitions. Occupied clamp reach uses the actual pinned segment count.
+
+Silent audio foundation: 28 cue definitions, six mixer buses, lifecycle-managed loops and actual action hooks on repair/hardware/shop/menu screens. No sound samples, players or playback. Audio never changes simulation or reveals hidden scams. AUDIO_DESIGN.md distinguishes implemented contracts from future sonic choices. Leaving an unlocked mount cancels it rather than automatically finishing it.
+
+Cooler pressure/release and deliberate lever feedback are accepted design goals; artwork is deferred and a replacement pressure puzzle is not selected. Automated target-engine results are recorded in CHANGELOG; human feel/layout acceptance remains necessary. No save-format change.
 
 ## Current baseline — trial 0.18.0
 

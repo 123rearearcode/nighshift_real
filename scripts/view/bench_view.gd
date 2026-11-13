@@ -117,6 +117,11 @@ var complete_button: Button           # Complete repaste: appears after a mount,
 var clean_controls: Array = []
 var paste_controls: Array = []
 var tool_buttons: Array = []
+var empty_bin_button: Button
+var vacuum_status: Label
+var _audio_activity: Dictionary = {}
+var _impact_counts: Dictionary = {}
+var stock_button: Button
 
 
 func _ready() -> void:
@@ -155,7 +160,45 @@ func _initialize_dust() -> void:
     tools.clamp_pc = dust.case_bounds
 
 
+func _sound(id: String, context: Dictionary = {}) -> void:
+    var details: Dictionary = context.duplicate(true)
+    if not details.has("position"): details["position"] = tools.point
+    if is_instance_valid(AudioFeedback): AudioFeedback.request(self,id,details)
+
+func _equip_tool(id: String, at: Vector2) -> void:
+    var previous: String = tools.selected if tools.equipped else ""
+    tools.select(id,at)
+    if previous != id:
+        if previous != "": _sound("handling.putdown",{"kind":previous})
+        _sound("handling.pickup",{"kind":id})
+
+func _park_tool() -> void:
+    if tools.equipped: _sound("handling.putdown",{"kind":tools.selected})
+    tools.park()
+
+func _audio_loop(id: String, enabled: bool, context: Dictionary = {}) -> void:
+    _audio_activity[id] = {"enabled":enabled,"context":context}
+
+func _sync_audio() -> void:
+    for id: String in AudioFeedback.Cues.CUES:
+        if not bool(AudioFeedback.Cues.CUES[id]["loop"]): continue
+        var activity: Dictionary = _audio_activity.get(id,{})
+        AudioFeedback.set_loop(self,id,bool(activity.get("enabled",false)),activity.get("context",{}))
+    for id: String in part_bodies:
+        var impacts: int = part_bodies[id].impacts
+        var key: String = "part:"+id
+        if impacts > int(_impact_counts.get(key,0)):
+            _sound("handling.impact",{"kind":id,"speed":part_bodies[id].velocity.length()})
+        _impact_counts[key] = impacts
+    for id: String in ToolRig.IDS:
+        var impacts: int = tools.bodies[id].impacts
+        if impacts > int(_impact_counts.get(id,0)):
+            _sound("handling.impact",{"kind":id,"speed":tools.bodies[id].velocity.length()})
+        _impact_counts[id] = impacts
+
+
 func _exit_tree() -> void:
+    if is_instance_valid(AudioFeedback): AudioFeedback.stop_owner(self)
     _save_dust()
 
 
@@ -198,6 +241,7 @@ func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable,
         b.toggle_mode = true
         b.button_group = group
     b.pressed.connect(callback)
+    b.pressed.connect(func() -> void: _sound("ui.click"))
     add_child(b)
     return b
 
@@ -206,44 +250,55 @@ func _build_ui() -> void:
     title_label = Label.new()
     title_label.position = Vector2(40, 16)
     title_label.size = Vector2(1200, 70)
-    title_label.add_theme_font_size_override("font_size", 20)
+    title_label.add_theme_font_size_override("font_size", 18)
+    title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     add_child(title_label)
 
     status_label = Label.new()
-    status_label.position = Vector2(PANEL_X, 550)
+    status_label.position = Vector2(PANEL_X, 556)
     status_label.size = Vector2(520, 85)
     status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     status_label.add_theme_font_size_override("font_size", 16)
     add_child(status_label)
 
     var stage_group := ButtonGroup.new()
-    var b1: Button = _make_button("1. Clean the PC", Vector2(PANEL_X, 100), Vector2(250, 40), _select_stage.bind(STAGE_CLEAN), stage_group)
-    _make_button("2. Apply thermal paste", Vector2(PANEL_X + 270, 100), Vector2(250, 40), _select_stage.bind(STAGE_PASTE), stage_group)
+    var b1: Button = _make_button("Cleaning", Vector2(PANEL_X, 100), Vector2(250, 40), _select_stage.bind(STAGE_CLEAN), stage_group)
+    _make_button("Thermal service", Vector2(PANEL_X + 270, 100), Vector2(250, 40), _select_stage.bind(STAGE_PASTE), stage_group)
     b1.button_pressed = true
 
     var tool_group := ButtonGroup.new()
-    var vac: Button = _make_button("Vacuum (1)", Vector2(PANEL_X, 160), Vector2(250, 40), _select_tool.bind(DustSim.TOOL_VACUUM), tool_group)
-    var brush: Button = _make_button("Brush (2)", Vector2(PANEL_X + 270, 160), Vector2(250, 40), _select_tool.bind(DustSim.TOOL_BRUSH), tool_group)
+    var vac: Button = _make_button("Vacuum (1)", Vector2(PANEL_X, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_VACUUM), tool_group)
+    var brush: Button = _make_button("Brush (2)", Vector2(PANEL_X + 133, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_BRUSH), tool_group)
     vac.button_pressed = true
     tool_buttons = [vac, brush]
-    var reset_dust: Button = _make_button("New dirty PC", Vector2(PANEL_X + 270, 645), Vector2(250, 40), _new_ticket)
-    move_button = _make_button("Move parts (3)", Vector2(PANEL_X, 210), Vector2(250, 40), _select_tool.bind(2), tool_group)
+    var reset_dust: Button = _make_button("Practice: new dirty PC", Vector2(PANEL_X + 270, 645), Vector2(250, 40), _new_ticket)
+    move_button = _make_button("Move parts (3)", Vector2(PANEL_X + 266, 164), Vector2(120, 36), _select_tool.bind(2), tool_group)
     tool_buttons.append(move_button)
-    var pick_button: Button = _make_button("Dust pick (4) / risky", Vector2(PANEL_X + 270, 210), Vector2(250, 40), _select_tool.bind(3), tool_group)
+    var pick_button: Button = _make_button("Pick (4) / risky", Vector2(PANEL_X + 399, 164), Vector2(120, 36), _select_tool.bind(3), tool_group)
     tool_buttons.append(pick_button)
-    var parts_button: Button = _make_button("Replacement stock", Vector2(420, 655), Vector2(240, 28), _open_replacements)
-    clean_controls = [vac, brush, reset_dust, move_button, pick_button, parts_button]
+    for b: Button in [vac,brush,move_button,pick_button]: b.add_theme_font_size_override("font_size",14)
+    empty_bin_button = _make_button("Empty bin",Vector2(PANEL_X,220),Vector2(250,32),_empty_bin)
+    stock_button = _make_button("Replacement stock",Vector2(PANEL_X+270,220),Vector2(250,32),_open_replacements)
+    vacuum_status = Label.new()
+    vacuum_status.position = Vector2(PANEL_X,260)
+    vacuum_status.size = Vector2(520,24)
+    vacuum_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    vacuum_status.add_theme_font_size_override("font_size",16)
+    add_child(vacuum_status)
+    clean_controls = [vac,brush,reset_dust,move_button,pick_button,empty_bin_button,stock_button,vacuum_status]
+    _refresh_vacuum_status()
 
-    mount_button = _make_button("Mount cooler (timed)", Vector2(PANEL_X, 160), Vector2(250, 40), _on_mount_pressed)
+    mount_button = _make_button("Mount cooler", Vector2(PANEL_X, 210), Vector2(250, 40), _on_mount_pressed)
     wipe_button = _make_button("Wipe with cloth", Vector2(PANEL_X + 270, 160), Vector2(250, 40), _on_wipe_toggled)
     wipe_button.toggle_mode = true
-    clear_button = _make_button("Clear all paste (instant)", Vector2(PANEL_X, 210), Vector2(250, 40), _on_clear_pressed)
-    material_button = _make_button("Paste: thermal ($%d)" % int(PasteMaterials.material("thermal")["cost"]), Vector2(PANEL_X, 260), Vector2(250, 40), _on_material_toggled)
+    clear_button = _make_button("Reset paste (practice)", Vector2(PANEL_X, 260), Vector2(250, 28), _on_clear_pressed)
+    material_button = _make_button("Paste: thermal ($%d)" % int(PasteMaterials.material("thermal")["cost"]), Vector2(PANEL_X, 160), Vector2(250, 40), _on_material_toggled)
     material_button.toggle_mode = true
-    complete_button = _make_button("Complete repaste", Vector2(PANEL_X + 270, 260), Vector2(250, 40), _on_complete_pressed)
+    complete_button = _make_button("Complete repaste", Vector2(PANEL_X + 270, 210), Vector2(250, 40), _on_complete_pressed)
     paste_controls = [mount_button, wipe_button, clear_button, material_button, complete_button]
 
-    _make_button("Back to shop", Vector2(PANEL_X, 645), Vector2(250, 44), _on_back_pressed)
+    var back: Button = _make_button("Back to shop", Vector2(PANEL_X, 645), Vector2(250, 44), _on_back_pressed)
+    back.tooltip_text = "Saves work. An unfinished cooler mount is cancelled; only its lever locks it."
     paste.material = str(GameState.job["paste_material"]) if str(GameState.job["paste_material"]) in PasteMaterials.IDS else "thermal"
     _refresh_material_button()
     _build_replacements()
@@ -262,11 +317,12 @@ func _select_stage(new_stage: int) -> void:
     if access.dragging != "":
         access.dragging = ""
         _sync_part_geometry()
+    AudioFeedback.stop_owner(self)
     stage = new_stage
     clamp_button = 0
     holding = false
-    tools.select("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), _pointer())
-    if stage == STAGE_CLEAN and active_tool == 2: tools.park()
+    _equip_tool("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), _pointer())
+    if stage == STAGE_CLEAN and active_tool == 2: _park_tool()
     if stage == STAGE_PASTE:
         wiping = false
         wipe_button.set_pressed_no_signal(false)
@@ -275,7 +331,7 @@ func _select_stage(new_stage: int) -> void:
     for c: Control in paste_controls:
         c.visible = (stage == STAGE_PASTE)
     if stage == STAGE_CLEAN:
-        status_label.position = Vector2(PANEL_X, 550)
+        status_label.position = Vector2(PANEL_X, 556)
         status_label.size = Vector2(520, 85)
         title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Drag clamp: move (outside PC). Click clamp: unclip. 1 vacuum / 2 brush / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
@@ -315,8 +371,8 @@ func _select_tool(new_tool: int) -> void:
     clamp_button = 0
     tools.end_clamp_drag()
     active_tool = new_tool
-    if new_tool != 2: tools.select(["vacuum","brush","vacuum","pick"][new_tool], _pointer())
-    else: tools.park()
+    if new_tool != 2: _equip_tool(["vacuum","brush","vacuum","pick"][new_tool], _pointer())
+    else: _park_tool()
     pick.reset()
     if tool_buttons.size() == 4:
         (tool_buttons[new_tool] as Button).set_pressed_no_signal(true)
@@ -344,7 +400,7 @@ func _on_mount_pressed() -> void:
     if paste.total_deposited < 1.0:
         _set_status("Squeeze some paste onto the CPU first: hold the left mouse button over it.", 2)
         return
-    tools.park()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
+    _park_tool()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
     mount.start()
     holding = false
     wiping = false
@@ -382,6 +438,7 @@ func _on_complete_pressed() -> void:
     if not result["ok"]:
         _set_status(str(result["message"]) + " Wipe the paste off (cloth or Clear all paste) and try again.", 3)
         return
+    _sound("cooler.complete",{"material":paste.material,"grade":str(GameState.job["paste_grade"])})
     if paste.material == "toothpaste":
         _set_status("Repaste \"complete\": toothpaste under the cooler. The customer will pay for thermal paste. It will pass today's check but run hotter and dry out.", 2)
     else:
@@ -404,7 +461,7 @@ func _cloth_is_square() -> bool:
 
 
 func _select_dispense() -> void:
-    tools.select("syringe",_pointer())
+    _equip_tool("syringe",_pointer())
     wiping = false
     holding = false
     wipe_button.set_pressed_no_signal(false)
@@ -414,7 +471,7 @@ func _select_dispense() -> void:
 
 func _on_wipe_toggled() -> void:
     wiping = wipe_button.button_pressed
-    tools.select("cloth" if wiping else "syringe",_pointer())
+    _equip_tool("cloth" if wiping else "syringe",_pointer())
     holding = false
     var shape: String = "square cloth" if _cloth_is_square() else "cloth"
     if wiping:
@@ -425,9 +482,16 @@ func _on_wipe_toggled() -> void:
         _set_status("Cloth put away. The cooler is still mounted: wipe the paste off first to squeeze more.", 0)
 
 
+func _cancel_unlocked_mount() -> void:
+    if not mount.active: return
+    mount.finish()
+    mount_result = {}
+    GameState.clear_paste()
+    _sound("cooler.cancel")
+
+
 func _on_back_pressed() -> void:
-    if mount.active:
-        _finish_mount()
+    _cancel_unlocked_mount()   # navigation must never impersonate the physical securing lever
     _save_dust()
     get_tree().change_scene_to_file("res://scenes/shop.tscn")
 
@@ -467,7 +531,9 @@ func _input(event: InputEvent) -> void:
                 tools.move_clamp(mb.position)
                 var clicked: bool = clamp_press.distance_to(mb.position) < 5.0
                 tools.end_clamp_drag()
-                if clicked and clamp_button == MOUSE_BUTTON_LEFT: tools.unclamp_hose()
+                if clicked and clamp_button == MOUSE_BUTTON_LEFT:
+                    tools.unclamp_hose()
+                    _sound("clamp.release")
                 clamp_button = 0
                 holding = false
                 return
@@ -488,6 +554,7 @@ func _input(event: InputEvent) -> void:
         if mb.button_index == MOUSE_BUTTON_RIGHT and not mb.pressed and tools.hose_grab >= 0:
             tools.release_hose(mb.position)
             if tools.hose_clamp > 0:
+                _sound("clamp.lock")
                 _set_status("Hose parked in the clamp. Pick up a tool to keep working; click the clamp with empty hands to release.", 1)
             elif tools.clamp_rect().has_point(mb.position):
                 _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
@@ -496,7 +563,10 @@ func _input(event: InputEvent) -> void:
         if mb.button_index == MOUSE_BUTTON_RIGHT and (stage == STAGE_PASTE or active_tool != 2 or mb.shift_pressed):
             if mb.pressed:
                 var candidate: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
+                var was_equipped: bool = tools.equipped
                 if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and tools.grab_hose(mb.position):
+                    if was_equipped: _sound("handling.putdown",{"kind":tools.selected})
+                    _sound("hose.grab")
                     holding = false
                     return
                 if stage == STAGE_CLEAN and candidate in ["vacuum","brush","pick"]:
@@ -504,16 +574,19 @@ func _input(event: InputEvent) -> void:
                 elif stage == STAGE_PASTE and candidate in ["cloth","syringe"]:
                     wiping = candidate == "cloth"
                     wipe_button.set_pressed_no_signal(wiping)
-                    tools.select(candidate,mb.position)
+                    _equip_tool(candidate,mb.position)
                 if tools.equipped: tools.begin_throw(mb.position)
             else:
+                var was_carrying: bool = tools.carrying
                 tools.release_throw(event_velocity if Time.get_ticks_msec()-pointer_tick < 140 else Vector2.ZERO)
+                if was_carrying: _sound("handling.putdown",{"kind":tools.selected,"speed":event_velocity.length()})
                 holding = false
             return
         if mb.button_index == MOUSE_BUTTON_LEFT:
             # The cooler is secured by physically clicking its retention lever (there is no button for it).
             if mb.pressed and stage == STAGE_PASTE and mount.active and SECURE_LEVER.has_point(mb.position):
                 holding = false
+                _sound("cooler.lever")
                 _finish_mount()
                 return
             # In explicit parts mode, tools lying on a component must not steal its click.
@@ -531,7 +604,7 @@ func _input(event: InputEvent) -> void:
                     elif stage == STAGE_PASTE and resting in ["cloth","syringe"]:
                         wiping = resting == "cloth"
                         wipe_button.set_pressed_no_signal(wiping)
-                        tools.select(resting,mb.position)
+                        _equip_tool(resting,mb.position)
                     # The pickup press is also the beginning of this tool stroke. Waiting for
                     # a second click made every freshly picked-up tool look broken.
                     holding = not mount.active
@@ -575,18 +648,24 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+    _audio_activity.clear()
     var mouse: Vector2 = _pointer()
     var raw_vel: Vector2 = (mouse - last_mouse) / maxf(delta, 0.0001)
     tool_vel = tool_vel.lerp(raw_vel.limit_length(2500), 1.0 - exp(-26.0 * delta))
     last_mouse = mouse
     vfx_time += delta
 
+    var old_clamp: Vector2 = tools.clamp_position
     tools.step(delta,mouse,holding and _work_rect().has_point(mouse) and not replacement_panel.visible)
+    _audio_loop("clamp.slide",tools.clamp_dragging and tools.clamp_position.distance_to(old_clamp)>0.1,{"speed":tools.clamp_position.distance_to(old_clamp)/maxf(delta,0.0001)})
+    _audio_loop("hose.drag",tools.hose_grab>=0 and tool_vel.length()>10.0,{"speed":tool_vel.length()})
     _step_pieces()
     if stage == STAGE_CLEAN:
         _step_clean(delta,mouse if active_tool == 2 else tools.contact())
     else:
         _step_paste(delta,mouse if mount.active else tools.contact())
+    _audio_loop("pc.fan",stage == STAGE_CLEAN,{"cooler_rpm":cooler_rpm,"case_rpm":case_rpm})
+    _sync_audio()
 
 
 func _step_clean(delta: float, mouse: Vector2) -> void:
@@ -601,17 +680,22 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     var working: bool = holding and not modal_open and tools.equipped and not tools.carrying and not tools.clamp_dragging
     var vacuum_ok: bool = not (active_tool == DustSim.TOOL_VACUUM and bin.is_full())   # a full bin stops the suction
     dust.step(delta, active_tool, mouse, tools.speed, working and vacuum_ok)
+    _audio_loop("vacuum.motor",working and vacuum_ok and active_tool == 0,{"ramp":dust.vac_ramp,"bin_fill":bin.fraction()})
+    _audio_loop("brush.contact",working and active_tool == 1 and dust.last_brush_contacts > 0,{"speed":tools.speed.length(),"contacts":dust.last_brush_contacts})
     _after_dust_step(delta, mouse)
     var target: String = _pick_target(mouse)
     var eligible: bool = active_tool == 3 and working and target != "" and not target in GameState.job["broken_parts"] and GameState.job["state"] != "done" and dust.trapped_count(target) > 0
+    _audio_loop("pick.scrape",eligible,{"part":target})
     var stroke: Dictionary = pick.step(delta, target, eligible)
     if not stroke.is_empty():
         if stroke["damaged"]:
             GameState.damage_service_part(target)
+            _sound("part.damage",{"kind":target})
             holding = false
             _set_status("SNAP! %s damaged. Move it to the tray, then open Replacements. Equivalent parts cost more; budget parts lower the specification." % target.to_upper(), 3)
         else:
             dust.pick_extract(target)
+            _sound("pick.extract",{"kind":target})
             _set_status("Extracted a clump from under %s. %d remain. Another attempt risks damage again." % [target, dust.trapped_count(target)], 2)
         _save_dust()
     if holding or dust.motion_changed:
@@ -698,23 +782,40 @@ func _apply_part_collisions(pieces: Array) -> void:
 
 # Things that follow from one dust step: the bin fills, kicked dust sends up motes, motes float.
 func _after_dust_step(delta: float, nozzle: Vector2) -> void:
-    tools.flow.add(dust.take_swallowed())   # swallowed dust rides the hose; it fills the bin when it arrives
+    var swallowed: float = dust.take_swallowed()
+    tools.flow.add(swallowed)   # swallowed dust rides the hose; it fills the bin when it arrives
     var suction_now: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
     var arrived: float = tools.flow.step(delta, suction_now, DustBin.CAPACITY - bin.fill)
     if arrived > 0.0:
         bin.add(arrived)
         if bin.is_full() and not bin_notified:
             bin_notified = true
+            _sound("bin.full")
             _set_status("The dust bin is full! Click the bin (bottom right of the bench) to empty it, then keep vacuuming.", 2)
+    _audio_loop("vacuum.dust",active_tool == 0 and holding and tools.equipped and not bin.is_full() and (swallowed > 0.0 or tools.flow.count() > 0),{"units":swallowed,"carried":tools.flow.carried()})
+    _refresh_vacuum_status()
     for point: Vector2 in dust.kicked:
         motes.spawn(point, tools.speed.limit_length(200.0) * 0.15, 3, 45.0)
     var suction: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
     motes.step(delta, dust, nozzle, suction)
 
 
+# A blocked vacuum is a persistent state, independent of transient tool hints.
+func _refresh_vacuum_status() -> void:
+    if not is_instance_valid(vacuum_status): return
+    var full: bool = bin.is_full()
+    vacuum_status.text = "BIN FULL — suction paused. Empty bin to continue." if full else "Vacuum ready  /  bin %d%%" % roundi(bin.fraction()*100.0)
+    vacuum_status.add_theme_color_override("font_color",TONE_COLORS[2] if full else TONE_COLORS[0])
+    empty_bin_button.text = "Empty bin (%d%%)" % roundi(bin.fraction()*100.0)
+    empty_bin_button.disabled = bin.fill <= 0.0
+    empty_bin_button.add_theme_color_override("font_color",TONE_COLORS[2] if full else TONE_COLORS[0])
+
+
 func _empty_bin() -> void:
     var had: float = bin.empty()
+    if had > 0.0: _sound("bin.empty",{"units":had})
     bin_notified = false
+    _refresh_vacuum_status()
     if had <= 0.0:
         _set_status("The dust bin is already empty.", 0)
     else:
@@ -735,6 +836,7 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
     elif holding and tools.equipped and not tools.carrying and wiping:
         var wcell: Vector2 = (mouse - PASTE_ORIGIN) / float(PASTE_CELL)
         var removed: float = paste.wipe(wcell.x, wcell.y, WIPE_RADIUS_CELLS, WIPE_STRENGTH, _cloth_is_square())
+        _audio_loop("cloth.wipe",_work_rect().has_point(mouse),{"speed":tools.speed.length(),"removed":removed})
         if removed > 0.0:
             paste_dirty = true
             if not mount_result.is_empty() or str(GameState.job["paste_grade"]) != "":
@@ -748,15 +850,18 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
             if str(GameState.job["paste_grade"]) != "":
                 GameState.clear_paste()
             paste.deposit(cell.x, cell.y, DEPOSIT_RATE * delta)
+            _audio_loop("paste.squeeze",true,{"material":paste.material,"rate":DEPOSIT_RATE})
             paste_dirty = true
     mount_button.disabled = mount.active
     wipe_button.disabled = mount.active
     clear_button.disabled = mount.active
     material_button.disabled = mount.active
     var done: bool = bool(GameState.job["paste_done"])
-    complete_button.visible = not mount.active and (not mount_result.is_empty() or done)
-    complete_button.disabled = done or not GameState.can_complete_repaste()
-    complete_button.text = "Repaste complete" if done else ("Complete repaste" if GameState.can_complete_repaste() else "Complete repaste (needs a good result)")
+    complete_button.visible = true
+    complete_button.disabled = mount.active or done or not GameState.can_complete_repaste()
+    wipe_button.text = "Tool: cloth (switch to syringe)" if wiping else "Tool: syringe (switch to cloth)"
+    complete_button.tooltip_text = "Lock the cooler with its lever and obtain a good result before completing."
+    complete_button.text = "Repaste complete" if done else ("Complete repaste" if GameState.can_complete_repaste() else "Complete repaste")
     if paste_dirty:
         _refresh_paste_image()
         paste_dirty = false
@@ -766,6 +871,7 @@ func _step_mount(delta: float, mouse: Vector2) -> void:
     var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _work_rect().has_point(mouse))
     if scripted_pressing is bool: pressing = scripted_pressing   # automated playtest only
     var expired: bool = mount.step(delta, pressing, paste)
+    _audio_loop("cooler.press",pressing and not expired,{"pressure":mount.pressure})
     live_stats = paste.measure()
     paste_dirty = true
     if expired and not time_up_told:
@@ -805,6 +911,8 @@ func _draw() -> void:
     draw_rect(Rect2(0, 0, 1280, 720), COLOR_BG)
     if stage == STAGE_CLEAN:
         _draw_pc()
+        _text(Vector2(PANEL_X,155),"TOOLS",12)
+        _text(Vector2(PANEL_X,216),"MAINTENANCE",12)
         _draw_dust()
         CleaningRenderer.draw_bin(self, bin, DustBin.RECT.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_motes(self, motes)
@@ -858,6 +966,7 @@ func _finish_part_drag(point: Vector2) -> void:
     var flick: bool = id != "" and event_velocity.length() > 450 and Time.get_ticks_msec()-pointer_tick < 140 and ToolRig.TABLE.has_point(point) and not access.homes[id].grow(12).has_point(point)
     var result: Dictionary = access.finish(ServiceAccess.TRAY.get_center() if flick else point)
     if id != "":
+        _sound("handling.install" if result.get("changed",false) and not id in access.removed_ids() else "handling.putdown",{"kind":id,"item":"component"})
         if flick:
             var body := TableBody.new()
             body.launch(part_motions[id].center,event_velocity*0.8,access.homes[id].size*0.5,part_motions[id].angle)
@@ -1067,5 +1176,6 @@ func _begin_part_drag(point: Vector2) -> bool:
         access.drag_rect = rects[id]
         access.drag_offset = point-rects[id].position
         part_bodies.erase(id)
+        _sound("handling.pickup",{"kind":id,"item":"component"})
         return true
     return false

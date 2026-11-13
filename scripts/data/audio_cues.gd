@@ -1,0 +1,33 @@
+# Semantic sound contract. No recordings or generated sounds are assigned yet.
+extends RefCounted
+const BUSES: Array = ["Master","UI","Handling","Tools","Machines","Ambience"]
+const CUES: Dictionary = {
+    "ui.click":{"bus":"UI","loop":false,"cooldown_ms":40},
+    "handling.pickup":{"bus":"Handling","loop":false,"cooldown_ms":50},
+    "handling.putdown":{"bus":"Handling","loop":false,"cooldown_ms":50},
+    "handling.impact":{"bus":"Handling","loop":false,"cooldown_ms":90},
+    "handling.rotate":{"bus":"Handling","loop":false,"cooldown_ms":45},
+    "handling.install":{"bus":"Handling","loop":false,"cooldown_ms":80},
+    "vacuum.motor":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "vacuum.dust":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "brush.contact":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "cloth.wipe":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "paste.squeeze":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "pick.scrape":{"bus":"Tools","loop":true,"cooldown_ms":0},
+    "pick.extract":{"bus":"Tools","loop":false,"cooldown_ms":100},
+    "part.damage":{"bus":"Handling","loop":false,"cooldown_ms":150},
+    "bin.full":{"bus":"Tools","loop":false,"cooldown_ms":500},
+    "bin.empty":{"bus":"Handling","loop":false,"cooldown_ms":100},
+    "hose.grab":{"bus":"Handling","loop":false,"cooldown_ms":60},
+    "clamp.slide":{"bus":"Handling","loop":true,"cooldown_ms":0},
+    "hose.drag":{"bus":"Handling","loop":true,"cooldown_ms":0},
+    "clamp.lock":{"bus":"Handling","loop":false,"cooldown_ms":80},
+    "clamp.release":{"bus":"Handling","loop":false,"cooldown_ms":80},
+    "cooler.press":{"bus":"Handling","loop":true,"cooldown_ms":0},
+    "cooler.lever":{"bus":"Handling","loop":false,"cooldown_ms":150},
+    "cooler.cancel":{"bus":"UI","loop":false,"cooldown_ms":100},
+    "cooler.complete":{"bus":"UI","loop":false,"cooldown_ms":150},
+    "pc.fan":{"bus":"Machines","loop":true,"cooldown_ms":0},
+    "check.pass":{"bus":"UI","loop":false,"cooldown_ms":150},
+    "check.fail":{"bus":"UI","loop":false,"cooldown_ms":150},
+}

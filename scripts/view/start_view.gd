@@ -50,6 +50,7 @@ func _button(text: String, y: float, action: Callable) -> Button:
     button.size = Vector2(360, 52)
     button.add_theme_font_size_override("font_size", 22)
     button.pressed.connect(action)
+    button.pressed.connect(func() -> void: AudioFeedback.request(self,"ui.click"))
     add_child(button)
     return button
 

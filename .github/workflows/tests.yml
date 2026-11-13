@@ -99,6 +99,13 @@ jobs:
           grep -q "Bench feedback checks: .*failures: 0" "$GITHUB_WORKSPACE/bench-feedback.log"
           ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/bench-feedback.log"
 
+      - name: Vacuum recovery, hose loops and silent audio contracts
+        run: |
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/test_audio_and_vacuum.gd 2>&1 | tee "$GITHUB_WORKSPACE/audio-vacuum.log"
+          grep -q "Audio and vacuum checks: .*failures: 0" "$GITHUB_WORKSPACE/audio-vacuum.log"
+          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/audio-vacuum.log"
+
       - name: Scripted bench playtest (prints a table, never fails the build)
         if: always()
         continue-on-error: true

@@ -1,6 +1,12 @@
 # Nightshift — Roadmap
 
-Version 1.12 · 13 November 2026
+Version 1.13 · 13 November 2026
+
+## Position after 0.19.0
+
+Current slice is feedback and reliability: full-bin visibility/emptying, hose loop recovery, grouped controls and silent sound infrastructure. Human acceptance: fill the bin, switch tools, empty and resume; rapidly move/rotate the nozzle with and without clamping; inspect tool/thermal rows. Automated checks are in CHANGELOG.
+
+Next cooler design decision: make pressure buildup, release and deliberate lever securing readable without adding art now. Decide the pressure gesture and inspection flow before replacing the existing rules. Sound work can proceed separately: choose sonic palette, then approve a small original/licensed sample set and implement a playback adapter. No sounds in this release. Preserve the larger promise/work/claim/consequence milestone below; this does not complete the campaign.
 
 ## Position after 0.18.0
 

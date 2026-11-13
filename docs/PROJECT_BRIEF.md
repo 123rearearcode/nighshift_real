@@ -1,9 +1,9 @@
 # Nightshift — Project Brief
 
-Version 1.12 · 13 November 2026
+Version 1.13 · 13 November 2026
 
 ## Read this first
-This pack guides human-directed collaboration between AIs; the user is creative director. Current 0.18.0 scope: exposed trapped-dust threads with hard extraction, movable unobstructed clamp, tightly calibrated standard hose reach and mount-phase tool put-down. User confirmed 0.17.1 works. Cooler visual/satisfaction redesign is discussion-only; proposals are in DESIGN_PROPOSALS section 6. Preserve physical lever and good-result completion.
+This pack guides human-directed collaboration between AIs; the user is creative director. Current 0.19.0 scope: persistent full-bin feedback and accessible emptying, organised tool/service controls, hose self-crossing recovery and a silent action-driven audio foundation. No sound assets/playback or cooler art. Pressure build/release and deliberate lever feedback are accepted interaction goals; the exact redesigned puzzle remains open. Physical lever and good-result completion stay required. User clarified that current cooler work should be design-led, not graphics-led.
 
 GitHub repository `123rearearcode/nighshift_real` is connected. Use scoped branches, checked PRs, preserved archive baselines and signed changelog entries. The earlier 0.15.2 no-merge restriction was superseded by the user's merge instruction. Seven scam concepts remain accepted, C excluded; promise/claim/consequence systems are still future work. Fan-driven dust redistribution remains queued.
 

@@ -11,11 +11,13 @@ config_version=5
 [application]
 
 config/name="Nightshift Foundation Trial"
-config/version="0.18.0"
+config/version="0.19.0"
 run/main_scene="res://scenes/start.tscn"
 config/features=PackedStringArray("4.7")
 
 [autoload]
+
+AudioFeedback="*res://scripts/audio/audio_feedback.gd"
 
 GameState="*res://scripts/state/game_state.gd"
 
