@@ -359,12 +359,15 @@ func _clamp_spot_valid(candidate: Vector2) -> bool:
 # off the table is refused (the clamp stays as it was).
 func rotate_clamp(direction: int) -> void:
     if not clamp_dragging: return
-    var previous: float = clamp_angle
+    var previous_angle: float = clamp_angle
+    var previous_position: Vector2 = clamp_position
     clamp_angle = wrapf(clamp_angle + float(direction) * TURN_STEP, -PI, PI)
     var edge: Vector2 = clamp_edge()
-    var inside: Vector2 = clamp_position.clamp(TABLE.position+edge,TABLE.end-edge)
-    if inside != clamp_position or not _clamp_spot_valid(clamp_position):
-        clamp_angle = previous
+    # Turning near the table edge nudges the clamp inward rather than refusing the turn.
+    clamp_position = clamp_position.clamp(TABLE.position+edge,TABLE.end-edge)
+    if not _clamp_spot_valid(clamp_position):
+        clamp_angle = previous_angle
+        clamp_position = previous_position
 
 
 func end_clamp_drag() -> void:

@@ -1123,7 +1123,11 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     check(rig.hose_clamp == -1, "player can release the desk clamp")
     rig.hose_grab = 1
     rig.release_hose(ToolRig.CLAMP_POINT)
-    check(rig.hose_clamp == -1, "clamp cannot stretch a too-short bin-side section")
+    # 0.21.0 (D80): instead of refusing (which read as "the hose does not attach"), the nearest
+    # section that CAN stay stretched here is clipped; the short section itself is never stretched.
+    check(rig.hose_clamp > 1 and rig.hose.segment * float(rig.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(rig.clamp_position),
+        "a too-short bin-side drop clips the nearest reachable section instead")
+    rig.unclamp_hose()
     rig.hose_grab = 8
     rig.release_hose(Vector2(200,200))
     check(rig.hose_clamp == -1 and rig.hose_grab == -1, "ordinary drops release hose without auto-clamping")
