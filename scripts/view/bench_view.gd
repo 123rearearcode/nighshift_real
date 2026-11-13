@@ -615,8 +615,7 @@ func _input(event: InputEvent) -> void:
                     tools.begin_throw(mb.position)
                 elif tools.equipped:
                     # Letting go is always allowed: where a throw is forbidden (mid-mount), the same
-                    # right-click sets the tool down gently instead of winding up.
-                    _sound("handling.putdown",{"kind":tools.selected})
+                    # right-click sets the tool down gently instead of winding up (_park_tool plays the sound).
                     _park_tool()
             else:
                 var was_carrying: bool = tools.carrying

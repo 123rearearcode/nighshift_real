@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions ran everything on Godot 4.7.2 headless; results below. The ordinary flows are covered by the unchanged suites, the state table and the playtest tables; the FEEL of the bench needs the user's hands, and a user playtest of this version is the step's real acceptance test.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43501072475, branch feature/hand-machine): checker passed; all suites green with the new checks (data schema 182, regression 492 of which 31 are new hand-machine checks, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures); PLAYTEST STATE all rows match; brush/vacuum/reach/click/paste playtest tables identical to 0.19.4 line by line. Two earlier runs failed and were fixed: wrong preload names in the new tests plus the playtest hitting its 300 s step timeout (now 540 s), and my first gate refused the mid-mount right-click put-down, caught by the 0.17.1 bench-feedback test (now it parks the tool instead). A double put-down sound in that fallback was removed after the green run (one-line change; _park_tool already plays it).
 
 ### Added / Changed / Fixed / Removed
 - Added `scripts/bench/hand_state.gd`: the machine from `docs/HAND_STATES.md`. `derive(flags)` names the state, `MOVES` lists the allowed changes, `allowed(from, to)` answers for one. Letting go is always allowed.
