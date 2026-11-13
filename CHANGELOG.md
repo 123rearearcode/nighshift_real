@@ -39,6 +39,46 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.22.0 - 2026-11-14 - Hose attached for good, spool reels the vacuum in, PC power button
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.21.0
+- Type: minor (interaction changes and a new control). From the user's playtest video of 0.21.0. Hot files edited by Claude (Phase 2 owner).
+
+### Execution status
+**Godot was NOT run by me directly.** Diagnosed from the user's screen recording (the detached hose end is visible, pinned short at the clamp while the vacuum rests 150 px away). GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Fixed (D83): the hose end can no longer come off the vacuum. It is now a hard attachment in `hose_sim.gd` (with extra relaxation passes spreading any stretch), and `_apply_hose_tug` now understands a pinned hose: past a clip or a gripping hand only the REMAINING segments count, so a hose clipped near its nozzle keeps the vacuum on a short leash instead of letting the end dangle. The hard length correction is capped at 24 px per step (no teleports).
+- Changed (D84): the spool now actually reels in: clicking it unclips the hose and drags the vacuum back to the spool, where it parks; the hose settles in a tidy lay. Picking the vacuum up (or grabbing the hose) stops the reel. A held vacuum is put down first.
+- Added (D85): a PC power button on the case (top-right). Off: fan targets drop to 0 and the fan audio loop stops; the state is in `job.pc_powered` (saved, migrated). Nothing else reacts yet; noted for the fan mechanic.
+- Investigated (D86): "items disappear on collision without space" did not reproduce: a new stress test hurls tools into the crowded tray corner 12 times and every tool stays on the table with the hose still attached. Part collision results are now clamped into the table too.
+- Tests: hose end attached after a near-nozzle clip and far park; short-leash distance bound; spool reel full cycle, start-with-tool-in-hand, interrupt by taking the vacuum; power off/on with fan RPM decay and save/load; the 12-throw stress barrage.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/hose_sim.gd` | M | hard end attachment + relaxation |
+| `scripts/bench/tool_rig.gd` | M | pinned-length tug, spool reel, interrupts |
+| `scripts/view/bench_view.gd` | M | spool click starts the reel; power button; part clamp |
+| `scripts/state/game_state.gd` | M | `pc_powered` + setter + migration |
+| `scripts/data/layout.gd`, `scripts/view/cleaning_renderer.gd` | M | power button rect + drawing |
+| `tools/test_regressions.gd` | M | new and updated checks |
+| `docs/DECISIONS.md` (D83-D86), `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | docs, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Reel speed 520 px/s and the vacuum's parking spot by the spool; the power button's position and that it only affects fans for now; the 24 px per step tug cap.
+
+### Known issues and open items
+The disappearance report (D86) is unreproduced; needs the user's eyes again. Loose items still do not spawn.
+
+### Next action
+User playtest of 0.22.0 (clip the hose near the nozzle and park the vacuum far: it should be leashed, never detached; the spool reel; the power button). Then Claude: work plan step 7. Hot files stay with Claude.
+
 ## 0.21.0 - 2026-11-13 - GPU power requirement, rotatable clamp, hose always clips, 95% grade threshold, D57 restored
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.20.1 (Codex's test cleanup, merged after cross-review)

@@ -651,9 +651,18 @@ func _input(event: InputEvent) -> void:
             # The spool beside the bin: a click rewinds the hose (empty hands or a held tool both work).
             if mb.pressed and stage == STAGE_CLEAN and Layout.BENCH_SPOOL.has_point(mb.position) \
                     and hand_state() in [HandState.FREE, HandState.USING_TOOL]:
-                tools.rewind_hose()
+                tools.start_spool_retract()
                 _sound("hose.rewind")
-                _set_status("Rewound the hose onto its spool: it lies neatly from the bin again.", 0)
+                _set_status("The spool reels the hose in: the vacuum is dragged back to it. Pick the vacuum up (or grab the hose) to stop it.", 0)
+                holding = false
+                return
+            # The PC's power button, top-right of the case.
+            if mb.pressed and stage == STAGE_CLEAN and Layout.BENCH_POWER.has_point(mb.position) \
+                    and hand_state() in [HandState.FREE, HandState.USING_TOOL]:
+                GameState.set_pc_powered(not bool(GameState.job["pc_powered"]))
+                _sound("ui.click")
+                _set_status("PC powered ON: the fans spin up again." if bool(GameState.job["pc_powered"])
+                    else "PC powered OFF: the fans wind down. (Nothing reacts to power yet beyond the fans; that comes with the fan-dust mechanic.)", 0)
                 holding = false
                 return
             # In explicit parts mode, tools lying on a component must not steal its click.
@@ -730,7 +739,7 @@ func _physics_process(delta: float) -> void:
         _step_clean(delta,mouse if active_tool == 2 else tools.contact())
     else:
         _step_paste(delta,mouse if mount.active else tools.contact())
-    _audio_loop("pc.fan",stage == STAGE_CLEAN,{"cooler_rpm":cooler_rpm,"case_rpm":case_rpm})
+    _audio_loop("pc.fan",stage == STAGE_CLEAN and bool(GameState.job["pc_powered"]),{"cooler_rpm":cooler_rpm,"case_rpm":case_rpm})
     _sync_audio()
 
 
@@ -780,6 +789,9 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     var target_cooler: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone))
     var target_case: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone))
     if Ids.COOLER in GameState.job["broken_parts"]: target_cooler = 0.0
+    if not bool(GameState.job["pc_powered"]):
+        target_cooler = 0.0
+        target_case = 0.0
     cooler_rpm = lerpf(cooler_rpm, target_cooler, 1.0 - exp(-3.0 * delta))
     case_rpm = lerpf(case_rpm, target_case, 1.0 - exp(-3.0 * delta))
     cooler_angle += cooler_rpm * TAU / 60.0 * delta   # RPM to radians per second
@@ -834,7 +846,7 @@ func _apply_part_collisions(pieces: Array) -> void:
             part_bodies[id] = body
         var was_active: bool = body.active
         body.half_size = access.homes[id].size * 0.5
-        body.center = piece["center"]
+        body.center = (piece["center"] as Vector2).clamp(ToolRig.TABLE.position + body.half_size, ToolRig.TABLE.end - body.half_size)
         body.angle = piece["angle"]
         body.velocity = piece["velocity"]
         body.angular_velocity = piece["spin"]
@@ -1005,6 +1017,7 @@ func _draw_scene() -> void:
         _draw_dust()
         CleaningRenderer.draw_bin(self, bin, DustBin.RECT.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_spool(self, Layout.BENCH_SPOOL.has_point(get_global_mouse_position()))
+        CleaningRenderer.draw_power(self, bool(GameState.job["pc_powered"]), Layout.BENCH_POWER.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_trash(self, items.carried >= 0 and Layout.BENCH_TRASH.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_items(self, items)
         CleaningRenderer.draw_motes(self, motes)

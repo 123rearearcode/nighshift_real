@@ -85,6 +85,7 @@ func _make_job() -> Dictionary:
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "required_power": 60,     # the PC must output at least this much graphics power (D79; will be renamed)
+        "pc_powered": true,       # the case power button (D83): fans stop while off
         "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
@@ -263,6 +264,11 @@ func clear_paste() -> void:
     save_game()
 
 
+func set_pc_powered(on: bool) -> void:
+    job["pc_powered"] = on
+    save_game()
+
+
 func can_complete_repaste() -> bool:
     return job["state"] != "done" and not bool(job["paste_done"]) and str(job["paste_grade"]) in GOOD_PASTE
 
@@ -436,6 +442,7 @@ func load_game() -> bool:
     job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
     job["required_power"] = maxi(0, int(job.get("required_power", 60)))
+    job["pc_powered"] = bool(job.get("pc_powered", true))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
     if job["scams"] is Array:

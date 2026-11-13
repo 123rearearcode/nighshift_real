@@ -195,7 +195,26 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
     pos[0] = anchor_point
     if pinned():
         pos[pin] = pin_point
+    # The nozzle end is ATTACHED to the vacuum: however tangled or short the hose is, the end never
+    # hangs loose (0.22.0: the user saw the vacuum "detach" when the hose was clipped short). `tug`
+    # still measures how far the simulation lagged, and the extra link passes spread the stretch.
     tug = pos[last] - desired_end
+    pos[last] = desired_end
+    prev[last] = desired_end
+    for extra in range(4):
+        for i in range(maxi(1, last - 6), last):
+            if i == pin:
+                continue
+            var link: Vector2 = pos[i + 1] - pos[i]
+            var distance: float = link.length()
+            if distance < 0.0001:
+                continue
+            var correction: Vector2 = link * ((distance - segment) / distance)
+            if i + 1 == last:
+                pos[i] += correction
+            else:
+                pos[i] += correction * 0.5
+                pos[i + 1] -= correction * 0.5
     var calm: bool = true
     for i in range(1, POINTS):
         if pos[i].distance_to(prev[i]) > SLEEP_SPEED:

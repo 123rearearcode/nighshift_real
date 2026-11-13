@@ -74,6 +74,19 @@ static func draw_spool(canvas: CanvasItem, hovered: bool) -> void:
     UiStyle.label(canvas, Vector2(rect.position.x + 6, rect.end.y + 14), "spool", 12, Color(0.7, 0.75, 0.8))
 
 
+# The PC's power button on the case. Lit green when on; grey when off; brighter under the cursor.
+static func draw_power(canvas: CanvasItem, on: bool, hovered: bool) -> void:
+    var rect: Rect2 = Layout.BENCH_POWER
+    canvas.draw_rect(rect, Color("222a31"))
+    canvas.draw_rect(rect, Color("5a6872"), false, 2.0)
+    var center: Vector2 = rect.get_center()
+    var glow: Color = Color("72d9ad") if on else Color("5a6872")
+    if hovered: glow = glow.lightened(0.25)
+    canvas.draw_arc(center, 7.0, -PI * 0.35, PI * 1.35, 12, glow, 2.5, true)
+    canvas.draw_line(center + Vector2(0, -9), center + Vector2(0, -2), glow, 2.5)
+    UiStyle.label(canvas, Vector2(rect.position.x - 32, rect.position.y + 18), "PWR", 12, glow)
+
+
 # The trash can. It opens its lid while a carried item hovers over it.
 static func draw_trash(canvas: CanvasItem, ready_to_eat: bool) -> void:
     var rect: Rect2 = Layout.BENCH_TRASH

@@ -184,3 +184,11 @@ D80 (confirmed): the hose clamp can be turned while carried (wheel or Q/E, like 
 D81 (confirmed, amends D78): a graded CPU keeps its result until wiping takes the paste below 95% of what was there at grading; above that, touch-ups on the CPU are safe too. Wiping beside the CPU still never clears.
 D82 (restores D57, supersedes the 0.19.7 stage-switch behaviour): a stage switch mid-mount lifts the cooler off WITHOUT securing or grading (the paste keeps its pressed shape; mounting can be restarted). Nothing but the lever ever secures. Codex's cross-review flagged the violation; its pending-defect checks are promoted into the regression suite and the pending lane is empty.
 
+## Attached hose, spool reel-in and PC power — 14 November 2026, trial 0.22.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's 0.21.0 playtest video.
+
+D83 (confirmed bug): the hose end is physically ATTACHED to the vacuum, always. The video showed it hanging loose near the clamp while the vacuum rested elsewhere (a hose clipped near its nozzle leaves too few segments past the clip, and nothing pulled the vacuum within reach). Now the end is a hard constraint, and a clipped hose acts as a short leash: the vacuum is tugged to stay within the remaining length (correction capped per step, no teleports).
+D84 (confirmed): clicking the spool REELS THE HOSE IN: the vacuum is dragged back to the spool and rests beside it (520 px/s, proposal). Taking the vacuum or grabbing the hose stops the reel. Replaces 0.20.0's instant re-lay.
+D85 (confirmed): the PC case has a power button (top-right). While off, the fans wind down and the fan loop is silent; the state is saved per job. Nothing else reacts to power yet (fan-dust and "other components" come with the fan mechanic, D56/D76). Position and look are proposals.
+D86 (reported, not reproduced): "on collision without enough space, items disappear". A 12-throw stress test into the crowded tray corner keeps every tool on the table; part collisions are now clamped into the table as well (belt and braces). If it happens again, the user should note which object vanished and what was around it.
+
