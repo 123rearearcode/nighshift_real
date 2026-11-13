@@ -39,6 +39,41 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.6 - 2026-11-13 - Hand states named and made visible (no behaviour change)
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.5
+- Type: patch (specification and instrumentation; no behaviour change). Work plan Phase 2 step 5. **Phase 2 has begun: the hot files belong to Claude until it ends.**
+
+### Execution status
+GitHub Actions ran everything on Godot 4.7.2 headless; results below, including whether the new state table shows any mismatch.
+
+Actions result (Godot 4.7.2 headless, run 43495666973, branch feature/hand-states): checker passed; suites unchanged (785 checks, 0 failures). The PLAYTEST STATE table walks all eight states and every row matches its expected state, no MISMATCH markers.
+
+### Added / Changed / Fixed / Removed
+- Added `docs/HAND_STATES.md`: the eight hand states (PANEL_OPEN, MOUNTING, DRAGGING_CLAMP, CARRYING_HOSE, DRAGGING_PART, THROWING, USING_TOOL, FREE), how each derives from today's flags in priority order, and the allowed moves between them. This is the specification step 6 will enforce; two known holes (focus loss, leaving the bench mid-state) are written down for step 7's tests.
+- Added `bench_view.hand_state()`: read-only, derived from the existing flags; nothing acts on it yet.
+- Added a `PLAYTEST STATE` table to the scripted playtest: one action sequence that passes through all eight states, printing the derived state beside the expected one, with a MISMATCH marker.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/HAND_STATES.md` | A | specification |
+| `scripts/view/bench_view.gd` | M | `hand_state()` (read-only) |
+| `tools/playtest_bench.gd` | M | state table |
+| `DEVELOPMENT.md`, `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | map, status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Treating "applying the tool" as a property inside USING_TOOL rather than a ninth state; the priority order of derivation.
+
+### Known issues and open items
+The forbidden moves are still physically possible until step 6; the table only makes today's truth visible.
+
+### Next action
+Claude: step 6 (the hand state machine itself). Hot files stay with Claude; Codex continues design/non-hot work only.
+
 ## 0.19.5 - 2026-11-13 - Code-style checker in CI (report-only)
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`. Earlier 0.19.x steps were made by Claude (Opus 5.5, model id claude-opus-5-5); the session's model changed before this version.
 - Based on: 0.19.4

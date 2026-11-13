@@ -8,6 +8,7 @@ extends SceneTree
 const Dust = preload("res://scripts/bench/dust_sim.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
+const Ids = preload("res://scripts/data/ids.gd")
 
 const STEP: float = 1.0 / 60.0
 var view: Node2D
@@ -47,6 +48,7 @@ func run() -> void:
     reach_table()
     click_table()
     paste_table()
+    state_table()
     await frame_time_table()
     view.queue_free()
     gs.save_path = original_path
@@ -314,3 +316,58 @@ func drive_scene(scene: String, frame: int) -> void:
         view.scripted_pointer = center + Vector2(25.0 * sin(TAU * 2.5 * t), 0.0)
     elif scene == "vacuum + moving hose":
         view.scripted_pointer = center + Vector2(160.0 * sin(TAU * 0.5 * t), 70.0 * cos(TAU * 0.7 * t))
+
+
+# Hand states (docs/HAND_STATES.md, step 5): walk one action sequence and print the derived state
+# after each act. Expected values are printed beside it so a drift is visible in the log.
+func state_table() -> void:
+    print("PLAYTEST STATE  act                       state            expected")
+    view._select_stage(view.STAGE_CLEAN)
+    view.holding = false
+    var cursor: Vector2 = view._zone_rect(zone_index("motherboard")).get_center()
+    view.scripted_pointer = cursor
+    view._select_tool(Dust.TOOL_VACUUM)
+    for frame in range(10): view._physics_process(STEP)
+    state_row("take the vacuum", "USING_TOOL")
+    view.tools.park()
+    state_row("park it", "FREE")
+    view.tools.select(Ids.VACUUM, cursor)
+    state_row("pick it up again", "USING_TOOL")
+    view.tools.begin_throw(cursor)
+    state_row("right-press (wind up)", "THROWING")
+    view.tools.release_throw(Vector2(300, 0))
+    state_row("release (it flies)", "FREE")
+    for frame in range(120): view._physics_process(STEP)
+    var grabbed: bool = view.tools.grab_hose(view.tools.hose.pos[8])
+    state_row("grab the hose" + ("" if grabbed else " (MISSED)"), "CARRYING_HOSE")
+    view.tools.release_hose()
+    state_row("let go of the hose", "FREE")
+    var clamped: bool = view.tools.begin_clamp_drag(view.tools.clamp_rect().get_center())
+    state_row("take the clamp" + ("" if clamped else " (MISSED)"), "DRAGGING_CLAMP")
+    view.tools.end_clamp_drag()
+    state_row("park the clamp", "FREE")
+    var part: bool = view.access.begin(view.access.current_rect(Ids.COOLER).get_center())
+    state_row("lift the cooler" + ("" if part else " (MISSED)"), "DRAGGING_PART")
+    view.access.finish(view.access.drag_rect.get_center())
+    state_row("set the cooler down", "FREE")
+    view._open_replacements()
+    state_row("open the stock panel", "PANEL_OPEN")
+    view.replacement_panel.hide()
+    state_row("close the stock panel", "FREE")
+    view._select_stage(view.STAGE_PASTE)
+    view._on_clear_pressed()
+    view.tools.select(Ids.SYRINGE, view.PASTE_ORIGIN + Vector2(200, 200))
+    view.scripted_pointer = view.PASTE_ORIGIN + Vector2(204, 204)
+    view.holding = true
+    for frame in range(100): view._physics_process(STEP)
+    view.holding = false
+    view._on_mount_pressed()
+    state_row("mount the cooler", "MOUNTING")
+    view._finish_mount()
+    state_row("pull the lever", "FREE")
+    view._select_stage(view.STAGE_CLEAN)
+
+
+func state_row(act: String, expected: String) -> void:
+    var got: String = view.hand_state()
+    print("PLAYTEST STATE  %-25s %-16s %s%s" % [act, got, expected, "" if got == expected else "   <-- MISMATCH"])
