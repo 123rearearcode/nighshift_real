@@ -1,6 +1,12 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.9 · 13 November 2026
+Version 1.10 · 13 November 2026
+
+## Current baseline — trial 0.17.0
+
+Based on merged 0.16.0. Implemented: shared fresh/restore/reset dust setup, light-contact loosening with clearer visual feedback, real dust-state persistence, case-wide brush scattering with GPU/cooler traps and filter catch, dynamic area mass/progress, movable desk clamp outside the PC. No fan airflow or new campaign/scam systems. Initial dust count remains 85; case_interior starts empty/clean.
+
+Original first-entry stall did not reproduce on controlled fresh 0.16.0. Current checks cover actual first-use vacuum/brush after fresh, saved and legacy loads plus new/reset tickets, rather than only DustSim in isolation. Physical-state reconstruction and access/feedback changes are implemented; a specific user's save-specific cause is unconfirmed. Target-engine results are in CHANGELOG. No graphical acceptance is claimed. Historical snapshots below apply to their versions.
 
 ## Current baseline — trial 0.16.0
 

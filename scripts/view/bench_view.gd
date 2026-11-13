@@ -11,6 +11,7 @@ const TableBody = preload("res://scripts/bench/table_body.gd")
 const PartMotion = preload("res://scripts/view/part_motion.gd")
 const DustPick = preload("res://scripts/bench/dust_pick.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const DustSnapshot = preload("res://scripts/bench/dust_snapshot.gd")
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
@@ -124,18 +125,7 @@ func _ready() -> void:
     cooler_zone = DustZones.index_of("cooler")
     case_fan_zone = DustZones.index_of("case_fan")
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
-    dust.setup(zones, PC_ORIGIN, DUST_SEED)
-    for i in range(zones.size()):
-        var z: Dictionary = zones[i]
-        var saved: float = GameState.dust_fraction(str(z["id"]))
-        dust.apply_progress(i, saved)
-        var done: bool = saved >= DustZones.CLEAN_AT
-        if done:
-            dust.shake_off_zone(i)
-        zone_done.append(done)
-    access.setup(zones, PC_ORIGIN, GameState.job.get("removed_parts", []))
-    _init_part_motion()
-    _sync_part_geometry()
+    _initialize_dust()
     cooler_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone))
     case_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone))
     paste_image = Image.create_empty(PasteSim.GRID, PasteSim.GRID, false, Image.FORMAT_RGBA8)
@@ -143,6 +133,24 @@ func _ready() -> void:
     paste_texture = ImageTexture.create_from_image(paste_image)
     _build_ui()
     _select_stage(STAGE_CLEAN)
+
+
+# Fresh, reopened and New dirty PC use the same geometry + restoration sequence.
+func _initialize_dust() -> void:
+    dust.setup(zones, PC_ORIGIN, DUST_SEED)
+    access.setup(zones, PC_ORIGIN, GameState.job.get("removed_parts", []))
+    part_motions.clear()
+    part_bodies.clear()
+    _init_part_motion()
+    previous_poses.clear()
+    blocker_key = ""
+    _sync_part_geometry()
+    var restored: bool = DustSnapshot.restore(dust, GameState.job.get("dust_state", {}))
+    if not restored:
+        for i in range(zones.size()): dust.apply_progress(i,GameState.dust_fraction(str(zones[i]["id"])))
+    zone_done.clear()
+    for i in range(zones.size()): zone_done.append(dust.removed_fraction(i) >= DustZones.CLEAN_AT)
+    tools.clamp_pc = dust.case_bounds
 
 
 func _exit_tree() -> void:
@@ -155,7 +163,7 @@ func _dust_fractions() -> Dictionary:
     var out: Dictionary = {}
     for i in range(zones.size()):
         var z: Dictionary = zones[i]
-        out[str(z["id"])] = 1.0 if bool(zone_done[i]) else dust.removed_fraction(i)
+        out[str(z["id"])] = dust.removed_fraction(i)
     return out
 
 
@@ -163,7 +171,7 @@ func _save_dust() -> void:
     if zones.is_empty() or loaded_job_id != str(GameState.job["id"]):
         return
     _save_service_positions()
-    GameState.set_dust(_dust_fractions())
+    GameState.set_dust(_dust_fractions(),DustSnapshot.capture(dust))
     dust_dirty = false
     save_timer = 0.0
 
@@ -266,9 +274,9 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - repair bench (step 1: clean the whole PC)\nLeft hold uses tools. Right-drag throws. Shift + right-drag grabs the hose; drop it in the desk clamp. Click the clamp with empty hands to release. 1 vacuum, 2 brush, 3 parts, 4 pick. Middle mouse (wheel or drag) or Q/E turns the tool. With empty hands, click a resting tool to pick it up."
+        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Right-drag clamp: move (outside PC). Empty-hand click: unclip. 1 vacuum / 2 brush / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
-            _set_status("Resumed saved PC: already clean. Dust is intentionally absent. Choose New dirty PC to practise again, or continue to paste.", 1)
+            _set_status("Cleanliness target met. %d real dust groups remain; finish vacuuming or continue to paste. New dirty PC starts another practice job." % dust.visible_count(), 1)
         else:
             _set_status(_clean_hint(), 0)
     else:
@@ -294,7 +302,7 @@ func _clean_hint() -> String:
         return "Move parts: drag cooler or GPU onto the tray. Clean their surfaces there, then clean the exposed board. Drag each back to its mount before final check."
     if active_tool == DustSim.TOOL_VACUUM:
         return "Vacuum: hold the mouse with the nozzle over a bundle of dust. It only pulls toward the nozzle. Long bundles grip harder, so hold it on them longer; keep it close, since suction fades with distance."
-    return "Brush: drag quickly over a bundle to loosen it (it turns lighter). The brush removes nothing by itself; vacuum the loosened bundle afterwards, which is faster."
+    return "Brush: sweep the bristles over dust to loosen it (it turns lighter). Fast strokes scatter it through the case; watch for trapped dust and clogged filter. The brush removes nothing by itself; vacuum the loosened bundle afterwards, which is faster."
 
 
 func _select_tool(new_tool: int) -> void:
@@ -312,14 +320,13 @@ func _select_tool(new_tool: int) -> void:
 
 
 func _on_reset_dust() -> void:
-    dust.reset()
+    holding = false
+    var fresh: Dictionary = {}
+    for z: Dictionary in zones: fresh[str(z["id"])] = 1.0 if z["id"] == "case_interior" else 0.0
+    _save_service_positions()
+    GameState.set_dust(fresh)
+    _initialize_dust()
     tools.flow.clear()
-    part_offsets.clear()
-    previous_poses.clear()
-    blocker_key = ""
-    _sync_part_geometry()
-    for i in range(zone_done.size()):
-        zone_done[i] = false
     cooler_rpm = FAN_RPM_DUSTY
     case_rpm = FAN_RPM_DUSTY
     _save_dust()
@@ -449,6 +456,13 @@ func _input(event: InputEvent) -> void:
         pointer_event = event.position
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
+        if stage == STAGE_CLEAN and mb.button_index == MOUSE_BUTTON_RIGHT:
+            if not mb.pressed and tools.clamp_dragging:
+                tools.end_clamp_drag()
+                return
+            if mb.pressed and tools.hose_grab < 0 and tools.begin_clamp_drag(mb.position):
+                holding = false
+                return
         # Middle mouse turns the held tool: spin the wheel, or hold the middle button and drag sideways.
         if mb.button_index == MOUSE_BUTTON_MIDDLE:
             turning_with_mouse = mb.pressed
@@ -462,11 +476,11 @@ func _input(event: InputEvent) -> void:
             tools.release_hose(mb.position)
             if tools.hose_clamp > 0:
                 _set_status("Hose parked in the clamp. Pick up a tool to keep working; click the clamp with empty hands to release.", 1)
-            elif ToolRig.CLAMP_RECT.has_point(mb.position):
+            elif tools.clamp_rect().has_point(mb.position):
                 _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
             holding = false
             return
-        if mb.pressed and stage == STAGE_CLEAN and not tools.equipped and tools.hose_clamp > 0 and ToolRig.CLAMP_RECT.has_point(mb.position):
+        if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed and stage == STAGE_CLEAN and not tools.equipped and tools.hose_clamp > 0 and tools.clamp_rect().has_point(mb.position):
             tools.unclamp_hose()
             _set_status("Hose unclipped. Shift + right-drag to move it again.", 0)
             holding = false
@@ -572,7 +586,7 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     if active_tool == 1:
         var angle: float = tools.motions["brush"].angle
         for point: Vector2 in tools.brush.tips(): dust.brush_contacts.append(mouse+point.rotated(angle))
-    var working: bool = holding and not modal_open and tools.equipped and not tools.carrying
+    var working: bool = holding and not modal_open and tools.equipped and not tools.carrying and not tools.clamp_dragging
     var vacuum_ok: bool = not (active_tool == DustSim.TOOL_VACUUM and bin.is_full())   # a full bin stops the suction
     dust.step(delta, active_tool, mouse, tools.speed, working and vacuum_ok)
     _after_dust_step(delta, mouse)
@@ -588,14 +602,14 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
             dust.pick_extract(target)
             _set_status("Extracted a clump from under %s. %d remain. Another attempt risks damage again." % [target, dust.trapped_count(target)], 2)
         _save_dust()
-    if holding:
+    if holding or dust.motion_changed:
         dust_dirty = true
     for i in range(zones.size()):
-        if not bool(zone_done[i]) and dust.removed_fraction(i) >= DustZones.CLEAN_AT:
-            zone_done[i] = true
-            dust.shake_off_zone(i)
-            _save_dust()
-            _announce_zone(i)
+        var now_clean: bool = dust.removed_fraction(i) >= DustZones.CLEAN_AT
+        if bool(zone_done[i]) != now_clean:
+            zone_done[i] = now_clean
+            dust_dirty = true
+            if now_clean and not dust.motion_changed: _announce_zone(i)
     if dust_dirty:
         save_timer += delta
         if save_timer >= AUTOSAVE_SECONDS:
@@ -784,7 +798,7 @@ func _draw() -> void:
         CleaningRenderer.draw_motes(self, motes)
         _draw_clean_panel()
         _draw_clean_cursor()
-        _text(Vector2(40,690),"%s / %d visible dust groups / %s" % [loaded_job_id,dust.visible_count(),"CLEANED SAVE: continue paste or choose New dirty PC" if _done_count() == zones.size() else "saved progress resumed"],13)
+        _text(Vector2(40,690),"v%s / %s / %d visible dust groups / %s" % [GameState.game_version(),loaded_job_id,dust.visible_count(),"CLEANED SAVE: continue paste or choose New dirty PC" if _done_count() == zones.size() else "saved progress resumed"],13)
     else:
         _draw_paste_stage()
         _draw_paste_panel()

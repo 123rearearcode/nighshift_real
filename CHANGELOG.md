@@ -39,6 +39,60 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.17.0 - 2026-11-13 - Physical dust restoration, case-wide scattering and movable clamp
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.16.0
+- Type: minor (case-wide dust transport, additive physical-state save contract and movable fixture)
+
+### Execution status
+Codex ran Godot 4.7.2.stable.official.ed1daf0bf headlessly. The original first-entry stall was not reproduced on a controlled fresh 0.16.0 ticket: first/new tickets gave equal suction. Current tests cover first entry, physical-save reopen, legacy-save reopen, New dirty PC and reset using actual mouse/tool simulation. Do not claim a user-save-specific root cause was established. No graphical/human acceptance is claimed.
+
+### Added / Changed / Fixed / Removed
+- Shared dust initialization/restoration across entry/reset paths; real saved dust includes positions, looseness, current areas and traps, with atomic validation and fractional fallback for old/damaged saves. Light brush contact visibly loosens dirt; accessible tops are explicitly reachable, and vacuum collects already-moving dust immediately.
+- Fast brushing sends dirt across the case instead of confining it to the originating part. Installed GPU/cooler catch it underneath; filter catches it with stronger grip. A new zero-spawn Case interior area tracks scattered dirt. Dirt movement conserves mass and can re-dirty cleaned areas; no false removal credit. Extracted component surfaces remain on their service tray.
+- Removed automatic threshold shake-off and vacuum-off timed deletion. Physical dirt is not deleted by stopping suction or reaching a progress threshold. Existing quality threshold stays provisional.
+- Right-drag movable clamp with full-footprint case/bin exclusion, desk bounds and occupied-hose reach. Left-click with empty hands unclips. Renderer/hit-tests use actual pose; invalid placement is visibly flagged. Session-local fixture arrangement.
+- CI includes a dedicated first-use/save/transport/clamp suite. Catalogue, campaign, scams and fan airflow remain unchanged.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `CHANGELOG.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `DEVELOPMENT.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `HANDOFF.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `README.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `project.godot` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/bench/dust_sim.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/bench/dust_snapshot.gd` | A | Physical dust snapshot contract |
+| `scripts/bench/tool_rig.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/data/dust_zones.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/state/game_state.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/view/bench_view.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/view/cleaning_renderer.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/view/pc_renderer.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `scripts/view/tool_renderer.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `tools/test_regressions.gd` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `tools/test_dust_flow.gd` | A | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/PROJECT_BRIEF.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/DESIGN.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/DECISIONS.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/CURRENT_STATE.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/ROADMAP.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+| `docs/MINIGAME_RULES.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
+
+### Checks performed
+Godot 4.7.2: schema 182 checks, regression 461 checks, start-screen integration 10 checks, dedicated dust-flow/clamp integration 43 checks; zero failures (696 total). First-use suite exercises fresh, physical-save, legacy-save, New dirty PC and reset paths. Four headless scene startup smoke checks passed with isolated saves. Python project checker PASSED (41 scripts, 137 references, 64 mapped files, five core docs); git diff --check passed. Expected damaged-save recovery warnings occur in dedicated fixtures. An initial CI/clean-package regression caught the old clean-resume wording assertion after the status text changed; the assertion now checks the truthful threshold/remaining-dirt explanation. No graphical/human acceptance is claimed.
+
+### Decisions proposed (not approved)
+Light-contact rate, scattering speeds, grip/settling/capture tuning and 95% quality tolerance remain playtest values. No fan-driven transport or new scam consequences are approved by this implementation.
+
+### Known issues and open items
+Original user-save-specific startup stall not reproduced from a clean baseline; human acceptance required. Old fraction-only saves cannot reconstruct past particle positions that were never stored; new saves do. Clamp pose remains session-local. No new graphical validation; default fixture/rendering remain placeholder art. Full promise/claim/consequence systems remain unimplemented.
+
+### Next action
+Playtest first-use tools on the user's save, cross-case brushing/traps, save/reopen and movable clamp. Preserve any still-failing save for a precise reproduction. Continue work-order/consequence scope afterwards.
+
 ## 0.16.0 - 2026-11-13 - Start menu and snag-free hose with desk clamp
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work. Model identified by the user.
 - Based on: 0.15.2 (PR #10 merged by explicit user instruction)

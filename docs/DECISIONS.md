@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.9 · 13 November 2026
+Version 1.10 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -136,5 +136,13 @@ Signed: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. Exa
 D61 (confirmed request): a simple start screen has New game, Load game and Achievements; New game currently leads into the existing demo. Achievements is a clearly labelled placeholder, not a completed achievement system. Existing-save replacement confirmation and no-save Load disabling are protective implementation choices.
 D62 (confirmed request): the hose routes around the cooler's outside housing rather than its round fan. Tools must not get trapped in it. The hose is grabbable and can optionally be parked in a desk clamp. Implementation: full rectangular component obstacles and link clearance, hose below tools/held parts, explicit Shift-right pickup, visible session-local clamp with release. Exact placement and controls remain playtest tuning.
 D63 (workflow update): the user identifies Codex as GPT 6.1 Sol, and explicitly authorises merging all open PRs, including tested work by the other AI. This supersedes the previous task's no-merge instruction. At task start only #10 was open; it was merged. Future unrelated approvals are not inferred from this task.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Dust transport and fixture update — trial 0.17.0, 13 November 2026
+
+D64 (confirmed bug report/task): first-entry vacuum/brush must work without New dirty PC/reset. Preserve actual looseness/progress on reopen and cover all entry/reset paths with real bench-input regressions. The user's original failure was not reproduced from a clean 0.16.0 ticket, so no save-specific root cause is asserted.
+D65 (confirmed): overbrushed real dust can move across the case instead of remaining locked to its original component; GPU/cooler and filter can trap it. Implementation transfers remaining mass between areas, adds a zero-spawn case_interior area, preserves locations/traps/looseness in saves and lets areas become dirty again. Brush movement never creates cleaning credit. This extends D45; D56 fan-driven transport remains queued. Collision/catch speeds, grip and thresholds remain trial tuning.
+D66 (confirmed): the clamp is movable but cannot be placed inside the PC. Implementation keeps its whole footprint outside case/bin and on the table; parked hose reach is enforced. Right-drag moves; empty-hand left-click unclips. Position is session-local, not yet persisted.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

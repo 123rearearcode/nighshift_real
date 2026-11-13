@@ -1,11 +1,23 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.16.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.17.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.17.0 — dust restoration/travel and movable clamp
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
+
+Read DEVELOPMENT's 0.17.0 contract and newest changelog before editing. Initial, reopened, New dirty PC and legacy reset use shared initialization. Physical dust saves preserve looseness, locations and traps; old fraction-only saves migrate without erasing progress. Light brush contact now loosens visibly. Top-surface access is explicit, and vacuum can collect already-moving dust immediately. A switched-off vacuum cannot delete loose dirt on a timer.
+
+Fast brushing scatters dust across the case; installed GPU/cooler catch it underneath, filter catches it with stronger grip. Area mass/progress transfers; case total never counts movement as removal. Case interior is a ninth zero-spawn area; initial particle count is unchanged. Dirty areas can become dirty again. Service-tray surface dirt stays on extracted components. Fan-driven redistribution remains queued, not implemented by this task.
+
+Right-drag the clamp around the desk; whole footprint is kept outside PC/bin and within desk, with occupied-hose reach respected. Left-click with empty hands unclips; Shift-right-drag hose pickup is unchanged. Fixture position is session-local.
+
+Root-cause boundary: the original first-entry stall was not reproduced on a controlled fresh 0.16.0 ticket (fresh and New dirty PC gave equal suction). Tests now exercise first entry, saved reopen, legacy saved progress, New dirty PC and reset through actual bench input, including brush response. Fixes address lost physical state, light-contact feedback and access/suction behaviour; do not claim a user-save-specific root cause was established without that save. See checks in CHANGELOG; human acceptance remains needed.
 
 ## Current update 0.16.0 — start screen and hose
 

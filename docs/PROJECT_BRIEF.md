@@ -1,11 +1,11 @@
 # Nightshift — Project Brief
 
-Version 1.9 · 13 November 2026
+Version 1.10 · 13 November 2026
 
 ## Read this first
-This pack guides human-directed collaboration between AIs. The user is creative director. Current task: merge the open PRs, add a simple New/Load/Achievements start screen, and fix hose routing/tool interference with an optional desk clamp. Trial 0.16.0 implements this bounded feature. Seven scam concepts A/B/D/E/F/G/H remain approved, C excluded; work-order/claims/consequences are still future work described in MINIGAME_RULES.md.
+This pack guides human-directed collaboration between AIs; the user is creative director. Current delivery 0.17.0 addresses first-entry dust-tool reliability/restoration, cross-case brush-driven dust with GPU/filter trapping and a movable desk clamp outside the PC. Save real dirt state without erasing progress, preserve mass and use actual bench-input checks. Original user-save-specific first-entry cause is not established from the clean baseline.
 
-GitHub is connected; repository `123rearearcode/nighshift_real`. The user explicitly authorises merging the current task's PRs and reports testing the other AI's changes. Only #10 was open at inventory and is merged; older PRs were already merged. Use scoped branches, logged checks and preserved archive baselines. This supersedes the previous task's no-merge scope. ZIPs remain available for playtests.
+GitHub repository `123rearearcode/nighshift_real` is connected. Use scoped branches, checked PRs, preserved archive baselines and signed changelog entries. The earlier 0.15.2 no-merge restriction was superseded by the user's merge instruction. Seven scam concepts remain accepted, C excluded; promise/claim/consequence systems are still future work. Fan-driven dust redistribution remains queued.
 
 Read this brief for every task, then only the relevant DESIGN.md sections and task files. Read CURRENT_STATE.md before touching code. DECISIONS.md distinguishes approved rules from proposals. ROADMAP.md orders the work. Later explicit user decisions supersede this snapshot; update the documents when that happens.
 

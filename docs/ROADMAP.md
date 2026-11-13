@@ -1,6 +1,12 @@
 # Nightshift — Roadmap
 
-Version 1.9 · 13 November 2026
+Version 1.10 · 13 November 2026
+
+## Position after 0.17.0
+
+The user-requested dust transport and movable clamp are implemented. Next human acceptance: try both tools immediately after opening an existing save, then after New dirty PC; inspect brighter loosening, scattered case dirt, GPU/filter capture and moving an occupied clamp outside the PC. Reopen after scattering and verify position/progress. If the user's first-entry stall remains, preserve that save for reproduction.
+
+After acceptance, continue promise/work/claim/handoff/one-consequence design sequence below. This does not complete the shop campaign or enable fan-driven dust movement.
 
 ## Position after 0.16.0
 

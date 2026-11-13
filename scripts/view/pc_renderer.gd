@@ -32,7 +32,7 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
     var font: Font = ThemeDB.fallback_font
     canvas.draw_string(font, bounds.position + Vector2(5, 16), pc["name"] + " / " + str(pc["size"]) + " cells", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
     for z: Dictionary in zones:
-        if z.has("covered_by"): continue
+        if z.has("covered_by") or z["id"] == "case_interior": continue
         var r: Rect2 = z["rect"]
         r.position += area.position
         var id: String = z["id"]
