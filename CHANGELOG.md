@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 No game code changed. GitHub Actions runs the checker and all Godot 4.7.2 suites on this branch; result below.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43453326512, branch docs/work-plan): checker passed; data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36 checks; 0 failures.
 
 ### Added / Changed / Fixed / Removed
 - Added `docs/WORK_PLAN.md`: the user-approved code-health plan (17 steps in 5 phases, from Claude's code review and Codex's improvement list) and the split of responsibilities: Codex does design and gameplay features, Claude does engineering and code health. Hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) have one owner at a time; cross-review; handoff line in every "Next action".
