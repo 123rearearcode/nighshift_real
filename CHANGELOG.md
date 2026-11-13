@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. The user's "cannot remove components" report could NOT be reproduced: a new live-play test (keyboard 3, real clicks, physics stepped like play) removes and refits the cooler green. The report needs the user's exact steps; see Known issues.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43507545917, branch feature/0.20.0): checker passed; all suites green (data schema 182, regression 514 with 22 new checks, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures); PLAYTEST STATE includes the CARRYING_ITEM rows, no mismatches. A first run failed 3 of my new checks: two were test timing (the parked part eases to its spot for about a second before it can be clicked where it is drawn), one was test order (the cloth equips snapped to the cursor, so equipping it over the CPU wiped the CPU on the way out - which is also a live trap: carrying the cloth ACROSS the CPU with the button held wipes it; that is by design, only the overflow is now safe).
 
 ### Added / Changed / Fixed / Removed
 - Fixed (D78, from the screenshot): wiping the squeezed-out paste BESIDE the CPU after pulling the lever cleared the mounted grade, so Complete repaste went dark. Now only wiping the CPU itself clears the result (`PasteSim.last_wipe_on_cpu`); tidying the overflow keeps the grade and the button.
