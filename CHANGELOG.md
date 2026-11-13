@@ -39,6 +39,55 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.3 - 2026-11-13 - Frame-time measurement in the scripted playtest
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.2
+- Type: patch (measurement tooling; no gameplay change). Work plan Phase 1 step 2.
+
+### Execution status
+GitHub Actions ran the checker, all suites and the scripted playtest on Godot 4.7.2 headless; results below. Headless means the drawing *script* runs but nothing reaches a graphics card: GPU time is not measured, and the machine is GitHub's, not the user's.
+
+Actions result (Godot 4.7.2 headless, run 43485647941, branch feature/frame-times): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures).
+
+Frame-time table (microseconds; each column is one subsystem measured on its own, CPU side only):
+
+| Scene | Physics avg | Physics worst | Redraw avg | Redraw worst | State check |
+| --- | --- | --- | --- | --- | --- |
+| idle bench | 1,213 | 3,753 | 934 | 998 | ok |
+| brushing | 1,722 | 4,014 | 956 | 1,018 | ok (holding) |
+| vacuum + moving hose | 3,437 | 4,723 | 944 | 1,332 | ok (holding) |
+| paste flowing | 3,351 | 5,984 | 79 | 114 | ok (mounting) |
+| idle paste stage | 116 | 551 | 54 | 92 | ok |
+
+Reading: these are subsystem costs, not total frame times: they exclude GPU work and the rest of the engine, so they do not prove a whole frame fits in 16.7 ms; they show where our own scripts spend time. The moving hose and flowing paste are the most expensive (about 3.4 ms per physics tick). The idle cleaning bench still spends about 1.2 ms per tick with nothing happening (the dust simulation runs anyway): the obvious first saving if one is ever needed.
+
+Correction: a first run (43483351739) reported 4.4 ms for the idle paste stage. Codex's cross-review found why: the "paste flowing" scene starts a 10 s mount but measures 3 s, and the next scene did not end it (`_on_clear_pressed` returns while mounting), so the "idle" scene was still simulating paste. Each scene now ends any mount first, and the table prints a state check per scene; the idle paste stage is 0.12 ms.
+
+### Added / Changed / Fixed / Removed
+- Added: a frame-time table at the end of `tools/playtest_bench.gd` (`PLAYTEST FRAMES` lines). Five scenes (idle bench, brushing, vacuum with a moving hose, paste flowing, idle paste stage), 180 real engine frames each; per scene the average and worst physics tick and the average and worst redraw (CPU side), in microseconds. It never fails the build.
+- Changed (hot file, small): `bench_view.gd`'s `_draw` now times itself into `last_draw_usec` and calls the old body, renamed `_draw_scene`. No drawing change.
+- Changed: the playtest watchdog now quits only after 5 s without progress, so the table can wait for real frames.
+- Fixed (found by Codex's cross-review): scenes are isolated (any active mount is finished first) and each table row ends with a state check.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `tools/playtest_bench.gd` | M | frame-time table, watchdog |
+| `scripts/view/bench_view.gd` | M | `_draw` timing wrapper |
+| `DEVELOPMENT.md`, `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | map, status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+Real frame rate on the user's PC (with the GPU) is still unknown: one debug run on the user's machine would complete the picture.
+
+### Next action
+Claude: Phase 1 step 3 (layout and ID constants). It touches the hot files briefly (replacing literals only); Codex should not have open work on `bench_view.gd`, `tool_rig.gd` or `game_state.gd` during it.
+
 ## 0.19.2 - 2026-11-13 - Shared test helper and one-loop test workflow
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.1
