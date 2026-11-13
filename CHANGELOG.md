@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 GitHub Actions ran everything on Godot 4.7.2 headless; results below, including whether the new state table shows any mismatch.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43495666973, branch feature/hand-states): checker passed; suites unchanged (785 checks, 0 failures). The PLAYTEST STATE table walks all eight states and every row matches its expected state, no MISMATCH markers.
 
 ### Added / Changed / Fixed / Removed
 - Added `docs/HAND_STATES.md`: the eight hand states (PANEL_OPEN, MOUNTING, DRAGGING_CLAMP, CARRYING_HOSE, DRAGGING_PART, THROWING, USING_TOOL, FREE), how each derives from today's flags in priority order, and the allowed moves between them. This is the specification step 6 will enforce; two known holes (focus loss, leaving the bench mid-state) are written down for step 7's tests.
