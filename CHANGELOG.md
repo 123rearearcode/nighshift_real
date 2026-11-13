@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.3 - 2026-11-13 - Frame-time measurement in the scripted playtest
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.2
+- Type: patch (measurement tooling; no gameplay change). Work plan Phase 1 step 2.
+
+### Execution status
+GitHub Actions ran the checker, all suites and the scripted playtest on Godot 4.7.2 headless; results below. Headless means the drawing *script* runs but nothing reaches a graphics card: GPU time is not measured, and the machine is GitHub's, not the user's.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Added: a frame-time table at the end of `tools/playtest_bench.gd` (`PLAYTEST FRAMES` lines). Five scenes (idle bench, brushing, vacuum with a moving hose, paste flowing, idle paste stage), 180 real engine frames each; per scene the average and worst physics tick and the average and worst redraw (CPU side), in microseconds. It never fails the build.
+- Changed (hot file, small): `bench_view.gd`'s `_draw` now times itself into `last_draw_usec` and calls the old body, renamed `_draw_scene`. No drawing change.
+- Changed: the playtest watchdog now quits only after 5 s without progress, so the table can wait for real frames.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `tools/playtest_bench.gd` | M | frame-time table, watchdog |
+| `scripts/view/bench_view.gd` | M | `_draw` timing wrapper |
+| `DEVELOPMENT.md`, `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | map, status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+Real frame rate on the user's PC (with the GPU) is still unknown: one debug run on the user's machine would complete the picture.
+
+### Next action
+Claude: Phase 1 step 3 (layout and ID constants). It touches the hot files briefly (replacing literals only); Codex should not have open work on `bench_view.gd`, `tool_rig.gd` or `game_state.gd` during it.
+
 ## 0.19.2 - 2026-11-13 - Shared test helper and one-loop test workflow
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.1

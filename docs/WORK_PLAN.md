@@ -78,4 +78,5 @@ features land in the per-tool scripts.
 | --- | --- | --- |
 | Plan | approved | 0.19.1 |
 | 1 Shared test helper, workflow loop | done | 0.19.2 |
-| 2–17 | not started | — |
+| 2 Frame-time measurement | done (first numbers in CHANGELOG 0.19.3) | 0.19.3 |
+| 3–17 | not started | — |

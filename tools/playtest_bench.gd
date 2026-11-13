@@ -14,6 +14,7 @@ var view: Node2D
 
 
 var waited: float = 0.0
+var last_progress: float = 0.0   # the frame-time table waits for real frames; it marks progress here
 
 
 func _initialize() -> void:
@@ -23,7 +24,7 @@ func _initialize() -> void:
 # Watchdog: if a script error stops run() part-way, quit anyway instead of hanging the build.
 func _process(delta: float) -> bool:
     waited += delta
-    if waited > 5.0:
+    if waited - last_progress > 5.0:
         print("Playtest stopped early (a script error above ended it)")
         return true
     return false
@@ -46,6 +47,7 @@ func run() -> void:
     reach_table()
     click_table()
     paste_table()
+    await frame_time_table()
     view.queue_free()
     gs.save_path = original_path
     print("Playtest finished")
@@ -221,3 +223,77 @@ func paste_table() -> void:
                 var r: Dictionary = view.mount_result
                 print("PLAYTEST PASTE  %-7s  %4.1f       %-24s  %4.1f     %-11s  %5.0f%%    %5.0f%%    %.1f" % [pattern, squeeze, gauge, press,
                     str(r.get("grade", "-")), float(r.get("coverage", 0.0)) * 100.0, float(r.get("overflow", 0.0)) * 100.0, offset])
+
+
+# Frame times (docs/WORK_PLAN.md Phase 1 step 2). For each scene: the time of one physics tick (the
+# bench's _physics_process, timed here) and of one redraw (the bench's _draw, timed inside it), over
+# real engine frames. Headless: the drawing code runs (that is what we measure: our script's cost of
+# building the picture), but nothing reaches a graphics card, so GPU time is NOT included. Numbers are
+# from GitHub's machine; compare scenes with each other, not with your PC.
+const PERF_FRAMES: int = 180
+
+
+func frame_time_table() -> void:
+    print("PLAYTEST FRAMES scene                  physics_avg_us  physics_worst_us  draw_avg_us  draw_worst_us  frames_drawn  dust_bundles")
+    view.set_physics_process(false)   # the table steps physics itself, once per frame, so it can time it
+    for scene: String in ["idle bench", "brushing", "vacuum + moving hose", "paste flowing", "idle paste stage"]:
+        await prepare_scene(scene)
+        var physics_total: int = 0
+        var physics_worst: int = 0
+        var draw_total: int = 0
+        var draw_worst: int = 0
+        var drawn: int = 0
+        for frame in range(PERF_FRAMES):
+            drive_scene(scene, frame)
+            var started: int = Time.get_ticks_usec()
+            view._physics_process(STEP)
+            var took: int = Time.get_ticks_usec() - started
+            physics_total += took
+            physics_worst = maxi(physics_worst, took)
+            view.last_draw_usec = -1
+            view.queue_redraw()
+            await process_frame
+            last_progress = waited
+            if view.last_draw_usec >= 0:
+                drawn += 1
+                draw_total += view.last_draw_usec
+                draw_worst = maxi(draw_worst, view.last_draw_usec)
+        print("PLAYTEST FRAMES %-22s %10d      %10d        %9d    %9d      %5d         %d" % [scene, physics_total / PERF_FRAMES,
+            physics_worst, draw_total / maxi(1, drawn), draw_worst, drawn, view.dust.count])
+    view.holding = false
+    view.scripted_pressing = null
+    view.set_physics_process(true)
+
+
+func prepare_scene(scene: String) -> void:
+    view.holding = false
+    view.scripted_pressing = null
+    if scene.contains("paste"):
+        view._select_stage(view.STAGE_PASTE)
+        view._on_clear_pressed()
+        var cpu_center: Vector2 = view.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(view.PASTE_CELL)
+        view.tools.select("syringe", cpu_center)
+        view.scripted_pointer = cpu_center
+        if scene == "paste flowing":
+            view.holding = true
+            for frame in range(120): view._physics_process(STEP)
+            view.holding = false
+            view._on_mount_pressed()
+            view.scripted_pressing = true
+    else:
+        view._select_stage(view.STAGE_CLEAN)
+        reset_bench(Dust.TOOL_BRUSH if scene == "brushing" else Dust.TOOL_VACUUM, 0)
+        view.scripted_pointer = view._zone_rect(zone_index("motherboard")).get_center()
+        if scene != "idle bench":
+            view.holding = true
+    await process_frame
+    last_progress = waited
+
+
+func drive_scene(scene: String, frame: int) -> void:
+    var t: float = float(frame) * STEP
+    var center: Vector2 = view._zone_rect(zone_index("motherboard")).get_center() if not scene.contains("paste") else view.scripted_pointer
+    if scene == "brushing":
+        view.scripted_pointer = center + Vector2(25.0 * sin(TAU * 2.5 * t), 0.0)
+    elif scene == "vacuum + moving hose":
+        view.scripted_pointer = center + Vector2(160.0 * sin(TAU * 0.5 * t), 70.0 * cos(TAU * 0.7 * t))
