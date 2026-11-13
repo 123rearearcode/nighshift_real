@@ -203,6 +203,7 @@ func run_checks() -> void:
     test_piece_physics(gs)
     test_hose_handling()
     test_bench_clicks(gs)
+    test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
@@ -1084,3 +1085,90 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
 
 func GameState_base(gs: Node) -> float:
     return gs.BASE_TEMP
+
+
+# 0.16.0: full housings, continuous hose picking, held-tool priority and optional parking.
+func test_hose_housing_and_clamp(gs: Node) -> void:
+    var rig := ToolRig.new()
+    var housing: Dictionary = {"id":"cooler", "center":Vector2(300,300), "angle":0.4, "half":Vector2(40,32)}
+    var brush_piece: Dictionary = {"id":"brush", "kind":"tool", "solid":true, "inv_mass":0.0}
+    var loose: Dictionary = housing.duplicate()
+    loose.merge({"id":"gpu", "kind":"part", "solid":true, "inv_mass":0.4}, true)
+    rig.set_hose_obstacles([brush_piece,loose], [housing])
+    check(rig.hose_obstacles.size() == 2, "hose ignores tools but follows both loose and fitted component housings")
+    var edge: Vector2 = housing["center"] + Vector2(39,31).rotated(0.4)
+    var pushed: Vector2 = Hose.push_out(edge, rig.hose_obstacles[1], Hose.POINT_RADIUS)
+    var local: Vector2 = (pushed - Vector2(housing["center"])).rotated(-0.4)
+    check(absf(local.x) >= 40.0 or absf(local.y) >= 32.0, "hose clears rotated outer housing corner instead of following fan circle")
+    var home: Rect2 = Zones.zones()[1]["rect"]
+    home.position += Vector2(40,105)
+    var route := ToolRig.new()
+    route.select("vacuum", Vector2(100,140))
+    route.set_hose_obstacles([], [{"id":"cooler","center":home.get_center(),"angle":0.0,"half":home.size*0.5}])
+    for frame in range(300): route.step(1.0/60.0, Vector2(100,140), false)
+    var clips: int = 0
+    for i in range(1,Hose.POINTS-1):
+        for sample in range(10):
+            if home.grow(-1.0).has_point(route.hose.pos[i-1].lerp(route.hose.pos[i],float(sample)/10.0)):
+                clips += 1
+    check(clips == 0, "hose links, not only rope nodes, clear cooler housing corners")
+    check(route.hose.worst_link_error() < route.hose.segment*0.25, "housing collision retains hose length")
+    loose["inv_mass"] = 0.0
+    rig.set_hose_obstacles([brush_piece,loose], [])
+    check(rig.hose_obstacles.is_empty(), "carried parts and tools pass above hose without trapping it")
+    rig.hose.pos[7] = Vector2(300,200)
+    rig.hose.pos[8] = Vector2(338,200)
+    check(rig.hose_hit(Vector2(319,200)), "hose can be grabbed between its simulation nodes")
+    check(rig.grab_hose(Vector2(319,200)), "continuous hose pick starts a carry")
+    rig.release_hose(ToolRig.CLAMP_POINT)
+    check(rig.hose_clamp > 0 and rig.hose_grab == -1, "dropping carried hose into desk clamp parks it")
+    var clamp_index: int = rig.hose_clamp
+    rig.select("brush", Vector2(300,250))
+    for frame in range(120): rig.step(1.0/60.0, Vector2(380,260), false)
+    check(rig.hose_clamp == clamp_index and rig.hose.pos[clamp_index].distance_to(ToolRig.CLAMP_POINT) < 0.1, "clamp stays pinned while another tool is used")
+    check(rig.contact().distance_to(Vector2(380,260)) < 1.0, "brush follows cursor independently of clamped hose")
+    rig.unclamp_hose()
+    check(rig.hose_clamp == -1, "player can release the desk clamp")
+    rig.hose_grab = 1
+    rig.release_hose(ToolRig.CLAMP_POINT)
+    check(rig.hose_clamp == -1, "clamp cannot stretch a too-short bin-side section")
+    rig.hose_grab = 8
+    rig.release_hose(Vector2(200,200))
+    check(rig.hose_clamp == -1 and rig.hose_grab == -1, "ordinary drops release hose without auto-clamping")
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_tool(1)
+    var mouse := Vector2(300,300)
+    bench.tools.hose.pos[7] = mouse
+    var press := InputEventMouseButton.new()
+    press.button_index = MOUSE_BUTTON_RIGHT
+    press.pressed = true
+    press.position = mouse
+    bench._input(press)
+    check(bench.tools.carrying and bench.tools.hose_grab < 0, "right-drag of held brush is not stolen by hose underneath")
+    bench.tools.release_throw(Vector2.ZERO)
+    press.shift_pressed = true
+    bench._input(press)
+    check(bench.tools.hose_grab > 0, "Shift-right-drag explicitly picks up hose")
+    bench.tools.hose_grab = 8
+    var release := InputEventMouseButton.new()
+    release.button_index = MOUSE_BUTTON_RIGHT
+    release.position = ToolRig.CLAMP_POINT
+    bench._input(release)
+    check(bench.tools.hose_clamp == 8, "bench mouse release connects hose carry to visible clamp")
+    press.shift_pressed = false
+    press.position = ToolRig.CLAMP_POINT
+    bench._input(press)
+    check(bench.tools.hose_clamp < 0, "empty-hand click releases parked hose")
+    bench.tools.motions["pick"].center = mouse
+    press.shift_pressed = true
+    press.position = mouse
+    bench._input(press)
+    check(bench.tools.hose_grab > 0 and not bench.tools.equipped, "explicit hose gesture wins over a tool below it with empty hands")
+    bench.tools.release_hose()
+    bench._select_tool(2)
+    bench._input(press)
+    check(bench.tools.hose_grab > 0, "explicit hose pickup also works in move-parts mode")
+    bench.free()

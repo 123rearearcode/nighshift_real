@@ -30,7 +30,7 @@ func _ready() -> void:
     _make_button("Run final check", Vector2(700, 250), Vector2(420, 50), _on_check_pressed)
     upgrade_button = _make_button("Buy square cloth", Vector2(700, 320), Vector2(420, 44), _on_upgrade_pressed)
     hose_button = _make_button("Buy longer hose", Vector2(700, 372), Vector2(420, 44), _on_hose_pressed)
-    _make_button("New game (reset save)", Vector2(700, 424), Vector2(420, 44), _on_new_game_pressed)
+    _make_button("Main menu", Vector2(700, 424), Vector2(420, 44), _on_main_menu_pressed)
     version_label = _make_label(Vector2(40, 686), Vector2(900, 24), 13)
     version_label.text = "Nightshift foundation trial v%s  |  save format %d" % [GameState.game_version(), GameState.SAVE_FORMAT]
     version_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.7))
@@ -137,11 +137,9 @@ func _on_hose_pressed() -> void:
     _refresh()
 
 
-func _on_new_game_pressed() -> void:
-    GameState.new_game()
-    result_label.text = "New game started."
-    result_label.add_theme_color_override("font_color", Color(0.92, 0.92, 0.92))
-    _refresh()
+func _on_main_menu_pressed() -> void:
+    GameState.save_game()
+    _go("res://scenes/start.tscn")
 
 
 func _draw() -> void:

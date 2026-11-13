@@ -80,7 +80,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
-| `project.godot` | config | Settings, `config/version`, main scene `shop.tscn`, autoload `GameState` |
+| `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoload `GameState` |
 | `.gitignore` | config | Ignores `.godot/` cache and export files |
 | `README.md` | docs | How to import and run; what each screen does |
 | `HANDOFF.md` | docs | Signed handoff: state, rules for every bot, how to update the changelog, open tasks |
@@ -92,14 +92,17 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
-| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.8 |
-| `docs/DESIGN.md` | docs | Reconciled core project document version 1.8 |
-| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.8 |
-| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.8 |
-| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.8 |
+| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.9 |
+| `docs/DESIGN.md` | docs | Reconciled core project document version 1.9 |
+| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.9 |
+| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.9 |
+| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.9 |
 | `DEVELOPMENT.md` | docs | This guide |
 | `tools/check_project.py` | tooling | Consistency checker (does not run Godot) |
 | `tools/.gdignore` | tooling | Keeps Godot from scanning `tools/` |
+| `scenes/start.tscn` | scene | Initial menu scene, attaches start_view.gd |
+| `scripts/view/start_view.gd` | view | New/Load/Achievements menu, existing-save confirmation, current-demo navigation |
+| `tools/test_start_screen.gd` | tooling | Isolated save/menu transitions, overwrite guard and recovery integration checks |
 | `scenes/shop.tscn` | scene | Main scene, uses `shop_view.gd` |
 | `scenes/bench.tscn` | scene | Repair bench (clean + paste), uses `bench_view.gd` |
 | `scenes/main.tscn` | scene | Hardware sandbox (free drawer packing, multi-piece slot installation). Legacy name from 0.1.0; renaming is deferred |
@@ -109,7 +112,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
-| `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, rounded obstacle corners, one end on the bin, one on the nozzle, a point the player can hold |
+| `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
 | `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
 | `scripts/bench/piece_collision.gd` | sim | Rotated-box collisions between tools and loose parts (pure function on dictionaries; the caller copies results back) |
 | `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
@@ -296,3 +299,12 @@ Still inside `bench_view.gd` on purpose: the replacement panel (the suite touche
 When you add a new kind of data, or a new key to existing data, add it to the schema tables at the top of `tools/test_data_schemas.gd` in the same change. An unexpected key is reported as a problem on purpose: it catches typos.
 
 Queued (not done): the `bench_view.gd` split continues with the replacement panel, then part dragging, then input handling, then one script per tool and a separate UI builder. Do one extraction per patch and let the automated tests run after each.
+
+
+## 0.16.0 contracts — start menu and hose
+
+`GameState.new_game(persist: bool = true)` resets in-memory state and normally saves; `_ready` uses `false` only when there is no readable save. `has_saved_game() -> bool` uses the existing SaveStore primary/backup/temp recovery. `load_game()` still restores validated data. Starting the app/title never manufactures a save. New/Load enter the existing shop; the shop's Main menu saves and returns. Achievements has no unlock/progress system yet. SAVE_FORMAT remains 1.
+
+`ToolRig.set_hose_obstacles(pieces, fitted)` keeps resting/low component housings and excludes tools/held parts; housings pass `corner_radius: 0.0`. `HoseSim` checks link interiors as well as points; drawing uses those collision-tested links rather than a spline cutting through corners. `nearest_point` tests along links. `hose_clamp` stores a session-local pinned point; `release_hose(drop_point = Vector2.INF)` optionally parks it if the carried section reaches CLAMP_POINT, `unclamp_hose()` releases, and any re-grab releases the previous clamp. The clamp never changes inventory or ownership. Tool selection releases a live hand grip while preserving an already parked clamp.
+
+Controls: Shift + right-drag hose (or right-drag with empty hands); drop into CLAMP_RECT; empty-hand click releases. Held-tool right-drag takes priority over the hose. Keyboard/menu buttons retain their existing role. CI now also runs `tools/test_start_screen.gd`.

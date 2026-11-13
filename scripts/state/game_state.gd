@@ -41,10 +41,14 @@ var upgrades: Dictionary = {}   # upgrade id -> true once bought
 
 func _ready() -> void:
     if not load_game():
-        new_game()
+        new_game(false)   # title screen must not create/overwrite a save just by opening
 
 
-func new_game() -> void:
+func has_saved_game() -> bool:
+    return SaveStore.read(save_path) is Dictionary
+
+
+func new_game(persist: bool = true) -> void:
     money = START_MONEY
     ticket_sequence = 1
     job = _make_job()
@@ -52,7 +56,8 @@ func new_game() -> void:
     inventory_layout = {}
     inventory_sequence = 10
     upgrades = {}
-    save_game()
+    if persist:
+        save_game()
 
 
 func _make_job() -> Dictionary:

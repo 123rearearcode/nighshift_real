@@ -1,6 +1,14 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.8 · 13 November 2026
+Version 1.9 · 13 November 2026
+
+## Current baseline — trial 0.16.0
+
+Start menu, load/new-game navigation and labelled Achievements placeholder are implemented. Existing-save replacement is confirmed; merely opening an unsaved session does not write progress. Shop Main menu saves before returning. Hose uses full component housings and link collision checks; tools/held parts pass above it, held-tool input wins, and the hose has continuous pickup plus an optional session-local desk clamp.
+
+Based on merged main 0.15.2 (PR #10, merge `8972272cce821243b4cfdfd102796e4c85b90e19`); other AI PRs were already merged when inventoried. User reports those changes tested. Current automated headless verification uses Godot 4.7.2; exact results are in CHANGELOG. Graphical launch was unavailable because this runtime had no display server; mouse feel/visual layout still need the user's acceptance.
+
+Work orders, claims, archived delivery and scam consequences remain approved but unimplemented. Seven accepted concepts / rejection of C remain. The following 0.15.2 snapshot and older lists are historical; their no-gameplay-change statement describes that patch only.
 
 ## Active baseline — documentation patch 0.15.2
 

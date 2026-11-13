@@ -71,7 +71,7 @@ func reset(anchor_point: Vector2, end_point: Vector2) -> void:
 static func push_out(p: Vector2, obstacle: Dictionary, margin: float) -> Vector2:
     var angle: float = obstacle["angle"]
     var half: Vector2 = obstacle["half"]
-    var corner: float = minf(CORNER_RADIUS, minf(half.x, half.y) * 0.5)
+    var corner: float = clampf(float(obstacle.get("corner_radius", CORNER_RADIUS)), 0.0, minf(half.x, half.y) * 0.5)
     var inner: Vector2 = half - Vector2(corner, corner)
     var reach: float = corner + margin
     var local: Vector2 = (p - obstacle["center"]).rotated(-angle)
@@ -98,8 +98,9 @@ static func push_out(p: Vector2, obstacle: Dictionary, margin: float) -> Vector2
 func nearest_point(point: Vector2, radius: float, keep_from_end: int) -> int:
     var best: int = -1
     var best_distance: float = radius
-    for i in range(1, POINTS - keep_from_end):
-        var distance: float = pos[i].distance_to(point)
+    for i in range(1, pos.size() - keep_from_end):
+        var closest: Vector2 = Geometry2D.get_closest_point_to_segment(point, pos[i - 1], pos[i])
+        var distance: float = closest.distance_to(point)
         if distance <= best_distance:
             best_distance = distance
             best = i
@@ -121,7 +122,7 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
     # obstacles can keep nudging each other for ever and the hose creeps (found by simulation).
     var obstacle_key := Vector2.ZERO
     for obstacle: Dictionary in obstacles:
-        obstacle_key += Vector2(obstacle["center"]) + Vector2(float(obstacle["angle"]), float(obstacles.size()))
+        obstacle_key += Vector2(obstacle["center"]) + Vector2(obstacle["half"]) + Vector2(float(obstacle["angle"]), float(obstacle.get("corner_radius", CORNER_RADIUS)) + float(obstacles.size()))
     var quiet: bool = not pinned() and desired_end.distance_to(_last_end) < STILL_DISTANCE \
         and obstacle_key.distance_to(_last_obstacles) < STILL_DISTANCE
     _last_end = desired_end
@@ -186,6 +187,7 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
                 continue   # lifted off the bench by the player's hand
             for obstacle: Dictionary in obstacles:
                 pos[i] = push_out(pos[i], obstacle, POINT_RADIUS)
+        _clear_housing_links(obstacles)
     pos[0] = anchor_point
     if pinned():
         pos[pin] = pin_point
@@ -198,6 +200,27 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
     if calm:
         for i in range(1, POINTS):
             prev[i] = pos[i]
+
+
+# Nodes alone can miss a housing corner between two links. Project samples of those links
+# outside the housing too; fixed anchor/held points and the lifted nozzle lead stay free.
+func _clear_housing_links(obstacles: Array) -> void:
+    for obstacle: Dictionary in obstacles:
+        if float(obstacle.get("corner_radius", CORNER_RADIUS)) > 0.0:
+            continue
+        for i in range(POINTS - 2):
+            if pinned() and (absi(i - pin) <= PIN_LIFT or absi(i + 1 - pin) <= PIN_LIFT):
+                continue
+            for fraction: float in [0.25, 0.5, 0.75]:
+                var sample: Vector2 = pos[i].lerp(pos[i + 1], fraction)
+                var correction: Vector2 = push_out(sample, obstacle, POINT_RADIUS) - sample
+                if correction.length_squared() < 0.0001:
+                    continue
+                var low: float = 0.0 if i == 0 else 1.0 - fraction
+                var high: float = fraction
+                var weight: float = low * low + high * high
+                pos[i] += correction * low / weight
+                pos[i + 1] += correction * high / weight
 
 
 # A point at `t` along the hose: 0 is the nozzle end, 1 is the bin (used to draw dust inside it).

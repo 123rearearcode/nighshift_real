@@ -1,11 +1,11 @@
 # Nightshift — Project Brief
 
-Version 1.8 · 13 November 2026
+Version 1.9 · 13 November 2026
 
 ## Read this first
-This pack guides human-directed collaboration between AIs. The user is creative director. Current task: document approved scams A/B/D/E/F/G/H, exclude C, update dust/paste rules, expose customer promises and define completion gates. Documentation patch 0.15.2 changes no game code. Read MINIGAME_RULES.md and SCAM_DESIGN_PROPOSAL.md alongside the five core documents.
+This pack guides human-directed collaboration between AIs. The user is creative director. Current task: merge the open PRs, add a simple New/Load/Achievements start screen, and fix hose routing/tool interference with an optional desk clamp. Trial 0.16.0 implements this bounded feature. Seven scam concepts A/B/D/E/F/G/H remain approved, C excluded; work-order/claims/consequences are still future work described in MINIGAME_RULES.md.
 
-GitHub is connected. Current repository: `123rearearcode/nighshift_real`; gameplay baseline 0.15.1. Work on a scoped branch and open a PR; this task does not authorise merging. Historical ZIP exchanges/repository names below are superseded as current workflow, but ZIPs may still be used for manual playtests.
+GitHub is connected; repository `123rearearcode/nighshift_real`. The user explicitly authorises merging the current task's PRs and reports testing the other AI's changes. Only #10 was open at inventory and is merged; older PRs were already merged. Use scoped branches, logged checks and preserved archive baselines. This supersedes the previous task's no-merge scope. ZIPs remain available for playtests.
 
 Read this brief for every task, then only the relevant DESIGN.md sections and task files. Read CURRENT_STATE.md before touching code. DECISIONS.md distinguishes approved rules from proposals. ROADMAP.md orders the work. Later explicit user decisions supersede this snapshot; update the documents when that happens.
 
