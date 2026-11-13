@@ -82,6 +82,18 @@ jobs:
           done <<< "$SUITES"
           exit $bad
 
+      - name: Code style report (gdlint, report-only for now)
+        # Work plan Phase 1 step 4. Report-only: the step never fails the build while the backlog
+        # exists. Once the report is clean, remove "continue-on-error" to make it blocking.
+        if: always()
+        continue-on-error: true
+        run: |
+          pip install --quiet "gdtoolkit==4.*"
+          cd "$PROJECT_DIR"
+          gdlint scripts tools 2>&1 | tee "$GITHUB_WORKSPACE/gdlint.log" || true
+          echo "---- summary ----"
+          tail -2 "$GITHUB_WORKSPACE/gdlint.log"
+
       - name: Scripted bench playtest (prints a table, never fails the build)
         if: always()
         continue-on-error: true
