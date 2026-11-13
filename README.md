@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.20.0)
+# Nightshift - Godot Foundation Trial (v0.20.1)
 
 **0.18.0 adds trapped-dust threads and clearer bench controls.** Short tails protrude from under parts: precise vacuuming pulls them free slowly; removing the part is easier. Drag the clamp with either mouse button; a stationary left click unclips. The standard hose now only just reaches the far-left corner with careful rotation. Tools can be put down throughout cooler mounting, including after the pressing timer expires. Cooler visual redesign is proposed in `docs/DESIGN_PROPOSALS.md` section 6.
 
@@ -7,7 +7,7 @@ A small playable foundation for the PC repair/shop game. Placeholder shapes and 
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.20.0.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.20.1.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** for the start screen. Choose **New game** to open the demo, or **Load game** to resume. Starting over asks before replacing an existing save. The shop has a **Main menu** button that saves before returning.
 
@@ -82,3 +82,6 @@ Starting cooler mounting puts down the held tool. Right-drag put-down also works
 The vacuum stops collecting when its bin reaches 100%. A permanent status line now explains this, and **Empty bin** stays beside the tool controls with the current fill percentage. Switching tools does not dismiss the full-bin warning. Cleaning tools, maintenance, thermal materials and completion have separate rows. Hose self-crossings are untangled, including clamp transitions; occupied clamps correctly consume hose length.
 
 The game is still silent: audio cue hooks and six mixer buses are ready for future sound work, but there are no sound clips or playback. See docs/AUDIO_DESIGN.md for the detailed plan. Cooler artwork is deferred. Leaving an unfinished cooler mount cancels it; navigation cannot replace physically locking the lever.
+
+## Test cleanup in 0.20.1
+Gameplay is unchanged. See docs/TESTING.md for required suites, short/full diagnostics and the visible non-blocking report of the existing lever/highlight defects. Documentation-only changes skip the game run; bench/physics changes retain the full matrix.

@@ -39,6 +39,51 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.20.1 - 2026-11-13 - Retain useful coverage and make expensive diagnostics selective
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.20.0, main 05fb996b375aff79ba94ea39abe44ba6b4834af0.
+- Type: patch (user-authorised test/tooling cleanup; no gameplay or save change).
+
+### Execution status
+Codex ran the required suites in Godot 4.7.2.stable.official.ed1daf0bf headlessly, plus short diagnostics and a separate known-defect report. No human feel, graphical or GPU validation is claimed. No scripts/ production file, hot file or WORK_PLAN.md is edited. Claude retains Phase 2 engineering ownership.
+
+### Added / Changed / Fixed / Removed
+- Required coverage remains in all seven suites. Replaced the obsolete syringe-label search with actual action wiring; dust expectations derive from zone configuration/initial state instead of 85/70/7 tuning literals.
+- Removed the historical vacuum-duration pass gate; --tuning retains it as a clearly labelled observation. Consolidated duplicated fresh/rack checks into their existing dedicated suites, retaining partial-progress reload and stale-scene ticket protection.
+- Still simulates and observes all 47 pick pre-completion frames, but reports one assertion rather than 47. Counts decrease without discarding those observations.
+- Removed assertions that endorse tab navigation as the securing lever. New test_pending_contracts.gd uses the correct no-auto-secure rule plus selection/actual-tool consistency; these existing runtime defects remain visible as a separate failing, non-blocking CI lane pending Claude's fix. No known bug is fixed or concealed as passing coverage.
+- Full diagnostic matrix remains unchanged by default. --smoke selects representative brush, vacuum, click and paste cases, retaining reach and state tables; --tuning is optional. Full mode/frame measurements run for bench/data/geometry or diagnostic-driver changes and manual request; other runtime edits use smoke.
+- Pure Markdown plus only a version bump runs project hygiene and scope integration tests, without downloading Godot or rerunning the game. Actual non-version project settings, deleted/renamed code, unknown history and manual runs are handled conservatively.
+- Superseded push/PR runs on the same branch cancel rather than run duplicate in-progress work. CI no longer swallows a nonzero suite exit or stops on its display-only missing-summary grep: later suites still run and the job retains the failure. Style backlog stays non-blocking. Added test-policy documentation and map/handoff/version updates.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `CHANGELOG.md` | M | Signed release record and honest known-defect results |
+| `DEVELOPMENT.md` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `HANDOFF.md` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `README.md` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `docs/TESTING.md` | A | Test cleanup, diagnostic scheduling or signed release documentation |
+| `project.godot` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `tools/ci_scope.py` | A | CI scope selection and real temporary-Git fixtures |
+| `tools/playtest_bench.gd` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+| `tools/test_ci_scope.py` | A | CI scope selection and real temporary-Git fixtures |
+| `tools/test_pending_contracts.gd` | A | Test cleanup, diagnostic scheduling or signed release documentation |
+| `tools/test_regressions.gd` | M | Test cleanup, diagnostic scheduling or signed release documentation |
+
+### Checks performed
+Godot 4.7.2: schema 182, regression 463, start 10, dust flow 43, interaction 26, feedback 27, audio/vacuum 36 — 787 required checks, zero failures. The 51-count reduction from 838 is 46 repeated pick assertions, one historical pace gate, two copied freshness/rack checks and two assertions blessing auto-secure/its follow-on; coverage and known defects are documented in TESTING.md. Short diagnostic completed with 66 PLAYTEST lines and no script errors; --smoke --tuning also completed and reported 22.93 simulated clear seconds without a pass threshold. Known-defect report: 6 checks, 3 failures reproducing the existing two tab bypasses and rejected-selection highlight; explicitly not a clean overall defect report. Nine real-Git CI scope tests passed. Workflow shell fixtures verified that a nonzero process with a passing summary and a missing summary both preserve failure while all seven suites are attempted; all-pass fixture succeeds. Workflow YAML parses. Project checker PASSED: 52 scripts, 195 resource references, 82 mapped files and five core docs. git diff --check passed. No production scripts differ from main.
+
+### Decisions proposed (not approved)
+No new game mechanics. The user authorised test selection/cleanup. Correct lever behaviour remains the existing D57 requirement. The temporary non-blocking defect lane must be promoted to required coverage once Claude fixes the runtime; it is not permanent permission to ignore those bugs.
+
+### Known issues and open items
+The known lever/highlight defects remain unfixed in production code, owned by Claude. Full diagnostic timings are machine-dependent; no measured speed-up is claimed. New CI conditions require validation on the actual branch. Claude cross-review/user acceptance required before merge; Codex will not merge.
+
+### Next action
+Claude cross-reviews the test/CI changes, fixes the bench defects and promotes pending-contract cases; user reviews the cleanup PR. Hot files bench_view.gd, tool_rig.gd and game_state.gd remain reserved to Claude throughout Phase 2; none is edited by this patch.
+
 ## 0.20.0 - 2026-11-13 - Spool, loose items and trash can, paste-wipe fix, parts-removal repro
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.7

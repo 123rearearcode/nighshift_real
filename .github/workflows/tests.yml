@@ -1,12 +1,18 @@
-# Runs the project checks on every push and pull request, using the real engine version.
-# Written without being able to run it: if the first run is red, read the log before assuming
-# the game is broken, the workflow itself may need a small fix.
 name: Tests
 
 on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      full_diagnostics:
+        description: Run the complete brush/angle/paste matrix and frame measurements
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -19,31 +25,33 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Find the project folder
-        # Works whether the files sit at the top of the repository or inside one extra folder.
         run: |
           PROJECT_FILE=$(find . -name project.godot -not -path './.git/*' | head -n 1)
-          if [ -z "$PROJECT_FILE" ]; then
-            echo "No project.godot found anywhere in the repository. The project files were not uploaded. Top of the repository:"
-            ls -la
-            exit 1
-          fi
-          DIR=$(dirname "$PROJECT_FILE")
-          echo "PROJECT_DIR=$DIR" >> "$GITHUB_ENV"
-          echo "Project folder: $DIR"
-          ls -la "$DIR"
-          if [ ! -f "$DIR/tools/check_project.py" ]; then
-            echo "The tools folder is missing from the project. Upload the tools folder too."
-            exit 1
-          fi
+          test -n "$PROJECT_FILE"
+          echo "PROJECT_DIR=$(dirname "$PROJECT_FILE")" >> "$GITHUB_ENV"
 
-      - name: Project hygiene (versions, changelog, file map)
+      - name: Project hygiene and CI scope tests
         run: |
           cd "$PROJECT_DIR"
           python3 -I tools/check_project.py
+          python3 -B tools/test_ci_scope.py
 
-      - name: Download Godot ${{ env.GODOT_VERSION }}
+      - name: Choose verification scope
+        id: scope
+        env:
+          CI_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_FORCE_FULL: ${{ inputs.full_diagnostics || false }}
+          CI_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          cd "$PROJECT_DIR"
+          python3 -I tools/ci_scope.py
+
+      - name: Download Godot
+        if: steps.scope.outputs.runtime == 'true'
         run: |
           curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
           unzip -q godot.zip
@@ -51,15 +59,14 @@ jobs:
           sudo chmod +x /usr/local/bin/godot
           godot --version
 
-      - name: Import project (builds the .godot cache)
-        # Only preparation. The test steps below decide pass or fail, so a quirky exit code here is ignored.
+      - name: Import project
+        if: steps.scope.outputs.runtime == 'true'
         run: |
           cd "$PROJECT_DIR"
-          godot --headless --path . --import || true
+          godot --headless --path . --import
 
-      - name: Test suites (each must report 0 failures and no script errors)
-        # One loop instead of a copied step per suite. Every suite runs even if an earlier one fails;
-        # the step fails at the end if any did. Add a new suite by adding one line to SUITES.
+      - name: Required test suites
+        if: steps.scope.outputs.runtime == 'true'
         run: |
           cd "$PROJECT_DIR"
           SUITES="test_data_schemas|Data schema
@@ -74,32 +81,43 @@ jobs:
             file="$(echo "$file" | xargs)"
             log="$GITHUB_WORKSPACE/$file.log"
             echo "::group::$name ($file.gd)"
-            godot --headless --path . --script "res://tools/$file.gd" 2>&1 | tee "$log" || true
+            if godot --headless --path . --script "res://tools/$file.gd" 2>&1 | tee "$log"; then :; else bad=1; fi
             echo "::endgroup::"
-            if ! grep -q "$name checks: .*failures: 0" "$log"; then echo "::error::$name suite failed or printed no summary"; bad=1; fi
-            if grep -qE "SCRIPT ERROR|Parse Error" "$log"; then echo "::error::$name suite had a script error"; bad=1; fi
-            grep -E "checks: [0-9]+, failures: [0-9]+" "$log" | tail -1
+            if ! grep -q "$name checks: .*failures: 0" "$log"; then echo "::error::$name failed or printed no summary"; bad=1; fi
+            if grep -qE "SCRIPT ERROR|Parse Error" "$log"; then echo "::error::$name had a script error"; bad=1; fi
+            grep -E "checks: [0-9]+, failures: [0-9]+" "$log" | tail -1 || true
           done <<< "$SUITES"
           exit $bad
 
-      - name: Code style report (gdlint, report-only for now)
-        # Work plan Phase 1 step 4. Report-only: the step never fails the build while the backlog
-        # exists. Once the report is clean, remove "continue-on-error" to make it blocking.
-        if: always()
+      - name: Known defects (non-blocking until Claude fixes the bench)
+        if: steps.scope.outputs.runtime == 'true'
+        continue-on-error: true
+        run: |
+          cd "$PROJECT_DIR"
+          echo "Known D57 lever bypass and rejected-tool highlight defects; see docs/TESTING.md." >> "$GITHUB_STEP_SUMMARY"
+          godot --headless --path . --script res://tools/test_pending_contracts.gd 2>&1 | tee "$GITHUB_WORKSPACE/pending-contracts.log"
+
+      - name: Code style report (non-blocking backlog)
+        if: steps.scope.outputs.runtime == 'true'
         continue-on-error: true
         run: |
           pip install --quiet "gdtoolkit==4.*"
           cd "$PROJECT_DIR"
-          gdlint scripts tools 2>&1 | tee "$GITHUB_WORKSPACE/gdlint.log" || true
-          echo "---- summary ----"
-          tail -2 "$GITHUB_WORKSPACE/gdlint.log"
+          gdlint scripts tools 2>&1 | tee "$GITHUB_WORKSPACE/gdlint.log"
 
-      - name: Scripted bench playtest (prints a table, never fails the build)
-        if: always()
+      - name: Scripted diagnostics (smoke or full matrix; non-blocking)
+        if: steps.scope.outputs.runtime == 'true'
         continue-on-error: true
+        env:
+          FULL_DIAGNOSTICS: ${{ steps.scope.outputs.full }}
         run: |
           cd "$PROJECT_DIR"
-          timeout 540 godot --headless --path . --script res://tools/playtest_bench.gd 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
+          mode_args=(--smoke)
+          limit=120
+          if [ "$FULL_DIAGNOSTICS" = "true" ]; then mode_args=(); limit=540; fi
+          timeout "$limit" godot --headless --path . --script res://tools/playtest_bench.gd -- "${mode_args[@]}" 2>&1 | tee "$GITHUB_WORKSPACE/playtest.log"
+          grep -q "Playtest finished" "$GITHUB_WORKSPACE/playtest.log"
+          ! grep -qE "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/playtest.log"
 
       - name: Keep the logs
         if: always()
@@ -107,3 +125,4 @@ jobs:
         with:
           name: test-logs
           path: "*.log"
+          if-no-files-found: ignore
