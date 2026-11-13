@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.7 · 13 November 2026
+Version 1.8 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -115,12 +115,24 @@ Written by Claude (Opus 5.5, model id claude-opus-5-5). Decisions D45–D56 in D
 - Toothpaste (0.15.0, D53): selectable instead of thermal paste while the CPU is bare. Free; stiffer, so it needs more pressure; +14 C in the final check; the customer still pays; recorded in `job.scams`. Nothing happens afterwards yet.
 - Verification: automated suites and a scripted playtest run on Godot 4.7.2 in GitHub Actions; the user playtests by hand. Feel numbers remain proposals.
 
-## 19. Direction after the bench: hands-on scams — CONFIRMED direction, details OPEN
-The user wants to go further in the scam direction once the current bench part is finished (D54). This builds on D17/D18 (scams through ordinary diagnosis, installation and invoices; persona-based discovery for now). The toothpaste swap is the first hands-on example: the scam is performed with the same tools as honest work, and saves money or time.
-OPEN questions for the next design pass (not decided; do not implement without the user):
-1. Which scams belong in the hands-on repair work (examples to evaluate, not approved: skipping hidden dust but invoicing a full clean; reusing old paste; fitting a cheaper or used part as new; pick damage hidden from the customer; fake fault reports; selling the customer's removed parts).
-2. What each scam gains (money, time, stock) and what it risks; how honest work stays a viable, rewarding path.
-3. Discovery: persona knowledge, delay (e.g. toothpaste drying out over days), evidence, chance; what the player sees; how deception-skill modifiers (D18) fit.
-4. Consequences: comebacks, refunds, relationships (trust vs closeness, D15), shop reputation (D16), online reviews.
-5. Feedback and tone: how the game shows that something was a scam without lecturing; whether the shop has a moral meter or only consequences.
-6. What the dust minigame should add (D55) and whether it ties into scams (e.g. what a customer can and cannot check).
+## 19. Hands-on scams — approved concepts, not implemented systems
+
+Approval update, 13 November 2026 (D58): A toothpaste; B visible-only cleaning claimed as full; D budget replacement claimed as quoted specification; E used part sold as new; F pick damage blamed on the original fault; G old paste billed as fresh; H unnecessary replacement presented as necessary. Original letter IDs remain stable. **C, filter face-lift, is rejected.** Normal difficult filter cleaning remains D50; do not reintroduce C as a separate filter shortcut.
+
+Use ordinary tools for honest work and shortcuts. Disclosed budget parts/limited work are honest options. Preserve customer ownership of removed parts (D19). Scams do not bypass broken/missing component checks. D18's first discovery model is persona-based probability, not an evidence system. Trust and closeness remain separate (D15); shop reputation remains D16. Exact delays, odds, prices, remedies and new-condition/old-paste models still need design and implementation.
+
+See SCAM_DESIGN_PROPOSAL.md for each accepted concept's physical action, gain, risk, discovery and dependencies. Toothpaste action/record exists in 0.15.1; the other concepts and customer consequences are not declared implemented.
+
+## 20. Dust/paste rules and customer promises — intended behaviour
+
+D59: the player can consult what they promised from the bench. The work order includes customer/PC, symptom, agreed work and exclusions, parts/specification/condition and material if specified, price/authorised spending, collection date/revisions and removed-part arrangements. Unknown terms remain unknown. The agreed spending ceiling must never expose the persona's hidden real budget.
+
+D60: agreement, actual work, completion claim and functional result are distinct. Show the agreement beside private actual-work information; a lie can change the completion claim, never physical dirt, material, ownership or the accepted agreement. Detailed panel layout and quote-revision flow are proposals. A record of the agreement is not an NPC evidence system.
+
+Dust retains vacuum-only removal, blocked dirt, safe disassembly/risky pick, hose/bin and bounded tools. To support B, full-clean quality must be separate from return eligibility: a functional PC may be falsely claimed clean while its hidden dirt persists. This is intended policy; 0.15.1 still uses its all-zones cleanliness gate. Exact limited-service scopes and functional acceptance thresholds are open.
+
+Paste retains the good-result Complete repaste gate and physical retention lever. Workmanship and material are separate: well-spread toothpaste is still toothpaste. Old-paste reuse needs genuine residual-material/reseat state, not a false fresh-paste grade. Required fresh paste must follow the agreement or actual authorised work; the fixed trial ticket currently requires it.
+
+MINIGAME_RULES.md is the detailed rule specification and completion checklist. Finish the coherent promise/work/claim/handoff/one-consequence loop, including saved progress, no duplicate payments and a human playtest, before describing the minigames as complete. Full campaign, all seven scams and airflow/liquid cooling are separate milestones. D56's fan redistribution remains queued.
+
+Documentation revision signed by Codex (GPT-6, model id not exposed by this session) in ChatGPT Work. No gameplay code changed.

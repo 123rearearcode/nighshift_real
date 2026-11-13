@@ -1,14 +1,16 @@
 # Nightshift — Project Brief
 
-Version 1.6 · 12 November 2026
+Version 1.8 · 13 November 2026
 
 ## Read this first
-This pack is a handoff for human-directed collaboration between AIs. The user is creative director and approves scope changes. Current authorised task: remove duplicate paste control, moderate early-game vacuum strength, add independent dust specks, block cleaning behind removable parts, and review smoothness. Broad physics representation redesign is deferred until discussion. This is not authority to add the entire campaign or change the hosted browser game.
+This pack guides human-directed collaboration between AIs. The user is creative director. Current task: document approved scams A/B/D/E/F/G/H, exclude C, update dust/paste rules, expose customer promises and define completion gates. Documentation patch 0.15.2 changes no game code. Read MINIGAME_RULES.md and SCAM_DESIGN_PROPOSAL.md alongside the five core documents.
+
+GitHub is connected. Current repository: `123rearearcode/nighshift_real`; gameplay baseline 0.15.1. Work on a scoped branch and open a PR; this task does not authorise merging. Historical ZIP exchanges/repository names below are superseded as current workflow, but ZIPs may still be used for manual playtests.
 
 Read this brief for every task, then only the relevant DESIGN.md sections and task files. Read CURRENT_STATE.md before touching code. DECISIONS.md distinguishes approved rules from proposals. ROADMAP.md orders the work. Later explicit user decisions supersede this snapshot; update the documents when that happens.
 
 ## Game
-Working title: Nightshift — PC Repair. A single-player, pixel-art PC repair and shop-management game intended for a commercial Steam release. Godot/GDScript is now the active trial implementation. The real engine version is Godot 4.7.2 (confirmed by the user); review checks ran with 4.6.3 only. Price, release date, setting and the full production architecture remain open. Parody brands are the recorded hardware naming direction.
+Working title: Nightshift — PC Repair. A single-player, pixel-art PC repair and shop-management game intended for a commercial Steam release. Godot/GDScript is now the active trial implementation. The real engine version is Godot 4.7.2 (confirmed by the user); the 0.15.1 changelog reports CI on 4.7.2, while human acceptance of that build remains pending. Price, release date, setting and the full production architecture remain open. Parody brands are the recorded hardware naming direction.
 
 The player runs a shop by day and works on machines or salvages at night. Physical space is central: parts occupy inventory cells; each motherboard has its own grid shape and connector layout; cases determine available interior space. Finding value in used hardware, fitting useful builds together, and deciding whom to trust connect the activities.
 

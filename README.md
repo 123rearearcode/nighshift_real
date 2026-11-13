@@ -1,10 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.15.1)
+# Nightshift - Godot Foundation Trial (v0.15.2)
+
+**0.15.2 is documentation/version metadata only; gameplay remains 0.15.1.** Approved future rules and promise display are described in `docs/MINIGAME_RULES.md`; they are not implemented by this patch. This delivery is a GitHub PR, not a new playtest ZIP.
 
 A small playable foundation for the PC repair/shop game. Placeholder shapes and text, one overheating repair ticket, shared player parts storage, tabletop handling and thermal-paste activity. This is not the complete game.
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.15.1.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.15.2.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** to open the shop.
 

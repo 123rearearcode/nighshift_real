@@ -1,13 +1,20 @@
 # Nightshift — Current State and Technical Handoff
 
-Version 1.7 · 13 November 2026
+Version 1.8 · 13 November 2026
 
-## Active baseline
-**Update 0.15.0 (13 November 2026, Claude Opus 5.5, model id claude-opus-5-5):** the active trial is 0.15.0 in the user's GitHub repository `123rearearcode/nighshift_real`; main is the integrated baseline, older versions are kept as `archive/vX.Y.Z` branches. Every push runs the checker, the data-schema suite, the regression suite and a scripted bench playtest on Godot 4.7.2 headless (GitHub Actions); the user playtests by hand. Exact check counts per version are in CHANGELOG.md. See DESIGN.md section 18 for what the bench does now. The paragraphs below describe older trials and are kept for history.
+## Active baseline — documentation patch 0.15.2
 
-Active Godot foundation trial 0.11.0, based on supplied 0.7.1 and reconciliation patch 0.7.2. Servicing, shared model geometry, persistence fixes, removable parts and risky pick/replacement choices implemented. No GitHub push or full production migration was performed.
+Gameplay remains **0.15.1**, from `123rearearcode/nighshift_real` main commit `c3dd9224f4a32d8fe04dcb5d07eb3e80c1877b93`. Patch 0.15.2 updates design documents/version metadata only on `design/scam-direction`; no game scripts/scenes change and no merge is authorised for this task.
 
-Engine: Godot 4.7.2 is the user's real version, confirmed 2026-11-12 (a short-lived 4.6.3 claim in 0.11.1/0.11.2 was wrong). The review engine available to Codex was 4.6.3.stable.official.7d41c59c4, so the automated checks ran close to, but not on, the real engine; 4.7.2 verification and human playtesting are pending. **Update 0.12.3:** the automated checks (172 data schema, 344 regression, 0 failures) ran on Godot 4.7.2.stable.official via GitHub Actions on 0.12.2; human playtesting is still pending.
+Implemented bench baseline: vacuum-only dust removal, brush tossing/chipping, protected dirt, removable GPU/cooler and pick risk, shared stock, bounded tabletop/rotated-box collisions, hose/bin, material-specific paste, good-result completion and physical retention lever. See DESIGN section 18. The 0.15.1 changelog reports Godot 4.7.2 Actions results: 179 schema and 442 regression checks, zero failures. This update does not independently certify those runs or replace the user's pending human acceptance test.
+
+Approved design, **not implemented by this patch**: scams A/B/D/E/F/G/H, rejection of C, persistent customer-promise information and separation of actual work/function/claims (D58–D60). Current final check still requires cleanliness in every zone. `job.scams` records toothpaste but has no customer consequence reader; a new practice ticket can discard the active job. Delivered-job archive, promises/claims, delayed complaints and social consequences still need implementation. Old-paste reuse and used-as-new need additional state.
+
+Next completion gate: MINIGAME_RULES.md section 6. First human-test the current physical bench, then connect agreement/work/claim/delivery and one delayed consequence with reliable saves/economy. Full campaign, general PC assembly/catalogue and cooling simulation are not complete. GitHub is now connected; earlier statements about no repository access are history.
+
+## Historical implementation notes
+
+The following lists record earlier trial progress; current summaries above and DESIGN section 18 supersede stale input/physics/missing-feature statements.
 
 ## Implemented in Godot
 - Three code-built Node2D screens: placeholder Shop/job menu, repair bench, hardware bench.
