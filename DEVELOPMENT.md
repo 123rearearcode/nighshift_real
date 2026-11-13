@@ -92,11 +92,11 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
-| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.11 |
-| `docs/DESIGN.md` | docs | Reconciled core project document version 1.11 |
-| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.11 |
-| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.11 |
-| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.11 |
+| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.12 |
+| `docs/DESIGN.md` | docs | Reconciled core project document version 1.12 |
+| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.12 |
+| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.12 |
+| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.12 |
 | `DEVELOPMENT.md` | docs | This guide |
 | `tools/check_project.py` | tooling | Consistency checker (does not run Godot) |
 | `tools/.gdignore` | tooling | Keeps Godot from scanning `tools/` |
@@ -113,6 +113,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
+| `tools/test_bench_feedback.gd` | tooling | Real trapped-tail extraction, clamp gestures/UI exclusion, corner hose reach and mount put-down checks |
 | `tools/test_bench_interactions.gd` | tooling | Recording-led put-down/pickup/use regression, rack pickup and remove/clean/refit with tool overlap |
 | `tools/test_dust_flow.gd` | tooling | Actual first-entry/reopen/reset input, transport/traps/mass/snapshot and movable-clamp regressions |
 | `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
@@ -329,3 +330,14 @@ Controls: Shift + right-drag hose (or right-drag with empty hands); drop into CL
 `bench_view._input` keeps the left press alive (`holding`) after a physical tool pickup, including cloth/syringe picked up outside the CPU area. The same press can pick up a tool and begin its stroke; ordinary release stops use. Explicit Move parts mode routes left press/release to component dragging before resting-tool hit tests, so a parked tool over a GPU/cooler cannot change the mode instead of selecting the component. No dust constants/save fields changed.
 
 The recording-led regression first failed 7 of 11 checks on unchanged 0.17.0. Expanded tests cover both cleaning tools, cloth/syringe rack pickup, and each removable component's remove/under-dust cleaning/refit sequence. CI runs test_bench_interactions.gd. This supersedes the earlier inability to reproduce an undifferentiated first-entry report: the concrete drop/pickup gesture now reproduces it.
+
+
+## 0.18.0 contracts — tails, clamp gestures and mounting hands
+
+`DustSim.tail_nodes(b)` derives a partial protruding chain from existing hidden dirt and its blocker bounds. At most three chains per installed part are represented, prioritising multi-node bundles, then small specks when only specks remain. No new mass/save field is created. `_step_tail` allows precision vacuum extraction only outside housings and within TAIL_REACH; TAIL_PULL/TAIL_GRIP make it slower than exposed dirt. Removal credits actual hidden mass once and feeds the existing hose/bin path. Normal hidden-center access remains blocked; brush cannot erase tails. Drawing consumes these nodes/stress and shows a trapped count.
+
+BASE_LENGTH=560 and LONG_LENGTH=760 are provisional retuning, with existing stretch limit retained. Tests use actual tower/compact case geometry, obstacles, bounds and nozzle rotation to verify the far-left corner is just reachable. Upgrade ownership/cost is preserved; an owned longer hose still increases reach.
+
+View-level clamp_button/clamp_press distinguish a stationary left click (unclip on release) from a drag (move) for either mouse button. The sim still enforces full-footprint case/bin exclusion and occupied reach. Quick releases apply the final pointer position; selecting tools/stages cancels captured fixture input. Replacement-stock button is below the worktable to avoid clamp overlap. This is session-local arrangement, not a save migration.
+
+Mount start parks tools. Right-drag put-down is permitted throughout mounting, including zero time_left while mount.active awaits the lever, and in paste after entering from parts mode. It does not finish/reset the mount or produce a grade. D52 completion and D57 physical lever remain intact. Cooler presentation redesign remains a proposal in DESIGN_PROPOSALS section 6.

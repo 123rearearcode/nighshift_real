@@ -1,6 +1,12 @@
 # Nightshift — Roadmap
 
-Version 1.11 · 13 November 2026
+Version 1.12 · 13 November 2026
+
+## Position after 0.18.0
+
+0.17.1 was human-tested and accepted by the user. Next acceptance: visible threads under GPU/cooler, slow tail suction versus safe disassembly, clamp left drag/click, standard hose reaching the far-left corner with rotation, and putting tools down while pressing/waiting for the lever. An owned longer-hose upgrade intentionally retains extra reach.
+
+Discuss/select cooler presentation before implementation: physical cooler body, compression/contact shadows, cutaway paste view and lever/inspection feedback (DESIGN_PROPOSALS section 6). These do not yet change the pressure rules. Then continue the established promise/claim/consequence slice.
 
 ## Position after 0.17.1
 

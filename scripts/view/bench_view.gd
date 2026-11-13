@@ -110,6 +110,8 @@ var mount_button: Button
 var clear_button: Button
 const SECURE_LEVER := Rect2(552, 250, 44, 210)   # the cooler's retention lever beside the socket: click it to secure the cooler
 var time_up_told: bool = false
+var clamp_button: int = 0
+var clamp_press := Vector2.ZERO
 var material_button: Button           # thermal paste or toothpaste (a scam)
 var complete_button: Button           # Complete repaste: appears after a mount, works on a good result
 var clean_controls: Array = []
@@ -229,7 +231,7 @@ func _build_ui() -> void:
     tool_buttons.append(move_button)
     var pick_button: Button = _make_button("Dust pick (4) / risky", Vector2(PANEL_X + 270, 210), Vector2(250, 40), _select_tool.bind(3), tool_group)
     tool_buttons.append(pick_button)
-    var parts_button: Button = _make_button("Replacements", Vector2(500, 595), Vector2(150, 35), _open_replacements)
+    var parts_button: Button = _make_button("Replacement stock", Vector2(420, 655), Vector2(240, 28), _open_replacements)
     clean_controls = [vac, brush, reset_dust, move_button, pick_button, parts_button]
 
     mount_button = _make_button("Mount cooler (timed)", Vector2(PANEL_X, 160), Vector2(250, 40), _on_mount_pressed)
@@ -261,6 +263,7 @@ func _select_stage(new_stage: int) -> void:
         access.dragging = ""
         _sync_part_geometry()
     stage = new_stage
+    clamp_button = 0
     holding = false
     tools.select("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), _pointer())
     if stage == STAGE_CLEAN and active_tool == 2: tools.park()
@@ -274,7 +277,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 550)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Right-drag clamp: move (outside PC). Empty-hand click: unclip. 1 vacuum / 2 brush / 3 parts / 4 pick. Wheel or Q/E: rotate."
+        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Drag clamp: move (outside PC). Click clamp: unclip. 1 vacuum / 2 brush / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
             _set_status("Cleanliness target met. %d real dust groups remain; finish vacuuming or continue to paste. New dirty PC starts another practice job." % dust.visible_count(), 1)
         else:
@@ -301,7 +304,7 @@ func _clean_hint() -> String:
     if active_tool == 2:
         return "Move parts: drag cooler or GPU onto the tray. Clean their surfaces there, then clean the exposed board. Drag each back to its mount before final check."
     if active_tool == DustSim.TOOL_VACUUM:
-        return "Vacuum: hold the mouse with the nozzle over a bundle of dust. It only pulls toward the nozzle. Long bundles grip harder, so hold it on them longer; keep it close, since suction fades with distance."
+        return "Vacuum: hold over dirt. Tails hanging from under parts can be pulled very slowly with precise suction; remove the part for easier access. Short hose: rotate/re-route to reach the far-left corner."
     return "Brush: sweep the bristles over dust to loosen it (it turns lighter). Fast strokes scatter it through the case; watch for trapped dust and clogged filter. The brush removes nothing by itself; vacuum the loosened bundle afterwards, which is faster."
 
 
@@ -309,6 +312,8 @@ func _select_tool(new_tool: int) -> void:
     if is_instance_valid(replacement_panel) and replacement_panel.visible: return
     if access.dragging != "": access.dragging = ""
     holding = false
+    clamp_button = 0
+    tools.end_clamp_drag()
     active_tool = new_tool
     if new_tool != 2: tools.select(["vacuum","brush","vacuum","pick"][new_tool], _pointer())
     else: tools.park()
@@ -339,6 +344,7 @@ func _on_mount_pressed() -> void:
     if paste.total_deposited < 1.0:
         _set_status("Squeeze some paste onto the CPU first: hold the left mouse button over it.", 2)
         return
+    tools.park()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
     mount.start()
     holding = false
     wiping = false
@@ -456,11 +462,18 @@ func _input(event: InputEvent) -> void:
         pointer_event = event.position
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
-        if stage == STAGE_CLEAN and mb.button_index == MOUSE_BUTTON_RIGHT:
-            if not mb.pressed and tools.clamp_dragging:
+        if stage == STAGE_CLEAN and mb.button_index in [MOUSE_BUTTON_LEFT,MOUSE_BUTTON_RIGHT]:
+            if not mb.pressed and clamp_button == mb.button_index:
+                tools.move_clamp(mb.position)
+                var clicked: bool = clamp_press.distance_to(mb.position) < 5.0
                 tools.end_clamp_drag()
+                if clicked and clamp_button == MOUSE_BUTTON_LEFT: tools.unclamp_hose()
+                clamp_button = 0
+                holding = false
                 return
             if mb.pressed and tools.hose_grab < 0 and tools.begin_clamp_drag(mb.position):
+                clamp_button = mb.button_index
+                clamp_press = mb.position
                 holding = false
                 return
         # Middle mouse turns the held tool: spin the wheel, or hold the middle button and drag sideways.
@@ -480,12 +493,7 @@ func _input(event: InputEvent) -> void:
                 _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
             holding = false
             return
-        if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed and stage == STAGE_CLEAN and not tools.equipped and tools.hose_clamp > 0 and tools.clamp_rect().has_point(mb.position):
-            tools.unclamp_hose()
-            _set_status("Hose unclipped. Shift + right-drag to move it again.", 0)
-            holding = false
-            return
-        if mb.button_index == MOUSE_BUTTON_RIGHT and (active_tool != 2 or mb.shift_pressed) and not mount.active:
+        if mb.button_index == MOUSE_BUTTON_RIGHT and (stage == STAGE_PASTE or active_tool != 2 or mb.shift_pressed):
             if mb.pressed:
                 var candidate: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
                 if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and tools.grab_hose(mb.position):

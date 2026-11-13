@@ -12,6 +12,10 @@ extends RefCounted
 
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 
+const TAIL_LIMIT: int = 3             # show only a few representative threads per installed part
+const TAIL_REACH: float = 12.0        # precision suction: the nozzle must touch an exposed thread
+const TAIL_PULL: float = 0.9          # slower than ordinary 4.0 pull; disassembly remains faster
+const TAIL_GRIP: float = 1.8          # extra resistance from the part pinning the chain
 const TOOL_VACUUM: int = 0
 const TOOL_BRUSH: int = 1
 
@@ -291,6 +295,63 @@ func set_blockers(new_blockers: Array) -> void:
 func is_hidden(b: int) -> bool:
     return hidden_zones.has(b_zone[b])
 
+
+# Real trapped dirt, represented by a short visible thread beyond the housing edge.
+# This creates no extra particles/mass and never reveals the whole hidden bundle.
+func tail_nodes(b: int) -> PackedVector2Array:
+    var out := PackedVector2Array()
+    if b_state[b] == GONE or not is_hidden(b): return out
+    var list: Array = zone_bundles[b_zone[b]]
+    var candidates: Array = []
+    for index in range(list.size()-1,-1,-1):
+        var other: int = int(list[index])
+        if b_state[other] != GONE and b_n[other] > 1: candidates.append(other)
+    if candidates.is_empty():
+        for index in range(list.size()-1,-1,-1):
+            var other: int = int(list[index])
+            if b_state[other] != GONE: candidates.append(other)
+    var rank: int = candidates.find(b)
+    if rank < 0 or rank >= TAIL_LIMIT: return out
+    var cover: String = str(_zones[b_zone[b]].get("covered_by",""))
+    for blocker: Dictionary in blockers:
+        if str(blocker["id"]) != cover: continue
+        var rect: Rect2 = blocker["rect"]
+        var at: Vector2 = b_center[b].clamp(rect.position+Vector2.ONE*3.0,rect.end-Vector2.ONE*3.0)
+        var gaps: Array = [at.x-rect.position.x,rect.end.x-at.x,at.y-rect.position.y,rect.end.y-at.y]
+        var normals: Array = [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]
+        var side: int = 0
+        for edge in range(1,4):
+            if float(gaps[edge]) < float(gaps[side]): side = edge
+        var normal: Vector2 = normals[side]
+        var lip: Vector2 = at+normal*float(gaps[side])
+        var length: float = (18.0+float(b%3)*3.0 if b_n[b] > 1 else 9.0)+b_stress[b]*4.0
+        var points: int = 4 if b_n[b] > 1 else 2
+        for k in range(points):
+            var along: float = float(k)/float(points-1)
+            var wobble: float = sin(float(b*5+k*2)+b_life[b]*18.0)*b_stress[b]*1.0
+            var point: Vector2 = lip+normal*(-1.0+along*length)+normal.orthogonal()*(sin(float(b+k*2))*2.0+wobble)
+            out.append(point.clamp(case_bounds.position+Vector2.ONE,case_bounds.end-Vector2.ONE))
+        return out
+    return out
+
+
+func _step_tail(b: int, delta: float, tool_pos: Vector2, vac_on: bool) -> void:
+    var tail: PackedVector2Array = tail_nodes(b)
+    var outside: bool = true
+    for blocker: Dictionary in blockers:
+        if (blocker["rect"] as Rect2).grow(1.0).has_point(tool_pos): outside = false
+    if vac_on and outside and not tail.is_empty() and _nearest_dist(tail,tool_pos) <= TAIL_REACH:
+        b_pull[b] += TAIL_PULL*vac_ramp*delta
+        b_life[b] += delta
+    else:
+        b_pull[b] = maxf(0.0,b_pull[b]-PULL_DECAY*delta)
+    var target: float = b_grip[b]*TAIL_GRIP
+    b_stress[b] = clampf(b_pull[b]/target,0.0,1.0)
+    if b_pull[b] >= target:
+        swallowed += b_remaining[b]
+        _remove(b)
+        motion_changed = true
+
 func has_access(b: int, tool_pos: Vector2) -> bool:
     if is_hidden(b): return false
     var zone_id: String = str(_zones[b_zone[b]]["id"])
@@ -354,7 +415,9 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
     var existing: int = count
     for b in range(existing):
         var st: int = b_state[b]
-        if st == GONE or is_hidden(b):
+        if st == GONE: continue
+        if is_hidden(b):
+            _step_tail(b,delta,tool_pos,vac_on)
             continue
         if st == STUCK:
             _step_stuck(b, delta, tool_pos, tool_vel, vac_on, brushing, brush_k)

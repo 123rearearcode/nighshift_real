@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.11 · 13 November 2026
+Version 1.12 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -156,3 +156,11 @@ The desk clamp can be right-dragged, with its entire footprint outside the PC an
 ## 23. Physical pickup and explicit parts mode — correction 0.17.1
 
 Picking up a resting tool with left press begins the same held stroke; the player does not need to release and click again before it works. This includes picking cloth/syringe from the rack and moving onto the CPU. Left release still stops work. Move parts (3) gives component dragging priority over resting tools, so a tool over a GPU/cooler does not prevent disassembly. Explicit mode choices remain respected. This corrects input handling, not the dust/paste rules. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## 24. Trapped-dust feedback and bench handling — trial 0.18.0
+
+Hidden dirt shows representative chains protruding at component edges plus a trapped count. Precise suction on a tail, outside the housing, slowly pulls actual dirt free; cleaning the covered center remains blocked. Removing the component is easier, and the risky pick remains an alternative. The brush cannot erase trapped dirt. Tail indication is derived from saved physical dirt and disappears after extraction, without adding dust mass.
+
+Clamp left/right drag is available outside the PC; stationary left click unclips. Its full footprint and occupied reach restrictions remain. The standard hose (560 px, provisional) is calibrated to just reach the far-left case corner with careful rotation/routing. Longer-hose upgrade (760 px) retains its benefit. Replacement stock is below the desk, clear of the fixture.
+
+During cooler mounting, start parks tools and put-down remains possible before locking the lever, including after time expires. Put-down never secures the cooler or grants a grade. Cooler art/animation improvements are discussion proposals in DESIGN_PROPOSALS section 6, with current rules retained. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

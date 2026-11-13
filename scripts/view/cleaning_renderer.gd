@@ -15,7 +15,13 @@ const COLOR_DUST_LOOSENED := Color(1.0, 0.92, 0.72, 1.0)
 static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
     for b in range(dust.count):
         var st: int = dust.b_state[b]
-        if st == DustSim.GONE or dust.is_hidden(b):
+        if st == DustSim.GONE: continue
+        if dust.is_hidden(b):
+            var tail: PackedVector2Array = dust.tail_nodes(b)
+            if tail.size() > 1:
+                canvas.draw_polyline(tail,Color("8b7355"),4.0,true)
+                canvas.draw_polyline(tail,COLOR_DUST.lerp(Color("fff0b5"),dust.b_stress[b]),2.0,true)
+                for k in range(1,tail.size()): canvas.draw_circle(tail[k],1.8,COLOR_DUST)
             continue
         var nodes: PackedVector2Array = dust.shown[b]
         var color: Color = COLOR_DUST
@@ -29,6 +35,11 @@ static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
         for p: Vector2 in nodes:
             canvas.draw_circle(p, 1.7 if nodes.size() == 1 else 2.4, color)
         if nodes.size() > 1: canvas.draw_circle(nodes[0], 3.4, color.darkened(0.25))   # the anchored end
+    for blocker: Dictionary in dust.blockers:
+        var trapped: int = dust.trapped_count(str(blocker["id"]))
+        if trapped > 0:
+            var rect: Rect2 = blocker["rect"]
+            UiStyle.label(canvas,rect.position+Vector2(2,rect.size.y+12),"Trapped: %d" % trapped,11,Color("e2bd7b"))
 
 
 static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_done: Array, done_count: int, panel_x: float, cooler_rpm: float, case_rpm: float) -> void:

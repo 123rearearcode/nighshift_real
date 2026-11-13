@@ -1,11 +1,23 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.17.1.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.18.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.18.0 — trapped threads, clamp, reach and mount put-down
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026. User reports 0.17.1 pickup/removal working.
+
+Trapped dust now exposes partial chains with a count; precise suction slowly extracts real hidden mass. Three representative chains per housing keep the view readable; specks use shorter tails after chains are removed. Disassembly remains easier; risky pick is unchanged. Normal tools cannot clean through the housing center.
+
+Clamp supports left/right drag and stationary left-click unclip. Replacement-stock button no longer overlaps it. Entire footprint stays outside PC/bin; occupied hose reach still applies. Standard hose is shortened to 560 px, upgrade 760 px (provisional), with rotated-nozzle corner reach verified on both case profiles. Existing upgrade ownership is retained.
+
+Recording diagnosis: right-button handling was blocked by mount.active, so tools could not be put down until the lever ended mounting; paste also inherited the cleaning mode's parts restriction. Mounting now parks tools and permits right-drag put-down throughout the lever-wait phase. This neither locks the cooler nor bypasses good-result completion. New regression/CI suite: test_bench_feedback.gd.
+
+Cooler visual ideas are discussion proposals only (DESIGN_PROPOSALS section 6). Keep D52/D57 and existing pressure rules until an explicit redesign is selected. See latest changelog for target-engine results; no human graphical acceptance of 0.18.0 claimed.
 
 ## Current update 0.17.1 — recording-led input bug fix
 

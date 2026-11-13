@@ -7,8 +7,8 @@
 extends RefCounted
 
 const POINTS: int = 24
-const BASE_LENGTH: float = 640.0      # px; reaches every part of the PC from the bin
-const LONG_LENGTH: float = 860.0      # px; with the "longer hose" upgrade
+const BASE_LENGTH: float = 560.0      # px; far-left corner needs careful nozzle rotation/routing
+const LONG_LENGTH: float = 760.0      # px; with the longer-hose upgrade
 const DAMPING: float = 0.78           # share of speed kept each physics step (table friction)
 const ITERATIONS: int = 20           # fewer than ~20 lets the bending limit and obstacles fight (found by simulation)
 const SMOOTHING: float = 0.0          # bending smoothing: any value above ~0.002 keeps a slack hose wriggling forever (found by simulation), so none
