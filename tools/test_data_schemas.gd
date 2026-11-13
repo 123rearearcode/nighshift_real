@@ -3,7 +3,7 @@
 # and that the data agrees with itself (connectors on board cells, parts inside the case,
 # unique ids). Catches typos such as "comp_id" instead of "id" before they become silent bugs.
 # When you add a new kind of data or a new key, add it to the schema tables below.
-extends SceneTree
+extends "res://tools/test_support.gd"
 const ComponentData = preload("res://scripts/data/component_data.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
@@ -27,19 +27,12 @@ const MATERIAL_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, 
     "yield_scale": TYPE_FLOAT, "mobility_scale": TYPE_FLOAT, "scam": TYPE_BOOL}
 const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT}
 
-var failed: int = 0
-var checks: int = 0
 
 
 func _initialize() -> void:
     call_deferred("run_checks")
 
 
-func check(ok: bool, label: String) -> void:
-    checks += 1
-    if not ok:
-        failed += 1
-        push_error("FAIL: " + label)
 
 
 # Returns a list of human-readable problems; an empty list means the dictionary matches the schema.
@@ -79,8 +72,7 @@ func run_checks() -> void:
     test_boards_and_cases()
     test_zones()
     test_paste_materials()
-    print("Data schema checks: %d, failures: %d" % [checks, failed])
-    quit(1 if failed else 0)
+    finish("Data schema")
 
 
 func test_components() -> void:

@@ -1,18 +1,11 @@
 # Silent sound contracts, full-bin recovery UI, hose replay and stage/scene lifecycle.
-extends SceneTree
+extends "res://tools/test_support.gd"
 const Feedback = preload("res://scripts/audio/audio_feedback.gd")
 const Cues = preload("res://scripts/data/audio_cues.gd")
 const Rig = preload("res://scripts/bench/tool_rig.gd")
 const Bin = preload("res://scripts/bench/dust_bin.gd")
 var audio: Node
-var checks: int = 0
-var failed: int = 0
 func _initialize() -> void: call_deferred("run_checks")
-func check(ok: bool, label: String) -> void:
-    checks += 1
-    if not ok:
-        failed += 1
-        push_error("FAIL: "+label)
 func has_loop(owner: Object, id: String) -> bool:
     return audio.loops.has("%d:%s"%[owner.get_instance_id(),id])
 func run_checks() -> void:
@@ -93,8 +86,7 @@ func run_checks() -> void:
     for suffix in ["", ".bak", ".tmp"]:DirAccess.remove_absolute(gs.save_path+suffix)
     gs.save_path=original
     gs.new_game(false)
-    print("Audio and vacuum checks: %d, failures: %d"%[checks,failed])
-    quit(1 if failed else 0)
+    finish("Audio and vacuum")
 
 func test_contract() -> void:
     for bus: String in Cues.BUSES:

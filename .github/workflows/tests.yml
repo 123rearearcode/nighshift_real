@@ -57,54 +57,30 @@ jobs:
           cd "$PROJECT_DIR"
           godot --headless --path . --import || true
 
-      - name: Data schema checks
+      - name: Test suites (each must report 0 failures and no script errors)
+        # One loop instead of a copied step per suite. Every suite runs even if an earlier one fails;
+        # the step fails at the end if any did. Add a new suite by adding one line to SUITES.
         run: |
           cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_data_schemas.gd 2>&1 | tee "$GITHUB_WORKSPACE/schema.log"
-          grep -q "Data schema checks: .*failures: 0" "$GITHUB_WORKSPACE/schema.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/schema.log"
-
-      - name: Regression suite
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_regressions.gd 2>&1 | tee "$GITHUB_WORKSPACE/regression.log"
-          grep -q "Regression checks: .*failures: 0" "$GITHUB_WORKSPACE/regression.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/regression.log"
-
-      - name: Start screen and save navigation
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_start_screen.gd 2>&1 | tee "$GITHUB_WORKSPACE/start-screen.log"
-          grep -q "Start screen checks: .*failures: 0" "$GITHUB_WORKSPACE/start-screen.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/start-screen.log"
-
-      - name: First-entry dust, transport and movable clamp
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_dust_flow.gd 2>&1 | tee "$GITHUB_WORKSPACE/dust-flow.log"
-          grep -q "Dust flow checks: .*failures: 0" "$GITHUB_WORKSPACE/dust-flow.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/dust-flow.log"
-
-      - name: Put-down pickup and component access
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_bench_interactions.gd 2>&1 | tee "$GITHUB_WORKSPACE/bench-interactions.log"
-          grep -q "Bench interaction checks: .*failures: 0" "$GITHUB_WORKSPACE/bench-interactions.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/bench-interactions.log"
-
-      - name: Trapped tails, clamp drag and cooler put-down
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_bench_feedback.gd 2>&1 | tee "$GITHUB_WORKSPACE/bench-feedback.log"
-          grep -q "Bench feedback checks: .*failures: 0" "$GITHUB_WORKSPACE/bench-feedback.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/bench-feedback.log"
-
-      - name: Vacuum recovery, hose loops and silent audio contracts
-        run: |
-          cd "$PROJECT_DIR"
-          godot --headless --path . --script res://tools/test_audio_and_vacuum.gd 2>&1 | tee "$GITHUB_WORKSPACE/audio-vacuum.log"
-          grep -q "Audio and vacuum checks: .*failures: 0" "$GITHUB_WORKSPACE/audio-vacuum.log"
-          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/audio-vacuum.log"
+          SUITES="test_data_schemas|Data schema
+          test_regressions|Regression
+          test_start_screen|Start screen
+          test_dust_flow|Dust flow
+          test_bench_interactions|Bench interaction
+          test_bench_feedback|Bench feedback
+          test_audio_and_vacuum|Audio and vacuum"
+          bad=0
+          while IFS='|' read -r file name; do
+            file="$(echo "$file" | xargs)"
+            log="$GITHUB_WORKSPACE/$file.log"
+            echo "::group::$name ($file.gd)"
+            godot --headless --path . --script "res://tools/$file.gd" 2>&1 | tee "$log" || true
+            echo "::endgroup::"
+            if ! grep -q "$name checks: .*failures: 0" "$log"; then echo "::error::$name suite failed or printed no summary"; bad=1; fi
+            if grep -qE "SCRIPT ERROR|Parse Error" "$log"; then echo "::error::$name suite had a script error"; bad=1; fi
+            grep -E "checks: [0-9]+, failures: [0-9]+" "$log" | tail -1
+          done <<< "$SUITES"
+          exit $bad
 
       - name: Scripted bench playtest (prints a table, never fails the build)
         if: always()

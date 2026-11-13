@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.2 - 2026-11-13 - Shared test helper and one-loop test workflow
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.1
+- Type: patch (test tooling only; no game change). Work plan Phase 1 step 1.
+
+### Execution status
+No game code changed. GitHub Actions ran all suites on Godot 4.7.2 headless; result below. The check counts must equal 0.19.1's.
+
+Actions result (Godot 4.7.2 headless, run 43454879880, branch feature/test-support): checker passed; same counts as 0.19.1: data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures. A first run did not start because the new step name contained ": " (invalid YAML); fixed.
+
+### Added / Changed / Fixed / Removed
+- Added `tools/test_support.gd`: the shared base for test suites (`check`, `use_test_save`/`restore_save`, `click`, `finish`). Each of the 7 suites now `extends "res://tools/test_support.gd"` instead of `SceneTree`; their copied `checks`/`failed` counters, `check()` functions, the two copied `click()` helpers and the summary/quit lines were removed. The summary text is unchanged. Save-path handling inside the suites is untouched for now (the helper is there for new suites).
+- Changed: the workflow runs the 7 suites in one loop step (a list of file and summary name). Every suite runs even if an earlier one fails; the step fails if any suite fails, prints no summary or has a script error. Logs are still kept per suite.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `tools/test_support.gd` | A | shared test base |
+| `tools/test_*.gd` (7) | M | extend the base; duplicates removed |
+| `.github/workflows/tests.yml` | M | one loop step for all suites |
+| `DEVELOPMENT.md`, `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | map, status, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+None.
+
+### Known issues and open items
+None.
+
+### Next action
+Claude: Phase 1 step 2 (frame-time measurement in `tools/playtest_bench.gd`). Hot files remain free for Codex.
+
 ## 0.19.1 - 2026-11-13 - Work plan and split of responsibilities
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.0 (main 82170d1)

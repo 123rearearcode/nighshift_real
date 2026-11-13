@@ -119,6 +119,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
+| `tools/test_support.gd` | tooling | Shared base for the test suites: check(), disposable save path, click(), finish() summary line; each suite extends it |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
 | `tools/test_bench_feedback.gd` | tooling | Real trapped-tail extraction, clamp gestures/UI exclusion, corner hose reach and mount put-down checks |
 | `tools/test_bench_interactions.gd` | tooling | Recording-led put-down/pickup/use regression, rack pickup and remove/clean/refit with tool overlap |
