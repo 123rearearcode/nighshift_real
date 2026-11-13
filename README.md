@@ -1,13 +1,13 @@
-# Nightshift - Godot Foundation Trial (v0.17.0)
+# Nightshift - Godot Foundation Trial (v0.17.1)
 
-**0.17.0 adds case-wide dust travel, physical dust saves and a movable clamp.** Fresh/reopened/New dirty PC share initialization. Light brush contact visibly loosens dirt; fast strokes scatter it, where the GPU/cooler can trap it and the filter catches it. Save/reopen retains locations and looseness. The approved promise/scam systems remain design work.
+**0.17.1 fixes put-down/pickup tool use and component removal.** Left-click a resting tool and keep holding to use it in the same stroke; no release/reclick is needed. In **Move parts (3)**, component clicks take priority over tools lying on top. Case-wide dust travel and physical saves from 0.17.0 remain.
 
 
 A small playable foundation for the PC repair/shop game. Placeholder shapes and text, one overheating repair ticket, shared player parts storage, tabletop handling and thermal-paste activity. This is not the complete game.
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.17.0.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.17.1.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** for the start screen. Choose **New game** to open the demo, or **Load game** to resume. Starting over asks before replacing an existing save. The shop has a **Main menu** button that saves before returning.
 

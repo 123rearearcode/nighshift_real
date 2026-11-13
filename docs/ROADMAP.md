@@ -1,6 +1,10 @@
 # Nightshift — Roadmap
 
-Version 1.10 · 13 November 2026
+Version 1.11 · 13 November 2026
+
+## Position after 0.17.1
+
+The recorded put-down/pickup failure and overlapping-tool component selection are reproduced and fixed. Next human acceptance: put the vacuum/brush down, pick it up with left hold and keep using it; use Move parts (3) to remove, clean under and refit GPU/cooler when tools overlap them. Continue the existing promise/work/claim/one-consequence sequence after acceptance.
 
 ## Position after 0.17.0
 

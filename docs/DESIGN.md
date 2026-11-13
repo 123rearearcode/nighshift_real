@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.10 · 13 November 2026
+Version 1.11 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -152,3 +152,7 @@ D64–D66: all entry/reset paths share initialization. Saved physical state reta
 A Case interior progress area receives scattered dirt. Area totals move with dirt, so a cleaned area can be contaminated again and moving dirt never counts as vacuuming. Dirt remains inside case walls; surface dirt on extracted parts stays on the service tray. Saved dust snapshots preserve this distribution. Automatic threshold shake-off is removed; stopping suction never erases dust on a timeout. The trial's 95% quality threshold remains provisional. Fan-powered redistribution is still queued.
 
 The desk clamp can be right-dragged, with its entire footprint outside the PC and bin. Empty-hand left-click releases parked hose; current clamp pose is used for hose reach and rendering. Placement is session-local. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## 23. Physical pickup and explicit parts mode — correction 0.17.1
+
+Picking up a resting tool with left press begins the same held stroke; the player does not need to release and click again before it works. This includes picking cloth/syringe from the rack and moving onto the CPU. Left release still stops work. Move parts (3) gives component dragging priority over resting tools, so a tool over a GPU/cooler does not prevent disassembly. Explicit mode choices remain respected. This corrects input handling, not the dust/paste rules. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

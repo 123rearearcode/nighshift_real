@@ -1,9 +1,9 @@
 # Nightshift — Project Brief
 
-Version 1.10 · 13 November 2026
+Version 1.11 · 13 November 2026
 
 ## Read this first
-This pack guides human-directed collaboration between AIs; the user is creative director. Current delivery 0.17.0 addresses first-entry dust-tool reliability/restoration, cross-case brush-driven dust with GPU/filter trapping and a movable desk clamp outside the PC. Save real dirt state without erasing progress, preserve mass and use actual bench-input checks. Original user-save-specific first-entry cause is not established from the clean baseline.
+This pack guides human-directed collaboration between AIs; the user is creative director. Current delivery 0.17.1 fixes recording-led tool input: put-down/pickup must preserve same-press use, and explicit Move parts mode must select components through overlapping parked tools. The drop/pickup path is now reproduced, superseding earlier uncertainty for that symptom. Dust physics, fixture movement and physical saves from 0.17.0 are preserved.
 
 GitHub repository `123rearearcode/nighshift_real` is connected. Use scoped branches, checked PRs, preserved archive baselines and signed changelog entries. The earlier 0.15.2 no-merge restriction was superseded by the user's merge instruction. Seven scam concepts remain accepted, C excluded; promise/claim/consequence systems are still future work. Fan-driven dust redistribution remains queued.
 

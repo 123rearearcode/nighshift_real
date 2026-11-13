@@ -85,6 +85,13 @@ jobs:
           grep -q "Dust flow checks: .*failures: 0" "$GITHUB_WORKSPACE/dust-flow.log"
           ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/dust-flow.log"
 
+      - name: Put-down pickup and component access
+        run: |
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/test_bench_interactions.gd 2>&1 | tee "$GITHUB_WORKSPACE/bench-interactions.log"
+          grep -q "Bench interaction checks: .*failures: 0" "$GITHUB_WORKSPACE/bench-interactions.log"
+          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/bench-interactions.log"
+
       - name: Scripted bench playtest (prints a table, never fails the build)
         if: always()
         continue-on-error: true

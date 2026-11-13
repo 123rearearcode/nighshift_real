@@ -1,11 +1,21 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.17.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.17.1.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.17.1 — recording-led input bug fix
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
+
+The user's recording narrowed the stall to putting down and picking up tools. Reproduced on active 0.17.0: the resting-tool pickup branch returned with holding=false, so the entire held-left movement did no work until release/reclick. This explains why a freshly auto-equipped vacuum could work while later pickup appeared broken. The pickup branch now preserves the held press, including paste tools picked up from the rack.
+
+Second confirmed fault: in Move parts mode the resting-tool hit test ran before component dragging. A parked vacuum/brush over the GPU/cooler intercepted the click, selected a tool and prevented removal. Parts-mode press/release now takes priority. Both components are tested through removal, actual under-dust vacuuming and refit.
+
+New regression: 7 of 11 failures before the fix; expanded post-fix checks and target-engine results in CHANGELOG. This is a reproduced input cause, superseding earlier root-cause uncertainty for this recorded path. Historical 0.17.0 notes remain correct about what was known then. No dust-physics/tuning/save-format change. User visual acceptance of this patch is still needed.
 
 ## Current update 0.17.0 — dust restoration/travel and movable clamp
 
