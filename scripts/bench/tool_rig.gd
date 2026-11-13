@@ -212,7 +212,7 @@ func _apply_hose_tug() -> void:
     var pull := Vector2.ZERO
     # The hose runs from the bin, through the point the player holds (if any), to the vacuum.
     var from: Vector2 = hose.pin_point if hose.pinned() else DustBin.hose_anchor()
-    var used: float = DustBin.hose_anchor().distance_to(from)
+    var used: float = hose.segment*float(hose.pin) if hose.pinned() else 0.0
     var reach: Vector2 = hose_end() - from
     var length: float = hose.length()
     var span: float = used + reach.length()

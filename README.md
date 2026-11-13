@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.18.0)
+# Nightshift - Godot Foundation Trial (v0.19.0)
 
 **0.18.0 adds trapped-dust threads and clearer bench controls.** Short tails protrude from under parts: precise vacuuming pulls them free slowly; removing the part is easier. Drag the clamp with either mouse button; a stationary left click unclips. The standard hose now only just reaches the far-left corner with careful rotation. Tools can be put down throughout cooler mounting, including after the pressing timer expires. Cooler visual redesign is proposed in `docs/DESIGN_PROPOSALS.md` section 6.
 
@@ -77,3 +77,8 @@ Dust snapshots preserve real particle locations, areas, hidden traps and loosene
 Hidden clumps show up to three representative chains at a housing edge, with a trapped-count label. Hold the nozzle close to a protruding thread, outside the housing, to pull slowly. The brush cannot erase pinned dirt; removing the part or using the risky pick remains available. These tails represent existing dirt, not extra decorative mass or a full reveal through the part. Small specks show shorter tails after chains are removed.
 
 Starting cooler mounting puts down the held tool. Right-drag put-down also works while mounting or waiting for the lever; it does not lock the cooler or complete a repaste. Replacement stock is below the desk, clear of the clamp. The proposed cooler art/animation changes are not part of this implementation.
+
+## Bench feedback in 0.19.0
+The vacuum stops collecting when its bin reaches 100%. A permanent status line now explains this, and **Empty bin** stays beside the tool controls with the current fill percentage. Switching tools does not dismiss the full-bin warning. Cleaning tools, maintenance, thermal materials and completion have separate rows. Hose self-crossings are untangled, including clamp transitions; occupied clamps correctly consume hose length.
+
+The game is still silent: audio cue hooks and six mixer buses are ready for future sound work, but there are no sound clips or playback. See docs/AUDIO_DESIGN.md for the detailed plan. Cooler artwork is deferred. Leaving an unfinished cooler mount cancels it; navigation cannot replace physically locking the lever.

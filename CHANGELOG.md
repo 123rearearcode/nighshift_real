@@ -39,6 +39,64 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.0 - 2026-11-13 - Clear vacuum state, hose recovery and silent audio groundwork
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.18.0 (merged main 63a0dbc2a0dfa99940fd4d1aa34015cb492c6400)
+- Type: minor (new silent feedback service/cue contract and control organisation)
+
+### Execution status
+Codex ran Godot 4.7.2.stable.official.ed1daf0bf headlessly. Inspected the user's 58.7-second recording: bin reaches 100% around 35 seconds, intentionally disabling suction; tool changes replace its transient warning. No graphical acceptance or sound playback is claimed. A controlled rapid-drag replay reproduced hose crossings before the fix.
+
+### Added / Changed / Fixed / Removed
+- Persistent bin status and nearby Empty bin action retain the full-bin warning across tool changes. Capacity/manual emptying remain; no vacuum-strength or save-schema change.
+- Cleaning tools and maintenance have separate rows; thermal material/tool selection precedes mount/completion. Clear stage names avoid competing numeric shortcuts; practice ticket reset is labelled. Completion remains gated by actual mount result.
+- Hose link untangling prevents persistent self-crossings; rare pinned folds recover via outward arc reseeding. Reset local velocity avoids adding a whip impulse. Occupied clamp reach reserves the pinned segment length rather than the straight bin-to-pin distance.
+- Added silent AudioFeedback autoload, 28 semantic cues, six native mixer buses, owner-scoped loop deduplication/update/cleanup, one-shot cooldowns and bounded diagnostics. Hooked actual contact/work, handling, fans, bin/clamp/hose, UI and final checks. No audio files, players or playback are added. Detailed sound direction and adapter boundaries in AUDIO_DESIGN.md.
+- Back from an unlocked mount cancels it instead of completing mounting via navigation; deliberate physical lever remains required. User clarified cooler work is interaction design, not art; pressure/release and lever feedback goals are accepted, exact redesigned puzzle remains proposed.
+- Updated all five core docs, minigame rules, workflow map/contracts and CI. No new scam, campaign, fan-driven dust or cooler artwork mechanics.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `CHANGELOG.md` | M | Signed release history and verification |
+| `DEVELOPMENT.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `HANDOFF.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `README.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `default_bus_layout.tres` | A | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/AUDIO_DESIGN.md` | A | Sound design contract and implementation boundary |
+| `docs/CURRENT_STATE.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/DECISIONS.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/DESIGN.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/DESIGN_PROPOSALS.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/MINIGAME_RULES.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/PROJECT_BRIEF.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `docs/ROADMAP.md` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `project.godot` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/audio/audio_feedback.gd` | A | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/bench/dust_sim.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/bench/hose_sim.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/bench/tool_rig.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/data/audio_cues.gd` | A | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/view/bench_view.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/view/cleaning_renderer.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/view/shop_view.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/view/start_view.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `scripts/view/workshop_view.gd` | M | Feedback, hose reliability, silent audio wiring or updated project record |
+| `tools/test_audio_and_vacuum.gd` | A | Feedback, hose reliability, silent audio wiring or updated project record |
+
+### Checks performed
+Godot 4.7.2 headless: regression 461, schema 182, menu 10, dust flow 43, pickup/parts interaction 26, bench feedback 27 and new audio/vacuum 36 checks — 785 total, zero failures. New checks cover actual full-bin pause/tool-change/empty/resume, silent mixer/event lifecycles, stale-loop cleanup, grouped controls, paste contact and unlocked-mount cancellation, rapid free/pinned hose transitions. Pre-fix free-hose replay: up to 10 crossings on 625/960 frames; fixed free 960-frame and clamp-transition 480-frame replays have zero crossings. Python project checker PASSED: 46 scripts, 155 resource references, 70 mapped files and all five core docs. git diff --check passed. Fresh source ZIP extraction passed the same checker and all 36 new audio/vacuum checks in Godot 4.7.2.
+
+### Decisions proposed (not approved)
+Sound palette, sample variants, fades, voice budgets, settings and playback adapter are future proposals. No sounds are produced now. Exact cooler pressure/release puzzle and lever gesture require selection; new artwork is deferred. Hose recovery is pragmatic tabletop untangling, not a 3D knot solver.
+
+### Known issues and open items
+Human mouse-feel/layout acceptance is pending, especially rare pinned-fold recovery motion. A full bin intentionally stops suction. Sound assets/playback/mix/settings do not exist. No complete game/campaign or Steam build is claimed. Existing larger promise/claim/consequence work remains.
+
+### Next action
+Human-test full-bin/empty/resume and fast hose/clamp movement. Choose the next cooler interaction rule, then independently approve the first sound palette/sample slice. Preserve this version as a baseline before new work.
+
 ## 0.18.0 - 2026-11-13 - Trapped dust tails, clamp dragging and mounting put-down
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.17.1 (user reports tested and working)

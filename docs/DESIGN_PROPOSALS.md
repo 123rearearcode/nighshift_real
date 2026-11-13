@@ -117,15 +117,14 @@ layout; take the ideas, not the assets.
 4. **Dust minigame purpose:** the user is thinking about it (D55). Ideas are welcome as proposals only.
 
 
-## 6. Cooler presentation and satisfaction — PROPOSAL, 13 November 2026
+## 6. Cooler interaction and satisfaction — updated 0.19.0
 
-Requested discussion after the user's mounting recording; not implemented by 0.18.0. Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work. Keep D52 Complete repaste and D57 physical lever, and use the actual PasteSim result. No new screw/tilt/pressure puzzle is approved by this note.
+Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026. User clarification supersedes the earlier graphics-first recommendation: defer cooler artwork and work on interaction design/buttons. Pressure build/release and deliberate lever feedback are accepted goals. Exact input/timing redesign below remains PROPOSED. Keep D52 Complete repaste, D57 physical lever and actual PasteSim results.
 
-1. **Show the cooler itself.** Replace the translucent rectangle with a readable pixel-art cooler/base. It lowers onto the CPU, its contact shadow tightens, and a short settling movement gives weight. This is presentation of current mounting state, not a new placement test.
-2. **Make pressure visible.** A small height/compression change and restrained spring-back mirror actual mount.pressure. Keep numerical readings available, while letting the cooler communicate increasing pressure directly.
-3. **Retain a clear cutaway.** Show the real paste simulation beneath the base while pressing, or provide a held peek/cutaway. A fully opaque cooler would hide the information needed to play. Exact default view is not selected.
-4. **Improve material feedback.** Give paste thickness shading and a coherent grey/minty material. Overflow appears as real edge beads with an optional amber warning overlay, rather than a large flat orange disc. Visuals must agree with measured overflow; do not fake a good result.
-5. **Give the lever a finish.** Animate its travel and a small mechanical settling/snap, paired with a restrained click sound if approved. Keep the existing click action and avoid automatic locking. Briefly reveal the actual paste imprint/result for inspection after mounting.
-6. **Reduce competing UI.** Emphasise one pressure cue and clear coverage/overflow feedback; keep detailed diagnostics in a readable inspection panel. Any removal of information or changed timing would need a separate decision.
+1. **Clear service sequence:** choose material/tool, apply or wipe, start mount, press/release, deliberately lock lever, inspect result, Complete repaste. Current controls are grouped accordingly; no step should secretly lock the cooler. Leaving before locking now cancels the unfinished mount.
+2. **One readable pressure cue:** show pressure rising while held and relaxing on release, with a target range and accessible numeric detail. Proposal: let the player settle pressure before committing the lever, rather than introduce more timers or screw actions. Keep the paste visible for decisions. Exact pressure/score rule changes need selection first.
+3. **Intentional finish:** make the lever's unlocked/ready/secured states explicit. A click is the current gesture; dragging against resistance is a possible later alternative, not implemented. Releasing a tool must never force lever use.
+4. **Useful inspection:** preserve coverage/overflow and the physical result, separate work from completing the job. Future tactile sound hooks already exist, but actual clips, art, material shading and lever animation are deferred.
+5. **Reduce competing controls:** cleaning tools and bin/stock maintenance have separate rows; thermal material/tool selection precedes mounting/completion. Label the fresh ticket as practice to distinguish it from customer handoff.
 
-**Recommended first slice:** cooler silhouette + pressure-linked compression/contact shadow + lever animation. Keep cutaway paste visibility and the existing rules so the user can judge visual satisfaction before adding mechanics. Next choose between an always-visible cutaway and a solid cooler with a held peek. Sound/assets and exact art direction remain proposals; use original/parody assets only.
+Next decision: prototype one pressure/release interaction using existing simple shapes after the user selects the rule. Do not build a new puzzle, assets or sounds from this proposal alone.

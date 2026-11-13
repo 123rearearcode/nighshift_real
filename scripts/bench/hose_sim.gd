@@ -188,6 +188,10 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
             for obstacle: Dictionary in obstacles:
                 pos[i] = push_out(pos[i], obstacle, POINT_RADIUS)
         _clear_housing_links(obstacles)
+        if iteration % 4 == 3: _untangle()
+    _untangle()
+    if pinned() and self_crossings() > 0:
+        _repair_pinned_fold(obstacles)
     pos[0] = anchor_point
     if pinned():
         pos[pin] = pin_point
@@ -238,3 +242,75 @@ func worst_link_error() -> float:
     for i in range(pos.size() - 1):
         worst = maxf(worst, absf(pos[i].distance_to(pos[i + 1]) - segment))
     return worst
+
+
+# Uncross a folded section using a 2-opt reversal. Endpoints and the player's pinned
+# point keep their identity; resetting local history avoids injecting a whip impulse.
+func _untangle() -> void:
+    for pass_index in range(POINTS):
+        var changed: bool = false
+        for i in range(POINTS-1):
+            for j in range(i+3,POINTS-1):
+                if Geometry2D.segment_intersects_segment(pos[i],pos[i+1],pos[j],pos[j+1]) == null: continue
+                var low: int = i+1
+                var high: int = j
+                while low < high:
+                    var swap: Vector2 = pos[low]
+                    pos[low] = pos[high]
+                    pos[high] = swap
+                    low += 1
+                    high -= 1
+                if pinned():
+                    pos[pin] = pin_point
+                for k in range(i+1,j+1): prev[k] = pos[k]
+                changed = true
+                break
+            if changed: break
+        if not changed: return
+
+
+func self_crossings() -> int:
+    var crossings: int = 0
+    for i in range(pos.size()-1):
+        for j in range(i+3,pos.size()-1):
+            if Geometry2D.segment_intersects_segment(pos[i],pos[i+1],pos[j],pos[j+1]) != null: crossings += 1
+    return crossings
+
+
+# A newly moved pin can trap a fold across both sides of the anchor. Rebuild just
+# those two spans as outward circular arcs, keeping pin identity and segment reach.
+# Uniform arc sampling preserves link lengths and carries no accumulated velocity.
+func _repair_pinned_fold(obstacles: Array) -> void:
+    var end: Vector2 = pos[POINTS-1]
+    _seed_arc(0,pin,anchor,pin_point,end)
+    _seed_arc(pin,POINTS-1,pin_point,end,anchor)
+    for i in range(1,POINTS-1):
+        if absi(i-pin) <= PIN_LIFT: continue
+        for obstacle: Dictionary in obstacles: pos[i] = push_out(pos[i],obstacle,POINT_RADIUS)
+    _clear_housing_links(obstacles)
+    _untangle()
+    for i in range(POINTS): prev[i] = pos[i]
+
+func _seed_arc(first: int, last: int, start: Vector2, finish: Vector2, avoid: Vector2) -> void:
+    var edges: int = last-first
+    if edges <= 0: return
+    var line: Vector2 = finish-start
+    var distance: float = maxf(line.length(),0.01)
+    var total: float = maxf(segment*float(edges),distance+0.01)
+    var along: Vector2 = line.normalized() if line.length()>0.01 else Vector2.UP
+    var side: Vector2 = along.orthogonal()
+    var mid: Vector2 = (start+finish)*0.5
+    if side.dot(avoid-mid)>0.0: side = -side
+    var low: float = 0.001
+    var high: float = TAU-0.001
+    for iteration in range(24):
+        var theta: float = (low+high)*0.5
+        if 2.0*sin(theta*0.5)/theta > distance/total: low=theta
+        else: high=theta
+    var angle: float = (low+high)*0.5
+    var radius: float = total/angle
+    for i in range(edges+1):
+        var a: float = angle*(float(i)/float(edges)-0.5)
+        pos[first+i] = mid+along*(radius*sin(a))+side*(radius*cos(a)-radius*cos(angle*0.5))
+    pos[first] = start
+    pos[last] = finish

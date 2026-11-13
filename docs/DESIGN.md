@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.12 · 13 November 2026
+Version 1.13 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -164,3 +164,10 @@ Hidden dirt shows representative chains protruding at component edges plus a tra
 Clamp left/right drag is available outside the PC; stationary left click unclips. Its full footprint and occupied reach restrictions remain. The standard hose (560 px, provisional) is calibrated to just reach the far-left case corner with careful rotation/routing. Longer-hose upgrade (760 px) retains its benefit. Replacement stock is below the desk, clear of the fixture.
 
 During cooler mounting, start parks tools and put-down remains possible before locking the lever, including after time expires. Put-down never secures the cooler or grants a grade. Cooler art/animation improvements are discussion proposals in DESIGN_PROPOSALS section 6, with current rules retained. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## 20. Bench feedback and sound — 0.19.0
+CONFIRMED: current cooler iteration prioritises interaction design, button organisation and pressure/release/lever feedback, not artwork. A replacement pressure puzzle and lever gesture are not yet selected. Existing pressure simulation, physical lever and Complete repaste stay. Leaving an unfinished mount cancels it, without grading.
+
+IMPLEMENTED: cleaning tool row and maintenance row; permanent bin state with explicit Empty bin; thermal material/tool row followed by mount/complete. A full bin pauses suction by design. Hose crossing recovery prevents persistent loop artefacts in tested rapid drags and clamp transitions.
+
+CONFIRMED/IMPLEMENTED foundation: pickup, impacts, vacuuming, brushing, wiping, dispensing, pressing, lever and UI actions emit silent audio events. Six buses and managed per-owner loops prepare later sound work; no audio assets/playback exist. See AUDIO_DESIGN.md. Future samples, mix, tonal palette and exact feedback tuning are PROPOSALS. Critical state must stay visible and sound must not expose secret scam or diagnosis data.

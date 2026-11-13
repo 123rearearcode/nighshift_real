@@ -142,3 +142,10 @@ Clamp controls: right-drag moves the fixture, with its full footprint outside PC
 Trapped dirt has a partial visible thread and count. The vacuum can slowly extract the real pinned clump with precise contact outside the housing; brush cannot remove it and ordinary covered-center cleaning remains blocked. Disassembly is easier; pick remains risky. Extraction updates actual mass/bin/progress, not a cosmetic flag. Tail rates/count and hose lengths remain tuning.
 
 Clamp supports left/right drag; stationary left click releases its hose. Standard hose is shorter and just reaches the far-left corner with rotation/routing; owned longer hose retains more reach. Mount start parks held tools; right-drag put-down stays available while pressing or waiting for the lever. D52/D57 remain: putting down a tool does not secure, grade or complete the repaste. Cooler visual proposals remain unimplemented. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Feedback clarification — 0.19.0
+A full vacuum bin pauses extraction. Its persistent warning and Empty bin action must stay available across tool changes; this is maintenance, not a broken tool. Hose/clamp interaction must not create persistent self-crossing loops or extend remaining hose length.
+
+The current cooler still uses its existing pressure rules and explicit lever followed by Complete repaste. Leaving an unfinished mount cancels it; it does not secure or grade the cooler. Pressure/release readability is an accepted goal, but redesigned scoring/input is pending. No graphics work is required now.
+
+Sound cues are currently silent events. They may later communicate actual contact, load, speed and state, but essential warnings remain readable and secret scams cannot be exposed through an omniscient cue.

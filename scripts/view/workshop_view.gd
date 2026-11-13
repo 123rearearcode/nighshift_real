@@ -52,6 +52,7 @@ func _ready() -> void:
     _configure_layout()
 
 func _exit_tree() -> void:
+    if is_instance_valid(AudioFeedback): AudioFeedback.stop_owner(self)
     _settle_all_throws()
     if not inventory.items.is_empty(): _save_inventory()
 
@@ -82,6 +83,7 @@ func _button(text: String, pos: Vector2, size: Vector2, callback: Callable) -> v
     button.size = size
     button.focus_mode = Control.FOCUS_NONE
     button.pressed.connect(callback)
+    button.pressed.connect(func() -> void: AudioFeedback.request(self,"ui.click"))
     add_child(button)
 
 func _configure_layout() -> void:
@@ -161,6 +163,7 @@ func _try_pick_up(mouse: Vector2) -> void:
         throw_rotations.erase(i)
         grab_fraction = (mouse - rect.position) / rect.size
         inventory.begin(i)
+        AudioFeedback.request(self,"handling.pickup",{"kind":inventory.items[i].get("type","part")})
         inventory.items[i]["rotation"] = airborne_rotation
         pointer = mouse
         throw_velocity = Vector2.ZERO
@@ -181,6 +184,7 @@ func _rotate_part(step: int) -> void:
         inventory.begin(found)
         grab_fraction = Vector2(0.5,0.5)
     inventory.rotate(step)
+    AudioFeedback.request(self,"handling.rotate",{"step":step})
     grab_fraction = Vector2(0.5,0.5)
     if idle:
         var i: int = inventory.held
@@ -207,6 +211,7 @@ func _drop(mouse: Vector2, allow_throw: bool = false) -> void:
         # Physical angle starts at zero because half_size already uses the rotated footprint.
         inventory.cancel()
         thrown[i] = body
+        AudioFeedback.request(self,"handling.putdown",{"kind":"part","speed":speed.length()})
         _set_status("Thrown! It bounces off drawer edges, then finds a free grid space. Shift-drop places precisely.")
         preview = {}
         return
@@ -219,6 +224,7 @@ func _drop(mouse: Vector2, allow_throw: bool = false) -> void:
     else:
         inventory.cancel()
         _set_status(str(candidate.get("message", "Set parts down in the drawer or on a matching slot.")) + " Put back safely.", true)
+    if candidate.get("ok",false): AudioFeedback.request(self,"handling.install" if candidate.get("kind","") == "board" else "handling.putdown",{"kind":"part"})
     feedback = candidate.get("rect", Rect2()) if candidate.get("ok", false) else Rect2()
     feedback_life = 0.35
     preview = {}
@@ -251,7 +257,9 @@ func _process(delta: float) -> void:
     if inventory.held >= 0: preview = _candidate(pointer)
     for i in thrown.keys():
         var body: RefCounted = thrown[i]
+        var impacts: int = body.impacts
         body.step(delta,Rect2(DRAWER_GRID_ORIGIN,Vector2(DRAWER_GRID_SIZE)*DRAWER_CELL))
+        if body.impacts > impacts: AudioFeedback.request(self,"handling.impact",{"kind":"part","speed":body.velocity.length()})
         motions[i].center = body.center-Vector2(0,body.height)
         motions[i].angle = float(throw_rotations[i])*PI/2.0+body.angle
         motions[i].lift = body.height/60.0

@@ -54,6 +54,7 @@ func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable)
     b.size = size
     b.focus_mode = Control.FOCUS_NONE
     b.pressed.connect(callback)
+    b.pressed.connect(func() -> void: AudioFeedback.request(self,"ui.click"))
     add_child(b)
     return b
 
@@ -99,6 +100,7 @@ func _refresh() -> void:
 
 func _on_check_pressed() -> void:
     var r: Dictionary = GameState.run_final_check()
+    AudioFeedback.request(self,"check.pass" if r["passed"] else "check.fail",{"temperature":r["temp"]})
     var temp: int = roundi(float(r["temp"]))
     var lines: String = ""
     var notes: Array = r["notes"]

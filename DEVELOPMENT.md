@@ -80,7 +80,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
-| `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoload `GameState` |
+| `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoloads `GameState` and `AudioFeedback` |
 | `.gitignore` | config | Ignores `.godot/` cache and export files |
 | `README.md` | docs | How to import and run; what each screen does |
 | `HANDOFF.md` | docs | Signed handoff: state, rules for every bot, how to update the changelog, open tasks |
@@ -92,12 +92,17 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
-| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.12 |
-| `docs/DESIGN.md` | docs | Reconciled core project document version 1.12 |
-| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.12 |
-| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.12 |
-| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.12 |
+| `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |
+| `docs/DESIGN.md` | docs | Reconciled core project document version 1.13 |
+| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.13 |
+| `docs/DECISIONS.md` | docs | Reconciled core project document version 1.13 |
+| `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.13 |
 | `DEVELOPMENT.md` | docs | This guide |
+| `default_bus_layout.tres` | config | Six native mixer buses; currently silent |
+| `scripts/data/audio_cues.gd` | data | Cue identifiers, routing and loop/cooldown metadata |
+| `scripts/audio/audio_feedback.gd` | feedback | Silent owner-scoped events and loop lifecycle |
+| `docs/AUDIO_DESIGN.md` | docs | Implemented audio contract and proposed sonic direction |
+| `tools/test_audio_and_vacuum.gd` | test | Audio lifecycle, bin/control flow and hose crossing regressions |
 | `tools/check_project.py` | tooling | Consistency checker (does not run Godot) |
 | `tools/.gdignore` | tooling | Keeps Godot from scanning `tools/` |
 | `scenes/start.tscn` | scene | Initial menu scene, attaches start_view.gd |
@@ -341,3 +346,11 @@ BASE_LENGTH=560 and LONG_LENGTH=760 are provisional retuning, with existing stre
 View-level clamp_button/clamp_press distinguish a stationary left click (unclip on release) from a drag (move) for either mouse button. The sim still enforces full-footprint case/bin exclusion and occupied reach. Quick releases apply the final pointer position; selecting tools/stages cancels captured fixture input. Replacement-stock button is below the worktable to avoid clamp overlap. This is session-local arrangement, not a save migration.
 
 Mount start parks tools. Right-drag put-down is permitted throughout mounting, including zero time_left while mount.active awaits the lever, and in paste after entering from parts mode. It does not finish/reset the mount or produce a grade. D52 completion and D57 physical lever remain intact. Cooler presentation redesign remains a proposal in DESIGN_PROPOSALS section 6.
+
+## 0.19.0 contracts — silent feedback and hose recovery
+
+AudioFeedback is a presentation service depending only on AudioCues data. Views call request(owner, cue_id, context) for one-shots and set_loop(owner, cue_id, enabled, context) for continuous activity; stop_owner on stage/tree exit. Signals carry deep-copied contexts. Weak owner references clean orphan loops; cooldown/history storage is bounded. Six buses exist, but no AudioStreamPlayer, sample loader or playback adapter exists. Sim/rules/state must never call this service. Exact cue catalogue/context semantics and future plan: docs/AUDIO_DESIGN.md.
+
+DustSim.last_brush_contacts resets each step and counts actual contacts, enabling truthful brushing feedback. Bench loop activity is rebuilt per physics step; vacuum motor requires active tool and bin capacity, particle layer carries load, paste/cloth require CPU contact, fans carry RPM. View button and physical handling hooks cover other screens. Persistent vacuum_status derives from actual DustBin.fill independently of transient tool status; empty action is disabled only for an empty bin.
+
+HoseSim._untangle reverses intersecting link subsequences with reset history, preserving endpoints and restoring pin identity. A rare pinned fold is reseeded into outward arcs around the fixed pin, projected outside obstacles and untangled again. ToolRig reserves segment*pin length for the bin side of a pinned hose. self_crossings() supports deterministic rapid-movement regression. This is a pragmatic tabletop recovery, not a 3D knot solver. Human judgement of sudden recovery movement remains needed.

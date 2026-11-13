@@ -67,6 +67,7 @@ const SHED_MIN_NODES: int = 3         # only chains with at least this many node
 const SHED_SPEED: float = 0.35        # share of the brush speed a shed speck starts with
 const MAX_BUNDLES: int = 420          # safety cap on the number of bundles including shed specks
 
+var last_brush_contacts: int = 0
 var brush_contacts := PackedVector2Array()
 var kicked := PackedVector2Array()    # where dust was tossed or shed during the last step (for dust motes)
 var swallowed: float = 0.0            # dust weight the vacuum took in since take_swallowed() was last called
@@ -411,6 +412,7 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
     if brushing: brush_k = maxf(0.2, brush_k)   # light contact still loosens; fast strokes create tosses
     kicked.clear()
     motion_changed = false
+    last_brush_contacts = 0
     # Bundles shed during this loop are appended after `count`, so they wait for the next step.
     var existing: int = count
     for b in range(existing):
@@ -444,6 +446,7 @@ func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac
         brush_distance = INF
         for point: Vector2 in brush_contacts: brush_distance = minf(brush_distance,_nearest_dist(rest[b],point))
     if brushing and near and brush_distance < (BRUSH_TOUCH if not brush_contacts.is_empty() else BRUSH_RADIUS):
+        last_brush_contacts += 1
         b_loosen[b] = maxf(LOOSEN_FLOOR, b_loosen[b] - BRUSH_LOOSEN_RATE * brush_k * delta)
         if brush_k >= FLICK_MIN_K and b_n[b] >= SHED_MIN_NODES and b_remaining[b] >= 1.5 and count < MAX_BUNDLES \
                 and _rng.randf() < SHED_RATE * brush_k * delta:

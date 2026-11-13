@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.12 · 13 November 2026
+Version 1.13 · 13 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -157,5 +157,13 @@ D68 (confirmed request): when dirt catches under a part, show protruding dust ch
 D69 (confirmed requests): clamp must be movable outside the PC, and vacuum hose should only just reach the far-left case corner. Implement left/right drag, stationary left-click unclip, no UI overlap, and retuned base/upgrade lengths with actual corner-reach tests. Existing longer-hose ownership persists. Lengths and gesture threshold remain provisional.
 D70 (confirmed bug report): a held tool must be put-down-able during cooler mounting without pulling the lever first. Mount start parks tools; right-drag put-down is available while pressing or waiting at zero time. It does not lock/grade/complete the cooler. The user confirms 0.17.1's previous fixes work.
 D71 (discussion only): improve cooler visuals/satisfaction. Presentation directions in DESIGN_PROPOSALS section 6 are proposals, not blanket approval to implement a new pressure/screw/tilt mechanic. Preserve D52/D57.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Interaction priorities and silent audio — 0.19.0
+
+D72 (confirmed clarification, supersedes the emphasis of D71): the user wants cooler interaction design and better button organisation now, deferring graphics. Pressure build/release and deliberate lever finish are accepted directions; this is not approval of an exact replacement pressure puzzle or new art. Keep D52/D57.
+D73 (confirmed): prepare detailed sound design and feedback hooks for handling, vacuuming, paste and other actions, with no sounds yet. Implement a silent event service/cue catalogue/native mixer layout; sonic palette and playback implementation remain future work.
+D74 (recording-led repair): the observed suction stop coincides with bin capacity around 35 seconds. Capacity/manual emptying remains intentional; full-bin state must remain visible across tool changes. Correct hose self-crossing loops, including grabbing/clamping, without silently extending occupied hose reach.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

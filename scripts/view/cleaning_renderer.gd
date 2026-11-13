@@ -44,17 +44,17 @@ static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
 
 static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_done: Array, done_count: int, panel_x: float, cooler_rpm: float, case_rpm: float) -> void:
     var removed: float = 1.0 - dust.remaining_fraction()
-    UiStyle.label(canvas, Vector2(panel_x, 268), "Dust removed from the whole PC: %d%%" % roundi(removed * 100.0), 17)
-    UiStyle.bar(canvas, Rect2(panel_x, 276, 520, 14), removed, UiStyle.TONE_COLORS[1] if done_count == zones.size() else Color(0.35, 0.65, 0.95))
+    UiStyle.label(canvas, Vector2(panel_x, 304), "Dust removed from the whole PC: %d%%" % roundi(removed * 100.0), 17)
+    UiStyle.bar(canvas, Rect2(panel_x, 312, 520, 12), removed, UiStyle.TONE_COLORS[1] if done_count == zones.size() else Color(0.35, 0.65, 0.95))
     for i in range(zones.size()):
         var z: Dictionary = zones[i]
-        var y: float = 310.0 + i * 21.0
+        var y: float = 350.0 + i * 18.0
         var part_removed: float = 1.0 if bool(zone_done[i]) else dust.removed_fraction(i)
         UiStyle.label(canvas, Vector2(panel_x, y), str(z["label"]), 14)
         UiStyle.bar(canvas, Rect2(panel_x + 190, y - 12, 240, 12), part_removed, UiStyle.TONE_COLORS[1] if bool(zone_done[i]) else Color(0.35, 0.65, 0.95), DustZones.CLEAN_AT)
         UiStyle.label(canvas, Vector2(panel_x + 442, y), "clean" if bool(zone_done[i]) else "%d%%" % roundi(part_removed * 100.0), 14, UiStyle.TONE_COLORS[1] if bool(zone_done[i]) else UiStyle.COLOR_TEXT)
-    UiStyle.label(canvas, Vector2(panel_x, 510), "CPU cooler fan: %d RPM    Case fan: %d RPM" % [roundi(cooler_rpm), roundi(case_rpm)], 15)
-    UiStyle.label(canvas, Vector2(panel_x, 526), "Blades turn at exactly these speeds (demo scale; real fans are faster).", 11)
+    UiStyle.label(canvas, Vector2(panel_x, 520), "CPU cooler fan: %d RPM    Case fan: %d RPM" % [roundi(cooler_rpm), roundi(case_rpm)], 15)
+    UiStyle.label(canvas, Vector2(panel_x, 536), "Blades turn at exactly these speeds (demo scale; real fans are faster).", 11)
 
 
 # Floating dust: faint specks that fade in and out as they drift.
@@ -79,6 +79,6 @@ static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
     canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
     UiStyle.label(canvas, rect.position + Vector2(4, 10), "BIN %d%%" % roundi(level * 100.0), 10)
     if bin.is_full():
-        UiStyle.label(canvas, rect.position + Vector2(-92, 30), "FULL: click to empty", 12, UiStyle.TONE_COLORS[2])
+        UiStyle.label(canvas, rect.position + Vector2(-92, 30), "FULL: Empty bin button", 12, UiStyle.TONE_COLORS[2])
     elif hovered and bin.fill > 0.0:
         UiStyle.label(canvas, rect.position + Vector2(-82, 30), "click to empty", 12)
