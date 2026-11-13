@@ -1,9 +1,11 @@
 # Service-access controller: original mounts, tray positions and drag state. No drawing/input.
 extends RefCounted
-const TRAY := Rect2(40, 540, 620, 110)
+const Ids = preload("res://scripts/data/ids.gd")
+const Layout = preload("res://scripts/data/layout.gd")
+const TRAY: Rect2 = Layout.BENCH_TRAY
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
 const BOUNDS: Rect2 = ToolRig.TABLE   # a dragged part can never leave the bench
-const MOVABLE := ["cooler", "gpu"]
+const MOVABLE: Array = Ids.SERVICE_PARTS
 var homes: Dictionary = {}
 var parked: Dictionary = {}
 var removed: Dictionary = {}
@@ -22,7 +24,7 @@ func setup(zones: Array, origin: Vector2, saved: Array) -> void:
             var rect: Rect2 = z["rect"]
             rect.position += origin
             homes[id] = rect
-            parked[id] = Rect2(Vector2(65, 563) if id == "cooler" else Vector2(260, 585), rect.size)
+            parked[id] = Rect2(Vector2(65, 563) if id == Ids.COOLER else Vector2(260, 585), rect.size)
             removed[id] = id in saved
 
 func current_rect(id: String) -> Rect2:

@@ -143,6 +143,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/dust_pick.gd` | sim/controller | Pick stroke timing and per-attempt random risk; injectable rolls for checks |
 | `scripts/data/service_parts.gd` | data | Two generic replacement tiers for cooler/GPU; trial only |
 | `scripts/data/paste_materials.gd` | data | What can go under the cooler: thermal paste ($3) or toothpaste (free, stiffer, +14 C, a scam) |
+| `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
+| `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
 | `scripts/bench/service_access.gd` | sim/controller | Service mount/tray geometry and drag state; no drawing/input |
 | `scripts/bench/dust_sim.gd` | sim | Dust bundle physics: vacuum suction, brush loosening, per-part progress |
 | `scripts/bench/paste_sim.gd` | sim | Paste spreading physics and grading |

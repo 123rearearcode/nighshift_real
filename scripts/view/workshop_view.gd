@@ -1,5 +1,6 @@
 # VIEW + INPUT: free storage arrangement and deliberate motherboard installation.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 const TableBody = preload("res://scripts/bench/table_body.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const PlacementRules = preload("res://scripts/rules/placement_rules.gd")
@@ -7,12 +8,12 @@ const Inventory = preload("res://scripts/bench/grid_inventory.gd")
 const PartMotion = preload("res://scripts/view/part_motion.gd")
 const HoverInfo = preload("res://scripts/rules/hover_info.gd")
 const HoverCard = preload("res://scripts/view/hover_card.gd")
-const HELD_BOUNDS := Rect2(0,0,1280,720)   # a held part is kept inside the window
+const HELD_BOUNDS: Rect2 = Layout.SCREEN   # a held part is kept inside the window
 const DRAWER_CELL: float = 30.0
-const DRAWER_GRID_ORIGIN := Vector2(826, 148)
+const DRAWER_GRID_ORIGIN: Vector2 = Layout.WORKSHOP_DRAWER_GRID_ORIGIN
 const DRAWER_GRID_SIZE := Vector2i(12,8)
-const DRAWER_RECT := Rect2(800,100,440,330)
-const STATUS_RECT := Rect2(800,450,440,110)
+const DRAWER_RECT: Rect2 = Layout.WORKSHOP_DRAWER
+const STATUS_RECT: Rect2 = Layout.WORKSHOP_STATUS
 const COLOR_BG := Color("1c1f26")
 const COLOR_CASE := Color("383d4a")
 const COLOR_BOARD := Color("195c38")
@@ -89,7 +90,7 @@ func _button(text: String, pos: Vector2, size: Vector2, callback: Callable) -> v
 func _configure_layout() -> void:
     pc = PCLayout.profile(profile_id)
     board = pc["board"]
-    geometry = PCLayout.display(pc, Rect2(60,165,640,420))
+    geometry = PCLayout.display(pc, Layout.WORKSHOP_PC)
     CELL = geometry["cell"]
     BOARD_ORIGIN = PCLayout.board_rect(pc,geometry).position
     inventory.setup(board, int(pc["depth"]), GameState.inventory_layout, GameState.inventory_components())
@@ -289,7 +290,7 @@ func _item_rect(i: int) -> Rect2:
     var item: Dictionary = inventory.items[i]
     var fp: Vector2i = inventory.footprint(i)
     if i == inventory.held:
-        var scale_cell: float = CELL if Rect2(60,165,640,420).has_point(pointer) else DRAWER_CELL
+        var scale_cell: float = CELL if Layout.WORKSHOP_PC.has_point(pointer) else DRAWER_CELL
         var size: Vector2 = Vector2(fp)*scale_cell
         # A held part follows the pointer but can never leave the window.
         var farthest: Vector2 = (HELD_BOUNDS.end-size).max(HELD_BOUNDS.position)
@@ -318,7 +319,7 @@ func _text(pos: Vector2, text: String, size: int = 16, color: Color = COLOR_TEXT
     draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
 
 func _draw() -> void:
-    draw_rect(Rect2(0,0,1280,720),COLOR_BG)
+    draw_rect(Layout.SCREEN,COLOR_BG)
     _draw_case()
     _draw_board()
     draw_rect(DRAWER_RECT,Color("41352c"))

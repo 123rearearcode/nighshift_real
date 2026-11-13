@@ -4,6 +4,8 @@
 # GameState autoload. This file draws, reads the mouse and keyboard and shows text.
 # Placeholder shapes only: real graphics come later.
 extends Node2D
+const Ids = preload("res://scripts/data/ids.gd")
+const Layout = preload("res://scripts/data/layout.gd")
 
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
 const ToolRenderer = preload("res://scripts/view/tool_renderer.gd")
@@ -27,18 +29,18 @@ const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 
-const STAGE_CLEAN: int = 0
-const STAGE_PASTE: int = 1
+const STAGE_CLEAN: int = Ids.STAGE_CLEAN
+const STAGE_PASTE: int = Ids.STAGE_PASTE
 
-const PC_ORIGIN := Vector2(40, 110)    # top-left of the PC interior drawing
+const PC_ORIGIN: Vector2 = Layout.BENCH_PC_ORIGIN    # top-left of the PC interior drawing
 const DUST_SEED: int = 12345
-const PASTE_ORIGIN := Vector2(120, 150)
-const PASTE_CELL: int = 8
-const PANEL_X: float = 700.0
+const PASTE_ORIGIN: Vector2 = Layout.BENCH_SOCKET_ORIGIN
+const PASTE_CELL: int = Layout.BENCH_SOCKET_CELL
+const PANEL_X: float = Layout.PANEL_X
 const DEPOSIT_RATE: float = 60.0       # paste units per second while squeezing
 const WIPE_RADIUS_CELLS: float = 4.5   # reach of the cloth on the paste grid (a square cloth reaches 4.5 cells each way)
 const WIPE_STRENGTH: float = 0.12      # share of paste removed per tick at the cloth centre (a blob takes about 1 s)
-const PART_MASS: Dictionary = {"cooler": 2.0, "gpu": 2.5}   # loose parts on the bench: heavier than tools, so tools bounce off them
+const PART_MASS: Dictionary = {Ids.COOLER: 2.0, Ids.GPU: 2.5}   # loose parts on the bench: heavier than tools, so tools bounce off them
 const AUTOSAVE_SECONDS: float = 3.0    # dust progress is saved this often while cleaning
 
 # Fans: the blades turn at exactly the RPM shown. The range is low on purpose: with 7 blades and
@@ -109,7 +111,7 @@ var status_label: Label
 var wipe_button: Button
 var mount_button: Button
 var clear_button: Button
-const SECURE_LEVER := Rect2(552, 250, 44, 210)   # the cooler's retention lever beside the socket: click it to secure the cooler
+const SECURE_LEVER: Rect2 = Layout.BENCH_LEVER   # the cooler's retention lever beside the socket: click it to secure the cooler
 var time_up_told: bool = false
 var clamp_button: int = 0
 var clamp_press := Vector2.ZERO
@@ -130,7 +132,7 @@ func _ready() -> void:
     font = ThemeDB.fallback_font
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     zones = DustZones.zones(str(GameState.job.get("layout", "tower")))
-    cooler_zone = DustZones.index_of("cooler")
+    cooler_zone = DustZones.index_of(Ids.COOLER)
     case_fan_zone = DustZones.index_of("case_fan")
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
     _initialize_dust()
@@ -322,7 +324,7 @@ func _select_stage(new_stage: int) -> void:
     stage = new_stage
     clamp_button = 0
     holding = false
-    _equip_tool("syringe" if stage == STAGE_PASTE else (["vacuum","brush","vacuum","pick"][active_tool]), _pointer())
+    _equip_tool(Ids.SYRINGE if stage == STAGE_PASTE else Ids.SLOT_TOOL[active_tool], _pointer())
     if stage == STAGE_CLEAN and active_tool == 2: _park_tool()
     if stage == STAGE_PASTE:
         wiping = false
@@ -372,7 +374,7 @@ func _select_tool(new_tool: int) -> void:
     clamp_button = 0
     tools.end_clamp_drag()
     active_tool = new_tool
-    if new_tool != 2: _equip_tool(["vacuum","brush","vacuum","pick"][new_tool], _pointer())
+    if new_tool != Ids.SLOT_PARTS: _equip_tool(Ids.SLOT_TOOL[new_tool], _pointer())
     else: _park_tool()
     pick.reset()
     if tool_buttons.size() == 4:
@@ -462,7 +464,7 @@ func _cloth_is_square() -> bool:
 
 
 func _select_dispense() -> void:
-    _equip_tool("syringe",_pointer())
+    _equip_tool(Ids.SYRINGE,_pointer())
     wiping = false
     holding = false
     wipe_button.set_pressed_no_signal(false)
@@ -472,7 +474,7 @@ func _select_dispense() -> void:
 
 func _on_wipe_toggled() -> void:
     wiping = wipe_button.button_pressed
-    _equip_tool("cloth" if wiping else "syringe",_pointer())
+    _equip_tool(Ids.CLOTH if wiping else Ids.SYRINGE,_pointer())
     holding = false
     var shape: String = "square cloth" if _cloth_is_square() else "cloth"
     if wiping:
@@ -563,17 +565,17 @@ func _input(event: InputEvent) -> void:
             return
         if mb.button_index == MOUSE_BUTTON_RIGHT and (stage == STAGE_PASTE or active_tool != 2 or mb.shift_pressed):
             if mb.pressed:
-                var candidate: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
+                var candidate: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
                 var was_equipped: bool = tools.equipped
                 if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and tools.grab_hose(mb.position):
                     if was_equipped: _sound("handling.putdown",{"kind":tools.selected})
                     _sound("hose.grab")
                     holding = false
                     return
-                if stage == STAGE_CLEAN and candidate in ["vacuum","brush","pick"]:
-                    _select_tool({"vacuum":0,"brush":1,"pick":3}[candidate])
-                elif stage == STAGE_PASTE and candidate in ["cloth","syringe"]:
-                    wiping = candidate == "cloth"
+                if stage == STAGE_CLEAN and candidate in Ids.CLEAN_TOOLS:
+                    _select_tool(Ids.TOOL_SLOT[candidate])
+                elif stage == STAGE_PASTE and candidate in Ids.PASTE_TOOLS:
+                    wiping = candidate == Ids.CLOTH
                     wipe_button.set_pressed_no_signal(wiping)
                     _equip_tool(candidate,mb.position)
                 if tools.equipped: tools.begin_throw(mb.position)
@@ -598,12 +600,12 @@ func _input(event: InputEvent) -> void:
                 return
             if mb.pressed:
                 # With a tool in hand a left click always uses it (it never swaps to a tool lying next to it).
-                var resting: String = "" if tools.equipped else tools.hit(mb.position,["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"])
-                if resting != "" and ToolRig.TABLE.has_point(mb.position) and resting in (["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"]):
-                    if stage == STAGE_CLEAN and resting in ["vacuum","brush","pick"]:
-                        _select_tool({"vacuum":0,"brush":1,"pick":3}[resting])
-                    elif stage == STAGE_PASTE and resting in ["cloth","syringe"]:
-                        wiping = resting == "cloth"
+                var resting: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
+                if resting != "" and ToolRig.TABLE.has_point(mb.position) and resting in (Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS):
+                    if stage == STAGE_CLEAN and resting in Ids.CLEAN_TOOLS:
+                        _select_tool(Ids.TOOL_SLOT[resting])
+                    elif stage == STAGE_PASTE and resting in Ids.PASTE_TOOLS:
+                        wiping = resting == Ids.CLOTH
                         wipe_button.set_pressed_no_signal(wiping)
                         _equip_tool(resting,mb.position)
                     # The pickup press is also the beginning of this tool stroke. Waiting for
@@ -676,7 +678,7 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     var modal_open: bool = is_instance_valid(replacement_panel) and replacement_panel.visible
     dust.brush_contacts = PackedVector2Array()
     if active_tool == 1:
-        var angle: float = tools.motions["brush"].angle
+        var angle: float = tools.motions[Ids.BRUSH].angle
         for point: Vector2 in tools.brush.tips(): dust.brush_contacts.append(mouse+point.rotated(angle))
     var working: bool = holding and not modal_open and tools.equipped and not tools.carrying and not tools.clamp_dragging
     var vacuum_ok: bool = not (active_tool == DustSim.TOOL_VACUUM and bin.is_full())   # a full bin stops the suction
@@ -714,7 +716,7 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     # Fan speeds follow how clean their own part is; angle advances by exactly RPM * 360 / 60 per second.
     var target_cooler: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone))
     var target_case: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone))
-    if "cooler" in GameState.job["broken_parts"]: target_cooler = 0.0
+    if Ids.COOLER in GameState.job["broken_parts"]: target_cooler = 0.0
     cooler_rpm = lerpf(cooler_rpm, target_cooler, 1.0 - exp(-3.0 * delta))
     case_rpm = lerpf(case_rpm, target_case, 1.0 - exp(-3.0 * delta))
     cooler_angle += cooler_rpm * TAU / 60.0 * delta   # RPM to radians per second
@@ -724,7 +726,7 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
 # Tools and loose parts lying on the bench collide as rotated boxes. Held things push others away and are
 # never pushed. The solid pieces also become obstacles the vacuum hose has to lie around.
 func _step_pieces() -> void:
-    var visible_tools: Array = ["vacuum","brush","pick"] if stage == STAGE_CLEAN else ["cloth","syringe"]
+    var visible_tools: Array = Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS
     var pieces: Array = tools.collision_pieces(visible_tools)
     if stage == STAGE_CLEAN and not (is_instance_valid(replacement_panel) and replacement_panel.visible):
         pieces.append_array(_part_pieces())
@@ -885,7 +887,7 @@ func _finish_mount() -> void:
     mount.finish()
     mount_result = paste.evaluate()
     live_stats = {"coverage": mount_result["coverage"], "overflow": mount_result["overflow"]}
-    access.set_removed("cooler", false)
+    access.set_removed(Ids.COOLER, false)
     GameState.job["removed_parts"] = access.removed_ids()
     _sync_part_geometry()
     GameState.set_paste(mount_result)
@@ -916,7 +918,7 @@ func _draw() -> void:
 
 
 func _draw_scene() -> void:
-    draw_rect(Rect2(0, 0, 1280, 720), COLOR_BG)
+    draw_rect(Layout.SCREEN, COLOR_BG)
     if stage == STAGE_CLEAN:
         _draw_pc()
         _text(Vector2(PANEL_X,155),"TOOLS",12)
@@ -983,7 +985,7 @@ func _finish_part_drag(point: Vector2) -> void:
     _sync_part_geometry()
     if result.get("changed", false):
         GameState.job["removed_parts"] = access.removed_ids()
-        if result["id"] == "cooler" and "cooler" in access.removed_ids():
+        if result["id"] == Ids.COOLER and Ids.COOLER in access.removed_ids():
             GameState.clear_paste()
             paste.clear()
             mount_result = {}
@@ -1012,7 +1014,7 @@ func _draw_clean_cursor() -> void:
     if replacement_panel.visible: return
     if active_tool == 2 and _work_rect().has_point(get_global_mouse_position()):
         draw_arc(get_global_mouse_position(),10,0,TAU,20,Color.WHITE,1)
-    ToolRenderer.draw_tools(self,tools,["vacuum","brush","pick"])
+    ToolRenderer.draw_tools(self,tools,Ids.CLEAN_TOOLS)
     if active_tool == 3 and tools.equipped:
         var point: Vector2 = tools.contact()
         var id: String = _pick_target(point)
@@ -1029,7 +1031,7 @@ func _draw_paste_panel() -> void:
     PasteRenderer.draw_panel(self, paste, PANEL_X, mount, not mount_result.is_empty(), live_stats)
 
 func _draw_paste_cursor() -> void:
-    ToolRenderer.draw_tools(self,tools,["cloth","syringe"])
+    ToolRenderer.draw_tools(self,tools,Ids.PASTE_TOOLS)
 
 func _pick_target(point: Vector2) -> String:
     for id: String in ServiceAccess.MOVABLE:
@@ -1064,7 +1066,7 @@ func _build_replacements() -> void:
             var disabled_style := StyleBoxFlat.new()
             disabled_style.bg_color = Color("29333f")
             button.add_theme_stylebox_override("disabled", disabled_style)
-            button.text = "%s / $%d / %d%% of original%s" % [choice["label"], choice["cost"], choice["performance"], " / +8 C" if id == "cooler" and tier == "budget" else ""]
+            button.text = "%s / $%d / %d%% of original%s" % [choice["label"], choice["cost"], choice["performance"], " / +8 C" if id == Ids.COOLER and tier == "budget" else ""]
             button.pressed.connect(_replace_part.bind(id, tier))
             replacement_panel.add_child(button)
             var buy := Button.new()
@@ -1113,7 +1115,7 @@ func _replace_part(id: String, tier: String) -> void:
     if not GameState.replace_service_part(id, tier): return
     access.set_removed(id, false)
     _sync_part_geometry()
-    if id == "cooler":
+    if id == Ids.COOLER:
         paste.clear()
         mount_result = {}
         paste_dirty = true

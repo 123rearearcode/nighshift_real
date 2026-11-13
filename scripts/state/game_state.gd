@@ -2,6 +2,7 @@
 # Saves to user://nightshift_save.json after every change. No drawing, no UI here.
 # All numbers are demo values for the trial, not approved balance.
 extends Node
+const Ids = preload("res://scripts/data/ids.gd")
 
 const ComponentData = preload("res://scripts/data/component_data.gd")
 const GridInventory = preload("res://scripts/bench/grid_inventory.gd")
@@ -145,7 +146,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
     job["removed_parts"].erase(part_id)
     job["service_replacements"][part_id] = record["tier"]
     job["service_replacement_ids"][part_id] = uid
-    if part_id == "cooler":
+    if part_id == Ids.COOLER:
         job["paste_grade"] = ""
         job["paste_coverage"] = 0.0
         job["paste_overflow"] = 0.0
@@ -167,10 +168,10 @@ func start_repair_ticket() -> void:
 func _starter_inventory() -> Array:
     return [{"uid":"trial_ram_a","kind":"ram","tier":"similar","owner":"player","condition":"working"},
         {"uid":"trial_ram_b","kind":"ram","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"trial_gpu","kind":"gpu","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_gpu_budget","kind":"gpu","tier":"budget","owner":"player","condition":"working"},
-        {"uid":"stock_cooler_similar","kind":"cooler","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_cooler_budget","kind":"cooler","tier":"budget","owner":"player","condition":"working"}]
+        {"uid":"trial_gpu","kind":Ids.GPU,"tier":"similar","owner":"player","condition":"working"},
+        {"uid":"stock_gpu_budget","kind":Ids.GPU,"tier":"budget","owner":"player","condition":"working"},
+        {"uid":"stock_cooler_similar","kind":Ids.COOLER,"tier":"similar","owner":"player","condition":"working"},
+        {"uid":"stock_cooler_budget","kind":Ids.COOLER,"tier":"budget","owner":"player","condition":"working"}]
 
 func inventory_components() -> Array:
     var stock: Array = []
@@ -377,7 +378,7 @@ func load_game() -> bool:
             var uid: String = str(record.get("uid",""))
             var kind: String = str(record.get("kind",""))
             var tier: String = str(record.get("tier",""))
-            if uid == "" or seen_stock.has(uid) or not kind in ["ram","gpu","cooler"] or not tier in ["similar","budget"]: continue
+            if uid == "" or seen_stock.has(uid) or not kind in ["ram", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
             if str(record.get("owner","player")) != "player" or str(record.get("condition","working")) != "working": continue
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
@@ -402,14 +403,14 @@ func load_game() -> bool:
             job["dust"]["under_gpu"] = 1.0
         # Before 0.7.0 only the cooler was cleaned and the save held just a "cleaned" flag.
         if not saved_job.has("dust") and bool(saved_job.get("cleaned", false)):
-            job["dust"] = {"cooler": 1.0}
+            job["dust"] = {Ids.COOLER: 1.0}
     if typeof(job["dust"]) != TYPE_DICTIONARY:
         job["dust"] = {}
     if not job["service_table_positions"] is Dictionary: job["service_table_positions"] = {}
     var valid_removed: Array = []
     if typeof(job["removed_parts"]) == TYPE_ARRAY:
         for id in job["removed_parts"]:
-            if str(id) in ["cooler", "gpu"] and not str(id) in valid_removed: valid_removed.append(str(id))
+            if str(id) in Ids.SERVICE_PARTS and not str(id) in valid_removed: valid_removed.append(str(id))
     job["removed_parts"] = valid_removed
     if not job["hardware_trial"] is Dictionary: job["hardware_trial"] = {}
     if not data.has("inventory_layout"):

@@ -1,11 +1,12 @@
 # PRESENTATION: a small card that fades in near the mouse.
 # It only displays the title and lines it is given; it knows nothing about hardware.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 
 const PADDING: float = 10.0
 const LINE_HEIGHT: float = 20.0
 const FADE_SPEED: float = 7.0
-const SCREEN_SIZE := Vector2(1280, 720)
+const SCREEN_SIZE: Vector2 = Layout.SCREEN_SIZE
 
 var font: Font
 var title: String = ""

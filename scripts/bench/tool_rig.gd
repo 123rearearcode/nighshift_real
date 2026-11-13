@@ -1,14 +1,16 @@
 # Shared tactile tool handling: selected follow, right-drag/release toss, persistent resting bodies.
 extends RefCounted
+const Ids = preload("res://scripts/data/ids.gd")
+const Layout = preload("res://scripts/data/layout.gd")
 const Motion = preload("res://scripts/view/part_motion.gd")
 const Body = preload("res://scripts/bench/table_body.gd")
 const Brush = preload("res://scripts/bench/brush_shape.gd")
 const Hose = preload("res://scripts/bench/hose_sim.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
-const IDS: Array = ["vacuum","brush","pick","cloth","syringe"]
+const IDS: Array = Ids.ALL_TOOLS
 const TIP := Vector2(-18,24)
-const TABLE := Rect2(40,105,620,545)
+const TABLE: Rect2 = Layout.BENCH_TABLE
 const TURN_STEP: float = PI / 12.0   # one Q/E press turns the held tool 15 degrees
 const HALF_SIZE := Vector2(30,42)    # half of the 60 x 84 box a tool occupies (before turning)
 const HOSE_ATTACH := Vector2(21,-31) # where the hose joins the vacuum, in the vacuum's own frame
@@ -16,14 +18,14 @@ const HOSE_TUG: float = 0.5          # share of the taut hose's pull that drags 
 const HOSE_TUG_DEADBAND: float = 4.0 # a hose lagging less than this many px is slack, not taut
 const HOSE_TAUT_FROM: float = 0.9     # the hose counts as taut once its two ends are this share of its length apart
 const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
-const CLAMP_RECT := Rect2(550, 612, 88, 30)
-const CLAMP_POINT := Vector2(594, 627)
+const CLAMP_RECT: Rect2 = Layout.BENCH_CLAMP
+const CLAMP_POINT: Vector2 = Layout.BENCH_CLAMP_POINT
 const HOSE_GRAB_RADIUS: float = 12.0  # px; how close to the hose a right click must be to grab it
 const HOSE_GRAB_KEEP: int = 3         # the last points by the nozzle cannot be grabbed (that is the vacuum itself)
 const HOSE_STRETCH_LIMIT: float = 1.04 # the hose never stretches past this multiple of its length
 const COLLIDE_HALF := Vector2(20,34) # half size of the box tools collide with
 const SOLID_HEIGHT: float = 16.0     # a tool hopping higher than this flies over others
-const MASSES: Dictionary = {"vacuum": 3.0, "brush": 0.6, "pick": 0.4, "cloth": 0.3, "syringe": 0.4}
+const MASSES: Dictionary = {Ids.VACUUM: 3.0, Ids.BRUSH: 0.6, Ids.PICK: 0.4, Ids.CLOTH: 0.3, Ids.SYRINGE: 0.4}
 var motions: Dictionary = {}
 var turns: Dictionary = {}           # id -> chosen angle in radians, kept while the tool rests
 var bodies: Dictionary = {}
@@ -39,7 +41,7 @@ var clamp_blocked: bool = false
 var clamp_offset := Vector2.ZERO
 var clamp_pc := Rect2()
 var hose_clamp: int = -1             # parked rope point; session-local desk arrangement
-var selected: String = "vacuum"
+var selected: String = Ids.VACUUM
 var equipped: bool = true
 var carrying: bool = false
 var active: bool = false
@@ -107,7 +109,7 @@ static func keep_inside(center: Vector2, angle: float) -> Vector2:
     return center.clamp(TABLE.position+edge,TABLE.end-edge)
 
 func hose_end() -> Vector2:
-    var motion: RefCounted = motions["vacuum"]
+    var motion: RefCounted = motions[Ids.VACUUM]
     return motion.center+HOSE_ATTACH.rotated(motion.angle)
 
 # Turn the held tool by a number of 15 degree steps (used by the mouse wheel and middle-button drag).
@@ -145,7 +147,7 @@ func step(delta: float, mouse: Vector2, using: bool) -> void:
     speed = ((tip-last_tip)/maxf(delta,0.00001)).limit_length(2500)
     last_tip = tip
     # The bristles bend in the tool's own frame, so the sweep speed is turned into that frame first.
-    brush.step(delta,speed.rotated(-float(motions[selected].angle)),active and selected in ["brush","cloth"])
+    brush.step(delta,speed.rotated(-float(motions[selected].angle)),active and selected in [Ids.BRUSH, Ids.CLOTH])
     if hose_grab >= 0:
         hose_grab_point = mouse.clamp(TABLE.position + Vector2.ONE * 6.0, TABLE.end - Vector2.ONE * 6.0)
     var pinned_index: int = hose_grab if hose_grab >= 0 else hose_clamp
@@ -206,9 +208,9 @@ func set_long_hose(owned: bool) -> void:
 # A taut hose holds the vacuum back: it drags the vacuum toward the bin, and never lets it stretch the
 # hose past HOSE_STRETCH_LIMIT times its length. Works for a held, resting or thrown vacuum.
 func _apply_hose_tug() -> void:
-    var motion: RefCounted = motions["vacuum"]
-    var body: RefCounted = bodies["vacuum"]
-    var held: bool = selected == "vacuum" and equipped
+    var motion: RefCounted = motions[Ids.VACUUM]
+    var body: RefCounted = bodies[Ids.VACUUM]
+    var held: bool = selected == Ids.VACUUM and equipped
     var pull := Vector2.ZERO
     # The hose runs from the bin, through the point the player holds (if any), to the vacuum.
     var from: Vector2 = hose.pin_point if hose.pinned() else DustBin.hose_anchor()
