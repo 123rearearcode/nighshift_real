@@ -76,6 +76,7 @@ func _make_job() -> Dictionary:
         "complaint": "PC overheats and the fan is very loud.",
         "state": "open",          # "open" or "done"
         "cleaned": false,         # true only when every dusty part is clean (derived from "dust")
+        "dust_state": {},
         "dust": _fresh_dust(),               # zone id -> share of that part's dust removed (0..1)
         "paste_grade": "",        # "" = no fresh paste
         "paste_coverage": 0.0,
@@ -96,8 +97,9 @@ func dust_fraction(zone_id: String) -> float:
 
 
 # Store the removed share for every part at once: {zone id: fraction}. Recomputes "cleaned".
-func set_dust(fractions: Dictionary) -> void:
+func set_dust(fractions: Dictionary, physics: Dictionary = {}) -> void:
     job["dust"] = fractions.duplicate()
+    job["dust_state"] = physics
     _refresh_cleaned()
     save_game()
 
@@ -154,7 +156,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
 
 func _fresh_dust() -> Dictionary:
     var fractions: Dictionary = {}
-    for zone: Dictionary in DustZones.zones(): fractions[zone["id"]] = 0.0
+    for zone: Dictionary in DustZones.zones(): fractions[zone["id"]] = 1.0 if zone["id"] == "case_interior" else 0.0
     return fractions
 
 func start_repair_ticket() -> void:
@@ -442,9 +444,10 @@ func load_game() -> bool:
         job["layout"] = "tower"
     var clean_dust: Dictionary = {}
     for z: Dictionary in DustZones.zones():
-        var raw: Variant = job["dust"].get(z["id"], 0.0)
+        var raw: Variant = job["dust"].get(z["id"], 1.0 if z["id"] == "case_interior" else 0.0)
         clean_dust[z["id"]] = clampf(float(raw), 0.0, 1.0) if typeof(raw) in [TYPE_FLOAT, TYPE_INT] else 0.0
     job["dust"] = clean_dust
+    if not job["dust_state"] is Dictionary: job["dust_state"] = {}
     if not PASTE_PENALTY.has(str(job["paste_grade"])):
         job["paste_grade"] = ""
     if not str(job["state"]) in ["open", "done"]:

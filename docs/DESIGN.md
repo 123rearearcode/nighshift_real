@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.9 · 13 November 2026
+Version 1.10 · 13 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -144,3 +144,11 @@ F5 opens New game / Load game / Achievements. New game resets and enters the cur
 The hose follows full cooler/GPU rectangular housings, not fan circles; links must also clear housing corners. Held tools and carried parts pass above it. Shift + right-drag lifts a section (or right-drag with empty hands); dropping it in the desk clamp parks that section. Empty-hand clamp click or re-grabbing releases it. A held-tool throw has priority so the hose cannot steal pickup/throw input. Clamp/hose arrangements are session-local. Other approved dust/paste/scam rules remain unchanged; promises/claims/consequences are still not implemented by this feature.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## 22. Physical dust state and transport — trial 0.17.0
+
+D64–D66: all entry/reset paths share initialization. Saved physical state retains looseness and the current location of real dirt; legacy saves keep their fractional progress. Light brush contact gradually loosens and visibly brightens dirt; vigorous strokes toss it across the case. Dirt can catch under installed GPU/cooler or in the harder-gripping filter. Removal exposes trapped dirt; risky pick remains an alternative. Vacuum can collect moving dust without waiting for it to settle.
+
+A Case interior progress area receives scattered dirt. Area totals move with dirt, so a cleaned area can be contaminated again and moving dirt never counts as vacuuming. Dirt remains inside case walls; surface dirt on extracted parts stays on the service tray. Saved dust snapshots preserve this distribution. Automatic threshold shake-off is removed; stopping suction never erases dust on a timeout. The trial's 95% quality threshold remains provisional. Fan-powered redistribution is still queued.
+
+The desk clamp can be right-dragged, with its entire footprint outside the PC and bin. Empty-hand left-click releases parked hose; current clamp pose is used for hose reach and rendering. Placement is session-local. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

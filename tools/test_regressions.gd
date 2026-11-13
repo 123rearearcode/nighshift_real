@@ -713,11 +713,13 @@ func test_brush_dust() -> void:
         farthest = maxf(farthest,dust.b_center[0].distance_to(home))
         never_gone = never_gone and dust.b_state[0] != Dust.GONE
         for b in range(dust.count):
-            if dust.b_state[b] != Dust.GONE and not inside_zone(dust,b): always_inside = false
+            if dust.b_state[b] != Dust.GONE:
+                for point: Vector2 in dust.shown[b]:
+                    if not dust.case_bounds.has_point(point): always_inside = false
     check(tossed_seen and kicked_seen, "a brushed bundle is tossed and reports where")
     check(farthest > 8.0, "tossing really moves the dust")
     check(never_gone and dust.removed_fraction(dust.b_zone[0]) == 0.0, "the brush removes nothing")
-    check(always_inside, "tossed and shed dust stays inside its own part")
+    check(always_inside, "tossed and shed dust stays inside the case")
     var remaining: float = 0.0
     for b in range(dust.count): remaining += dust.b_remaining[b]
     check(absf(remaining-weight) < 0.001, "brushing never changes the total amount of dust")
@@ -1160,8 +1162,10 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     check(bench.tools.hose_clamp == 8, "bench mouse release connects hose carry to visible clamp")
     press.shift_pressed = false
     press.position = ToolRig.CLAMP_POINT
+    press.button_index = MOUSE_BUTTON_LEFT
     bench._input(press)
     check(bench.tools.hose_clamp < 0, "empty-hand click releases parked hose")
+    press.button_index = MOUSE_BUTTON_RIGHT
     bench.tools.motions["pick"].center = mouse
     press.shift_pressed = true
     press.position = mouse

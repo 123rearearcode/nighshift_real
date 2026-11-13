@@ -78,6 +78,13 @@ jobs:
           grep -q "Start screen checks: .*failures: 0" "$GITHUB_WORKSPACE/start-screen.log"
           ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/start-screen.log"
 
+      - name: First-entry dust, transport and movable clamp
+        run: |
+          cd "$PROJECT_DIR"
+          godot --headless --path . --script res://tools/test_dust_flow.gd 2>&1 | tee "$GITHUB_WORKSPACE/dust-flow.log"
+          grep -q "Dust flow checks: .*failures: 0" "$GITHUB_WORKSPACE/dust-flow.log"
+          ! grep -E "SCRIPT ERROR|Parse Error" "$GITHUB_WORKSPACE/dust-flow.log"
+
       - name: Scripted bench playtest (prints a table, never fails the build)
         if: always()
         continue-on-error: true

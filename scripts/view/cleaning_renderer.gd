@@ -9,7 +9,7 @@ const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 
 const COLOR_DUST := Color(0.86, 0.76, 0.58, 1.0)
-const COLOR_DUST_LOOSENED := Color(0.86, 0.78, 0.58, 0.95)
+const COLOR_DUST_LOOSENED := Color(1.0, 0.92, 0.72, 1.0)
 
 
 static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
@@ -37,7 +37,7 @@ static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_don
     UiStyle.bar(canvas, Rect2(panel_x, 276, 520, 14), removed, UiStyle.TONE_COLORS[1] if done_count == zones.size() else Color(0.35, 0.65, 0.95))
     for i in range(zones.size()):
         var z: Dictionary = zones[i]
-        var y: float = 310.0 + i * 22.0
+        var y: float = 310.0 + i * 21.0
         var part_removed: float = 1.0 if bool(zone_done[i]) else dust.removed_fraction(i)
         UiStyle.label(canvas, Vector2(panel_x, y), str(z["label"]), 14)
         UiStyle.bar(canvas, Rect2(panel_x + 190, y - 12, 240, 12), part_removed, UiStyle.TONE_COLORS[1] if bool(zone_done[i]) else Color(0.35, 0.65, 0.95), DustZones.CLEAN_AT)

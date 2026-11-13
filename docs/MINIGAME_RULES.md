@@ -128,3 +128,10 @@ Exact delays, odds, redo/refund alternatives and social penalties remain proposa
 - **Consequences:** a small rule processor plus archived delivery/customer/shop state, using SaveStore; do not place discovery rules inside renderers or require a full day/night implementation just to test one comeback.
 
 Add exact files/new modules to DEVELOPMENT.md when each later feature is scoped. Test both honest and dishonest flows; do not claim “approved design” means “implemented”.
+
+
+## Implementation update 0.17.0 — dust state/travel and movable clamp
+
+The user approved brush-driven cross-case transport and a movable clamp outside the PC. Dust can now settle in another area or trap under GPU/cooler and in the filter, with conserved physical mass and saved positions/looseness. The new Case interior row tracks scattered dirt; previously cleaned areas can become dirty again. No automatic quality-threshold shake-off deletes remaining dirt, and a stopped vacuum does not delete loose dirt on a timer. These changes do not implement promises, false handoff claims or consequences. D56 fan transport remains queued.
+
+Clamp controls: right-drag moves the fixture, with its full footprint outside PC/bin and inside desk bounds. Empty-hand left-click unclips. Occupied-hose reach is respected; fixture position remains session-local. Initial/reopened/reset tool response is tested in Godot; human acceptance of the user's original first-entry symptom remains necessary. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

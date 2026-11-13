@@ -33,6 +33,11 @@ var flow := HoseFlow.new()           # dust inside the hose on its way to the bi
 var hose_obstacles: Array = []       # pieces on the bench the hose has to lie around (set by the view each step)
 var hose_grab: int = -1              # hose point the player is carrying with the right mouse button, or -1
 var hose_grab_point := Vector2.ZERO
+var clamp_position: Vector2 = CLAMP_POINT
+var clamp_dragging: bool = false
+var clamp_blocked: bool = false
+var clamp_offset := Vector2.ZERO
+var clamp_pc := Rect2()
 var hose_clamp: int = -1             # parked rope point; session-local desk arrangement
 var selected: String = "vacuum"
 var equipped: bool = true
@@ -54,6 +59,7 @@ func _init() -> void:
 func select(id: String, mouse: Vector2) -> void:
     if not id in IDS: return
     if equipped: park()
+    end_clamp_drag()
     release_hose()   # selecting another tool never leaves an invisible hand gripping the hose
     selected = id
     bodies[id].active = false
@@ -121,6 +127,7 @@ func contact() -> Vector2:
 
 func step(delta: float, mouse: Vector2, using: bool) -> void:
     point = mouse
+    if clamp_dragging: move_clamp(mouse)
     for id: String in IDS:
         var body: RefCounted = bodies[id]
         var motion: RefCounted = motions[id]
@@ -142,7 +149,7 @@ func step(delta: float, mouse: Vector2, using: bool) -> void:
     if hose_grab >= 0:
         hose_grab_point = mouse.clamp(TABLE.position + Vector2.ONE * 6.0, TABLE.end - Vector2.ONE * 6.0)
     var pinned_index: int = hose_grab if hose_grab >= 0 else hose_clamp
-    var pinned_at: Vector2 = hose_grab_point if hose_grab >= 0 else CLAMP_POINT
+    var pinned_at: Vector2 = hose_grab_point if hose_grab >= 0 else clamp_position
     hose.step(delta,DustBin.hose_anchor(),hose_end(),hose_obstacles,pinned_index,pinned_at)
     _apply_hose_tug()
 
@@ -162,9 +169,9 @@ func grab_hose(point: Vector2) -> bool:
 
 # Drop a carried section into the visible clamp. Too-short sections remain free.
 func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
-    if hose_grab > 0 and CLAMP_RECT.has_point(drop_point):
+    if hose_grab > 0 and clamp_rect().has_point(drop_point):
         var reach: float = hose.segment * float(hose_grab) * 0.98
-        if DustBin.hose_anchor().distance_to(CLAMP_POINT) <= reach:
+        if DustBin.hose_anchor().distance_to(clamp_position) <= reach:
             hose_clamp = hose_grab
     hose_grab = -1
 
@@ -279,3 +286,35 @@ func park() -> void:
     equipped = false
     carrying = false
     active = false
+
+
+func clamp_rect() -> Rect2:
+    return Rect2(clamp_position-CLAMP_RECT.size*0.5,CLAMP_RECT.size)
+
+
+# A desk fixture: no physics throws and its WHOLE footprint must stay outside the case.
+func begin_clamp_drag(point: Vector2) -> bool:
+    if not clamp_rect().has_point(point): return false
+    if equipped: park()
+    clamp_dragging = true
+    clamp_blocked = false
+    clamp_offset = point-clamp_position
+    return true
+
+
+func move_clamp(point: Vector2) -> bool:
+    clamp_blocked = true
+    var half: Vector2 = CLAMP_RECT.size*0.5
+    var candidate: Vector2 = (point-clamp_offset).clamp(TABLE.position+half,TABLE.end-half)
+    var footprint := Rect2(candidate-half,CLAMP_RECT.size)
+    if clamp_pc.has_area() and footprint.intersects(clamp_pc.grow(3.0)): return false
+    if footprint.intersects(DustBin.RECT.grow(3.0)): return false
+    if hose_clamp > 0 and DustBin.hose_anchor().distance_to(candidate) > hose.segment*float(hose_clamp)*0.98: return false
+    clamp_position = candidate
+    clamp_blocked = false
+    return true
+
+
+func end_clamp_drag() -> void:
+    clamp_dragging = false
+    clamp_blocked = false

@@ -5,8 +5,8 @@
 # (stronger when closer); when pull reaches the grip the bundle comes loose and is sucked in.
 # A longer bundle has a stronger grip, so the nozzle has to be held on it for longer. Pull fades
 # away if the nozzle leaves. The brush never removes dust: it loosens bundles (lowers their grip),
-# tosses loosened bundles around inside their own part (they slide, spin, bounce off the part's
-# edges and settle somewhere else) and chips small specks off long chains. Only the vacuum removes dust.
+# tosses loosened bundles across the case (they slide, spin, catch under parts
+# or in the filter, and settle) and chips small specks off long chains. Only the vacuum removes dust.
 # v0.8.0 reduces density and speeds suction; regression timing runs this GDScript in Godot.
 extends RefCounted
 
@@ -40,7 +40,6 @@ const RAMP_DOWN: float = 0.15
 const PULL_RATE: float = 4.0          # faster trial suction; exact feel remains provisional
 const PULL_DECAY: float = 0.6         # pull lost per second when the nozzle is not close
 const LOOSE_SPEED: float = 520.0      # px per second toward the nozzle once a bundle is free
-const MAX_LOOSE_LIFE: float = 1.5     # a free bundle that never reaches the nozzle vanishes after this
 const STRETCH_MAX: float = 10.0       # how far a gripped bundle's free end stretches toward the nozzle
 
 # Brush
@@ -73,6 +72,10 @@ var count: int = 0
 var vac_ramp: float = 0.0
 
 # One entry per bundle (parallel arrays).
+var case_bounds := Rect2()
+var floor_zone: int = -1
+var motion_changed: bool = false
+var b_launch_zone := PackedInt32Array()
 var b_zone: PackedInt32Array = PackedInt32Array()
 var b_n: PackedInt32Array = PackedInt32Array()
 var b_state: PackedInt32Array = PackedInt32Array()
@@ -93,7 +96,7 @@ var b_remaining: PackedFloat64Array = PackedFloat64Array()
 var zone_weight: PackedFloat32Array = PackedFloat32Array()    # dust amount per zone (sum of nodes)
 var zone_removed: PackedFloat32Array = PackedFloat32Array()
 var zone_bundles: Array = []   # Array of Array[int]: bundle indices per zone
-# Where each part's dust area is now (moves with the part): tossed dust is kept inside it.
+# Current component surfaces; attached dirt follows a part, while dislodged dirt uses the case.
 var zone_center: PackedVector2Array = PackedVector2Array()
 var zone_angle: PackedFloat32Array = PackedFloat32Array()
 var zone_half: PackedVector2Array = PackedVector2Array()
@@ -113,6 +116,11 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
     rng.seed = seed_value
     _rng.seed = seed_value + 1
     kicked = PackedVector2Array()
+    brush_contacts.clear()
+    motion_changed = false
+    floor_zone = -1
+    case_bounds = Rect2()
+    b_launch_zone = PackedInt32Array()
     swallowed = 0.0
     b_spin = PackedFloat32Array()
     zone_center = PackedVector2Array()
@@ -143,6 +151,9 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
         var z: Dictionary = zones[zi]
         var area: Rect2 = z["rect"]
         area.position += origin
+        if str(z["id"]) == "case_interior":
+            floor_zone = zi
+            case_bounds = area
         zone_weight.append(0.0)
         zone_removed.append(0.0)
         zone_center.append(area.get_center())
@@ -168,6 +179,7 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
                 ang += rng.randf_range(-WIGGLE, WIGGLE)
             var idx: int = b_zone.size()
             b_zone.append(zi)
+            b_launch_zone.append(zi)
             b_n.append(n)
             b_remaining.append(float(n))
             b_state.append(STUCK)
@@ -186,6 +198,11 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
             zone_weight[zi] += float(n)
         zone_bundles.append(list)
     count = b_zone.size()
+    if not case_bounds.has_area():
+        for z: Dictionary in zones:
+            var area: Rect2 = z["rect"]
+            area.position += origin
+            case_bounds = case_bounds.merge(area) if case_bounds.has_area() else area
 
 
 # Put all the dust back exactly as it started.
@@ -199,8 +216,10 @@ func zone_count() -> int:
 
 # Share (0..1) of a zone's dust that has been removed.
 func removed_fraction(zone: int) -> float:
-    if zone < 0 or zone >= zone_weight.size() or zone_weight[zone] <= 0.0:
+    if zone < 0 or zone >= zone_weight.size():
         return 0.0
+    if zone_weight[zone] <= 0.00001:
+        return 1.0
     return clampf(zone_removed[zone] / zone_weight[zone], 0.0, 1.0)
 
 
@@ -276,6 +295,8 @@ func has_access(b: int, tool_pos: Vector2) -> bool:
     if is_hidden(b): return false
     var zone_id: String = str(_zones[b_zone[b]]["id"])
     var target: Vector2 = b_center[b]
+    if zone_id != "case_interior" and _on_surface(b_zone[b], tool_pos) and _on_surface(b_zone[b], target):
+        return true
     for blocker: Dictionary in blockers:
         if blocker["id"] == zone_id: continue # its own top surface is accessible
         var r: Rect2 = blocker["rect"]
@@ -326,7 +347,9 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
     else:
         vac_ramp = maxf(0.0, vac_ramp - delta / RAMP_DOWN)
     var brush_k: float = clampf(tool_vel.length() / BRUSH_SPEED_REF, 0.0, 1.0)
+    if brushing: brush_k = maxf(0.2, brush_k)   # light contact still loosens; fast strokes create tosses
     kicked.clear()
+    motion_changed = false
     # Bundles shed during this loop are appended after `count`, so they wait for the next step.
     var existing: int = count
     for b in range(existing):
@@ -336,9 +359,15 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
         if st == STUCK:
             _step_stuck(b, delta, tool_pos, tool_vel, vac_on, brushing, brush_k)
         elif st == TOSSED:
-            _step_tossed(b, delta)
+            # Vacuum can collect moving dust immediately, without waiting for it to settle.
+            if vac_on and has_access(b, tool_pos) and _nearest_dist(shown[b], tool_pos) < VAC_RADIUS:
+                b_state[b] = LOOSE
+                b_life[b] = 0.0
+                _step_loose(b, delta, tool_pos, true)
+            else:
+                _step_tossed(b, delta)
         else:
-            _step_loose(b, delta, tool_pos)
+            _step_loose(b, delta, tool_pos, vac_on)
 
 
 func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac_on: bool, brushing: bool, brush_k: float) -> void:
@@ -357,7 +386,7 @@ func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac
                 and _rng.randf() < SHED_RATE * brush_k * delta:
             _shed(b, tool_vel)
         if b_loosen[b] <= FLICK_AT and brush_k >= FLICK_MIN_K:
-            # Loosened enough: the stroke flicks the bundle across its part. It stays in the PC.
+            # Loosened enough: the stroke flicks the bundle through the PC.
             _toss(b, tool_vel)
             return
     if vac_on and dmin < VAC_RADIUS:
@@ -389,24 +418,28 @@ func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac
     shown[b] = out
 
 
-func _step_loose(b: int, delta: float, tool_pos: Vector2) -> void:
-    b_life[b] += delta
+func _step_loose(b: int, delta: float, tool_pos: Vector2, vac_on: bool) -> void:
     var nodes: PackedVector2Array = shown[b]
+    var reachable: bool = vac_on and has_access(b, tool_pos) and _nearest_dist(nodes, tool_pos) < VAC_RADIUS * 1.5
+    if not reachable:
+        # A stopped/blocked vacuum cannot remove dust remotely or erase it on a timer.
+        rest[b] = nodes.duplicate()
+        _toss(b, b_vel[b])
+        return
+    b_life[b] += delta
     var idx: int = _nearest_index(nodes, tool_pos)
-    var d: float = nodes[idx].distance_to(tool_pos)
-    if vac_ramp > 0.0:
-        var dir: Vector2 = (tool_pos - nodes[idx]).normalized()
-        b_vel[b] = b_vel[b].lerp(dir * LOOSE_SPEED, 1.0 - exp(-26.0 * delta))
-    else:
-        b_life[b] += delta * 2.0   # no suction: it drops away quickly
-    var move: Vector2 = b_vel[b] * delta
+    var distance: float = nodes[idx].distance_to(tool_pos)
+    b_vel[b] = b_vel[b].lerp((tool_pos - nodes[idx]).normalized() * LOOSE_SPEED, 1.0 - exp(-26.0 * delta))
+    var move: Vector2 = b_vel[b] * minf(delta, distance / maxf(b_vel[b].length(), 1.0))
+    var sum := Vector2.ZERO
     for i in range(nodes.size()):
         nodes[i] += move
+        sum += nodes[i]
     shown[b] = nodes
-    if d <= INTAKE_RADIUS:
+    b_center[b] = sum / float(nodes.size())
+    motion_changed = true
+    if _nearest_dist(nodes, tool_pos) <= INTAKE_RADIUS:
         swallowed += b_remaining[b]
-        _remove(b)
-    elif b_life[b] > MAX_LOOSE_LIFE:
         _remove(b)
 
 
@@ -427,6 +460,10 @@ func confine(zone: int, p: Vector2) -> Vector2:
 # The brush flicks a loosened bundle: it slides along the stroke, spinning a little.
 func _toss(b: int, tool_vel: Vector2) -> void:
     b_state[b] = TOSSED
+    b_launch_zone[b] = b_zone[b]
+    if floor_zone >= 0 and case_bounds.has_point(b_center[b]):
+        _move_zone(b, floor_zone)
+    motion_changed = true
     b_life[b] = 0.0
     b_pull[b] = 0.0
     b_stress[b] = 0.0
@@ -436,51 +473,104 @@ func _toss(b: int, tool_vel: Vector2) -> void:
     kicked.append(b_center[b])
 
 
+func _on_surface(zone: int, point: Vector2) -> bool:
+    var local: Vector2 = (point - zone_center[zone]).rotated(-zone_angle[zone])
+    return absf(local.x) <= zone_half[zone].x and absf(local.y) <= zone_half[zone].y
+
+
+# Move physical mass between areas. Moving dirt is not removal and cannot improve case totals.
+func _move_zone(b: int, target: int) -> void:
+    var old: int = b_zone[b]
+    if old == target or target < 0: return
+    var amount: float = b_remaining[b]
+    zone_weight[old] = maxf(zone_removed[old], zone_weight[old] - amount)
+    zone_weight[target] += amount
+    zone_bundles[old].erase(b)
+    zone_bundles[target].append(b)
+    b_zone[b] = target
+    b_grip[b] = (0.55 if b_n[b] == 1 else GRIP_BASE + GRIP_PER_NODE * b_n[b]) * float(_zones[target].get("grip_scale",1.0))
+    motion_changed = true
+
+
+func _segment_hits(rect: Rect2, start: Vector2, finish: Vector2) -> bool:
+    if rect.has_point(start) or rect.has_point(finish): return true
+    var corners: Array = [rect.position, Vector2(rect.end.x,rect.position.y), rect.end, Vector2(rect.position.x,rect.end.y)]
+    for i in range(4):
+        if Geometry2D.segment_intersects_segment(start,finish,corners[i],corners[(i+1)%4]) != null: return true
+    return false
+
+
+func _settle(b: int, target: int) -> void:
+    _move_zone(b,target)
+    rest[b] = (shown[b] as PackedVector2Array).duplicate()
+    b_state[b] = STUCK
+    b_vel[b] = Vector2.ZERO
+    b_spin[b] = 0.0
+    b_loosen[b] = TOSS_LOOSEN
+    b_pull[b] = 0.0
+
+
 func _step_tossed(b: int, delta: float) -> void:
     b_life[b] += delta
+    motion_changed = true
     var zone: int = b_zone[b]
     var nodes: PackedVector2Array = shown[b]
     var velocity: Vector2 = b_vel[b]
     var center: Vector2 = b_center[b]
-    var turn: float = b_spin[b] * delta
+    var bounds: Rect2 = case_bounds.grow(-ZONE_MARGIN)
+    # Dust still on an extracted part stays on its service tray; it cannot teleport into the PC.
+    var on_tray: bool = not case_bounds.has_point(center) and zone != floor_zone
+    var moved_center: Vector2 = center + velocity * delta
+    var target: int = -1
+    if not on_tray:
+        for blocker: Dictionary in blockers:
+            var rect: Rect2 = blocker["rect"]
+            var launch_id: String = str(_zones[b_launch_zone[b]]["id"])
+            if launch_id == str(blocker["id"]) and rect.has_point(center): continue
+            if _segment_hits(rect,center,moved_center):
+                target = _zone_index("under_" + str(blocker["id"]))
+                moved_center = moved_center.clamp(rect.position+Vector2.ONE*5.0,rect.end-Vector2.ONE*5.0)
+                break
+        if target < 0:
+            var filter: int = _zone_index("front_filter")
+            if filter >= 0:
+                var rect := Rect2(zone_center[filter]-zone_half[filter],zone_half[filter]*2.0)
+                if b_launch_zone[b] != filter and _segment_hits(rect,center,moved_center):
+                    target = filter
+                    moved_center = moved_center.clamp(rect.position+Vector2.ONE*2.0,rect.end-Vector2.ONE*2.0)
     var sum := Vector2.ZERO
-    var hit_x: bool = false
-    var hit_y: bool = false
-    var angle: float = zone_angle[zone]
-    var half: Vector2 = (zone_half[zone] - Vector2(ZONE_MARGIN, ZONE_MARGIN)).max(Vector2.ZERO)
-    var local_velocity: Vector2 = velocity.rotated(-angle)
+    var bounced: bool = false
     for i in range(nodes.size()):
-        var moved: Vector2 = center + (nodes[i] - center).rotated(turn) + velocity * delta
-        var local: Vector2 = (moved - zone_center[zone]).rotated(-angle)
-        if local.x > half.x and local_velocity.x > 0.0:
-            hit_x = true
-        elif local.x < -half.x and local_velocity.x < 0.0:
-            hit_x = true
-        if local.y > half.y and local_velocity.y > 0.0:
-            hit_y = true
-        elif local.y < -half.y and local_velocity.y < 0.0:
-            hit_y = true
-        var inside: Vector2 = confine(zone, moved)
+        var moved: Vector2 = moved_center + (nodes[i]-center).rotated(b_spin[b]*delta)
+        var inside: Vector2 = confine(zone,moved) if on_tray else moved.clamp(bounds.position,bounds.end)
+        if target >= 0: inside = confine(target,moved)
+        if not moved.is_equal_approx(inside): bounced = true
         nodes[i] = inside
         sum += inside
-    if hit_x:
-        local_velocity.x *= -0.5
-    if hit_y:
-        local_velocity.y *= -0.5
-    if hit_x or hit_y:
-        b_spin[b] *= -0.5
-    velocity = local_velocity.rotated(angle) * exp(-TOSS_FRICTION * delta)
-    b_vel[b] = velocity
-    b_spin[b] *= exp(-TOSS_FRICTION * delta)
     shown[b] = nodes
-    b_center[b] = sum / float(maxi(1, nodes.size()))
+    b_center[b] = sum / float(maxi(1,nodes.size()))
+    if target >= 0:
+        _settle(b,target)
+        return
+    if bounced: velocity *= -0.4
+    velocity *= exp(-TOSS_FRICTION*delta)
+    b_vel[b] = velocity
+    b_spin[b] *= exp(-TOSS_FRICTION*delta)
     if velocity.length() < TOSS_SETTLE_SPEED or b_life[b] > TOSS_MAX_TIME:
-        rest[b] = nodes.duplicate()
-        b_state[b] = STUCK
-        b_vel[b] = Vector2.ZERO
-        b_spin[b] = 0.0
-        b_loosen[b] = TOSS_LOOSEN
-        b_pull[b] = 0.0
+        target = zone if on_tray else floor_zone
+        if not on_tray:
+            for zi in range(_zones.size()):
+                if zi == floor_zone or _zones[zi].has("covered_by"): continue
+                if _on_surface(zi,b_center[b]):
+                    target = zi
+                    break
+        _settle(b,target if target >= 0 else zone)
+
+
+func _zone_index(id: String) -> int:
+    for zi in range(_zones.size()):
+        if str(_zones[zi]["id"]) == id: return zi
+    return -1
 
 
 # A touched chain chips its free end off as a separate speck. The weight moves with it, so the
@@ -508,6 +598,7 @@ func _shed(b: int, tool_vel: Vector2) -> void:
 func _spawn_speck(zone: int, point: Vector2, tool_vel: Vector2) -> void:
     var index: int = b_zone.size()
     b_zone.append(zone)
+    b_launch_zone.append(zone)
     b_n.append(1)
     b_remaining.append(1.0)
     b_state.append(TOSSED)
@@ -556,6 +647,7 @@ func transform_zone(zone_index: int, old_center: Vector2, new_center: Vector2, a
     zone_center[zone_index] = new_center + (zone_center[zone_index] - old_center).rotated(angle_delta)
     zone_angle[zone_index] += angle_delta
     for b in zone_bundles[zone_index]:
+        if b_state[b] == TOSSED: continue
         var r: PackedVector2Array = rest[b].duplicate()
         var s: PackedVector2Array = shown[b].duplicate()
         for i in range(r.size()): r[i] = new_center+(r[i]-old_center).rotated(angle_delta)
