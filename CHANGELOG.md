@@ -39,6 +39,41 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.19.1 - 2026-11-13 - Work plan and split of responsibilities
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.0 (main 82170d1)
+- Type: patch (documentation only; no game change)
+
+### Execution status
+No game code changed. GitHub Actions runs the checker and all Godot 4.7.2 suites on this branch; result below.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Added `docs/WORK_PLAN.md`: the user-approved code-health plan (17 steps in 5 phases, from Claude's code review and Codex's improvement list) and the split of responsibilities: Codex does design and gameplay features, Claude does engineering and code health. Hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) have one owner at a time; cross-review; handoff line in every "Next action".
+- Added `docs/CODEX_PROMPT_WORK_PLAN.md`, a prompt for the user to give Codex.
+- Changed: `AGENTS.md` rule 5, `HANDOFF.md` current update, `docs/ROADMAP.md` note, `DEVELOPMENT.md` file map.
+- Fixed: README install step still named the 0.18.0 ZIP.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/WORK_PLAN.md` | A | plan and split |
+| `docs/CODEX_PROMPT_WORK_PLAN.md` | A | prompt for Codex |
+| `AGENTS.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `README.md`, `docs/ROADMAP.md`, `CHANGELOG.md`, `project.godot` | M | rule, handoff, map, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Step order inside each phase and the "done when" criteria are Claude's proposals; the split and the plan as a whole were approved by the user.
+
+### Known issues and open items
+Codex has not yet confirmed the plan.
+
+### Next action
+Claude starts Phase 1 step 1 (shared test helper, workflow loop): touches `tools/` and the workflow only. Hot files are free for Codex until Phase 1 step 3 is announced.
+
 ## 0.19.0 - 2026-11-13 - Clear vacuum state, hose recovery and silent audio groundwork
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.18.0 (merged main 63a0dbc2a0dfa99940fd4d1aa34015cb492c6400)
