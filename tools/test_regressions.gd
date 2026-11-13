@@ -25,6 +25,8 @@ const Motes = preload("res://scripts/bench/dust_motes.gd")
 const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
+const HandState = preload("res://scripts/bench/hand_state.gd")
+const Ids = preload("res://scripts/data/ids.gd")
 
 func _initialize() -> void:
     call_deferred("run_checks")
@@ -195,6 +197,7 @@ func run_checks() -> void:
     test_hose_bin_motes()
     test_piece_physics(gs)
     test_hose_handling()
+    test_hand_machine(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
@@ -1170,3 +1173,63 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     bench._input(press)
     check(bench.tools.hose_grab > 0, "explicit hose pickup also works in move-parts mode")
     bench.free()
+
+
+# 0.19.7: the hand-state machine (docs/HAND_STATES.md). The rules themselves, then the bench refusing
+# the moves the table forbids, in situations that were physically possible before.
+func test_hand_machine(gs: Node) -> void:
+    check(HandState.allowed(HandState.FREE, HandState.USING_TOOL), "free hands may take a tool")
+    check(HandState.allowed(HandState.USING_TOOL, HandState.THROWING), "a held tool may be thrown")
+    check(HandState.allowed(HandState.MOUNTING, HandState.FREE), "letting go is always allowed")
+    check(not HandState.allowed(HandState.MOUNTING, HandState.USING_TOOL), "no tool may be taken mid-mount")
+    check(not HandState.allowed(HandState.CARRYING_HOSE, HandState.USING_TOOL), "no tool may be taken while carrying the hose")
+    check(not HandState.allowed(HandState.THROWING, HandState.USING_TOOL), "a throw cannot turn into a tool switch")
+    check(not HandState.allowed(HandState.DRAGGING_CLAMP, HandState.DRAGGING_PART), "the clamp and a part cannot be carried together")
+    for from: String in HandState.MOVES:
+        for to: String in HandState.MOVES[from]:
+            check(to in HandState.MOVES, "move target %s exists" % to)
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # Mid-mount, nothing can be taken into the hands.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(120): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    check(bench.hand_state() == HandState.MOUNTING, "mounting is its own hand state")
+    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center
+    click(bench, MOUSE_BUTTON_RIGHT, true, cloth_at)
+    check(not bench.tools.carrying and not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, a right-press cannot take or throw a tool")
+    click(bench, MOUSE_BUTTON_RIGHT, false, cloth_at)
+    var wiping_before: bool = bench.wiping
+    bench.wipe_button.button_pressed = not wiping_before
+    bench._on_wipe_toggled()
+    check(bench.wiping == wiping_before and not bench.tools.equipped, "mid-mount, the wipe toggle is refused and reverted")
+    bench._select_dispense()
+    check(not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, the syringe cannot be taken")
+    # A stage switch mid-mount behaves like pulling the lever.
+    bench._select_stage(0)
+    check(not bench.mount.active and not bench.mount_result.is_empty(), "a stage switch mid-mount secures the cooler as it lies")
+    check(bench.tools.equipped and bench.hand_state() == HandState.USING_TOOL, "after that switch the cleaning tool is in hand as usual")
+    # While carrying the hose, tools stay out of the hands.
+    bench.tools.park()
+    for frame in range(60): bench._physics_process(1.0/60.0)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "the parked hose can be grabbed")
+    check(bench.hand_state() == HandState.CARRYING_HOSE, "carrying the hose is its own hand state")
+    bench._select_tool(Dust.TOOL_BRUSH)
+    check(not bench.tools.equipped and bench.active_tool != Dust.TOOL_BRUSH, "keyboard tool switch is refused while carrying the hose")
+    var vacuum_at: Vector2 = bench.tools.motions[Ids.VACUUM].center
+    click(bench, MOUSE_BUTTON_LEFT, true, vacuum_at)
+    check(not bench.tools.equipped and bench.hand_state() == HandState.CARRYING_HOSE, "a left click on a resting tool is refused while carrying the hose")
+    click(bench, MOUSE_BUTTON_LEFT, false, vacuum_at)
+    bench.tools.release_hose(bench.tools.hose.pos[8])
+    check(bench.hand_state() == HandState.FREE, "letting go of the hose frees the hands")
+    bench._select_tool(Dust.TOOL_BRUSH)
+    check(bench.tools.equipped and bench.tools.selected == Ids.BRUSH, "with free hands the same switch works")
+    bench.scripted_pointer = null
+    bench.queue_free()

@@ -17,6 +17,7 @@ const DustSnapshot = preload("res://scripts/bench/dust_snapshot.gd")
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const HandState = preload("res://scripts/bench/hand_state.gd")
 const ServiceAccess = preload("res://scripts/bench/service_access.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
@@ -168,12 +169,15 @@ func _sound(id: String, context: Dictionary = {}) -> void:
     if not details.has("position"): details["position"] = tools.point
     if is_instance_valid(AudioFeedback): AudioFeedback.request(self,id,details)
 
-func _equip_tool(id: String, at: Vector2) -> void:
+func _equip_tool(id: String, at: Vector2) -> bool:
+    if not _may_enter(HandState.USING_TOOL):
+        return false
     var previous: String = tools.selected if tools.equipped else ""
     tools.select(id,at)
     if previous != id:
         if previous != "": _sound("handling.putdown",{"kind":previous})
         _sound("handling.pickup",{"kind":id})
+    return true
 
 func _park_tool() -> void:
     if tools.equipped: _sound("handling.putdown",{"kind":tools.selected})
@@ -321,6 +325,8 @@ func _select_stage(new_stage: int) -> void:
         access.dragging = ""
         _sync_part_geometry()
     AudioFeedback.stop_owner(self)
+    if mount.active:
+        _finish_mount()   # a stage switch releases everything (docs/HAND_STATES.md): the cooler is secured as it lies
     stage = new_stage
     clamp_button = 0
     holding = false
@@ -369,6 +375,7 @@ func _clean_hint() -> String:
 
 func _select_tool(new_tool: int) -> void:
     if is_instance_valid(replacement_panel) and replacement_panel.visible: return
+    if new_tool != Ids.SLOT_PARTS and not _may_enter(HandState.USING_TOOL): return
     if access.dragging != "": access.dragging = ""
     holding = false
     clamp_button = 0
@@ -402,6 +409,8 @@ func _on_mount_pressed() -> void:
         return
     if paste.total_deposited < 1.0:
         _set_status("Squeeze some paste onto the CPU first: hold the left mouse button over it.", 2)
+        return
+    if not _may_enter(HandState.MOUNTING):
         return
     _park_tool()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
     mount.start()
@@ -464,7 +473,8 @@ func _cloth_is_square() -> bool:
 
 
 func _select_dispense() -> void:
-    _equip_tool(Ids.SYRINGE,_pointer())
+    if not _equip_tool(Ids.SYRINGE,_pointer()):
+        return
     wiping = false
     holding = false
     wipe_button.set_pressed_no_signal(false)
@@ -473,6 +483,9 @@ func _select_dispense() -> void:
 
 
 func _on_wipe_toggled() -> void:
+    if not _may_enter(HandState.USING_TOOL):
+        wipe_button.set_pressed_no_signal(wiping)   # the toggle stays as it was; the hands are busy
+        return
     wiping = wipe_button.button_pressed
     _equip_tool(Ids.CLOTH if wiping else Ids.SYRINGE,_pointer())
     holding = false
@@ -505,14 +518,21 @@ func _on_back_pressed() -> void:
 # Which hand state the bench is in (docs/HAND_STATES.md). Step 5 of the work plan: read-only, derived
 # from today's flags in priority order; nothing acts on it yet. Step 6 will route input through it.
 func hand_state() -> String:
-    if is_instance_valid(replacement_panel) and replacement_panel.visible: return "PANEL_OPEN"
-    if mount.active: return "MOUNTING"
-    if tools.clamp_dragging: return "DRAGGING_CLAMP"
-    if tools.hose_grab >= 0: return "CARRYING_HOSE"
-    if access.dragging != "": return "DRAGGING_PART"
-    if tools.carrying: return "THROWING"
-    if tools.equipped: return "USING_TOOL"
-    return "FREE"
+    return HandState.derive({
+        "panel_open": is_instance_valid(replacement_panel) and replacement_panel.visible,
+        "mounting": mount.active,
+        "clamp_dragging": tools.clamp_dragging,
+        "hose_grabbed": tools.hose_grab >= 0,
+        "part_dragging": access.dragging != "",
+        "throwing": tools.carrying,
+        "equipped": tools.equipped,
+    })
+
+
+# May the hands enter `to` from where they are now? Asked before every act that takes something into
+# the hands; a refused act simply does not happen (the click falls through to nothing).
+func _may_enter(to: String) -> bool:
+    return HandState.allowed(hand_state(), to)
 
 
 func _pointer() -> Vector2:
@@ -553,7 +573,7 @@ func _input(event: InputEvent) -> void:
                 clamp_button = 0
                 holding = false
                 return
-            if mb.pressed and tools.hose_grab < 0 and tools.begin_clamp_drag(mb.position):
+            if mb.pressed and tools.hose_grab < 0 and _may_enter(HandState.DRAGGING_CLAMP) and tools.begin_clamp_drag(mb.position):
                 clamp_button = mb.button_index
                 clamp_press = mb.position
                 holding = false
@@ -580,7 +600,7 @@ func _input(event: InputEvent) -> void:
             if mb.pressed:
                 var candidate: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
                 var was_equipped: bool = tools.equipped
-                if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and tools.grab_hose(mb.position):
+                if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and _may_enter(HandState.CARRYING_HOSE) and tools.grab_hose(mb.position):
                     if was_equipped: _sound("handling.putdown",{"kind":tools.selected})
                     _sound("hose.grab")
                     holding = false
@@ -588,10 +608,15 @@ func _input(event: InputEvent) -> void:
                 if stage == STAGE_CLEAN and candidate in Ids.CLEAN_TOOLS:
                     _select_tool(Ids.TOOL_SLOT[candidate])
                 elif stage == STAGE_PASTE and candidate in Ids.PASTE_TOOLS:
-                    wiping = candidate == Ids.CLOTH
-                    wipe_button.set_pressed_no_signal(wiping)
-                    _equip_tool(candidate,mb.position)
-                if tools.equipped: tools.begin_throw(mb.position)
+                    if _equip_tool(candidate,mb.position):
+                        wiping = candidate == Ids.CLOTH
+                        wipe_button.set_pressed_no_signal(wiping)
+                if tools.equipped and _may_enter(HandState.THROWING):
+                    tools.begin_throw(mb.position)
+                elif tools.equipped:
+                    # Letting go is always allowed: where a throw is forbidden (mid-mount), the same
+                    # right-click sets the tool down gently instead of winding up (_park_tool plays the sound).
+                    _park_tool()
             else:
                 var was_carrying: bool = tools.carrying
                 tools.release_throw(event_velocity if Time.get_ticks_msec()-pointer_tick < 140 else Vector2.ZERO)
@@ -618,9 +643,9 @@ func _input(event: InputEvent) -> void:
                     if stage == STAGE_CLEAN and resting in Ids.CLEAN_TOOLS:
                         _select_tool(Ids.TOOL_SLOT[resting])
                     elif stage == STAGE_PASTE and resting in Ids.PASTE_TOOLS:
-                        wiping = resting == Ids.CLOTH
-                        wipe_button.set_pressed_no_signal(wiping)
-                        _equip_tool(resting,mb.position)
+                        if _equip_tool(resting,mb.position):
+                            wiping = resting == Ids.CLOTH
+                            wipe_button.set_pressed_no_signal(wiping)
                     # The pickup press is also the beginning of this tool stroke. Waiting for
                     # a second click made every freshly picked-up tool look broken.
                     holding = not mount.active
@@ -1106,6 +1131,8 @@ func _build_replacements() -> void:
     replacement_panel.hide()
 
 func _open_replacements() -> void:
+    if not _may_enter(HandState.PANEL_OPEN):
+        return
     holding = false
     access.dragging = ""
     _sync_part_geometry()
@@ -1188,6 +1215,8 @@ func _save_service_positions() -> void:
 
 
 func _begin_part_drag(point: Vector2) -> bool:
+    if not _may_enter(HandState.DRAGGING_PART):
+        return false
     var rects: Dictionary = _part_rects()
     for id: String in ServiceAccess.MOVABLE:
         var hit_rect: Rect2 = rects[id]
