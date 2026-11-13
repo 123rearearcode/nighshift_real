@@ -234,7 +234,7 @@ const PERF_FRAMES: int = 180
 
 
 func frame_time_table() -> void:
-    print("PLAYTEST FRAMES scene                  physics_avg_us  physics_worst_us  draw_avg_us  draw_worst_us  frames_drawn  dust_bundles")
+    print("PLAYTEST FRAMES scene                  physics_avg_us  physics_worst_us  draw_avg_us  draw_worst_us  frames_drawn  dust_bundles  state")
     view.set_physics_process(false)   # the table steps physics itself, once per frame, so it can time it
     for scene: String in ["idle bench", "brushing", "vacuum + moving hose", "paste flowing", "idle paste stage"]:
         await prepare_scene(scene)
@@ -258,8 +258,8 @@ func frame_time_table() -> void:
                 drawn += 1
                 draw_total += view.last_draw_usec
                 draw_worst = maxi(draw_worst, view.last_draw_usec)
-        print("PLAYTEST FRAMES %-22s %10d      %10d        %9d    %9d      %5d         %d" % [scene, physics_total / PERF_FRAMES,
-            physics_worst, draw_total / maxi(1, drawn), draw_worst, drawn, view.dust.count])
+        print("PLAYTEST FRAMES %-22s %10d      %10d        %9d    %9d      %5d         %-12d  %s" % [scene, physics_total / PERF_FRAMES,
+            physics_worst, draw_total / maxi(1, drawn), draw_worst, drawn, view.dust.count, scene_state(scene)])
     view.holding = false
     view.scripted_pressing = null
     view.set_physics_process(true)
@@ -268,6 +268,10 @@ func frame_time_table() -> void:
 func prepare_scene(scene: String) -> void:
     view.holding = false
     view.scripted_pressing = null
+    # Each scene starts from a clean slate: a mount left over from "paste flowing" (10 s long, measured
+    # for only 3 s) would otherwise keep the paste simulation running in the next, supposedly idle, scene.
+    if view.mount.active:
+        view._finish_mount()
     if scene.contains("paste"):
         view._select_stage(view.STAGE_PASTE)
         view._on_clear_pressed()
@@ -288,6 +292,19 @@ func prepare_scene(scene: String) -> void:
             view.holding = true
     await process_frame
     last_progress = waited
+
+
+# Is the bench in the state the scene claims, at the END of its measured frames? Printed in the table
+# so a contaminated measurement is visible (Codex's cross-review of 0.19.3 found one).
+func scene_state(scene: String) -> String:
+    var ok: bool
+    if scene.begins_with("idle"):
+        ok = not view.mount.active and not view.holding
+    elif scene == "paste flowing":
+        ok = view.mount.active
+    else:
+        ok = view.holding and not view.mount.active
+    return ("ok" if ok else "WRONG") + (" (mounting)" if view.mount.active else "") + (" (holding)" if view.holding else "")
 
 
 func drive_scene(scene: String, frame: int) -> void:
