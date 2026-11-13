@@ -40,6 +40,7 @@ const PASTE_ORIGIN: Vector2 = Layout.BENCH_SOCKET_ORIGIN
 const PASTE_CELL: int = Layout.BENCH_SOCKET_CELL
 const PANEL_X: float = Layout.PANEL_X
 const DEPOSIT_RATE: float = 60.0       # paste units per second while squeezing
+const KEEP_GRADE_ABOVE: float = 0.95   # a graded CPU keeps its result until wiping takes it below this share of the graded paste
 const WIPE_RADIUS_CELLS: float = 4.5   # reach of the cloth on the paste grid (a square cloth reaches 4.5 cells each way)
 const WIPE_STRENGTH: float = 0.12      # share of paste removed per tick at the cloth centre (a blob takes about 1 s)
 const PART_MASS: Dictionary = {Ids.COOLER: 2.0, Ids.GPU: 2.5}   # loose parts on the bench: heavier than tools, so tools bounce off them
@@ -328,7 +329,7 @@ func _select_stage(new_stage: int) -> void:
         _sync_part_geometry()
     AudioFeedback.stop_owner(self)
     if mount.active:
-        _finish_mount()   # a stage switch releases everything (docs/HAND_STATES.md): the cooler is secured as it lies
+        _cancel_mount()   # a stage switch releases everything; only the lever may secure and grade (D57)
     stage = new_stage
     clamp_button = 0
     holding = false
@@ -595,7 +596,7 @@ func _input(event: InputEvent) -> void:
             if tools.hose_clamp > 0:
                 _sound("clamp.lock")
                 _set_status("Hose parked in the clamp. Pick up a tool to keep working; click the clamp with empty hands to release.", 1)
-            elif tools.clamp_rect().has_point(mb.position):
+            elif tools.clamp_hit(mb.position):
                 _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
             holding = false
             return
@@ -694,11 +695,9 @@ func _input(event: InputEvent) -> void:
         if key.pressed and not key.echo:
             if stage == STAGE_CLEAN:
                 if key.keycode == KEY_1:
-                    _select_tool(DustSim.TOOL_VACUUM)
-                    (tool_buttons[0] as Button).button_pressed = true
+                    _select_tool(DustSim.TOOL_VACUUM)   # a refused switch leaves the highlight alone: _select_tool updates it only when it happens
                 elif key.keycode == KEY_2:
                     _select_tool(DustSim.TOOL_BRUSH)
-                    (tool_buttons[1] as Button).button_pressed = true
                 elif key.keycode == KEY_3:
                     _select_tool(2)
                 elif key.keycode == KEY_4:
@@ -909,7 +908,9 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
             # Tidying the paste that squeezed out BESIDE the CPU never costs the result; only wiping
             # the CPU itself does (0.20.0 fix: the user cleaned the overflow after pulling the lever
             # and lost the grade, so Complete repaste went dark).
-            if paste.last_wipe_on_cpu > 0.0 and (not mount_result.is_empty() or str(GameState.job["paste_grade"]) != ""):
+            var graded_units: float = float(GameState.job.get("paste_graded_units", 0.0))
+            if paste.last_wipe_on_cpu > 0.0 and graded_units > 0.0 and paste.total_deposited < graded_units * KEEP_GRADE_ABOVE \
+                    and (not mount_result.is_empty() or str(GameState.job["paste_grade"]) != ""):
                 mount_result = {}
                 live_stats = {"coverage": 0.0, "overflow": 0.0}
                 GameState.clear_paste()
@@ -948,6 +949,17 @@ func _step_mount(delta: float, mouse: Vector2) -> void:
         time_up_told = true
         _set_status("Time is up: the paste has set. Click the lever beside the socket to lock the cooler down.", 2)
 
+# Lift the cooler back off without grading (D57: nothing but the lever secures it). The paste keeps
+# whatever shape the pressing gave it; mounting can simply be started again.
+func _cancel_mount() -> void:
+    if not mount.active:
+        return
+    mount.cancel()
+    holding = false
+    time_up_told = false
+    _set_status("You lifted the cooler off again without locking it: no result. The paste stays as it was pressed; mount again when ready, and pull the lever to secure.", 2)
+
+
 func _finish_mount() -> void:
     if not mount.active:
         return
@@ -957,7 +969,7 @@ func _finish_mount() -> void:
     access.set_removed(Ids.COOLER, false)
     GameState.job["removed_parts"] = access.removed_ids()
     _sync_part_geometry()
-    GameState.set_paste(mount_result)
+    GameState.set_paste(mount_result, paste.total_deposited)
     paste_dirty = true
     var cov: float = mount_result["coverage"]
     var over: float = mount_result["overflow"]

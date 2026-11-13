@@ -176,3 +176,11 @@ D76 (confirmed): the game gets loose items (random finds such as coins inside a 
 D77 (confirmed, already built by Codex in 0.16.0): the menu screen shows the version number.
 D78 (bug-fix rule from the 0.19.7 playtest): wiping the paste that squeezed out BESIDE the CPU never clears a mounted result or a completed repaste; only wiping the CPU itself does. (The user tidied the overflow after pulling the lever and lost the ability to press Complete repaste.)
 
+## Power requirement, clamp and paste thresholds — 13 November 2026, trial 0.21.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's 0.20.x playtest.
+
+D79 (confirmed): graphics cards get a power level (name to be revisited) and a PC needs at least its required output: a dead GPU outputs 0, a replacement outputs its tier's power (similar 100, budget 65 — proposals), the trial job requires 60 (proposal), and the final check fails and says the numbers when output is short. The hardware bench remains the shop's own spare-parts bench (its status line now says so); the customer's parts are replaced from the repair bench. Connecting the customer's PC itself to the hardware bench is still open.
+D80 (confirmed): the hose clamp can be turned while carried (wheel or Q/E, like a tool); a turn that would push it into the PC, the bin or off the table is refused. Dropping the hose onto the clamp always clips: if the grabbed section cannot stay stretched there, the nearest section that reaches is clipped instead of refusing (0.20.0 refused, which read as "the hose does not attach").
+D81 (confirmed, amends D78): a graded CPU keeps its result until wiping takes the paste below 95% of what was there at grading; above that, touch-ups on the CPU are safe too. Wiping beside the CPU still never clears.
+D82 (restores D57, supersedes the 0.19.7 stage-switch behaviour): a stage switch mid-mount lifts the cooler off WITHOUT securing or grading (the paste keeps its pressed shape; mounting can be restarted). Nothing but the lever ever secures. Codex's cross-review flagged the violation; its pending-defect checks are promoted into the regression suite and the pending lane is empty.
+

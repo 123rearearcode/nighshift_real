@@ -42,9 +42,9 @@ button held in the work area, `holding`) is a property inside `USING_TOOL`, not 
 - `CARRYING_ITEM` → `FREE` (release: the item drops where it is, or into the trash can, which destroys
   it). Entered from `FREE` only: a hand holding a tool uses the tool; it does not pick small items up.
 - `DRAGGING_CLAMP` → `FREE` (release: the clamp parks on a valid spot).
-- `MOUNTING` → `FREE` (the lever is clicked; the result panel shows). Nothing else may interrupt a
-  mount; a stage switch mid-mount behaves like pulling the lever (the cooler is secured as it lies),
-  and leaving the bench must behave like releasing everything first. Letting go still works: a
+- `MOUNTING` → `FREE` (the lever is clicked; the result panel shows, or — on a stage switch — the
+  cooler lifts back off UNGRADED: only the lever secures, D57/D82). Leaving the bench must behave
+  like releasing everything first. Letting go still works: a
   right-click that would normally wind up a throw parks the tool gently instead (putting a tool down
   mid-mount is allowed; flinging it is not).
 - `PANEL_OPEN` → `FREE` (the panel closes; any drag or throw was already cancelled when it opened).

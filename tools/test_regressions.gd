@@ -196,6 +196,8 @@ func run_checks() -> void:
     test_hose_handling()
     test_hand_machine(gs)
     test_bench_0_20(gs)
+    test_promoted_contracts(gs)
+    test_0_21(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
@@ -1121,7 +1123,11 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     check(rig.hose_clamp == -1, "player can release the desk clamp")
     rig.hose_grab = 1
     rig.release_hose(ToolRig.CLAMP_POINT)
-    check(rig.hose_clamp == -1, "clamp cannot stretch a too-short bin-side section")
+    # 0.21.0 (D80): instead of refusing (which read as "the hose does not attach"), the nearest
+    # section that CAN stay stretched here is clipped; the short section itself is never stretched.
+    check(rig.hose_clamp > 1 and rig.hose.segment * float(rig.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(rig.clamp_position),
+        "a too-short bin-side drop clips the nearest reachable section instead")
+    rig.unclamp_hose()
     rig.hose_grab = 8
     rig.release_hose(Vector2(200,200))
     check(rig.hose_clamp == -1 and rig.hose_grab == -1, "ordinary drops release hose without auto-clamping")
@@ -1338,3 +1344,131 @@ func test_bench_0_20(gs: Node) -> void:
             found = true
     check(found, "the menu screen shows v%s" % gs.game_version())
     start.queue_free()
+
+
+# Promoted from Codex's pending-contracts lane (PR 25), fixed in 0.21.0.
+func test_promoted_contracts(gs: Node) -> void:
+    for stage: int in [1, 0]:
+        gs.new_game(false)
+        var bench: Node = load("res://scenes/bench.tscn").instantiate()
+        root.add_child(bench)
+        bench.set_physics_process(false)
+        bench._select_stage(1)
+        bench.paste.deposit(25, 25, 120.0)
+        var units: float = bench.paste.total_deposited
+        bench._on_mount_pressed()
+        check(bench.mount.active, "fixture starts a real mount")
+        bench._select_stage(stage)
+        check(not bench.mount.active and bench.mount_result.is_empty() and str(gs.job["paste_grade"]) == "",
+            "D57: a stage switch (to %d) lifts the cooler off without securing or grading" % stage)
+        check(bench.paste.total_deposited > units * 0.5, "the pressed paste survives the lifted-off cooler")
+        bench._select_stage(1)
+        bench._on_mount_pressed()
+        check(bench.mount.active, "mounting can simply be started again")
+        bench._finish_mount()
+        check(str(bench.mount_result.get("grade", "")) != "", "the lever still grades as before")
+        bench.free()
+    gs.new_game(false)
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_tool(0)
+    bench.tools.park()
+    for frame in range(30): bench.tools.step(1.0 / 60.0, Vector2(300, 300), false)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture holds hose before testing refused selection")
+    var key := InputEventKey.new()
+    key.keycode = KEY_2
+    key.pressed = true
+    bench._input(key)
+    var selection_matches: bool = true
+    for index in range(bench.tool_buttons.size()):
+        selection_matches = selection_matches and (bench.tool_buttons[index].button_pressed == (index == bench.active_tool))
+    check(selection_matches, "a refused tool switch leaves the real tool highlighted")
+    bench.free()
+
+
+# 0.21.0: rotatable clamp, hose always clips to a reachable section, 95% wipe threshold, GPU power.
+func test_0_21(gs: Node) -> void:
+    var rig := ToolRig.new()
+    check(rig.begin_clamp_drag(rig.clamp_position), "fixture grabs the clamp")
+    rig.rotate_held(1)
+    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "wheel/Q/E turns the carried clamp, not a tool")
+    var tip: Vector2 = rig.clamp_position + Vector2(rig.CLAMP_RECT.size.x * 0.5 - 2.0, 0).rotated(rig.clamp_angle)
+    check(rig.clamp_hit(tip), "the turned clamp is hit where it is drawn")
+    rig.end_clamp_drag()
+    check(not rig.clamp_dragging, "clamp parks turned")
+    rig.rotate_held(1)
+    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "a parked clamp does not turn")
+    var near_bin := ToolRig.new()
+    near_bin.hose_grab = 2   # a section too close to the bin to stay stretched at the clamp
+    near_bin.release_hose(near_bin.clamp_position)
+    check(near_bin.hose_clamp > 2 and near_bin.hose.segment * float(near_bin.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(near_bin.clamp_position),
+        "dropping a too-short section on the clamp clips the nearest section that reaches (got %d)" % near_bin.hose_clamp)
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_tool(0)
+    bench.tools.park()
+    for frame in range(60): bench._physics_process(1.0 / 60.0)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture grabs the hose")
+    click(bench, MOUSE_BUTTON_RIGHT, false, bench.tools.clamp_position)
+    check(bench.tools.hose_clamp > 0, "dropping the hose on the clamp clips it")
+    bench.tools.rewind_hose()
+    # Wiping a graded CPU: the result survives until the paste falls below 95% of its graded amount.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0 / 60.0)
+    bench.holding = true
+    for frame in range(130): bench._physics_process(1.0 / 60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    bench.scripted_pressing = true
+    for frame in range(170): bench._physics_process(1.0 / 60.0)
+    bench.scripted_pressing = null
+    click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
+    var graded: float = float(gs.job["paste_graded_units"])
+    check(str(bench.mount_result.get("grade", "")) in ["PERFECT", "GOOD ENOUGH"] and graded > 0.0, "grading records the paste on the CPU")
+    bench.wipe_button.button_pressed = true
+    bench.scripted_pointer = cpu_center
+    bench._on_wipe_toggled()
+    bench.holding = true
+    var frames_wiped: int = 0
+    while not bench.mount_result.is_empty() and frames_wiped < 600:
+        bench._physics_process(1.0 / 60.0)
+        frames_wiped += 1
+        if bench.paste.total_deposited >= graded * bench.KEEP_GRADE_ABOVE:
+            check(not bench.mount_result.is_empty(), "the grade survives while at least 95%% of the graded paste remains (%.0f of %.0f)" % [bench.paste.total_deposited, graded])
+            break
+    bench.holding = false
+    if not bench.mount_result.is_empty():
+        bench.holding = true
+        while not bench.mount_result.is_empty() and frames_wiped < 1200:
+            bench._physics_process(1.0 / 60.0)
+            frames_wiped += 1
+        bench.holding = false
+    check(bench.mount_result.is_empty() and bench.paste.total_deposited < graded * bench.KEEP_GRADE_ABOVE,
+        "wiping on until below 95%% clears the grade (%.0f of %.0f after %d frames)" % [bench.paste.total_deposited, graded, frames_wiped])
+    bench.scripted_pointer = null
+    bench.queue_free()
+    # GPU power (D79): a dead GPU outputs 0 and fails; a fitted replacement outputs its tier's power.
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    check(int(gs.job["required_power"]) == 60, "the trial job needs 60 graphics power")
+    gs.damage_service_part("gpu")
+    var dead: Dictionary = gs.run_final_check()
+    check(not dead["passed"] and str(dead["notes"]).contains("Graphics output is 0"), "a dead GPU outputs 0 and the check says so")
+    gs.job["removed_parts"].append("gpu")
+    check(gs.replace_service_part("gpu", "budget"), "a budget GPU can be fitted from stock")
+    var fitted: Dictionary = gs.run_final_check()
+    check(fitted["passed"] and not str(fitted["notes"]).contains("Graphics output is"), "a 65-power budget GPU meets this PC's 60 and the job passes")
+    gs.job["required_power"] = 100
+    var demanding: Dictionary = gs.run_final_check()
+    check(not demanding["passed"] and str(demanding["notes"]).contains("needs at least 100"), "a PC that needs 100 rejects the 65-power budget card")
+    gs.save_game()
+    gs.load_game()
+    check(int(gs.job["required_power"]) == 100, "the power requirement survives save and load")

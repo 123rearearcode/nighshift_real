@@ -36,6 +36,7 @@ var hose_obstacles: Array = []       # pieces on the bench the hose has to lie a
 var hose_grab: int = -1              # hose point the player is carrying with the right mouse button, or -1
 var hose_grab_point := Vector2.ZERO
 var clamp_position: Vector2 = CLAMP_POINT
+var clamp_angle: float = 0.0         # the clamp can be turned while carried (wheel / Q/E), like a tool
 var clamp_dragging: bool = false
 var clamp_blocked: bool = false
 var clamp_offset := Vector2.ZERO
@@ -120,6 +121,9 @@ func rotate_steps(steps: int) -> void:
 
 # Turn the held tool by `direction` (+1 clockwise, -1 anticlockwise). The working tip stays on the cursor.
 func rotate_held(direction: int) -> void:
+    if clamp_dragging:
+        rotate_clamp(direction)
+        return
     if not equipped or carrying: return
     turns[selected] = wrapf(float(turns[selected]) + direction * TURN_STEP, -PI, PI)
 
@@ -171,10 +175,17 @@ func grab_hose(point: Vector2) -> bool:
 
 # Drop a carried section into the visible clamp. Too-short sections remain free.
 func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
-    if hose_grab > 0 and clamp_rect().has_point(drop_point):
-        var reach: float = hose.segment * float(hose_grab) * 0.98
-        if DustBin.hose_anchor().distance_to(clamp_position) <= reach:
+    if hose_grab > 0 and clamp_hit(drop_point):
+        var needed: float = DustBin.hose_anchor().distance_to(clamp_position)
+        if hose.segment * float(hose_grab) * 0.98 >= needed:
             hose_clamp = hose_grab
+        else:
+            # The grabbed section sits too close to the bin to stay stretched here. Instead of
+            # refusing (0.20.0 did, and it read as "the hose does not attach"), clip the nearest
+            # section that does reach the clamp.
+            var index: int = ceili(needed / (hose.segment * 0.98))
+            if index > 0 and index < Hose.POINTS - HOSE_GRAB_KEEP:
+                hose_clamp = index
     hose_grab = -1
 
 
@@ -297,13 +308,27 @@ func park() -> void:
     active = false
 
 
+# Is `point` on the (possibly turned) clamp?
+func clamp_hit(point: Vector2) -> bool:
+    var local: Vector2 = (point - clamp_position).rotated(-clamp_angle)
+    var half: Vector2 = CLAMP_RECT.size * 0.5
+    return absf(local.x) <= half.x and absf(local.y) <= half.y
+
+
+# Half size of the axis-aligned box the turned clamp occupies (for keeping it on the table).
+func clamp_edge() -> Vector2:
+    var half: Vector2 = CLAMP_RECT.size * 0.5
+    return Vector2(absf(cos(clamp_angle)) * half.x + absf(sin(clamp_angle)) * half.y,
+        absf(sin(clamp_angle)) * half.x + absf(cos(clamp_angle)) * half.y)
+
+
 func clamp_rect() -> Rect2:
     return Rect2(clamp_position-CLAMP_RECT.size*0.5,CLAMP_RECT.size)
 
 
 # A desk fixture: no physics throws and its WHOLE footprint must stay outside the case.
 func begin_clamp_drag(point: Vector2) -> bool:
-    if not clamp_rect().has_point(point): return false
+    if not clamp_hit(point): return false
     if equipped: park()
     clamp_dragging = true
     clamp_blocked = false
@@ -313,15 +338,36 @@ func begin_clamp_drag(point: Vector2) -> bool:
 
 func move_clamp(point: Vector2) -> bool:
     clamp_blocked = true
-    var half: Vector2 = CLAMP_RECT.size*0.5
-    var candidate: Vector2 = (point-clamp_offset).clamp(TABLE.position+half,TABLE.end-half)
-    var footprint := Rect2(candidate-half,CLAMP_RECT.size)
-    if clamp_pc.has_area() and footprint.intersects(clamp_pc.grow(3.0)): return false
-    if footprint.intersects(DustBin.RECT.grow(3.0)): return false
-    if hose_clamp > 0 and DustBin.hose_anchor().distance_to(candidate) > hose.segment*float(hose_clamp)*0.98: return false
+    var edge: Vector2 = clamp_edge()
+    var candidate: Vector2 = (point-clamp_offset).clamp(TABLE.position+edge,TABLE.end-edge)
+    if not _clamp_spot_valid(candidate): return false
     clamp_position = candidate
     clamp_blocked = false
     return true
+
+
+func _clamp_spot_valid(candidate: Vector2) -> bool:
+    var edge: Vector2 = clamp_edge()
+    var footprint := Rect2(candidate-edge,edge*2.0)
+    if clamp_pc.has_area() and footprint.intersects(clamp_pc.grow(3.0)): return false
+    if footprint.intersects(DustBin.RECT.grow(3.0)): return false
+    if hose_clamp > 0 and DustBin.hose_anchor().distance_to(candidate) > hose.segment*float(hose_clamp)*0.98: return false
+    return true
+
+
+# Turn the carried clamp by one 15 degree step. A turn that would push it into the PC, the bin or
+# off the table is refused (the clamp stays as it was).
+func rotate_clamp(direction: int) -> void:
+    if not clamp_dragging: return
+    var previous_angle: float = clamp_angle
+    var previous_position: Vector2 = clamp_position
+    clamp_angle = wrapf(clamp_angle + float(direction) * TURN_STEP, -PI, PI)
+    var edge: Vector2 = clamp_edge()
+    # Turning near the table edge nudges the clamp inward rather than refusing the turn.
+    clamp_position = clamp_position.clamp(TABLE.position+edge,TABLE.end-edge)
+    if not _clamp_spot_valid(clamp_position):
+        clamp_angle = previous_angle
+        clamp_position = previous_position
 
 
 func end_clamp_drag() -> void:

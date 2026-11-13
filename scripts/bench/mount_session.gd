@@ -24,6 +24,12 @@ func start() -> void:
     time_left = MOUNT_TIME
 
 
+# Abandon the mount without grading: the cooler lifts back off (D57: only the lever secures it).
+func cancel() -> void:
+    active = false
+    time_left = 0.0
+
+
 func finish() -> void:
     active = false
     pressure = 0.0

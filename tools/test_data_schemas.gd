@@ -25,7 +25,7 @@ const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rec
 const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING, "grip_scale": TYPE_FLOAT}
 const MATERIAL_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "cost": TYPE_INT, "heat_penalty": TYPE_FLOAT,
     "yield_scale": TYPE_FLOAT, "mobility_scale": TYPE_FLOAT, "scam": TYPE_BOOL}
-const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT}
+const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT, "power": TYPE_INT}
 
 
 

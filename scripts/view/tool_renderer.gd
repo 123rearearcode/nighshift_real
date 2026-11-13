@@ -93,13 +93,16 @@ static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
 
 static func draw_clamp(canvas: CanvasItem, rig: RefCounted) -> void:
     var occupied: bool = rig.hose_clamp > 0
-    var hovered: bool = rig.clamp_rect().has_point(rig.point)
+    var hovered: bool = rig.clamp_hit(rig.point)
     var color := Color("76c7b0") if occupied else Color("92a2ad")
     if hovered: color = Color("f3ca7a")
     if rig.clamp_dragging and rig.clamp_blocked: color = Color("ed8d79")
-    canvas.draw_rect(rig.clamp_rect(), Color("1c2a33"))
-    canvas.draw_rect(rig.clamp_rect(), color, false, 2.0)
-    canvas.draw_arc(rig.clamp_position, 7.0, 0.0, PI, 12, color, 3.0, true)
-    canvas.draw_string(ThemeDB.fallback_font, rig.clamp_rect().position + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
+    var half: Vector2 = Rig.CLAMP_RECT.size * 0.5
+    canvas.draw_set_transform(rig.clamp_position, rig.clamp_angle)
+    canvas.draw_rect(Rect2(-half, half * 2.0), Color("1c2a33"))
+    canvas.draw_rect(Rect2(-half, half * 2.0), color, false, 2.0)
+    canvas.draw_arc(Vector2.ZERO, 7.0, 0.0, PI, 12, color, 3.0, true)
+    canvas.draw_string(ThemeDB.fallback_font, -half + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
     if occupied:
-        canvas.draw_circle(rig.clamp_position, 4.0, Color("d0e5e3"))
+        canvas.draw_circle(Vector2.ZERO, 4.0, Color("d0e5e3"))
+    canvas.draw_set_transform(Vector2.ZERO, 0.0)
