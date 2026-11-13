@@ -173,7 +173,7 @@ func run_checks() -> void:
     root.add_child(clean_bench)
     clean_bench.set_physics_process(false)
     check(clean_bench.dust.remaining_fraction() < 0.00001, "saved clean PC stays clean")
-    check(clean_bench.status_label.text.contains("Resumed saved PC"), "clean resume clearly explained")
+    check(clean_bench.status_label.text.contains("Cleanliness target met") and clean_bench.status_label.text.contains("0 real dust groups remain"), "clean resume clearly explained")
     clean_bench.free()
     pasted(gs)
     gs.job["removed_parts"] = ["gpu"]

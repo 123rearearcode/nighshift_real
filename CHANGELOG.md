@@ -82,7 +82,7 @@ Codex ran Godot 4.7.2.stable.official.ed1daf0bf headlessly. The original first-e
 | `docs/MINIGAME_RULES.md` | M | Dust flow, movable clamp, verification or reconciled handoff |
 
 ### Checks performed
-Godot 4.7.2: schema 182 checks, regression 461 checks, start-screen integration 10 checks, dedicated dust-flow/clamp integration 43 checks; zero failures (696 total). First-use suite exercises fresh, physical-save, legacy-save, New dirty PC and reset paths. Four headless scene startup smoke checks passed with isolated saves. Python project checker PASSED (41 scripts, 137 references, 64 mapped files, five core docs); git diff --check passed. Expected damaged-save recovery warnings occur in dedicated fixtures. No graphical/human acceptance is claimed.
+Godot 4.7.2: schema 182 checks, regression 461 checks, start-screen integration 10 checks, dedicated dust-flow/clamp integration 43 checks; zero failures (696 total). First-use suite exercises fresh, physical-save, legacy-save, New dirty PC and reset paths. Four headless scene startup smoke checks passed with isolated saves. Python project checker PASSED (41 scripts, 137 references, 64 mapped files, five core docs); git diff --check passed. Expected damaged-save recovery warnings occur in dedicated fixtures. An initial CI/clean-package regression caught the old clean-resume wording assertion after the status text changed; the assertion now checks the truthful threshold/remaining-dirt explanation. No graphical/human acceptance is claimed.
 
 ### Decisions proposed (not approved)
 Light-contact rate, scattering speeds, grip/settling/capture tuning and 95% quality tolerance remain playtest values. No fan-driven transport or new scam consequences are approved by this implementation.
