@@ -91,6 +91,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Unapproved shared PC/individual-part design, ownership/fit rules, work-order boundaries and acceptance examples |
+| `docs/PC_MODEL_PROPOSAL.md` | docs | Proposed shared PC/part records, owners/locations, save contents and legacy single-job migration; no code contract yet |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |

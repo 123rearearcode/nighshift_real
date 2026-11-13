@@ -37,7 +37,36 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
-(nothing yet)
+### Codex parallel design proposal — shared PCs, parts and migration
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: main 0.19.3. User reserves all game-code edits and the three hot files to Claude during Phase 1 step 3.
+- Type: documentation proposal, complete for review; no game/save change. Integrator assigns a new patch version at merge under DEVELOPMENT.md's parallel-contributor rule, avoiding a collision with Claude's next release.
+
+### Execution status
+No Godot execution for these documentation changes. No runtime change, implemented migration or new gameplay verification is claimed. Reviewed current format-1 save fields and the actual stock/sandbox/service split to design migration boundaries.
+
+### Added / Changed / Fixed / Removed
+Completed the player-facing proposal and added canonical docs/PC_MODEL_PROPOSAL.md for shared records, independent ownership/location, repair/inventory/build/sale views, save contents, candidate validation and migration from the actual single-job trial. Legacy sandbox stock is explicitly separate from customer repair hardware; missing promises/specifications remain unknown; old completed paste/payment state is preserved without inventing physical residue or paying again. All new rules remain proposals. WORK_PLAN.md and all game code remain unchanged against main 0.19.3.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | A | Completed gameplay/fit proposal, open choices and companion reference; added by this PR, revised from draft |
+| `docs/PC_MODEL_PROPOSAL.md` | A | Canonical proposed PC/part/ownership/save model, migration map and open questions |
+| `DEVELOPMENT.md` | M | Register both design documents |
+| `CHANGELOG.md` | M | Signed Unreleased parallel proposal record |
+
+### Checks performed
+python3 -I tools/check_project.py PASSED: 47 scripts, 163 resource references, 75 mapped files and five core docs. git diff --check passed. Scope validation against main 0.19.3 confirms only four Markdown files change; no hot files, game code, test tools, WORK_PLAN.md or release metadata differ. No Godot run for docs-only work.
+
+### Decisions proposed (not approved)
+Copy-specific condition; connector/body clearance and allowed overlaps; commitment-based replacement ownership; recoverable transfers; board dependencies; persistent physical paste; bin/hose persistence; legacy sandbox isolation and unknown legacy terms. No confirmed decision changes and no prescribed GDScript classes/APIs.
+
+### Known issues and open items
+User design approval and Claude cross-review precede integration/implementation. At integration, assign the next available patch version, archive the then-current baseline, update release metadata and rerun checks. Step-3 constants PR needs cross-review of value equivalence and deterministic playtest tables versus 0.19.3; no merge is authorised to Codex.
+
+### Next action
+User reviews both proposals; Claude cross-reviews PR #19 and continues Phase 1 step 3. Hot files bench_view.gd, tool_rig.gd and game_state.gd are reserved to Claude; no game-code edits by Codex until Claude's step-3 PR is merged.
 
 ## 0.19.3 - 2026-11-13 - Frame-time measurement in the scripted playtest
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
