@@ -37,7 +37,36 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
-(nothing yet)
+### Codex parallel design draft — shared PC and owned-part model
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: main 0.19.2; Claude is working on Phase 1 step 2.
+- Type: documentation proposal; no game/save change. Integrator assigns a new patch version at merge under DEVELOPMENT.md's parallel-contributor rule. This draft does not reserve Claude's next version number.
+
+### Execution status
+No Godot execution for this documentation-only draft. No implemented gameplay or new runtime verification is claimed.
+
+### Added / Changed / Fixed / Removed
+Added a proposal for physical-copy identity, catalogue separation, customer ownership, nested PC storage/fit, dirt/paste interfaces, visible work agreements and staged shared-model implementation. All new rules remain proposals for user approval; existing decisions are cited. No catalogue, hand-state, save or bench implementation is added. WORK_PLAN.md and all hot files remain unchanged.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | A | Proposed design, five user decisions and later test acceptance examples |
+| `DEVELOPMENT.md` | M | Register the proposal in the file map |
+| `CHANGELOG.md` | M | Signed parallel draft record; no numbered release yet |
+
+### Checks performed
+python3 -I tools/check_project.py PASSED on the documentation draft: 47 scripts, 163 resource references, 74 mapped files and the five required core docs. git diff --check passed. Scope check confirms only the new proposal, its file-map entry and this Unreleased note change; no hot files, game code, WORK_PLAN.md or runtime version changed.
+
+### Decisions proposed (not approved)
+Copy-specific condition/new-used distinction; connector/body/height/reserved-space rules; transfer/ownership commitment; invalid-drop recovery; dependency-first board removal; per-surface dirt and CPU/cooler interface identity. Exact economy timing, format and engineering APIs remain open.
+
+### Known issues and open items
+User approval and Claude cross-review are required before integration/implementation. Coordinate the three documentation files with Claude's branch; assign a fresh patch version, archive the current baseline and update release metadata at integration. No changes to the approved work plan.
+
+### Next action
+User reviews five design choices; Claude cross-reviews this draft and continues Phase 1 step 2. Hot files bench_view.gd, tool_rig.gd and game_state.gd are unclaimed by Codex and free per main 0.19.2, subject to Claude's step-3/Phase-2/4 reservation.
+
 
 ## 0.19.2 - 2026-11-13 - Shared test helper and one-loop test workflow
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
