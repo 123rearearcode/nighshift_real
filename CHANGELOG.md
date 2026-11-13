@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 GitHub Actions ran the checker, all suites and the scripted playtest on Godot 4.7.2 headless; results below, including a comparison of the playtest tables with 0.19.3.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43488415071, branch feature/constants): checker passed; suites unchanged (data schema 182, regression 461, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures). All 293 scripted-playtest rows (brush, vacuum, reach, click and paste tables) are identical to 0.19.3 (run 43486404945), compared line by line; only the frame-time rows, which are timings, differ.
 
 ### Added / Changed / Fixed / Removed
 - Added `scripts/data/layout.gd`: every fixed screen position that was typed in more than one place or is a physical work area (bench table, PC area, tray, bin, clamp, socket, lever, side panel; shop, hardware-bench and start-screen cards; the window). Values unchanged.
