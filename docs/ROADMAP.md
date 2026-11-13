@@ -135,3 +135,7 @@ Written by Claude (Opus 5.5, model id claude-opus-5-5). The project lives in the
 3. Decide the dust minigame's extra purpose (D55).
 4. Finish the bench part: whatever the user still finds missing, then queued items (fans moving dust, DESIGN_PROPOSALS.md section 5).
 5. Only then expand scams into systems (discovery, consequences), followed by the shared persistent-PC and shop-cycle milestones above.
+
+## Code-health plan and work split (13 November 2026)
+Added by Claude (Opus 5.5, model id claude-opus-5-5). The user approved `docs/WORK_PLAN.md`: Codex owns design and gameplay features, Claude owns engineering and code health (tests/CI, measurement, constants, a hand-state machine for bench input, save gaps, the `bench_view.gd` split, a typed job, later exported-build checks). Gameplay milestones above keep their order; plan steps run alongside them under the plan's hot-file rules.
+
