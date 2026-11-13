@@ -81,6 +81,7 @@ var turn_travel: float = 0.0
 var bin_notified: bool = false
 var scripted_pressing: Variant = null # tools/playtest_bench.gd: pressing the cooler during mounting
 var scripted_pointer: Variant = null  # tools/playtest_bench.gd sets this to drive the bench without a real mouse
+var last_draw_usec: int = 0           # how long the last redraw took (CPU side, microseconds); read by tools/playtest_bench.gd
 var paste: PasteSim = PasteSim.new()
 var paste_image: Image
 var paste_texture: ImageTexture
@@ -907,7 +908,14 @@ func _text(pos: Vector2, text: String, size: int = 16, color: Color = COLOR_TEXT
 func _bar(rect: Rect2, fraction: float, color: Color, mark: float = -1.0) -> void:
     UiStyle.bar(self, rect, fraction, color, mark)
 
+# Redraw, timed: the frame-time table in tools/playtest_bench.gd reads last_draw_usec. Costs two clock reads.
 func _draw() -> void:
+    var started: int = Time.get_ticks_usec()
+    _draw_scene()
+    last_draw_usec = Time.get_ticks_usec() - started
+
+
+func _draw_scene() -> void:
     draw_rect(Rect2(0, 0, 1280, 720), COLOR_BG)
     if stage == STAGE_CLEAN:
         _draw_pc()

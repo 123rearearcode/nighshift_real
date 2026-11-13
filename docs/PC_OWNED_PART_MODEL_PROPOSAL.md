@@ -1,12 +1,12 @@
 # Proposal: one shared PC and owned-part model
 
-Revision 1 · 13 November 2026 · based on main 0.19.2
+Revision 2 · 13 November 2026 · reviewed against main 0.19.3
 
 Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 
 **Status: design proposal for user approval. No mechanics, save format or game code changed.**
-Prepared alongside Claude's Phase 1 step 2. Claude retains engineering ownership under WORK_PLAN.md.
-This document recommends gameplay behaviour and acceptance examples; Claude chooses implementation
+Completed for user review while Claude owns Phase 1 step 3. Claude retains engineering ownership under WORK_PLAN.md.
+The save/record/migration companion is [PC_MODEL_PROPOSAL.md](PC_MODEL_PROPOSAL.md), the canonical proposal for those boundaries. This document focuses on player-facing behaviour, grid fit and acceptance examples. Claude chooses implementation
 classes, file boundaries, validation and migrations. Do not treat this proposal as permission to build.
 
 ## 1. What this should make possible
@@ -76,7 +76,7 @@ action until actual case/board replacement is implemented; it must not become a 
 | Action | Physical result | Ownership result |
 | --- | --- | --- |
 | Remove a customer's RAM | Same RAM moves to a tray/storage | Still the customer's |
-| Fit player stock as an agreed replacement | That copy leaves available stock and enters the PC | Transfers to the customer when the agreed fitting transaction is committed; precise payment timing still needs agreement |
+| Commit player stock as an agreed replacement | That copy leaves available stock and enters the PC | Proposed transfer at explicit replacement commitment; test-fitting alone keeps shop ownership. Payment timing still needs agreement |
 | Remove a failed replacement later | Same copy returns to a tray | Its current ownership remains; removal does not refund or grant ownership |
 | Customer sells a PC | Actual PC and included parts change hands | Transfers by the agreed purchase, not by moving it behind the counter |
 | Return an original part | Same item is handed back with the job | Customer ownership is preserved |
@@ -212,6 +212,8 @@ separate systems; no new formulas, timers or refund rules are selected here.
 | Empty-case build | Assemble one supported build from owned stock and run existing checks where applicable | Approved case/board fitting rules and required-parts list |
 | Sales and comebacks | Transfer/archive the actual assembly and delivered claim | Approved transaction and consequence design |
 
+For record relationships, save contents, exact legacy gaps and migration policy, see PC_MODEL_PROPOSAL.md.
+
 Step 15's typed job should reference a PC identity and leave room for agreement, claim and archived delivery,
 without assuming that a job itself owns the only hardware in the world. Engineering class/file/API choices
 remain Claude's. Work plan step 16 remains the shared model implementation; this proposal does not reorder
@@ -251,7 +253,9 @@ for a sellable build, repair procedures for boards and future sockets/catalogue 
 
 ## Handoff
 
-Claude goes next on Phase 1 step 2. No hot file is claimed by this draft. As of main 0.19.2, bench_view.gd,
-tool_rig.gd and game_state.gd are free according to the changelog, subject to Claude announcing step 3 or
-Phases 2/4. Re-read the live plan and newest changelog before any implementation. User approval and Claude's
-cross-review precede integration; version is assigned by the integrating contributor for this parallel draft.
+This proposal is complete for user review, not approved for implementation. Claude continues Phase 1
+step 3. bench_view.gd, tool_rig.gd and game_state.gd are reserved to Claude; Codex makes no game-code
+changes until that PR is merged. The companion PC_MODEL_PROPOSAL.md covers records/saves/migration.
+Re-read the live plan and newest changelog before implementation. Claude cross-reviews this docs-only PR;
+the user decides the design. No merge is authorised for Codex. An integrating contributor assigns the
+next available patch version at integration under the parallel-work rule; no game version is reserved here.

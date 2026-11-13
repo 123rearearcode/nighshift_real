@@ -92,6 +92,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Unapproved shared PC/individual-part design, ownership/fit rules, work-order boundaries and acceptance examples |
+| `docs/PC_MODEL_PROPOSAL.md` | docs | Proposed shared PC/part records, owners/locations, save contents and legacy single-job migration; no code contract yet |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
@@ -119,7 +120,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/pc_layout.gd` | data | Shared cell-based case/board model profiles and uniform display fitting |
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
-| `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build |
+| `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build; also a frame-time table (physics tick and redraw, average and worst) |
 | `tools/test_support.gd` | tooling | Shared base for the test suites: check(), disposable save path, click(), finish() summary line; each suite extends it |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
 | `tools/test_bench_feedback.gd` | tooling | Real trapped-tail extraction, clamp gestures/UI exclusion, corner hose reach and mount put-down checks |
