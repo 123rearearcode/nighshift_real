@@ -101,6 +101,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/DECISIONS.md` | docs | Reconciled core project document version 1.13 |
 | `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.13 |
 | `DEVELOPMENT.md` | docs | This guide |
+| `docs/TESTING.md` | docs | Required vs diagnostic checks, retained coverage and temporary known-defect lane |
+| `tools/ci_scope.py` | tooling | Conservative Git-diff selection of runtime and full diagnostics |
+| `tools/test_ci_scope.py` | tooling | Temporary-repository tests for documentation, metadata, runtime, rename and manual-run boundaries |
+| `tools/test_pending_contracts.gd` | tooling | Visible non-blocking reproduction of lever bypass and refused-selection highlight defects |
 | `default_bus_layout.tres` | config | Six native mixer buses; currently silent |
 | `scripts/data/audio_cues.gd` | data | Cue identifiers, routing and loop/cooldown metadata |
 | `scripts/audio/audio_feedback.gd` | feedback | Silent owner-scoped events and loop lifecycle |
@@ -362,3 +366,7 @@ AudioFeedback is a presentation service depending only on AudioCues data. Views 
 DustSim.last_brush_contacts resets each step and counts actual contacts, enabling truthful brushing feedback. Bench loop activity is rebuilt per physics step; vacuum motor requires active tool and bin capacity, particle layer carries load, paste/cloth require CPU contact, fans carry RPM. View button and physical handling hooks cover other screens. Persistent vacuum_status derives from actual DustBin.fill independently of transient tool status; empty action is disabled only for an empty bin.
 
 HoseSim._untangle reverses intersecting link subsequences with reset history, preserving endpoints and restoring pin identity. A rare pinned fold is reseeded into outward arcs around the fixed pin, projected outside obstacles and untangled again. ToolRig reserves segment*pin length for the bin side of a pinned hose. self_crossings() supports deterministic rapid-movement regression. This is a pragmatic tabletop recovery, not a 3D knot solver. Human judgement of sudden recovery movement remains needed.
+
+## 0.20.1 test policy
+
+See docs/TESTING.md. Pure Markdown plus version-only metadata runs hygiene and scope tests; other changes retain all seven required Godot suites. Bench/data/geometry or playtest-driver edits retain the full matrix; other runtime edits use --smoke. The pending-contract report is deliberately non-blocking while the existing D57/highlight bugs await Claude; promote it after fixes. No production contract or save format changes.
