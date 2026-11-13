@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** Diagnosed from the user's screen recording (the detached hose end is visible, pinned short at the clamp while the vacuum rests 150 px away). GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43517063316, branch feature/0.22.0): checker passed; all suites green (data schema 182, regression 506, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures; pending defects 0). Two earlier runs failed and taught something: the first hard-attachment attempt broke Codex`s zero-self-crossing hose replays (the simulation now stays untouched and the renderer bridges the end instead), and the reel-in tidiness check needed settle frames.
 
 ### Added / Changed / Fixed / Removed
 - Fixed (D83), two halves: `_apply_hose_tug` now understands a pinned hose: past a clip or a gripping hand only the REMAINING segments count, so a hose clipped near its nozzle drags the vacuum onto a short leash instead of letting the end dangle 150 px away (the video's case); the length correction is capped at 24 px per step (no teleports). And the DRAWN hose always ends on the vacuum: the few pixels the simulation lags are bridged in the renderer. (A first attempt made the attachment a hard constraint in the simulation; Codex's zero-self-crossing replay tests caught it tangling the hose, so the simulation keeps its untangling behaviour untouched.)
