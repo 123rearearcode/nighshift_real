@@ -83,6 +83,8 @@ func _make_job() -> Dictionary:
         "paste_coverage": 0.0,
         "paste_overflow": 0.0,
         "paste_done": false,      # the player pressed Complete repaste on a good result
+        "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
+        "required_power": 60,     # the PC must output at least this much graphics power (D79; will be renamed)
         "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
@@ -242,10 +244,11 @@ func buy_upgrade(upgrade_id: String) -> bool:
 
 
 # A finished mount: the result is recorded, but the repaste only counts once completed.
-func set_paste(result: Dictionary) -> void:
+func set_paste(result: Dictionary, cpu_units: float = 0.0) -> void:
     job["paste_grade"] = result["grade"]
     job["paste_coverage"] = result["coverage"]
     job["paste_overflow"] = result["overflow"]
+    job["paste_graded_units"] = cpu_units   # gauge units on the CPU at grading; the grade survives light wiping above 95% of this
     job["paste_done"] = false
     save_game()
 
@@ -254,6 +257,7 @@ func clear_paste() -> void:
     job["paste_grade"] = ""
     job["paste_coverage"] = 0.0
     job["paste_overflow"] = 0.0
+    job["paste_graded_units"] = 0.0
     job["paste_done"] = false
     job["scams"].erase("toothpaste")
     save_game()
@@ -314,6 +318,15 @@ func run_final_check() -> Dictionary:
         if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
             temp += float(under["heat_penalty"])
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
+    # Graphics power (D79): a dead GPU outputs 0; a replacement outputs its tier's power.
+    var required_power: int = int(job.get("required_power", 60))
+    var gpu_power: int = 100
+    if Ids.GPU in job["broken_parts"]:
+        gpu_power = 0
+    elif job["service_replacements"].has(Ids.GPU):
+        gpu_power = int(ServiceParts.option(Ids.GPU, str(job["service_replacements"][Ids.GPU])).get("power", 100))
+    if gpu_power < required_power:
+        notes.append("Graphics output is %d; this PC needs at least %d. Fit a working graphics card." % [gpu_power, required_power])
     var removed_parts: Array = job.get("removed_parts", [])
     if not removed_parts.is_empty(): notes.append("Refit removed components before testing: " + ", ".join(removed_parts))
     var broken: Array = job["broken_parts"]
@@ -323,7 +336,7 @@ func run_final_check() -> Dictionary:
         temp += float(replacement["heat_penalty"])
         if replacement["performance"] < 100:
             notes.append("Downgrade: %s is %d%% of the original specification%s. Customer consequences are not simulated yet." % [id, replacement["performance"], " (+8 C)" if id == "cooler" else ""])
-    var passed: bool = temp < PASS_TEMP and dirty_parts.is_empty() and removed_parts.is_empty() and broken.is_empty()
+    var passed: bool = temp < PASS_TEMP and dirty_parts.is_empty() and removed_parts.is_empty() and broken.is_empty() and gpu_power >= required_power
     if dirty_parts.is_empty() == false and temp < PASS_TEMP:
         notes.append("Every part must be cleaned before the job counts as done.")
     var already_done: bool = job["state"] == "done"
@@ -421,6 +434,8 @@ func load_game() -> bool:
     if typeof(saved) == TYPE_DICTIONARY and not (saved as Dictionary).has("paste_done"):
         job["paste_done"] = str(job["paste_grade"]) != ""
     job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
+    job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
+    job["required_power"] = maxi(0, int(job.get("required_power", 60)))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
     if job["scams"] is Array:

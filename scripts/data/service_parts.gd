@@ -9,6 +9,7 @@ static func option(part_id: String, tier: String) -> Dictionary:
     return {"label": ("Budget " if budget else "Equivalent ") + ("cooler" if part_id == Ids.COOLER else "GPU"),
         "cost": (7 if budget else 16) if part_id == Ids.COOLER else (18 if budget else 40),
         "performance": 65 if budget else 100,
+        "power": 65 if budget else 100,   # graphics (or cooling) output; a job needs gpu power >= its required_power (D79)
         "heat_penalty": 8.0 if budget and part_id == Ids.COOLER else 0.0}
 
 

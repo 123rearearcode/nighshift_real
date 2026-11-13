@@ -95,7 +95,7 @@ func _configure_layout() -> void:
     BOARD_ORIGIN = PCLayout.board_rect(pc,geometry).position
     inventory.setup(board, int(pc["depth"]), GameState.inventory_layout, GameState.inventory_components())
     _reset_motion()
-    _set_status("Arrange parts anywhere that fits in the drawer. Slots matter only when installing.")
+    _set_status("Your spare-parts bench: the shop's own stock, not the customer's PC. Replace a customer's broken part from the repair bench (Replacement stock). Arrange parts anywhere that fits in the drawer; slots matter only when installing.")
 
 func _change_profile(id: String) -> void:
     _settle_all_throws()

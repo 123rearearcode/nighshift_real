@@ -39,6 +39,48 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.21.0 - 2026-11-13 - GPU power requirement, rotatable clamp, hose always clips, 95% grade threshold, D57 restored
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.20.1 (Codex's test cleanup, merged after cross-review)
+- Type: minor (new requirement mechanic and job fields). Hot files edited by Claude (Phase 2 owner).
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Added (D79): graphics power. `ServiceParts.option` gains `power` (similar 100, budget 65); the job gains `required_power` (trial: 60) with save migration; the final check reports "Graphics output is X; this PC needs at least Y" and fails when short (a broken GPU outputs 0). This is the first cut of the user's "PC needs to output at least as much" rule; naming is provisional. The hardware bench's status line now says it is the shop's own spare-parts bench and points to Replacement stock on the repair bench for the customer's parts (the user tried to fix the customer's GPU there; connecting the customer's PC to the hardware bench is open).
+- Added (D80): the clamp turns while carried (wheel/Q/E route to it; a blocked turn is refused). Oriented hit box and drawing; `clamp_angle`, `clamp_hit`, `rotate_clamp`.
+- Fixed (D80): dropping the hose on the clamp could refuse ("did not attach") when the grabbed section could not stay stretched there; now the nearest section that reaches is clipped instead.
+- Changed (D81): wiping a graded CPU clears the result only below 95% of the graded paste (`job.paste_graded_units`, set at the lever; `KEEP_GRADE_ABOVE`). Tidying beside the CPU still never clears (0.20.0 rule).
+- Changed (D82, restores D57): a stage switch mid-mount lifts the cooler off ungraded (`MountSession.cancel`, `_cancel_mount`) instead of securing it as it lies. Codex's cross-review was right that 0.19.7 violated D57.
+- Fixed: a refused tool switch (e.g. while carrying the hose) no longer highlights the refused button (the keyboard handler left the radio on the wrong tool; Codex's pending-contract check caught it).
+- Tests: Codex's three pending-contract checks promoted into the regression suite (now passing, stronger: remount after lift-off works, paste survives); the pending lane is an empty stub for future known defects. New checks: clamp turning/hit/park, near-bin hose drop clips a reachable section, bench-level clamp clip, grade kept at >= 95% and cleared below, dead GPU fails with the numbers, budget GPU passes 60 and fails 100, requirement survives save/load, schema covers `power`.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/game_state.gd` | M | power requirement, graded units, migrations |
+| `scripts/bench/tool_rig.gd`, `scripts/view/tool_renderer.gd` | M | rotatable clamp, hose clip fallback |
+| `scripts/bench/mount_session.gd`, `scripts/view/bench_view.gd` | M | cancel; stage-switch lift-off, highlight fix, 95% threshold |
+| `scripts/data/service_parts.gd`, `tools/test_data_schemas.gd` | M | power field + schema |
+| `scripts/view/workshop_view.gd` | M | spare-parts status line |
+| `tools/test_regressions.gd`, `tools/test_pending_contracts.gd` | M | promoted + new checks; empty lane |
+| `docs/DECISIONS.md` (D79-D82), `docs/HAND_STATES.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | docs, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Power numbers (100/65/60), clamp turn refusal rule, 95% threshold value.
+
+### Known issues and open items
+The customer's PC is still not openable on the hardware bench (D79 notes it). Loose items still do not spawn.
+
+### Next action
+User playtest of 0.21.0 (clamp turning, hose clipping, paste touch-ups, the GPU flow through Replacement stock). Then Claude: work plan step 7. Hot files stay with Claude.
+
 ## 0.20.1 - 2026-11-13 - Retain useful coverage and make expensive diagnostics selective
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.20.0, main 05fb996b375aff79ba94ea39abe44ba6b4834af0.
