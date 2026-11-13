@@ -39,6 +39,46 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.20.0 - 2026-11-13 - Spool, loose items and trash can, paste-wipe fix, parts-removal repro
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.19.7
+- Type: minor (new bench furniture and a carrying system). From the user's 0.19.7 playtest. Hot files edited by Claude (Phase 2 owner).
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. The user's "cannot remove components" report could NOT be reproduced: a new live-play test (keyboard 3, real clicks, physics stepped like play) removes and refits the cooler green. The report needs the user's exact steps; see Known issues.
+
+Actions result (Godot 4.7.2 headless, run 43507545917, branch feature/0.20.0): checker passed; all suites green (data schema 182, regression 514 with 22 new checks, start screen 10, dust flow 43, bench interaction 26, bench feedback 27, audio and vacuum 36; 0 failures); PLAYTEST STATE includes the CARRYING_ITEM rows, no mismatches. A first run failed 3 of my new checks: two were test timing (the parked part eases to its spot for about a second before it can be clicked where it is drawn), one was test order (the cloth equips snapped to the cursor, so equipping it over the CPU wiped the CPU on the way out - which is also a live trap: carrying the cloth ACROSS the CPU with the button held wipes it; that is by design, only the overflow is now safe).
+
+### Added / Changed / Fixed / Removed
+- Fixed (D78, from the screenshot): wiping the squeezed-out paste BESIDE the CPU after pulling the lever cleared the mounted grade, so Complete repaste went dark. Now only wiping the CPU itself clears the result (`PasteSim.last_wipe_on_cpu`); tidying the overflow keeps the grade and the button.
+- Added (D75): a hose spool beside the bin. Clicking it (empty hands or a held tool) unclips the hose from the clamp and re-lays it neatly from the bin to the nozzle. `ToolRig.rewind_hose`, `Layout.BENCH_SPOOL`, new cues `hose.rewind` and `item.trash`.
+- Added (D76): loose items (`scripts/bench/bench_items.gd`): coin and screw kinds, picked up with EMPTY hands only (new hand state `CARRYING_ITEM`; a hand with a tool uses the tool — the user left this design choice to me), carried on the cursor, dropped anywhere on the table or onto the new trash can (`Layout.BENCH_TRASH`), which destroys them. Items are session-local and not saved. Nothing spawns them in normal play yet; random finds such as coins are the next gameplay step.
+- Noted (D77): the menu screen already shows the version (Codex built it in 0.16.0); covered by a new test now.
+- Added tests (regression suite): live cooler remove/refit through real input; overflow wipe keeps the result, CPU wipe clears it; spool re-lays and unclips; item pickup/carry/trash/drop rules and machine rows; version label on the menu. Playtest state table gains CARRYING_ITEM rows.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/bench_items.gd` | A | loose items |
+| `scripts/bench/hand_state.gd`, `scripts/view/bench_view.gd` | M | CARRYING_ITEM, spool/trash/items wiring, wipe fix |
+| `scripts/bench/paste_sim.gd`, `scripts/bench/tool_rig.gd` | M | last_wipe_on_cpu; rewind_hose |
+| `scripts/view/cleaning_renderer.gd`, `scripts/data/layout.gd`, `scripts/data/audio_cues.gd` | M | spool/trash/item drawing, rects, cues |
+| `tools/test_regressions.gd`, `tools/playtest_bench.gd` | M | tests, state rows |
+| `docs/HAND_STATES.md`, `docs/DECISIONS.md` (D75-D78), `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | docs, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Spool and trash positions and looks; item kinds and sizes; items not saved; CARRYING_ITEM from empty hands only.
+
+### Known issues and open items
+- "Cannot remove components" is NOT fixed because it did not reproduce: the live test removes and refits the cooler. The user should say exactly what they click (Move parts button or key 3?), at which stage, and what happens (nothing lifts? snaps back? the under-dust stays covered?). A stale save with `removed_parts` oddities is one suspect.
+- Nothing spawns loose items yet.
+
+### Next action
+User: retry removing the cooler in 0.20.0 and describe the exact clicks if it still fails; playtest the spool, trash and paste fix. Claude: work plan step 7 after that. Hot files stay with Claude.
+
 ## 0.19.7 - 2026-11-13 - The hand-state machine is real
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.19.6

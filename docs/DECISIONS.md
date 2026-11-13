@@ -167,3 +167,12 @@ D73 (confirmed): prepare detailed sound design and feedback hooks for handling, 
 D74 (recording-led repair): the observed suction stop coincides with bin capacity around 35 seconds. Capacity/manual emptying remains intentional; full-bin state must remain visible across tool changes. Correct hose self-crossing loops, including grabbing/clamping, without silently extending occupied hose reach.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+## Bench furniture and paste fix — 13 November 2026, trial 0.20.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's playtest of 0.19.7.
+
+D75 (confirmed): the hose has a spool beside the dust bin; clicking it retrieves the hose (it unclips from the clamp and re-lays itself neatly from the bin to the nozzle). Placement and look are proposals.
+D76 (confirmed): the game gets loose items (random finds such as coins inside a PC, later). Now: the carrying infrastructure (hand state CARRYING_ITEM, entered with empty hands only; a tool in hand uses the tool), a trash can on the bench that destroys a dropped item, and test-only spawning. What spawns, where, and what items are worth is OPEN. The user left the pickup design to Claude: tools stay USING_TOOL; only loose items use CARRYING_ITEM.
+D77 (confirmed, already built by Codex in 0.16.0): the menu screen shows the version number.
+D78 (bug-fix rule from the 0.19.7 playtest): wiping the paste that squeezed out BESIDE the CPU never clears a mounted result or a completed repaste; only wiping the CPU itself does. (The user tidied the overflow after pulling the lever and lost the ability to press Complete repaste.)
+

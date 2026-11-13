@@ -11,6 +11,7 @@ const USING_TOOL: String = "USING_TOOL"
 const THROWING: String = "THROWING"
 const CARRYING_HOSE: String = "CARRYING_HOSE"
 const DRAGGING_PART: String = "DRAGGING_PART"
+const CARRYING_ITEM: String = "CARRYING_ITEM"
 const DRAGGING_CLAMP: String = "DRAGGING_CLAMP"
 const MOUNTING: String = "MOUNTING"
 const PANEL_OPEN: String = "PANEL_OPEN"
@@ -18,11 +19,12 @@ const PANEL_OPEN: String = "PANEL_OPEN"
 # What may be ENTERED from each state. Letting go (any state -> FREE) is always allowed and not
 # listed. A state missing from a list can only be reached through FREE first.
 const MOVES: Dictionary = {
-    FREE: [USING_TOOL, DRAGGING_PART, CARRYING_HOSE, DRAGGING_CLAMP, PANEL_OPEN, MOUNTING],
+    FREE: [USING_TOOL, DRAGGING_PART, CARRYING_ITEM, CARRYING_HOSE, DRAGGING_CLAMP, PANEL_OPEN, MOUNTING],
     USING_TOOL: [USING_TOOL, THROWING, CARRYING_HOSE, DRAGGING_CLAMP, PANEL_OPEN, MOUNTING],
     THROWING: [],
     CARRYING_HOSE: [],
     DRAGGING_PART: [],
+    CARRYING_ITEM: [],
     DRAGGING_CLAMP: [],
     MOUNTING: [],
     PANEL_OPEN: [],
@@ -36,6 +38,7 @@ static func derive(f: Dictionary) -> String:
     if bool(f.get("clamp_dragging", false)): return DRAGGING_CLAMP
     if bool(f.get("hose_grabbed", false)): return CARRYING_HOSE
     if bool(f.get("part_dragging", false)): return DRAGGING_PART
+    if bool(f.get("item_carried", false)): return CARRYING_ITEM
     if bool(f.get("throwing", false)): return THROWING
     if bool(f.get("equipped", false)): return USING_TOOL
     return FREE

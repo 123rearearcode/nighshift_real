@@ -18,6 +18,7 @@ const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const HandState = preload("res://scripts/bench/hand_state.gd")
+const BenchItems = preload("res://scripts/bench/bench_items.gd")
 const ServiceAccess = preload("res://scripts/bench/service_access.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
@@ -78,6 +79,7 @@ var move_button: Button
 var dust: DustSim = DustSim.new()
 var bin := DustBin.new()               # the vacuum's dust bin: fills while vacuuming, click it to empty
 var motes := DustMotes.new()           # floating dust, cosmetic only
+var items := BenchItems.new()          # loose items on the bench (a dropped coin, a stray screw); not saved
 const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 15 degree turn
 var turning_with_mouse: bool = false
 var turn_travel: float = 0.0
@@ -524,6 +526,7 @@ func hand_state() -> String:
         "clamp_dragging": tools.clamp_dragging,
         "hose_grabbed": tools.hose_grab >= 0,
         "part_dragging": access.dragging != "",
+        "item_carried": items.carried >= 0,
         "throwing": tools.carrying,
         "equipped": tools.equipped,
     })
@@ -630,6 +633,28 @@ func _input(event: InputEvent) -> void:
                 _sound("cooler.lever")
                 _finish_mount()
                 return
+            # Loose items: empty hands pick one up; releasing drops it (on the trash can it is binned).
+            if stage == STAGE_CLEAN and not mb.pressed and items.carried >= 0:
+                var dropped: Dictionary = items.drop(mb.position, ToolRig.TABLE)
+                if bool(dropped.get("trashed", false)):
+                    _sound("item.trash",{"kind":dropped.get("kind","")})
+                    _set_status("Threw the %s away." % str(dropped.get("kind","item")), 0)
+                else:
+                    _sound("handling.putdown",{"kind":dropped.get("kind",""),"item":"loose"})
+                holding = false
+                return
+            if mb.pressed and stage == STAGE_CLEAN and _may_enter(HandState.CARRYING_ITEM) and items.pick(mb.position):
+                _sound("handling.pickup",{"kind":items.kinds[items.carried],"item":"loose"})
+                holding = false
+                return
+            # The spool beside the bin: a click rewinds the hose (empty hands or a held tool both work).
+            if mb.pressed and stage == STAGE_CLEAN and Layout.BENCH_SPOOL.has_point(mb.position) \
+                    and hand_state() in [HandState.FREE, HandState.USING_TOOL]:
+                tools.rewind_hose()
+                _sound("hose.rewind")
+                _set_status("Rewound the hose onto its spool: it lies neatly from the bin again.", 0)
+                holding = false
+                return
             # In explicit parts mode, tools lying on a component must not steal its click.
             if stage == STAGE_CLEAN and active_tool == 2:
                 if mb.pressed: _begin_part_drag(mb.position)
@@ -696,6 +721,7 @@ func _physics_process(delta: float) -> void:
     last_mouse = mouse
     vfx_time += delta
 
+    if items.carried >= 0: items.move(mouse)
     var old_clamp: Vector2 = tools.clamp_position
     tools.step(delta,mouse,holding and _work_rect().has_point(mouse) and not replacement_panel.visible)
     _audio_loop("clamp.slide",tools.clamp_dragging and tools.clamp_position.distance_to(old_clamp)>0.1,{"speed":tools.clamp_position.distance_to(old_clamp)/maxf(delta,0.0001)})
@@ -880,11 +906,14 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
         _audio_loop("cloth.wipe",_work_rect().has_point(mouse),{"speed":tools.speed.length(),"removed":removed})
         if removed > 0.0:
             paste_dirty = true
-            if not mount_result.is_empty() or str(GameState.job["paste_grade"]) != "":
+            # Tidying the paste that squeezed out BESIDE the CPU never costs the result; only wiping
+            # the CPU itself does (0.20.0 fix: the user cleaned the overflow after pulling the lever
+            # and lost the grade, so Complete repaste went dark).
+            if paste.last_wipe_on_cpu > 0.0 and (not mount_result.is_empty() or str(GameState.job["paste_grade"]) != ""):
                 mount_result = {}
                 live_stats = {"coverage": 0.0, "overflow": 0.0}
                 GameState.clear_paste()
-                _set_status("Grade cleared because the paste is being wiped off. Keep wiping, or squeeze fresh paste once the CPU is clean.", 0)
+                _set_status("Grade cleared because the paste on the CPU is being wiped off. Keep wiping, or squeeze fresh paste once the CPU is clean.", 0)
     elif holding and tools.equipped and not tools.carrying and mount_result.is_empty():
         var cell: Vector2 = (mouse - PASTE_ORIGIN) / float(PASTE_CELL)
         if cell.x >= 0.0 and cell.y >= 0.0 and cell.x < PasteSim.GRID and cell.y < PasteSim.GRID:
@@ -963,6 +992,9 @@ func _draw_scene() -> void:
         _text(Vector2(PANEL_X,216),"MAINTENANCE",12)
         _draw_dust()
         CleaningRenderer.draw_bin(self, bin, DustBin.RECT.has_point(get_global_mouse_position()))
+        CleaningRenderer.draw_spool(self, Layout.BENCH_SPOOL.has_point(get_global_mouse_position()))
+        CleaningRenderer.draw_trash(self, items.carried >= 0 and Layout.BENCH_TRASH.has_point(get_global_mouse_position()))
+        CleaningRenderer.draw_items(self, items)
         CleaningRenderer.draw_motes(self, motes)
         _draw_clean_panel()
         _draw_clean_cursor()

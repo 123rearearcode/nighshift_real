@@ -27,6 +27,8 @@ const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
 const HandState = preload("res://scripts/bench/hand_state.gd")
 const Ids = preload("res://scripts/data/ids.gd")
+const BenchItems = preload("res://scripts/bench/bench_items.gd")
+const LayoutData = preload("res://scripts/data/layout.gd")
 
 func _initialize() -> void:
     call_deferred("run_checks")
@@ -198,6 +200,7 @@ func run_checks() -> void:
     test_piece_physics(gs)
     test_hose_handling()
     test_hand_machine(gs)
+    test_bench_0_20(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
@@ -1233,3 +1236,115 @@ func test_hand_machine(gs: Node) -> void:
     check(bench.tools.equipped and bench.tools.selected == Ids.BRUSH, "with free hands the same switch works")
     bench.scripted_pointer = null
     bench.queue_free()
+
+
+# 0.20.0: the user's bug reports and the new bench furniture.
+func test_bench_0_20(gs: Node) -> void:
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # LIVE repro of "cannot remove components": keyboard 3, real clicks, physics stepped like play.
+    var key3 := InputEventKey.new()
+    key3.keycode = KEY_3
+    key3.pressed = true
+    bench._input(key3)
+    check(bench.active_tool == 2 and bench.hand_state() == "FREE", "key 3 enters Move parts with free hands")
+    var cooler_home: Vector2 = bench.access.homes[Ids.COOLER].get_center()
+    bench.scripted_pointer = cooler_home
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, true, cooler_home)
+    check(bench.access.dragging == Ids.COOLER, "left press in Move parts lifts the cooler")
+    var tray_spot: Vector2 = Access.TRAY.get_center() + Vector2(120, 0)
+    for frame in range(30):
+        bench.scripted_pointer = cooler_home.lerp(tray_spot, float(frame) / 29.0)
+        bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, tray_spot)
+    check(Ids.COOLER in bench.access.removed_ids(), "releasing on the tray removes the cooler")
+    check(Ids.COOLER in gs.job["removed_parts"], "the removal reaches the save state")
+    for frame in range(90): bench._physics_process(1.0/60.0)   # the parked part eases to its spot; click where it is DRAWN, like a player
+    var drawn: Vector2 = (bench._part_rects()[Ids.COOLER] as Rect2).get_center()
+    click(bench, MOUSE_BUTTON_LEFT, true, drawn)
+    check(bench.access.dragging == Ids.COOLER, "the removed cooler can be lifted from the tray")
+    var home_spot: Vector2 = bench.access.homes[Ids.COOLER].get_center()
+    for frame in range(40):
+        bench.scripted_pointer = drawn.lerp(home_spot, float(frame) / 39.0)
+        bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, home_spot)
+    check(not Ids.COOLER in bench.access.removed_ids(), "releasing on the mount refits the cooler")
+    # Wiping the squeezed-out paste beside the CPU must not cost the mounted result.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(130): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    bench.scripted_pressing = true
+    for frame in range(170): bench._physics_process(1.0/60.0)
+    bench.scripted_pressing = null
+    click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
+    var grade: String = str(bench.mount_result.get("grade", ""))
+    check(grade in ["PERFECT", "GOOD ENOUGH"], "the lever secures a good mount (got %s)" % grade)
+    var outside: Vector2 = bench.PASTE_ORIGIN + Vector2(3.0, 25.0) * float(bench.PASTE_CELL)   # left of the CPU square
+    bench.scripted_pointer = outside   # the cloth equips snapped to the cursor, so it starts here, off the CPU
+    bench.wipe_button.button_pressed = true
+    bench._on_wipe_toggled()
+    check(bench.wiping and bench.tools.selected == Ids.CLOTH, "after the lever the cloth can be taken")
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    check(not bench.mount_result.is_empty() and gs.can_complete_repaste(), "tidying the squeezed-out paste keeps the result and Complete repaste")
+    bench.scripted_pointer = cpu_center
+    bench.holding = true
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    check(bench.mount_result.is_empty() and not gs.can_complete_repaste(), "wiping the CPU itself still clears the result")
+    # The spool rewinds a tangled hose.
+    bench._select_stage(0)
+    bench._select_tool(0)
+    var corner := Vector2(90, 150)
+    bench.scripted_pointer = corner
+    for frame in range(240): bench._physics_process(1.0/60.0)
+    var before: float = bench.tools.hose.worst_link_error()
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_SPOOL.get_center())
+    check(bench.tools.hose.worst_link_error() < maxf(before, 0.5) + 0.001, "clicking the spool re-lays the hose (link error %.2f -> %.2f)" % [before, bench.tools.hose.worst_link_error()])
+    check(bench.tools.hose_clamp == -1, "rewinding unclips the hose from the clamp")
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_SPOOL.get_center())
+    # Loose items: pick up with empty hands, not past the machine, and the trash can eats them.
+    bench._select_tool(2)
+    var spot := Vector2(400, 300)
+    var item: int = bench.items.spawn("coin", spot)
+    check(item == 0 and bench.items.count() == 1, "a coin can be spawned for the tests")
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == 0 and bench.hand_state() == "CARRYING_ITEM", "empty hands pick the coin up (CARRYING_ITEM)")
+    var over_trash: Vector2 = LayoutData.BENCH_TRASH.get_center()
+    bench.scripted_pointer = over_trash
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    check(bench.items.centers[0].distance_to(over_trash) < 1.0, "the carried coin rides the cursor")
+    click(bench, MOUSE_BUTTON_LEFT, false, over_trash)
+    check(bench.items.count() == 0 and bench.items.carried == -1 and bench.hand_state() == "FREE", "dropping it on the trash can bins it")
+    bench.items.spawn("screw", spot)
+    bench._select_tool(0)
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == -1 and bench.holding, "with a tool in hand, a click uses the tool, not the screw")
+    click(bench, MOUSE_BUTTON_LEFT, false, spot)
+    bench._select_tool(2)
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == 0, "in Move parts mode free hands still pick the screw up")
+    click(bench, MOUSE_BUTTON_LEFT, false, Vector2(420, 320))
+    check(bench.items.count() == 1 and bench.items.carried == -1, "dropping it elsewhere keeps it on the bench")
+    check(HandState.allowed(HandState.FREE, HandState.CARRYING_ITEM) and not HandState.allowed(HandState.USING_TOOL, HandState.CARRYING_ITEM), "the machine allows item pickup only with free hands")
+    bench.scripted_pointer = null
+    bench.queue_free()
+    # The menu screen shows the version.
+    var start: Node = load("res://scenes/start.tscn").instantiate()
+    root.add_child(start)
+    var found: bool = false
+    for child in start.get_children():
+        if child is Label and str((child as Label).text) == "v" + gs.game_version():
+            found = true
+    check(found, "the menu screen shows v%s" % gs.game_version())
+    start.queue_free()
