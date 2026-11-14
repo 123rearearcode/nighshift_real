@@ -132,3 +132,12 @@ For the graphical playtest: F5 → Storage rack; drag/rotate each kind, transfer
 try wrong cabinet/tool-board types, fill shelves until overflow appears, reload and check saved
 allocations. Cancel mid-drag/focus loss, navigate pages while holding, remove an empty unit.
 Confirm ownership/repair state and money are unchanged. Read docs/STORAGE.md for boundaries.
+
+
+## Night workshop, 0.30.0
+Required: `godot --headless --path . --script res://tools/test_night_workshop.gd`.
+Manual: New Game → Activities; enter Workshop, partly clean one PC, return, switch to the other,
+then back and confirm the work stays separate. Try a good lever mount without a completion button;
+leave/reopen and inspect paste. Run Final Check repeatedly: no money, pickup or completion. Check
+Salvage returns to Activities, and all three shelves fit on screen. Existing save should retain its
+single actual ticket, while New Game deliberately gives two. Hardware bench is still shop stock.

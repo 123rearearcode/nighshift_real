@@ -39,6 +39,114 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.30.0 - 2026-11-14 - Night activities, two customer PCs and diagnostic-only checks
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.29.0 (unmerged feature/storage-rack, 373115e); main remains 0.28.0
+- Type: minor (new activity/workshop screens, multiple ticket-linked PCs and manifest contract)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. All 12 required suites passed in the final applicable runs:
+1,110 checks, zero failures; pending contracts zero checks. Scripted legacy bench smoke passed.
+No graphical/manual playtest is claimed. Date: 14 November 2026, Europe/Bucharest.
+Follow-up is stacked on the unmerged rack branch; neither PR is merged by this delivery.
+
+### Added / Changed / Fixed / Removed
+- New/Load Game enters Activities: Workshop, Salvage dump, Storage and a disabled future-activity
+  space. Removed Salvage from the title menu. The dump now returns to Activities.
+- Workshop selects between two real customer repair PCs on New Game (the two existing customers;
+  one extra compact PC). Each has its own dust, damage, removal/replacement, scams and paste work.
+  Existing saves migrate their actual single job; they never gain fabricated extra client PCs.
+- A ticket has an optional physical PC identity. Future build orders with no client hardware do
+  not create rack objects or occupy PC space; build-order intake itself is not implemented.
+- Third shelf on every rack. Smaller drawn cells keep all three levels visible; saved grid-cell
+  placements retain their meaning. Storage reads the restored current ticket manifest.
+- Final Check reports boot/heat/parts/owned-game fps, without completing, paying, recording pickup,
+  advancing customer rotation or changing relationships. Switch PCs at any point from Workshop.
+- In the night repair route a good cooler lever mount commits paste automatically (same existing
+  cost/scam rule), so no extra completion button. Paste float32 field is saved with its PC.
+- Isolated NightSession bridge: active job remains in GameState; inactive jobs use a versioned
+  manifest. Checkpoint/readback precedes switching; missing/damaged/future manifests lock switching
+  and preserve their files. Existing money/stock/customer state are never copied into the manifest.
+- Additive scene wrappers keep Claude's hot files, shop/customer data and WORK_PLAN.md untouched.
+  Hardware bench remains the SHOP STOCK sandbox, not customer assembly. Daytime pickup, global
+  night clock, campaign salvage transfer and final canonical PC/part model remain future work.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed follow-up delivery record |
+| `.github/workflows/tests.yml` | M | Version/autoload or required suite |
+| `DEVELOPMENT.md` | M | Scope, contracts, controls and coordination handoff |
+| `HANDOFF.md` | M | Scope, contracts, controls and coordination handoff |
+| `README.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/CURRENT_STATE.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/DECISIONS.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/DESIGN.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/NIGHT_WORKSHOP.md` | A | Scope, contracts, controls and coordination handoff |
+| `docs/PROJECT_BRIEF.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/ROADMAP.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/STORAGE.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/TESTING.md` | M | Scope, contracts, controls and coordination handoff |
+| `project.godot` | M | Version/autoload or required suite |
+| `scenes/activities.tscn` | A | Night navigation scene |
+| `scenes/night_bench.tscn` | A | Night navigation scene |
+| `scenes/night_hardware.tscn` | A | Night navigation scene |
+| `scenes/night_salvage.tscn` | A | Night navigation scene |
+| `scenes/night_workshop.tscn` | A | Night navigation scene |
+| `scripts/night/activities_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/hardware_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/night_diagnostics.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/night_session.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/paste_snapshot.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/repair_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/salvage_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/workshop_hub.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/storage/storage_data.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/storage/storage_sources.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/storage/storage_view.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/view/start_view.gd` | M | New/load activities routing, remove title-screen salvage |
+| `tools/test_night_workshop.gd` | A | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_salvage_physics.gd` | M | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_start_screen.gd` | M | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_storage.gd` | M | Updated route/capacity contracts and disposable-save verification |
+
+### Checks performed
+- Godot 4.7.2: Data schema 198; Regression 564; Start screen 14; Dust flow 43; Bench interaction
+  26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24; Salvage 40;
+  Salvage physics 32; Storage 55; Night workshop 51. Total 1,110 checks, zero failures.
+- Pending contracts: zero checks/failures. Scripted bench --smoke: Playtest finished, no script errors.
+- Night coverage includes real scene navigation/PC picker, physical paste JSON roundtrip/reopening,
+  lever-only commit and no double charge, canonical replacement consumption across switches,
+  legacy migration, interrupted-switch recovery, future manifest protection and failed saves.
+- Initial full run exposed a test fixture assuming the gamer was always second; corrected fixture
+  sets its own rotation counter. Affected start/storage/salvage-physics/night suites rerun and passed.
+  Physics activity-navigation tests now use disposable main/manifest saves rather than default saves.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --cached --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2: Night workshop 51 and Storage 55 passed; no script/resource errors.
+
+### Decisions proposed (not approved)
+D110–D112 record user-approved shelf, ticket/PC distinction, night checks/switching and activity hub.
+The temporary inactive-job bridge/marker namespace is an implementation seam for Claude to review,
+not approval of a final shared-PC schema. Two-PC demo layout/fault assignment is provisional tuning.
+
+### Known issues and open items
+The legacy final-check method still pays when called from legacy code; new night navigation never
+calls it or enters that old shop route. Shared thermal evaluation should be extracted when Claude
+integrates the canonical diagnostic/pickup split to avoid formula drift. Missing manifests protect
+the file and recover the active PC but cannot reconstruct absent inactive data. Physical paste is
+saved at bench checkpoints/exit; transient hand/tool poses and an unsecured mount are not resumed.
+No target-hardware performance claim. Graphical readability/feel need the user's playtest.
+Existing rack pricing/capacity hooks and salvage campaign isolation are unchanged.
+
+### Next action
+Claude goes next: cross-review the stacked PR, particularly checkpoint/recovery and the namespaced
+marker bridge; user playtests New Game → Activities → Workshop, switches unfinished PCs, tests paste
+and three-shelf readability. Keep both PRs unmerged. Hot files bench_view.gd, tool_rig.gd and
+game_state.gd remain reserved for Claude's active work and are untouched; none is claimed free here.
+WORK_PLAN.md is unchanged. Reconcile version metadata if Claude's parallel delivery lands first.
+
 ## 0.29.0 - 2026-11-14 - General storage rack and furniture expansion
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

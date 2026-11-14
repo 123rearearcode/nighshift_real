@@ -276,3 +276,21 @@ and leave it unmerged while Claude works. First implementation and boundaries: d
 Free furniture, eight units, shelf sizes and installed-part shelf reservations are provisional
 prototype choices, not approved economy or final storage rules. Current purchases still use
 the old drawer capacity checks until a coordinated shared-capacity hook is approved.
+
+
+## Night workflow — 14 November 2026, trial 0.30.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+D110 (confirmed): add a third rack shelf and one or two more customer PCs tied to current tickets.
+A ticket does not necessarily bring client hardware: future build orders may have no client PC.
+Implemented: new games seed the two existing customers' actual repair tickets (one extra PC);
+legacy saves retain their actual single job. Optional PC identity controls storage presence.
+D111 (confirmed): at night the player works on and switches PCs freely; no ticket-completion action.
+Final Check diagnoses the current state, without payout or pickup. The good cooler lever mount also
+commits repaste automatically in this night route. Daytime pickup/reputation consequences remain separate.
+D112 (confirmed): after New Game show Activities: Workshop (repair, hardware, final check), Salvage
+and room for future activities (likely shop, not approved/built yet). Remove Salvage from the initial menu.
+Keep previous rack PR unmerged. New work is stacked on it; no automatic merges.
+
+Implementation bridge and limitations, not final shared-PC design: NIGHT_WORKSHOP.md. The hardware
+bench remains the shop-stock sandbox. Claude must cross-review NightSession's active-job/sidecar boundary.

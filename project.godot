@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Nightshift Foundation Trial"
-config/version="0.29.0"
+config/version="0.30.0"
 run/main_scene="res://scenes/start.tscn"
 config/features=PackedStringArray("4.7")
 
@@ -20,6 +20,7 @@ config/features=PackedStringArray("4.7")
 AudioFeedback="*res://scripts/audio/audio_feedback.gd"
 
 GameState="*res://scripts/state/game_state.gd"
+NightSession="*res://scripts/night/night_session.gd"
 
 [display]
 

@@ -41,11 +41,11 @@ func run_checks() -> void:
     menu._on_new_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/shop.tscn" and gs.money == gs.START_MONEY, "New game opens the existing demo with fresh state")
+    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.money == gs.START_MONEY, "New game opens activity selection with fresh state")
     gs.money = 247
     gs.job["dust"]["cooler"] = 0.42
     gs.save_game()
-    current_scene._on_main_menu_pressed()
+    current_scene._go("res://scenes/start.tscn")
     await process_frame
     await process_frame
     check(not current_scene.load_button.disabled and gs.money == 247, "return to menu preserves demo save and enables Load")
@@ -56,8 +56,8 @@ func run_checks() -> void:
     current_scene._on_load_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/shop.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
-    current_scene._on_main_menu_pressed()
+    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
+    current_scene._go("res://scenes/start.tscn")
     await process_frame
     await process_frame
     current_scene._start_new_game()
@@ -74,6 +74,7 @@ func run_checks() -> void:
     check(gs.has_saved_game() and gs.load_game() and gs.money == 319, "Load still recovers a readable backup after main-save corruption")
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
+    _remove_save_files(gs.save_path+".night.json")
     gs.save_path = original_path
     current_scene.free()
     gs.new_game(false)

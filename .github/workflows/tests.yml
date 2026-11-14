@@ -83,7 +83,8 @@ jobs:
           test_performance|Performance contracts
           test_salvage|Salvage
           test_salvage_physics|Salvage physics
-          test_storage|Storage"
+          test_storage|Storage
+          test_night_workshop|Night workshop"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"
