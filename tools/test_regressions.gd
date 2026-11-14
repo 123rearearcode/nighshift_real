@@ -198,6 +198,7 @@ func run_checks() -> void:
     test_bench_0_20(gs)
     test_promoted_contracts(gs)
     test_0_21(gs)
+    test_0_23(gs)
     test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
@@ -1548,3 +1549,42 @@ func test_0_22(gs: Node) -> void:
     check(bench.tools.hose.pos[Hose.POINTS - 1].distance_to(bench.tools.hose_end()) < 12.0, "the hose end settles at the vacuum after the barrage")
     bench.scripted_pointer = null
     bench.queue_free()
+
+
+# 0.23.0: dust is informational (D87) and the shop has a Customer tab (D88).
+func test_0_23(gs: Node) -> void:
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 0.9   # a little dust left everywhere
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    check(bool(r["passed"]) and int(r["paid"]) > 0, "a PC under the limit passes with leftover dust (got %.0f C)" % float(r["temp"]))
+    check(str(r["notes"]).contains("still has dust"), "the notes still say where the dust is")
+    check(not str(r["notes"]).contains("Every part must be cleaned"), "dust is no longer called a blocker")
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    gs.job["removed_parts"].append(Ids.COOLER)
+    check(not bool(gs.run_final_check()["passed"]), "a part left out still fails (functionality is required)")
+    gs.new_game()
+    var zero: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): zero[zone["id"]] = 0.0
+    gs.set_dust(zero)
+    pasted(gs)
+    check(not bool(gs.run_final_check()["passed"]), "a PC fully dusty is over the limit and still fails on temperature")
+    check(gs.job["customer_id"] == "t001_mara" and str(gs.job["customer"]) == "Mara V.", "the trial job carries its customer")
+    var data: Dictionary = SaveStore.read(gs.save_path)
+    data["job"].erase("customer_id")
+    SaveStore.write(gs.save_path, data)
+    gs.load_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "an older save gains the customer on load")
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.customer_label != null and not shop.customer_label.visible and shop.result_label.visible, "the shop opens on the Final check tab")
+    shop._show_tab(1)
+    check(shop.customer_label.visible and not shop.result_label.visible, "the Customer tab swaps the lower card")
+    check(shop.customer_label.text.contains("Mara V.") and shop.customer_label.text.contains("60"), "the Customer tab shows who they are and what the PC must output")
+    shop._on_check_pressed()
+    check(shop.result_label.visible and not shop.customer_label.visible, "running the check returns to the Final check tab")
+    shop.queue_free()

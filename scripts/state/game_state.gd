@@ -11,6 +11,7 @@ const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const Customers = preload("res://scripts/data/customers.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -73,7 +74,8 @@ func _make_job() -> Dictionary:
         "broken_parts": [],
         "service_replacements": {},
         "hardware_trial": {},
-        "customer": "Customer A (placeholder)",
+        "customer_id": "t001_mara",   # key into scripts/data/customers.gd
+        "customer": "Mara V.",
         "complaint": "PC overheats and the fan is very loud.",
         "state": "open",          # "open" or "done"
         "cleaned": false,         # true only when every dusty part is clean (derived from "dust")
@@ -342,9 +344,10 @@ func run_final_check() -> Dictionary:
         temp += float(replacement["heat_penalty"])
         if replacement["performance"] < 100:
             notes.append("Downgrade: %s is %d%% of the original specification%s. Customer consequences are not simulated yet." % [id, replacement["performance"], " (+8 C)" if id == "cooler" else ""])
-    var passed: bool = temp < PASS_TEMP and dirty_parts.is_empty() and removed_parts.is_empty() and broken.is_empty() and gpu_power >= required_power
-    if dirty_parts.is_empty() == false and temp < PASS_TEMP:
-        notes.append("Every part must be cleaned before the job counts as done.")
+    # D87 (user, 2026-11-14): leftover dust is NOT a blocker. It only matters through the temperature
+    # it adds (the notes keep saying where it is). The check passes while the PC is under the limit
+    # and every part is functional: nothing broken, nothing left out, enough graphics output.
+    var passed: bool = temp < PASS_TEMP and removed_parts.is_empty() and broken.is_empty() and gpu_power >= required_power
     var already_done: bool = job["state"] == "done"
     var paid: int = 0
     if passed and not already_done:
@@ -442,6 +445,9 @@ func load_game() -> bool:
     job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
     job["required_power"] = maxi(0, int(job.get("required_power", 60)))
+    if Customers.customer(str(job.get("customer_id", ""))).is_empty():
+        job["customer_id"] = "t001_mara"
+        job["customer"] = Customers.customer("t001_mara")["name"]
     job["pc_powered"] = bool(job.get("pc_powered", true))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []

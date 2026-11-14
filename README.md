@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.22.1)
+# Nightshift - Godot Foundation Trial (v0.23.0)
 
 **0.18.0 adds trapped-dust threads and clearer bench controls.** Short tails protrude from under parts: precise vacuuming pulls them free slowly; removing the part is easier. Drag the clamp with either mouse button; a stationary left click unclips. The standard hose now only just reaches the far-left corner with careful rotation. Tools can be put down throughout cooler mounting, including after the pressing timer expires. Cooler visual redesign is proposed in `docs/DESIGN_PROPOSALS.md` section 6.
 
@@ -7,7 +7,7 @@ A small playable foundation for the PC repair/shop game. Placeholder shapes and 
 
 ## Open this build
 1. Close any running older copy of the game/editor.
-2. Unzip `nightshift_godot_trial_v0.22.0.zip` into a new folder. Keep the previous version as a fallback.
+2. Unzip `nightshift_godot_trial_v0.23.0.zip` into a new folder. Keep the previous version as a fallback.
 3. In Godot Project Manager choose **Import**, select `nightshift_godot_trial/project.godot`, then **Import & Edit**.
 4. Press **F5** for the start screen. Choose **New game** to open the demo, or **Load game** to resume. Starting over asks before replacing an existing save. The shop has a **Main menu** button that saves before returning.
 

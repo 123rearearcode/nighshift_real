@@ -9,6 +9,7 @@ const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const Customers = preload("res://scripts/data/customers.gd")
 
 # key -> Variant.Type. REQUIRED keys must exist; OPTIONAL keys may exist; any other key is a problem.
 const COMPONENT_REQUIRED: Dictionary = {"id": TYPE_STRING, "category": TYPE_STRING, "display_name": TYPE_STRING,
@@ -72,6 +73,7 @@ func run_checks() -> void:
     test_boards_and_cases()
     test_zones()
     test_paste_materials()
+    test_customers()
     finish("Data schema")
 
 
@@ -164,3 +166,17 @@ func test_paste_materials() -> void:
         check(kind.get("id", "") == id, "paste material %s knows its own id" % id)
         check(int(kind.get("cost", -1)) >= 0 and float(kind.get("yield_scale", 0.0)) > 0.0 and float(kind.get("mobility_scale", 0.0)) > 0.0, "paste material %s has sensible numbers" % id)
     check(PasteMaterials.material("ketchup").is_empty(), "an unknown paste material gives nothing")
+
+
+const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "about": TYPE_STRING,
+    "complaint": TYPE_STRING, "uses": TYPE_STRING, "required_power": TYPE_INT, "habits": TYPE_STRING,
+    "patience": TYPE_STRING, "payout": TYPE_INT}
+
+
+func test_customers() -> void:
+    for id: String in Customers.IDS:
+        var who: Dictionary = Customers.customer(id)
+        check_schema(who, CUSTOMER_REQUIRED, {}, "customer " + id)
+        check(who.get("id", "") == id, "customer %s knows its own id" % id)
+        check(int(who.get("required_power", -1)) >= 0 and int(who.get("payout", 0)) > 0, "customer %s has sensible numbers" % id)
+    check(Customers.customer("nobody").is_empty(), "an unknown customer gives nothing")
