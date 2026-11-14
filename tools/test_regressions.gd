@@ -134,13 +134,16 @@ func run_checks() -> void:
     press.button_index = MOUSE_BUTTON_LEFT
     press.pressed = true
     press.position = bench.access.current_rect("gpu").get_center()
+    bench.scripted_pointer = press.position
     bench._input(press)
+    for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)   # D89 unscrew hold
     var release := InputEventMouseButton.new()
     release.button_index = MOUSE_BUTTON_LEFT
     release.pressed = false
     release.position = Access.TRAY.get_center()
     bench._input(release)
     check("gpu" in bench.access.removed_ids(), "queued mouse events use event positions for reliable drags")
+    bench.scripted_pointer = null
     bench._select_stage(1)
     bench.wipe_button.button_pressed = true
     bench._on_wipe_toggled()
