@@ -265,3 +265,17 @@ D105 (confirmed, fixes Codex finding 2 on 0.25.0): trust moves at least ±1 at e
 D106 (confirmed, fixes Codex finding 3 on 0.25.0): loaded customer history is rebuilt field by field; anything that is not a visit Dictionary is dropped instead of crashing the shop, a missing trust defaults to THAT customer's trust_start, and each customer keeps only the last 10 visits (proposal). The dossier showing the exact budget stays for the prototype (noted open by Codex; later pricing may hide it).
 D107 (confirmed): the main menu gets a Settings option — for now one sound slider (master volume, applied live, muted at zero). Settings live in their own `user://nightshift_settings.json`, never in the game save, and survive new games.
 D108 (confirmed, user playtest of the salvage demo): the find you HOLD must be lifted over the dumpster rim, but it cannot be used as a bulldozer: a rim barrier (layer 256, rim up to the ceiling) stops every body except the held one, so only the carried find can cross. Pile physics inside the dumpster stay fully interactive.
+
+
+## Salvage variety — 15 November 2026, trial 0.31.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+
+D113 (confirmed user request): randomize dump spawning every time, include more components and
+add very heavy items that cannot be moved much. Implemented as a fresh pile per actual arrival;
+opening containers or reopening the same active visit never rerolls. This supersedes older
+persistent site/few-day refresh behavior for this prototype; normal travel still applies.
+Cargo/shelf remain intact; old unclaimed leftovers are abandoned. Heavy obstacles are dynamic,
+barely draggable waste, not collectible components. Sizes, counts, per-part weights and masses
+are provisional feel tuning. New components are salvage records, not a completed repair catalogue.
+D109–D112 belong to separate pending inventory/night PRs; this independent main-based branch does
+not incorporate or publish their local fixes. No hot-file edits, automatic merges or shared-stock writes.

@@ -1,4 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.28.0)
+# Nightshift - Godot Foundation Trial (v0.31.0)
+
+**This independent salvage branch:** F5 → Salvage demo. Every arrival rolls a fresh bounded pile,
+with varied containers, fourteen collectible PC/component kinds and heavy obstacles you can barely
+nudge. Cargo stays yours between visits; opening never rerolls contents. See docs/SALVAGE_VARIETY.md.
+This branch starts from main 0.28.0; pending inventory/night PRs and their local fixes are not included.
+
 
 
 **Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting

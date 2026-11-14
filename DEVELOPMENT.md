@@ -473,3 +473,26 @@ resume. View departure/return/menu/focus changes coordinate sync/capture and nat
 Ten required suites: pure salvage rules plus native-frame tests. Optional stress profiler times the
 physics_frame→process_frame wall phase, not just view callbacks or the coarse Performance time counter.
 No GPU/whole-frame claim. Same session-only/save/stock/Claude hot-file boundaries as 0.26.0 remain.
+
+
+## Salvage generation/weight contract — 0.31.0
+
+`SalvagePile.generate(site, visit, seed_override = -1, identity_prefix = "")` rolls a fresh RNG
+by default; an explicit seed reproduces a report. Unique session nonce/visit/seed IDs avoid collisions
+with cargo/shelf records. `spawn_seed` is available for debug reports. Root hull placement accounts
+for tilt, skips unsafe overflow and caps root+hidden records at Data.MAX_OBJECTS (64). Opening reveals
+pre-generated IDs, bounds children inside their side of the bin/rim, and never rerolls them.
+`SalvageSession.depart` now generates on EVERY successful arrival; `visit_sequence/visit_counts`
+track entries. `cycles/cycle_for` remain legacy/debug period metadata only, not a refresh gate.
+`SalvageData` owns fourteen collectible shapes/colours, site-specific weighted loot, labels and masses.
+Heavy obstacles are excluded from SHAPES and cargo. Native heavy bodies have high friction/mass and
+bounded weaker grip/torque; no static pins or artificial position locks. Existing scenario tests add
+seed-matrix/layout/identity/packing and real heavy/generated-pile physics cases.
+
+| File | Layer | Update |
+| --- | --- | --- |
+| `docs/SALVAGE_VARIETY.md` | docs | Current controls, new arrival rule, catalogue, weight/generation limits and review handoff |
+
+Existing salvage module file map entries remain valid; no new runtime scripts or suite files.
+No changes to GameState, bench/tool hot files, saves or campaign stock. Independent main-based PR;
+leave pending inventory/night PRs and their local patches unchanged.

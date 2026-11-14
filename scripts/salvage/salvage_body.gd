@@ -1,5 +1,7 @@
 # Native rigid body. Mouse grip applies bounded forces inside the physics integrator.
 extends RigidBody2D
+const Data = preload("res://scripts/salvage/salvage_data.gd")
+var heavy: bool = false
 const STIFFNESS: float = 180.0
 const MAX_FORCE: float = 9500.0
 var gripped: bool = false
@@ -9,21 +11,22 @@ var target_angle: float = 0.0
 var signature: String = ""
 
 func configure(item: Dictionary) -> void:
-    var key: String = str([item["kind"],item["size"],item["opened"]])
+    var key: String = str([item["kind"],item["size"],item["opened"],item["mass"]])
     if signature == key: return
     signature = key
     mass = float(item["mass"])
+    heavy = Data.is_heavy(item["kind"])
     collision_layer = 128
     collision_mask = 384   # finds (128) + the rim barrier (256, D108); the held body drops the barrier bit
-    continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE if item["kind"] in ["ram","gpu","drive"] or item["opened"] else RigidBody2D.CCD_MODE_DISABLED
-    linear_damp = 0.65
-    angular_damp = 1.5
+    continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE if Data.SHAPES.has(item["kind"]) or item["opened"] else RigidBody2D.CCD_MODE_DISABLED
+    linear_damp = 3.0 if heavy else 0.65
+    angular_damp = 5.0 if heavy else 1.5
     can_sleep = true
     max_contacts_reported = 4
     contact_monitor = true
     var material := PhysicsMaterial.new()
-    material.friction = 0.65
-    material.bounce = 0.035
+    material.friction = 1.1 if heavy else 0.65
+    material.bounce = 0.0 if heavy else 0.035
     physics_material_override = material
     for child: Node in get_children():
         remove_child(child)
@@ -50,10 +53,10 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
     var offset: Vector2 = state.transform.basis_xform(grip_local)
     var point: Vector2 = state.transform.origin+offset
     var velocity: Vector2 = state.linear_velocity+Vector2(-offset.y,offset.x)*state.angular_velocity
-    var force: Vector2 = ((target-point)*STIFFNESS-velocity*25.0*sqrt(mass)).limit_length(MAX_FORCE)
+    var force: Vector2 = ((target-point)*STIFFNESS-velocity*25.0*sqrt(mass)).limit_length(MAX_FORCE*0.65 if heavy else MAX_FORCE)
     state.apply_force(force,offset)
     var turn: float = angle_difference(state.transform.get_rotation(),target_angle)
-    state.apply_torque(clampf(turn*850.0-state.angular_velocity*110.0,-1800,1800)*mass)
+    state.apply_torque(clampf(turn*850.0-state.angular_velocity*110.0,-1800,1800)*(1.0 if heavy else mass))
     # Safety caps bound rare violent contacts without moving bodies through their neighbours.
     state.linear_velocity = state.linear_velocity.limit_length(1100)
     state.angular_velocity = clampf(state.angular_velocity,-6,6)

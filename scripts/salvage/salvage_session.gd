@@ -10,6 +10,9 @@ var car: String = "hatch"
 var site: String = ""
 var piles: Dictionary = {}
 var cycles: Dictionary = {}
+var visit_sequence: int = 0
+var visit_counts: Dictionary = {}
+var session_uid: String = Crypto.new().generate_random_bytes(8).hex_encode()
 var grids: Dictionary = {}
 var cargo: Dictionary = {}
 var shelf: Dictionary = {}
@@ -20,7 +23,7 @@ var held: String = ""
 var rotation: int = 0
 var effort: Dictionary = {}
 var original: Dictionary = {}
-var message: String = "Choose a site and car. Cargo and piles last for this app session only."
+var message: String = "Choose a site and car. Cargo lasts for this app session. Each arrival brings a fresh pile."
 var physics_mode: bool = false
 
 func _init() -> void:
@@ -42,12 +45,12 @@ func cycle_for(location: String) -> int:
 
 func depart(location: String) -> bool:
     if site != "" or not Data.SITES.has(location) or remaining < travel(location)*2: return false
-    var cycle: int = cycle_for(location)
-    if not piles.has(location) or int(cycles[location]) != cycle:
-        var created := Pile.new()
-        created.generate(location,cycle)
-        piles[location] = created
-        cycles[location] = cycle
+    visit_sequence += 1
+    visit_counts[location] = int(visit_counts.get(location,0))+1
+    var created := Pile.new()
+    created.generate(location,visit_sequence,-1,session_uid)
+    piles[location] = created
+    cycles[location] = cycle_for(location) # legacy/debug period only; it no longer controls generation
     site = location
     pile = piles[site]
     reserve = travel(site)
@@ -60,7 +63,7 @@ func next_night() -> bool:
     if site != "": return false
     day += 1
     remaining = Data.NIGHT_MINUTES
-    message = "Another demo night. Sites refresh on their own few-day schedule; cargo stays."
+    message = "Another demo night. Each arrival gets a new pile; cargo stays."
     return true
 
 func find(uid: String) -> Dictionary:
@@ -78,13 +81,16 @@ func start_effort(uid: String, action: String) -> bool:
     if action == "open" and (item["zone"] == "cargo" or item["opened"] or not item["kind"] in ["bag","box","pc"]): return false
     var duration: float = 0.32 if item["zone"] == "sort" or item["zone"] == "cargo" else 0.60
     if float(item["mass"])>1.0: duration = 0.85
+    if Data.is_heavy(item["kind"]): duration = 1.2
     if item["kind"] == "pc": duration = 1.1
     if action == "open": duration = 1.0
     var cost: float = float(item["mass"]) if action == "grab" else 3.0*(2.0 if item["kind"] == "pc" else 1.0)
+    if action == "grab" and Data.is_heavy(item["kind"]): cost = 3.0
     if remaining-reserve < cost:
         message = "Keep enough time for the drive home. Return or choose a cheaper action."
         return false
     message = "Opening / stripping... Esc cancels; effort already spent is not refunded." if action == "open" else "Lifting... release to cancel. Effort already spent is not refunded."
+    if action == "grab" and Data.is_heavy(item["kind"]): message = "Bracing: very heavy. Only small nudges; try working around it."
     effort = {"uid":uid,"action":action,"elapsed":0.0,"duration":duration,"cost":cost}
     return true
 
@@ -112,7 +118,7 @@ func step(delta: float, target: Vector2) -> void:
                 original = {"center":item["center"],"zone":item["zone"],"rotation":item["rotation"]}
                 rotation = item["rotation"]
                 if pile.objects.has(uid): pile.raise_item(uid)
-                message = "Drag to the sorting area or trunk. Q/E or wheel rotates. Esc cancels."
+                message = "Very heavy: nudge it aside or work around it; you cannot lift it by hand." if Data.is_heavy(item["kind"]) else "Drag to the sorting area or trunk. Q/E or wheel rotates. Esc cancels."
 
 func turn(step_by: int) -> void:
     if held == "" or paused: return
