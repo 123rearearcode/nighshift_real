@@ -22,7 +22,7 @@ func _ready() -> void:
     _button("Achievements", 400, _on_achievements)
     _button("Salvage demo", 458, _on_salvage)
     _button("Settings", 516, _on_settings)
-    status_label = _label("New game opens the repair shop. The salvage demo never touches your save.", Vector2(420, 578), Vector2(440, 42), 13)
+    status_label = _label("New game opens the repair shop. The salvage demo never touches your save.", Vector2(424, 574), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"

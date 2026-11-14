@@ -145,12 +145,20 @@ func test_rim_release_and_cargo_spawn() -> void:
     s.grids[s.car].place("packed","gpu",Vector2i(0,0),0)
     w.sync(s,pointer)
     await ticks(w,s,40)
-    var staged_at: Vector2 = w.bodies["staged"].position
+    # Pin the staged find on the old fixed spawn point so the probe has something real to avoid.
+    var blocker: Node2D = w.bodies["staged"]
+    blocker.freeze = true
+    blocker.linear_velocity = Vector2.ZERO
+    blocker.global_position = Vector2(780,200)
+    s.pile.objects["staged"]["center"] = Vector2(780,200)
+    await physics_frame
     check(s.start_effort("packed","grab"),"grip the packed find to bring it back out")
-    await ticks(w,s,30)
+    w.sync(s,pointer)
     check(s.held == "packed" and w.bodies.has("packed"),"the cargo body re-enters the world")
-    check(w.bodies["staged"].position.distance_to(staged_at) < 12.0,
-        "re-entry does not materialise inside the staged find and knock it away")
+    var packed_rect := Rect2(w.bodies["packed"].position - Vector2(39,13), Vector2(78,26))
+    var blocker_rect := Rect2(blocker.position - Vector2(30,30), Vector2(60,60))
+    check(not packed_rect.intersects(blocker_rect),
+        "re-entry does not materialise inside the staged find (free-space spawn probe)")
     s.cancel_hand()
     w.sync(s,pointer)
     w.free()

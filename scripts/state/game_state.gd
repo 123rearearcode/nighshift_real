@@ -204,11 +204,12 @@ func start_repair_ticket() -> void:
 func _starter_inventory() -> Array:
     return [{"uid":"trial_ram_a","kind":"ram","tier":"similar","owner":"player","condition":"working"},
         {"uid":"trial_ram_b","kind":"ram","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"},
         {"uid":"trial_gpu","kind":Ids.GPU,"tier":"similar","owner":"player","condition":"working"},
         {"uid":"stock_gpu_budget","kind":Ids.GPU,"tier":"budget","owner":"player","condition":"working"},
         {"uid":"stock_cooler_similar","kind":Ids.COOLER,"tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_cooler_budget","kind":Ids.COOLER,"tier":"budget","owner":"player","condition":"working"}]
+        {"uid":"stock_cooler_budget","kind":Ids.COOLER,"tier":"budget","owner":"player","condition":"working"},
+        # Last on purpose: the drawer packs in list order, and everything before keeps its cells.
+        {"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"}]
 
 func inventory_components() -> Array:
     var stock: Array = []
@@ -439,10 +440,13 @@ func load_game() -> bool:
             var uid: String = str(record.get("uid",""))
             var kind: String = str(record.get("kind",""))
             var tier: String = str(record.get("tier",""))
-            if uid == "" or seen_stock.has(uid) or not kind in ["ram", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
+            if uid == "" or seen_stock.has(uid) or not kind in ["ram", "cpu", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
             if str(record.get("owner","player")) != "player" or str(record.get("condition","working")) != "working": continue
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
+    # Saves from before the CPU existed gain the demo CPU once (D111); later loads keep it.
+    if raw_stock is Array and not seen_stock.has("stock_cpu_demo"):
+        player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"})
     var saved_layout: Variant = data.get("inventory_layout",{})
     inventory_layout = saved_layout if saved_layout is Dictionary else {}
     var saved_up: Variant = data.get("upgrades", {})
