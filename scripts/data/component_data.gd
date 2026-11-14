@@ -73,7 +73,7 @@ static func demo_board() -> Dictionary:
             # Real-life order (user, 0.29.0): the CPU goes into the socket, the cooler clamps onto
             # the mount around it. "requires" makes a slot usable only once that other slot is filled.
             {"id": "cooler_mount", "label": "Cooler mount", "short_label": "CM", "type": "COOLER_MOUNT",
-                "origin": Vector2i(3, 1), "footprint": Vector2i(2, 2), "requires": "cpu"},
+                "origin": Vector2i(0, 4), "footprint": Vector2i(2, 2), "requires": "cpu"},
         ],
     }
 

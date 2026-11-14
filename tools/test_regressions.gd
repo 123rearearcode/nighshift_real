@@ -1783,7 +1783,7 @@ func test_0_29(gs: Node) -> void:
     var board: Dictionary = pc["board"]
     var cooler: Dictionary = ServiceParts.component("stock_cooler_similar", "cooler", "similar")
     var cpu: Dictionary = Data.cpu_chip()
-    var mount_cell: Vector2i = Vector2i(3, 1)
+    var mount_cell: Vector2i = Vector2i(0, 4)   # the mount sits right under the CPU socket
     var blocked: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {}, pc["depth"])
     check(not blocked["ok"] and str(blocked["message"]).contains("cpu"), "the cooler mount refuses until a CPU sits in the socket (real-life order)")
     var with_cpu: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {"cpu": "stock_cpu_demo"}, pc["depth"])
