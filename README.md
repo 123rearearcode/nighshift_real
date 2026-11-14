@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.27.0)
+# Nightshift - Godot Foundation Trial (v0.28.0)
 
 
 **Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting

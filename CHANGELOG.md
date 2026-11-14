@@ -39,6 +39,94 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.28.0 - 2026-11-14 - Cross-review fixes, customer rotation, settings, rim containment
+
+- Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
+- Based on: 0.27.0
+- Type: minor (new menu feature, rotation rule, save hardening; saves migrate)
+
+### Execution status
+Godot was NOT run by me directly. GitHub Actions ran all eleven suites on Godot 4.7.2 headless.
+No interactive playtest is claimed.
+Actions result: run 43612741461 on 9d6251f succeeded — Data schema 198, Regression 564, Start
+screen 14, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36,
+Performance contracts 24, Salvage 40, Salvage physics 32, Pending contracts 0; 1004 checks,
+0 failures, plus the scripted bench playtest. The first push failed one new check (sparse visit
+records crashed the history normaliser); fixed in 9d6251f and caught only because test_0_28
+feeds the loader damaged saves.
+
+### Added
+- Settings on the main menu (D107): a sound slider (master volume, applied live, muted at zero).
+  Kept in its own `user://nightshift_settings.json` — never in the game save, survives new games.
+- Customer rotation (D104): completing a ticket brings the NEXT customer in, so Relu D. actually
+  appears after Mara's PC is done. Abandoning a ticket keeps the same customer waiting. The
+  counter is the shop's property (saved, kept across new games); the ticket's name, complaint and
+  payout now come from the customer record.
+- The dossier leads with a NEEDS line (user request): "NEEDS: boots up, runs quiet" for Mara,
+  "NEEDS: boots up, Counter Stroke 2 at 60 fps" for Relu. A clueless customer's line will show
+  only what they SAY (the stated decoy, D93).
+
+### Changed
+- Both lower-card shop tabs (Final check, Customer) are now bounded ScrollContainers: long text
+  scrolls inside the card instead of spilling over the footer (Codex cross-review of 0.25.0,
+  finding 1 — also the user's screenshot).
+- Trust moves at least ±1 per pickup (D105, Codex finding 2): happy gains max(1, round((score−70)/10)),
+  unhappy loses at least 1. Integer division used to swallow scores 61–79 entirely.
+- Salvage (D108, user playtest): the held find can no longer bulldoze other finds out of the
+  dumpster. A rim barrier (layer 256, rim to ceiling) stops every body except the held one; only
+  the carried find crosses the rim. Releasing a find exactly over the 12 px rim column will
+  depenetrate it sideways — accepted for the prototype.
+
+### Fixed
+- Loaded customer history is rebuilt field by field (D106, Codex finding 3): junk entries are
+  dropped instead of crashing the shop with an invalid cast, a missing trust defaults to that
+  customer's own trust_start (Relu 65, not 50), scores/comebacks are clamped, and each customer
+  keeps only the last 10 visits (proposal).
+
+### Removed
+- The unused PAYOUT constant (the payout comes from the customer record now).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/game_state.gd` | M | Rotation counter, trust_step, history normalisation + cap, settings load/save, payout from record |
+| `scripts/view/shop_view.gd` | M | ScrollContainer tabs, NEEDS line, defensive history read |
+| `scripts/view/start_view.gd` | M | Settings button + dialog with the sound slider |
+| `scripts/salvage/salvage_physics.gd` | M | Rim barrier (layer 256); held body drops the barrier bit |
+| `scripts/salvage/salvage_body.gd` | M | Default collision mask includes the barrier |
+| `tools/test_regressions.gd` | M | test_0_28 (rotation, trust steps, damaged saves, history cap, settings, dossier bounds); rotation pins in older money asserts; scroll-based tab checks |
+| `tools/test_start_screen.gd` | M | Settings dialog and slider checks |
+| `tools/test_salvage_physics.gd` | M | Rim-barrier containment + carried-find crossing checks |
+| `docs/DECISIONS.md` | M | D104–D108 |
+| `HANDOFF.md` | M | 0.28.0 section; version |
+| `README.md` | M | Version |
+| `project.godot` | M | config/version 0.28.0 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: PASSED (0 problems).
+- GitHub Actions (all suites) on branch `feature/0.28.0`: recorded under Execution status when
+  the run finishes.
+
+### Decisions proposed (not approved)
+- History cap at 10 visits per customer; the rotation order (simply the order in `customers.gd`).
+- Trust step sizes (±1 minimum, about 1 per 10 points from the threshold).
+- "Abandoning keeps the same customer" as the New-game rule.
+- The dossier keeps showing the exact budget for the prototype (Codex flagged it; later pricing
+  may hide the customer's true maximum).
+
+### Known issues and open items
+- Ticket IDs restart at T001 per run, so history from different runs shares IDs (Codex); real
+  comeback/scam resolution needs unambiguous visit identity — before the night loop.
+- Wave 2 (the software-checks monitor screen: boot test, anti-virus, Vapor store) is NOT started,
+  per the user's explicit instruction.
+- Relu's fps need is scored invisibly until the software screen exists; the dossier at least
+  names it now.
+
+### Next action
+Await the user's playtest of 0.28.0; wave 2 (software-checks screen) only when the user says so.
+
+
 ## 0.27.0 - 2026-11-14 - Native 2D dumpster gravity, collisions and opening containers
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.26.0, 15d616f4fe2654a6ae79eb6124693dd194e7d4cc, continuing the existing unmerged salvage PR #33; latest main remains 0.25.0.

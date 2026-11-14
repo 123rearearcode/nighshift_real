@@ -14,7 +14,7 @@ func configure(item: Dictionary) -> void:
     signature = key
     mass = float(item["mass"])
     collision_layer = 128
-    collision_mask = 128
+    collision_mask = 384   # finds (128) + the rim barrier (256, D108); the held body drops the barrier bit
     continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE if item["kind"] in ["ram","gpu","drive"] or item["opened"] else RigidBody2D.CCD_MODE_DISABLED
     linear_damp = 0.65
     angular_damp = 1.5

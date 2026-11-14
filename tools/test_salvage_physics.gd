@@ -28,6 +28,7 @@ func ticks(world: Node, s: RefCounted, count: int, at: Vector2 = Vector2.ZERO) -
 func run() -> void:
     Engine.max_fps = 120
     await test_stack_and_grip()
+    await test_rim_barrier()
     await test_containers_and_cargo()
     await test_scene()
     Session.demo = null
@@ -72,6 +73,33 @@ func test_stack_and_grip() -> void:
     await ticks(w,s,45,upper.position)
     check(not s.drop_cargo(Vector2i.ZERO) and not s.cargo[s.car].has("upper"),"trunk claim requires physical extraction over the rim")
     w.sync(s,pointer)
+    w.free()
+    await physics_frame
+
+# D108 (0.28.0, user playtest): a held find must not work as a bulldozer. Only the body you are
+# actually carrying may cross the rim; everything else is stopped by the rim barrier.
+func test_rim_barrier() -> void:
+    var s: RefCounted = blank()
+    add(s,"loose","box",Vector2(560,250),Vector2(60,60))
+    var w := World.new()
+    root.add_child(w)
+    w.sync(s,pointer)
+    check(w.bodies["loose"].collision_mask == 384,"an idle find collides with the rim barrier")
+    w.bodies["loose"].linear_velocity = Vector2(900,-30)
+    var escaped: bool = false
+    for i in range(150):
+        await physics_frame
+        w.capture()
+        s.step(1.0/60.0,pointer)
+        w.sync(s,pointer)
+        if w.bodies["loose"].position.x > 632: escaped = true
+    check(not escaped,"a find that is not held cannot be knocked out of the dumpster (D108)")
+    check(s.start_effort("loose","grab"),"the same find can still be gripped")
+    w.remember_grab("loose",w.bodies["loose"].position)
+    await ticks(w,s,50)
+    check(s.held == "loose" and w.bodies["loose"].collision_mask == 128,"the carried find alone ignores the rim barrier")
+    await ticks(w,s,300,Vector2(760,260))
+    check(w.bodies["loose"].position.x > 640,"the carried find is lifted over the rim as before")
     w.free()
     await physics_frame
 

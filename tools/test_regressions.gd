@@ -42,6 +42,7 @@ func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var original_path: String = gs.save_path
     gs.save_path = "user://regression_test_only.json"
+    gs.tickets_taken = 0   # D104: the customer rotation advances per completed ticket; pin it for determinism
     gs.new_game()
     check(not gs.run_final_check()["passed"] and gs.money == 100, "unrepaired PC cannot collect payment")
     var z: Array = Zones.zones()
@@ -207,6 +208,7 @@ func run_checks() -> void:
     test_0_21(gs)
     test_0_23(gs)
     test_0_25(gs)
+    test_0_28(gs)
     test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
@@ -232,6 +234,7 @@ func test_pick_service(gs: Node) -> void:
     for i in range(47): premature_attempt = not tool.step(1.0 / 60.0, "gpu", true, 0.99).is_empty() or premature_attempt
     check(not premature_attempt, "no attempt or risk roll before the complete stroke")
     check(not tool.step(1.0 / 60.0, "gpu", true, 0.99).is_empty(), "60Hz stroke reaches one attempt")
+    gs.tickets_taken = 0   # this block asserts Mara's $60 payout (rotation is tested in test_0_28)
     gs.new_game()
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
@@ -992,6 +995,7 @@ func pasted(gs: Node) -> void:
 func test_repaste_and_toothpaste(gs: Node) -> void:
     var fractions: Dictionary = {}
     for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
+    gs.tickets_taken = 0   # this test asserts Mara's $60 payout twice (rotation is tested in test_0_28)
     gs.new_game()
     gs.set_dust(fractions)
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
@@ -1005,6 +1009,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     check(not gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost, "a completed repaste cannot be completed (or charged) twice")
     var honest: Dictionary = gs.run_final_check()
     check(honest["passed"] and honest["paid"] == 60, "a completed thermal repaste on a clean PC passes and pays")
+    gs.tickets_taken = 0
     gs.new_game()
     gs.set_dust(fractions)
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
@@ -1581,6 +1586,7 @@ func test_0_23(gs: Node) -> void:
     pasted(gs)
     gs.job["removed_parts"].append(Ids.COOLER)
     check(not bool(gs.run_final_check()["passed"]), "a part left out still fails (functionality is required)")
+    gs.tickets_taken = 0   # the checks below name Mara
     gs.new_game()
     var zero: Dictionary = {}
     for zone: Dictionary in Zones.zones(): zero[zone["id"]] = 0.0
@@ -1595,12 +1601,12 @@ func test_0_23(gs: Node) -> void:
     check(str(gs.job["customer_id"]) == "t001_mara", "an older save gains the customer on load")
     var shop: Node = load("res://scenes/shop.tscn").instantiate()
     root.add_child(shop)
-    check(shop.customer_label != null and not shop.customer_label.visible and shop.result_label.visible, "the shop opens on the Final check tab")
+    check(shop.customer_label != null and not shop.customer_scroll.visible and shop.result_scroll.visible, "the shop opens on the Final check tab")
     shop._show_tab(1)
-    check(shop.customer_label.visible and not shop.result_label.visible, "the Customer tab swaps the lower card")
+    check(shop.customer_scroll.visible and not shop.result_scroll.visible, "the Customer tab swaps the lower card")
     check(shop.customer_label.text.contains("Mara V.") and shop.customer_label.text.contains("trust"), "the Customer tab shows who they are and the earned trust")
     shop._on_check_pressed()
-    check(shop.result_label.visible and not shop.customer_label.visible, "running the check returns to the Final check tab")
+    check(shop.result_scroll.visible and not shop.customer_scroll.visible, "running the check returns to the Final check tab")
     shop.queue_free()
 
 
@@ -1615,6 +1621,7 @@ func test_0_25(gs: Node) -> void:
     check(starved < 60 and starved > 0, "too little RAM makes it stutter (%d fps)" % starved)
     check(FpsSim.fps(0.0, 100.0, 8.0, cs2) == 0, "a dead GPU renders nothing")
     check(FpsSim.thermal_factor(50.0) == 1.0 and FpsSim.thermal_factor(90.0) == 0.5, "throttling runs from none at 60 C to half at 90 C")
+    gs.tickets_taken = 0   # the pickup below is scored against Mara
     gs.new_game()
     var cash: int = gs.money
     check(not gs.buy_game("half life 3"), "an unknown game cannot be bought")
@@ -1651,3 +1658,89 @@ func test_0_25(gs: Node) -> void:
         "angrier customers come back sooner; happy ones do not")
     var happy_relu: Dictionary = PickupScore.score(relu, 45.0, 100.0, 100.0, 8.0, float(gs.PASS_TEMP))
     check(int(happy_relu["score"]) >= PickupScore.HAPPY_FROM, "a cool full-power PC satisfies the gamer")
+
+
+# 0.28.0: customer rotation (D104), honest trust steps (D105), hardened history loads (D106),
+# the sound setting (D107) and the bounded dossier that leads with the customer's needs.
+func test_0_28(gs: Node) -> void:
+    check(gs.trust_step(100) == 3 and gs.trust_step(75) == 1 and gs.trust_step(70) == 1,
+        "every happy pickup gains at least 1 trust (Codex cross-review finding 2)")
+    check(gs.trust_step(69) == -1 and gs.trust_step(65) == -1 and gs.trust_step(40) == -3,
+        "every unhappy pickup loses at least 1 trust")
+    # Rotation (D104): completing a ticket brings the next customer; abandoning does not.
+    gs.tickets_taken = 0
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "the first ticket is Mara's")
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "abandoning a ticket keeps the same customer waiting")
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    check(bool(gs.run_final_check()["passed"]), "Mara's ticket completes")
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t002_relu" and int(gs.job["payout"]) == 80 and str(gs.job["customer"]) == "Relu D.",
+        "a completed ticket brings the next customer: Relu, at his own payout")
+    gs.save_game()
+    gs.load_game()
+    check(gs.tickets_taken == 1 and str(gs.job["customer_id"]) == "t002_relu", "the rotation survives save and load")
+    # Damaged saves (Codex cross-review finding 3): junk history entries are dropped, fields are
+    # rebuilt, and a missing trust falls back to THAT customer's starting trust, never 50.
+    gs.customer_state = {"t002_relu": {"history": [7, "junk", {"score": 150, "comeback_days": -2, "misses": "no"}]},
+        "t001_mara": {"trust": 150, "history": []}}
+    gs.save_game()
+    gs.load_game()
+    var relu: Dictionary = gs.customer_view("t002_relu")
+    check(int(relu["trust"]) == int(Customers.customer("t002_relu")["trust_start"]), "missing trust defaults to Relu's own starting trust")
+    check((relu["history"] as Array).size() == 1, "junk history entries are dropped on load instead of crashing the shop")
+    var visit: Dictionary = (relu["history"] as Array)[0]
+    check(int(visit["score"]) == 100 and int(visit["comeback_days"]) == 0 and visit["misses"] is Array,
+        "a damaged visit record is rebuilt with sane fields")
+    check(int(gs.customer_view("t001_mara")["trust"]) == 100, "out-of-range trust is clamped on load")
+    # History stays bounded (D106).
+    var long_history: Array = []
+    for i in range(gs.HISTORY_KEEP + 4):
+        long_history.append({"ticket": "T%03d" % i, "score": 90, "misses": [], "comeback_days": 0, "scams": []})
+    gs.customer_state = {"t001_mara": {"trust": 60, "history": long_history}}
+    gs.save_game()
+    gs.load_game()
+    check((gs.customer_view("t001_mara")["history"] as Array).size() == gs.HISTORY_KEEP,
+        "each customer keeps only the last %d visits" % gs.HISTORY_KEEP)
+    # The sound setting (D107): its own file, survives a reload, never in the game save.
+    var original_settings: String = gs.settings_path
+    gs.settings_path = "user://regression_settings_test.json"
+    gs.set_sound_volume(0.3)
+    gs.sound_volume = 1.0
+    gs._load_settings()
+    check(is_equal_approx(gs.sound_volume, 0.3), "the sound volume comes back through its settings file")
+    var master: int = AudioServer.get_bus_index("Master")
+    gs.set_sound_volume(0.0, false)
+    check(AudioServer.is_bus_mute(master), "zero volume mutes the master bus")
+    gs.set_sound_volume(1.0, false)
+    check(not AudioServer.is_bus_mute(master) and absf(AudioServer.get_bus_volume_db(master)) < 0.01, "full volume restores the bus")
+    var save_data: Variant = SaveStore.read(gs.save_path)
+    check(save_data is Dictionary and not (save_data as Dictionary).has("sound_volume"), "settings never leak into the game save")
+    for suffix in ["", ".bak", ".tmp"]:
+        DirAccess.remove_absolute(gs.settings_path + suffix)
+    gs.settings_path = original_settings
+    # The dossier stays inside its card (Codex finding 1, user screenshot) and leads with needs.
+    gs.tickets_taken = 0
+    gs.new_game()
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.customer_scroll.size == Vector2(560, 195) and shop.customer_scroll.position.y + shop.customer_scroll.size.y <= 675.0,
+        "the dossier is a bounded scrolling card that ends above the footer")
+    check(shop.customer_label.get_parent() == shop.customer_scroll and shop.result_label.get_parent() == shop.result_scroll,
+        "both lower-card tabs scroll instead of growing over the screen")
+    check(shop.customer_label.text.begins_with("NEEDS: "), "the dossier leads with what the customer needs")
+    check(shop.customer_label.text.contains("boots up") and shop.customer_label.text.contains("runs quiet"), "Mara needs a booting, quiet PC")
+    shop.queue_free()
+    gs.tickets_taken = 1
+    gs.new_game()
+    var shop_relu: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop_relu)
+    check(shop_relu.customer_label.text.contains("Counter Stroke 2 at 60 fps"), "Relu's dossier names the game and frame rate he needs")
+    shop_relu.queue_free()
+    gs.tickets_taken = 0
+    gs.new_game()

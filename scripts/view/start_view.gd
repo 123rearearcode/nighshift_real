@@ -7,6 +7,9 @@ var load_button: Button
 var status_label: Label
 var replace_dialog: ConfirmationDialog
 var achievements_dialog: AcceptDialog
+var settings_dialog: AcceptDialog
+var volume_slider: HSlider
+var volume_label: Label
 
 
 func _ready() -> void:
@@ -18,7 +21,8 @@ func _ready() -> void:
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 432, _on_achievements)
     _button("Salvage demo", 498, _on_salvage)
-    status_label = _label("New game opens the repair shop. Salvage demo is separate and never replaces your save.", Vector2(380, 564), Vector2(520, 60), 16)
+    _button("Settings", 564, _on_settings)
+    status_label = _label("New game opens the repair shop. Salvage demo is separate and never replaces your save.", Vector2(380, 624), Vector2(520, 34), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
@@ -30,6 +34,7 @@ func _ready() -> void:
     achievements_dialog.title = "Achievements"
     achievements_dialog.dialog_text = "Achievements are not available in this demo yet."
     add_child(achievements_dialog)
+    _build_settings_dialog()
     first.grab_focus()
 
 
@@ -79,6 +84,44 @@ func _on_load_game() -> void:
 
 func _on_salvage() -> void:
     get_tree().change_scene_to_file("res://scenes/salvage.tscn")
+
+
+# Settings (D107): just the sound slider for now. The value applies as it moves and is kept
+# in its own settings file, so it survives new games and never touches the save.
+func _build_settings_dialog() -> void:
+    settings_dialog = AcceptDialog.new()
+    settings_dialog.title = "Settings"
+    settings_dialog.ok_button_text = "Done"
+    var box := VBoxContainer.new()
+    box.custom_minimum_size = Vector2(360, 86)
+    box.add_theme_constant_override("separation", 12)
+    volume_label = Label.new()
+    volume_label.add_theme_font_size_override("font_size", 17)
+    box.add_child(volume_label)
+    volume_slider = HSlider.new()
+    volume_slider.min_value = 0
+    volume_slider.max_value = 100
+    volume_slider.step = 1
+    volume_slider.custom_minimum_size = Vector2(340, 24)
+    volume_slider.value_changed.connect(_on_volume_changed)
+    box.add_child(volume_slider)
+    settings_dialog.add_child(box)
+    add_child(settings_dialog)
+
+
+func _on_settings() -> void:
+    volume_slider.set_value_no_signal(roundf(GameState.sound_volume * 100.0))
+    _update_volume_label()
+    settings_dialog.popup_centered(Vector2i(420, 190))
+
+
+func _on_volume_changed(value: float) -> void:
+    GameState.set_sound_volume(value / 100.0)
+    _update_volume_label()
+
+
+func _update_volume_label() -> void:
+    volume_label.text = "Sound volume: %d%%" % roundi(volume_slider.value)
 
 
 func _on_achievements() -> void:

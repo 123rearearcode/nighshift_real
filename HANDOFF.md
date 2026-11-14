@@ -1,11 +1,25 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.27.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.28.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026, 0.27.0 native dumpster physics (also 0.26.0 salvage demo). Earlier contributors: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.28.0 — cross-review fixes, rotation, settings, rim containment
+
+Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
+Both cross-reviews are done: Claude reviewed and merged Codex's native dumpster physics (PR #33),
+and applied all three findings from Codex's cross-review of 0.25.0 (PR #32): the shop's lower-card
+tabs are bounded ScrollContainers (no more dossier overflow), trust moves at least ±1 per pickup
+(trust_step; integer division used to swallow small scores), and loaded history entries are rebuilt
+field by field with per-customer trust_start defaults (plus a 10-entry cap, D106). User requests in
+the same release: the dossier leads with a NEEDS line; customers ROTATE per completed ticket (D104,
+so Relu D. actually appears); a Settings dialog on the main menu with a sound slider (D107, its own
+user://nightshift_settings.json); and the held salvage find can no longer bulldoze other finds out
+of the dumpster (D108: rim barrier on layer 256 that only the carried body ignores). Wave 2 (the
+software-checks monitor screen) is deliberately NOT started, per the user.
 
 ## Current update 0.27.0 — real 2D dumpster physics trial
 

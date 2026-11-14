@@ -18,10 +18,11 @@ const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
+const SETTINGS_PATH: String = "user://nightshift_settings.json"
+const HISTORY_KEEP: int = 10    # pickup history entries kept per customer (D106, proposal)
 # Bump only when the saved data changes shape incompatibly (and log it in CHANGELOG.md).
 const SAVE_FORMAT: int = 1
 const START_MONEY: int = 100
-const PAYOUT: int = 60
 const PASS_TEMP: float = 75.0        # final check passes below this temperature (C)
 const BASE_TEMP: float = 42.0
 const UPGRADE_PRICES: Dictionary = {"square_cloth": 40, "long_hose": 40}   # demo prices
@@ -44,9 +45,13 @@ var job: Dictionary = {}
 var upgrades: Dictionary = {}   # upgrade id -> true once bought
 var owned_games: Array = []     # game ids the shop bought to test with (D94); kept across tickets
 var customer_state: Dictionary = {}   # customer id -> {"trust": int, "history": Array}; what the shop EARNED (kept across tickets)
+var tickets_taken: int = 0      # how many tickets the shop has COMPLETED; picks the next customer (D104); kept across tickets
+var sound_volume: float = 1.0   # master volume 0..1 (D107); lives in its own settings file, never in the game save
+var settings_path: String = SETTINGS_PATH # injectable for isolated regression tests
 
 
 func _ready() -> void:
+    _load_settings()
     if not load_game():
         new_game(false)   # title screen must not create/overwrite a save just by opening
 
@@ -68,7 +73,11 @@ func new_game(persist: bool = true) -> void:
         save_game()
 
 
+# The next ticket's customer rotates with every COMPLETED ticket (D104): finish Mara's PC and
+# Relu brings his in; abandon a ticket and the same customer is still waiting on it.
 func _make_job() -> Dictionary:
+    var cid: String = Customers.IDS[tickets_taken % Customers.IDS.size()]
+    var who: Dictionary = Customers.customer(cid)
     return {
         "id": "T%03d" % ticket_sequence,
         "removed_component_records": [],
@@ -80,9 +89,9 @@ func _make_job() -> Dictionary:
         "broken_parts": [],
         "service_replacements": {},
         "hardware_trial": {},
-        "customer_id": "t001_mara",   # key into scripts/data/customers.gd
-        "customer": "Mara V.",
-        "complaint": "PC overheats and the fan is very loud.",
+        "customer_id": cid,           # key into scripts/data/customers.gd; rotates per ticket (D104)
+        "customer": str(who["name"]),
+        "complaint": str(who["complaint"]),
         "state": "open",          # "open" or "done"
         "cleaned": false,         # true only when every dusty part is clean (derived from "dust")
         "dust_state": {},
@@ -97,7 +106,7 @@ func _make_job() -> Dictionary:
         "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
-        "payout": PAYOUT,
+        "payout": int(who["payout"]),
     }
 
 
@@ -379,6 +388,7 @@ func save_game() -> void:
         "upgrades": upgrades,
         "owned_games": owned_games,
         "customer_state": customer_state,
+        "tickets_taken": tickets_taken,
         "job": job,
     }
     SaveStore.write(save_path, data)
@@ -427,12 +437,32 @@ func load_game() -> bool:
     var raw_customers: Variant = data.get("customer_state", {})
     if raw_customers is Dictionary:
         for cid: Variant in raw_customers:
-            if Customers.customer(str(cid)).is_empty(): continue
+            var record: Dictionary = Customers.customer(str(cid))
+            if record.is_empty(): continue
             var entry: Variant = raw_customers[cid]
             if not entry is Dictionary: continue
-            var past: Variant = (entry as Dictionary).get("history", [])
-            customer_state[str(cid)] = {"trust": clampi(int((entry as Dictionary).get("trust", 50)), 0, 100),
-                "history": past if past is Array else []}
+            # D106: each history entry is rebuilt field by field; anything that is not a
+            # Dictionary (hand-edited or damaged saves) is dropped instead of crashing the shop.
+            var past: Array = []
+            var raw_past: Variant = (entry as Dictionary).get("history", [])
+            if raw_past is Array:
+                for visit: Variant in raw_past:
+                    if not visit is Dictionary: continue
+                    var v: Dictionary = visit
+                    var misses: Array = []
+                    var raw_misses: Variant = v.get("misses", [])
+                    if raw_misses is Array:
+                        for miss: Variant in raw_misses: misses.append(str(miss))
+                    var scams: Array = []
+                    var raw_scams: Variant = v.get("scams", [])
+                    if raw_scams is Array:
+                        for scam: Variant in raw_scams: scams.append(str(scam))
+                    past.append({"ticket": str(v.get("ticket", "")), "score": clampi(int(v.get("score", 0)), 0, 100),
+                        "misses": misses, "comeback_days": maxi(0, int(v.get("comeback_days", 0))), "scams": scams})
+            while past.size() > HISTORY_KEEP: past.pop_front()
+            customer_state[str(cid)] = {"trust": clampi(int((entry as Dictionary).get("trust", int(record.get("trust_start", 50)))), 0, 100),
+                "history": past}
+    tickets_taken = maxi(0, int(data.get("tickets_taken", 0)))
     job = _make_job()
     var saved: Variant = data.get("job", {})
     if typeof(saved) == TYPE_DICTIONARY:
@@ -542,6 +572,33 @@ func owns_game(game_id: String) -> bool:
     return game_id in owned_games
 
 
+# D105: a happy visit always gains at least 1 trust, an unhappy one always loses at least 1;
+# bigger gaps move more (about 1 per 10 points from the threshold). Integer division used to
+# swallow small scores entirely (Codex's cross-review of 0.25.0, finding 2).
+func trust_step(score: int) -> int:
+    var step: int = roundi((score - PickupScore.HAPPY_FROM) / 10.0)
+    return maxi(1, step) if score >= PickupScore.HAPPY_FROM else mini(-1, step)
+
+
+# ----- settings (D107): app-level, own file, never part of the game save -----
+
+func set_sound_volume(value: float, persist: bool = true) -> void:
+    sound_volume = clampf(value, 0.0, 1.0)
+    var bus: int = AudioServer.get_bus_index("Master")
+    AudioServer.set_bus_mute(bus, sound_volume <= 0.001)
+    AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(sound_volume, 0.001)))
+    if persist:
+        SaveStore.write(settings_path, {"sound_volume": sound_volume})
+
+
+func _load_settings() -> void:
+    var parsed: Variant = SaveStore.read(settings_path)
+    var value: float = 1.0
+    if parsed is Dictionary:
+        value = float((parsed as Dictionary).get("sound_volume", 1.0))
+    set_sound_volume(value, false)
+
+
 # Called once, when the ticket first passes: score the pickup (D95) and write trust and history.
 func _record_pickup(temp: float) -> Dictionary:
     var who: Dictionary = customer_view(str(job.get("customer_id", "")))
@@ -549,11 +606,14 @@ func _record_pickup(temp: float) -> Dictionary:
     var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
     var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP)
     var days: int = PickupScore.comeback_days(int(result["score"]))
-    var trust: int = clampi(int(who["trust"]) + (int(result["score"]) - PickupScore.HAPPY_FROM) / 10, 0, 100)
+    var trust: int = clampi(int(who["trust"]) + trust_step(int(result["score"])), 0, 100)
+    tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)
     var entry: Dictionary = {"ticket": str(job["id"]), "score": int(result["score"]), "misses": result["misses"],
         "comeback_days": days, "scams": (job["scams"] as Array).duplicate()}
     var state: Dictionary = customer_state.get(str(who["id"]), {"trust": int(who["trust"]), "history": []})
     state["trust"] = trust
     (state["history"] as Array).append(entry)
+    while (state["history"] as Array).size() > HISTORY_KEEP:
+        (state["history"] as Array).pop_front()
     customer_state[str(who["id"])] = state
     return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust}
