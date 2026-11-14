@@ -256,3 +256,12 @@ friction, damping, spawn layout and rim/sorting geometry are provisional feel tu
 soft-body simulation, new economy or target hardware performance is approved by this trial. Grid/time/
 identity rules remain; world release is physical, cargo rollback stays logical. Existing ownership and
 no-hot-file/shared-state boundary remain in force. Updated in the existing salvage PR; no self-merge.
+
+## Cross-review round, rotation, settings and rim containment — 14 November 2026, trial 0.28.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's direction and both cross-reviews.
+
+D104 (confirmed): customers ROTATE per COMPLETED ticket: finish a ticket and the next customer in `customers.gd` brings the next one; abandoning a ticket (New game without completing) keeps the same customer waiting. The counter (`tickets_taken`) is the shop's property: saved, kept across new games. Open (Codex): ticket IDs restart at T001 per run, so history entries from different runs can share an ID; real comeback/scam resolution will need unambiguous visit identity.
+D105 (confirmed, fixes Codex finding 2 on 0.25.0): trust moves at least ±1 at every pickup — a happy visit (score ≥ 70) gains max(1, round((score−70)/10)), an unhappy one loses at least 1. Integer division used to swallow scores 61–79 entirely.
+D106 (confirmed, fixes Codex finding 3 on 0.25.0): loaded customer history is rebuilt field by field; anything that is not a visit Dictionary is dropped instead of crashing the shop, a missing trust defaults to THAT customer's trust_start, and each customer keeps only the last 10 visits (proposal). The dossier showing the exact budget stays for the prototype (noted open by Codex; later pricing may hide it).
+D107 (confirmed): the main menu gets a Settings option — for now one sound slider (master volume, applied live, muted at zero). Settings live in their own `user://nightshift_settings.json`, never in the game save, and survive new games.
+D108 (confirmed, user playtest of the salvage demo): the find you HOLD must be lifted over the dumpster rim, but it cannot be used as a bulldozer: a rim barrier (layer 256, rim up to the ceiling) stops every body except the held one, so only the carried find can cross. Pile physics inside the dumpster stay fully interactive.

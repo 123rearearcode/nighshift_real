@@ -23,6 +23,21 @@ func run_checks() -> void:
     menu._on_achievements()
     check(menu.achievements_dialog.visible and current_scene == menu, "Achievements opens a clearly labelled placeholder without entering game")
     menu.achievements_dialog.hide()
+    # 0.28.0 (D107): Settings holds the sound slider; it drives the master bus and its own file.
+    var original_settings: String = gs.settings_path
+    gs.settings_path = "user://start_screen_settings_test.json"
+    menu._on_settings()
+    check(menu.settings_dialog.visible and current_scene == menu, "Settings opens from the menu without entering the game")
+    menu._on_volume_changed(40.0)
+    check(is_equal_approx(gs.sound_volume, 0.4), "moving the slider sets the sound volume")
+    menu._on_volume_changed(0.0)
+    check(AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "sliding to zero mutes the game")
+    menu._on_volume_changed(100.0)
+    check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "sliding back up unmutes it")
+    menu.settings_dialog.hide()
+    for suffix in ["", ".bak", ".tmp"]:
+        DirAccess.remove_absolute(gs.settings_path + suffix)
+    gs.settings_path = original_settings
     menu._on_new_game()
     await process_frame
     await process_frame

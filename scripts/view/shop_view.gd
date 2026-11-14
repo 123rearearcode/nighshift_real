@@ -7,12 +7,15 @@ const COLOR_BG := Color(0.11, 0.12, 0.15)
 const COLOR_CARD := Color(0.17, 0.19, 0.24)
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const Customers = preload("res://scripts/data/customers.gd")
+const Games = preload("res://scripts/data/games.gd")
 
 var title_label: Label
 var cash_label: Label
 var ticket_label: Label
 var result_label: Label
+var result_scroll: ScrollContainer
 var customer_label: Label
+var customer_scroll: ScrollContainer
 var tab_check: Button
 var tab_customer: Button
 var note_label: Label
@@ -34,9 +37,13 @@ func _ready() -> void:
         t.toggle_mode = true
         t.button_group = tabs
     tab_check.set_pressed_no_signal(true)
-    result_label = _make_label(Vector2(60, 470), Vector2(560, 195), 17)
-    customer_label = _make_label(Vector2(60, 470), Vector2(560, 195), 14)
-    customer_label.visible = false
+    # Both tabs live in fixed ScrollContainers so long text scrolls instead of spilling over
+    # the card and the footer (Codex's 0.25.0 cross-review, finding 1; user screenshot).
+    result_scroll = _make_scroll(Vector2(60, 470), Vector2(560, 195))
+    result_label = _make_scroll_label(result_scroll, 17)
+    customer_scroll = _make_scroll(Vector2(60, 470), Vector2(560, 195))
+    customer_label = _make_scroll_label(customer_scroll, 14)
+    customer_scroll.visible = false
     note_label = _make_label(Vector2(700, 490), Vector2(520, 170), 15)
     note_label.text = "Fix the ticket: clean, repaste, replace what is broken, then run the final check. Dust is not a blocker: it only adds temperature. The PC passes while it stays under the limit and every part works. All numbers are demo values. Progress and cash are saved automatically."
 
@@ -50,6 +57,25 @@ func _ready() -> void:
     version_label.text = "Nightshift foundation trial v%s  |  save format %d" % [GameState.game_version(), GameState.SAVE_FORMAT]
     version_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.7))
     _refresh()
+
+
+func _make_scroll(pos: Vector2, size: Vector2) -> ScrollContainer:
+    var sc := ScrollContainer.new()
+    sc.position = pos
+    sc.size = size
+    sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    add_child(sc)
+    return sc
+
+
+func _make_scroll_label(parent: ScrollContainer, font_size: int) -> Label:
+    var l := Label.new()
+    l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    l.custom_minimum_size = Vector2(540, 0)
+    l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    l.add_theme_font_size_override("font_size", font_size)
+    parent.add_child(l)
+    return l
 
 
 func _make_label(pos: Vector2, size: Vector2, font_size: int) -> Label:
@@ -76,6 +102,24 @@ func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable)
 
 func _go(path: String) -> void:
     get_tree().change_scene_to_file(path)
+
+
+# One line, first in the dossier, saying what THIS customer needs (user request). A clueless
+# customer's line shows only what they SAY (the stated decoy, D93) - the shop cannot read minds.
+func _needs_text(who: Dictionary) -> String:
+    var needs: Dictionary = who.get("needs", {})
+    if str(who.get("profession", "")) == "clueless":
+        needs = needs.get("stated", {})
+    var wants: Array = []
+    if bool(needs.get("boots", false)):
+        wants.append("boots up")
+    for entry: Variant in needs.get("games", []):
+        if entry is Dictionary:
+            var game: Dictionary = Games.game(str((entry as Dictionary).get("game_id", "")))
+            wants.append("%s at %d fps" % [str(game.get("title", "?")), int((entry as Dictionary).get("min_fps", 0))])
+    if bool(needs.get("quiet", false)):
+        wants.append("runs quiet")
+    return "NEEDS: " + (", ".join(wants) if not wants.is_empty() else "a working PC")
 
 
 func _check_mark(done: bool) -> String:
@@ -108,10 +152,11 @@ func _refresh() -> void:
     var who: Dictionary = GameState.customer_view(str(job.get("customer_id", "")))
     if not who.is_empty():
         var history: Array = who.get("history", [])
-        var last: String = "No past visits." if history.is_empty() else "Last visit: scored %d/100%s." % [int((history.back() as Dictionary).get("score", 0)),
-            "" if int((history.back() as Dictionary).get("comeback_days", 0)) == 0 else ", coming back about it in %d day(s)" % int((history.back() as Dictionary).get("comeback_days", 0))]
-        customer_label.text = "%s  -  %s  -  trust %d/100\n%s\n\nComplaint: %s\nUses: %s\nHabits: %s\nTime: %s\nBudget: $%d. Pays $%d on completion.\n%s" % [
-            str(who["name"]), str(who["profession"]), int(who["trust"]), str(who["about"]), str(who["complaint"]),
+        var last_entry: Dictionary = history.back() if (not history.is_empty() and history.back() is Dictionary) else {}
+        var last: String = "No past visits." if last_entry.is_empty() else "Last visit: scored %d/100%s." % [int(last_entry.get("score", 0)),
+            "" if int(last_entry.get("comeback_days", 0)) == 0 else ", coming back about it in %d day(s)" % int(last_entry.get("comeback_days", 0))]
+        customer_label.text = "%s\n\n%s  -  %s  -  trust %d/100\n%s\nComplaint: %s\nUses: %s\nHabits: %s\nTime: %s\nBudget: $%d. Pays $%d on completion.\n%s" % [
+            _needs_text(who), str(who["name"]), str(who["profession"]), int(who["trust"]), str(who["about"]), str(who["complaint"]),
             str(who["uses"]), str(who["habits"]), str(who["patience"]), int(who["budget"]), int(job["payout"]), last]
     ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nStatus: %s" % [
         job["id"], job["customer"], job["complaint"], int(job["payout"]),
@@ -122,8 +167,8 @@ func _refresh() -> void:
 
 
 func _show_tab(which: int) -> void:
-    result_label.visible = which == 0
-    customer_label.visible = which == 1
+    result_scroll.visible = which == 0
+    customer_scroll.visible = which == 1
     tab_check.set_pressed_no_signal(which == 0)
     tab_customer.set_pressed_no_signal(which == 1)
 

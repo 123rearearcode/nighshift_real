@@ -24,6 +24,23 @@ func _ready() -> void:
     wall(Rect2(24,130,842,10))
     wall(Rect2(36,350,12,272))
     wall(Rect2(624,350,12,272))
+    # D108 (user playtest): the find you HOLD must be lifted over the rim, but it must not be
+    # usable as a bulldozer that shoves OTHER finds out of the dumpster for free. This barrier
+    # continues the right rim up to the ceiling on layer 256; every body collides with it except
+    # the held one (sync drops its barrier bit), so only a carried find can cross the rim.
+    barrier(Rect2(624,140,12,210))
+
+func barrier(rect: Rect2) -> void:
+    var solid := StaticBody2D.new()
+    solid.position = rect.get_center()
+    solid.collision_layer = 256
+    solid.collision_mask = 0
+    var shape := RectangleShape2D.new()
+    shape.size = rect.size
+    var collider := CollisionShape2D.new()
+    collider.shape = shape
+    solid.add_child(collider)
+    terrain.add_child(solid)
 
 func wall(rect: Rect2) -> void:
     var solid := StaticBody2D.new()
@@ -115,6 +132,7 @@ func sync(session: RefCounted, pointer: Vector2) -> void:
         var held: bool = uid == session.held
         body.gripped = held
         body.can_sleep = not held
+        body.collision_mask = 128 if held else 384   # only the carried find may pass the rim barrier (D108)
         if held:
             if last_held != uid:
                 body.grip_local = pending_local if pending_uid == uid else Vector2.ZERO
