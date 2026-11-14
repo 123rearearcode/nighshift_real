@@ -154,6 +154,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/dust_pick.gd` | sim/controller | Pick stroke timing and per-attempt random risk; injectable rolls for checks |
 | `scripts/data/service_parts.gd` | data | Two generic replacement tiers for cooler/GPU; trial only |
 | `scripts/data/paste_materials.gd` | data | What can go under the cooler: thermal paste ($3) or toothpaste (free, stiffer, +14 C, a scam) |
+| `scripts/data/customers.gd` | data | The customers behind the tickets: who they are, uses, habits (scam-relevant), patience, payout; the shop's Customer tab reads it |
 | `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
 | `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
 | `scripts/bench/service_access.gd` | sim/controller | Service mount/tray geometry and drag state; no drawing/input |

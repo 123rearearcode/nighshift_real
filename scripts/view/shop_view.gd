@@ -6,11 +6,15 @@ const Layout = preload("res://scripts/data/layout.gd")
 const COLOR_BG := Color(0.11, 0.12, 0.15)
 const COLOR_CARD := Color(0.17, 0.19, 0.24)
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const Customers = preload("res://scripts/data/customers.gd")
 
 var title_label: Label
 var cash_label: Label
 var ticket_label: Label
 var result_label: Label
+var customer_label: Label
+var tab_check: Button
+var tab_customer: Button
 var note_label: Label
 var version_label: Label
 var upgrade_button: Button
@@ -22,9 +26,19 @@ func _ready() -> void:
     title_label.text = "NIGHTSHIFT - shop (foundation trial)\nA plain stand-in for the future day/night loop. One repair ticket to complete."
     cash_label = _make_label(Vector2(940, 20), Vector2(300, 40), 28)
     ticket_label = _make_label(Vector2(60, 125), Vector2(560, 300), 19)
-    result_label = _make_label(Vector2(60, 470), Vector2(560, 190), 18)
+    # The lower card has two tabs: the final-check result, and what the shop knows about the customer.
+    var tabs := ButtonGroup.new()
+    tab_check = _make_button("Final check", Vector2(60, 462), Vector2(130, 32), _show_tab.bind(0))
+    tab_customer = _make_button("Customer", Vector2(196, 462), Vector2(130, 32), _show_tab.bind(1))
+    for t: Button in [tab_check, tab_customer]:
+        t.toggle_mode = true
+        t.button_group = tabs
+    tab_check.set_pressed_no_signal(true)
+    result_label = _make_label(Vector2(60, 500), Vector2(560, 160), 18)
+    customer_label = _make_label(Vector2(60, 500), Vector2(560, 160), 15)
+    customer_label.visible = false
     note_label = _make_label(Vector2(700, 490), Vector2(520, 170), 15)
-    note_label.text = "Fix the ticket: vacuum the dust out of the whole PC, apply paste, then run the final check. The check estimates temperature from your work. All numbers are demo values. Progress and cash are saved automatically."
+    note_label.text = "Fix the ticket: clean, repaste, replace what is broken, then run the final check. Dust is not a blocker: it only adds temperature. The PC passes while it stays under the limit and every part works. All numbers are demo values. Progress and cash are saved automatically."
 
     _make_button("Open repair bench (clean + paste)", Vector2(700, 110), Vector2(420, 50), _go.bind("res://scenes/bench.tscn"))
     _make_button("Hardware bench (shaped board trial)", Vector2(700, 180), Vector2(420, 50), _go.bind("res://scenes/main.tscn"))
@@ -91,6 +105,10 @@ func _refresh() -> void:
     var temp: float = float(job["temp"])
     var paste_text: String = "(no result yet)" if grade == "" else "(result: %s)" % grade
     var check_text: String = "(not run yet)" if temp <= 0.0 else "(last: %d C, limit %d C)" % [roundi(temp), roundi(GameState.PASS_TEMP)]
+    var who: Dictionary = Customers.customer(str(job.get("customer_id", "")))
+    if not who.is_empty():
+        customer_label.text = "%s\n%s\n\nUses: %s\nHabits: %s\nTime: %s\nPays $%d on completion." % [
+            str(who["name"]), str(who["about"]), str(who["uses"]), str(who["habits"]), str(who["patience"]), int(job["payout"])]
     ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nStatus: %s" % [
         job["id"], job["customer"], job["complaint"], int(job["payout"]),
         _check_mark(cleaned), parts_clean, parts_total, _check_mark(grade != ""), paste_text,
@@ -99,7 +117,15 @@ func _refresh() -> void:
     queue_redraw()
 
 
+func _show_tab(which: int) -> void:
+    result_label.visible = which == 0
+    customer_label.visible = which == 1
+    tab_check.set_pressed_no_signal(which == 0)
+    tab_customer.set_pressed_no_signal(which == 1)
+
+
 func _on_check_pressed() -> void:
+    _show_tab(0)
     var r: Dictionary = GameState.run_final_check()
     AudioFeedback.request(self,"check.pass" if r["passed"] else "check.fail",{"temperature":r["temp"]})
     var temp: int = roundi(float(r["temp"]))

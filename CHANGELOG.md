@@ -39,6 +39,42 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.23.0 - 2026-11-14 - Dust is not a blocker; the shop knows its customer
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.22.1 (Codex's idle-performance pass, merged after cross-review)
+- Type: minor (rule change and a new shop tab). From the user's 0.22.x playtest.
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
+
+Actions result (Godot 4.7.2 headless, run 43581035981, branch feature/0.23.0): checker passed; all suites green, 0 failures (counts recorded in the log; regression includes the new D87/D88 checks). Two earlier pushes failed the checker because my edit script aborted half-way (wrong anchor text), leaving the version bumped without its changelog entry; the checker caught exactly that.
+
+### Added / Changed / Fixed / Removed
+- Changed (D87, the user's screenshot): the final check no longer fails a cool PC for leftover dust. Dust counts only through the temperature it adds; the notes still name the dusty parts, the "Every part must be cleaned" line is gone, and the shop's hint text says the new rule. Functionality is still required: broken parts, parts left out or missing graphics output fail as before, and a fully dusty PC still fails on temperature alone.
+- Added (D88): a Customer tab on the shop's lower card (tab buttons Final check | Customer; running the check returns to the result). It shows who the customer is, what they use the PC for (the source of the required graphics output), their habits (written for the scam direction: Mara V. never opens the case, notices noise, writes reviews), their time and the payment. `scripts/data/customers.gd` (fictional people only); the job carries `customer_id` with save migration.
+- Tests: customers schema; dusty-but-cool PC passes with notes and gets paid; part left out still fails; fully dusty still fails on temperature; customer on the job and after an old-save load; shop tab swap, content and return-on-check.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/customers.gd` | A | customer records |
+| `scripts/state/game_state.gd` | M | D87 rule, customer fields + migration |
+| `scripts/view/shop_view.gd` | M | tabs, customer text, hint wording |
+| `tools/test_regressions.gd`, `tools/test_data_schemas.gd` | M | new checks |
+| `DEVELOPMENT.md`, `docs/DECISIONS.md` (D87-D88), `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | docs, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+Mara V.'s habits and patience text; which habits ever become mechanics; the tab layout.
+
+### Known issues and open items
+The night loop ("advancing through the night") the user wants next is not started; the customer record is its first building block.
+
+### Next action
+User playtest of 0.23.0 (final check should now pass; read the Customer tab). Then: the user wants the night loop; design first (Codex, per the work split), while Claude continues work plan step 7. Hot files stay with Claude.
+
 ## 0.22.1 - 2026-11-13 - Reduce idle bench work and add a quick CPU profiler
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: 0.22.0, main 9d9be8ec868ae1f02bfdf1c5e38b292309df257e.

@@ -192,3 +192,9 @@ D84 (confirmed): clicking the spool REELS THE HOSE IN: the vacuum is dragged bac
 D85 (confirmed): the PC case has a power button (top-right). While off, the fans wind down and the fan loop is silent; the state is saved per job. Nothing else reacts to power yet (fan-dust and "other components" come with the fan mechanic, D56/D76). Position and look are proposals.
 D86 (reported, not reproduced): "on collision without enough space, items disappear". A 12-throw stress test into the crowded tray corner keeps every tool on the table; part collisions are now clamped into the table as well (belt and braces). If it happens again, the user should note which object vanished and what was around it.
 
+## Final-check rule and the customer — 14 November 2026, trial 0.23.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's 0.22.x playtest.
+
+D87 (confirmed): leftover dust never blocks the final check. It matters only through the temperature it adds (and the notes still say where it is). The check passes while the PC is under the limit and every part is functional: nothing broken, nothing left out, enough graphics output. The ticket keeps the full-clean checkbox as guidance only.
+D88 (confirmed): the shop's lower card has tabs: the final-check result and a Customer tab with what the shop knows about the customer (who they are, what the PC is used for and must output, habits, time, payment). Customer records live in `scripts/data/customers.gd`; the trial customer is Mara V. (fictional). Habits are written to feed the scam direction (D17/D18: persona-based discovery). Which habits actually do anything is still open.
+
