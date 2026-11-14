@@ -215,6 +215,8 @@ func test_containers_and_cargo() -> void:
 
 func test_scene() -> void:
     var gs: Node = root.get_node("GameState")
+    use_test_save(gs,"salvage_physics_game_test.json")
+    gs.new_game(false)
     var money: int = gs.money
     var stock: Array = gs.player_inventory.duplicate(true)
     var job: Dictionary = gs.job.duplicate(true)
@@ -246,15 +248,19 @@ func test_scene() -> void:
     var expected: RefCounted = view.session
     view.free()
     await physics_frame
-    var menu: Node = load("res://scenes/start.tscn").instantiate()
+    root.get_node("NightSession").ensure(gs)
+    var routed_job: Dictionary = gs.job.duplicate(true)
+    var menu: Node = load("res://scenes/activities.tscn").instantiate()
     root.add_child(menu)
-    menu._on_salvage()
+    menu._go("res://scenes/night_salvage.tscn")
     await process_frame
     await process_frame
-    check(current_scene.session == expected and expected.cargo[expected.car].has("input-part"),"menu route resumes the same isolated cargo/session")
+    check(current_scene.session == expected and expected.cargo[expected.car].has("input-part"),"activity route resumes the same isolated cargo/session")
     current_scene._back()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/start.tscn" and gs.job == job,"leaving the physics scene preserves campaign and menu navigation")
+    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.job == routed_job,"leaving the physics scene preserves campaign and menu navigation")
     current_scene.free()
     menu.free()
+    _remove_save_files(gs.save_path+".night.json")
+    restore_save(gs)

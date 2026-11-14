@@ -1,7 +1,14 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.29.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.30.0.**
+**0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
+(Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
+Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.
+Read docs/NIGHT_WORKSHOP.md for the temporary inactive-ticket save bridge and interrupted-switch
+recovery. No hot files or customer/shop files changed; additive view wrappers only. Claude goes next
+on cross-review and eventual canonical-state integration.
+
 **0.29.0 storage handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026 (Europe/Bucharest). New rack scene: F5 → Storage rack. Read docs/STORAGE.md. Keep this PR unmerged for Claude review. No hot files or customer/shop code changed. Existing purchase/drawer capacity remains separate; shared capacity enforcement needs a coordinated follow-up.
 
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.

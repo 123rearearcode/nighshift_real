@@ -23,12 +23,16 @@ static func collect(gs: Node) -> Dictionary:
         items[uid] = {"id":uid,"source_uid":kind,"category":"tool","kind":kind,"label":"Paste syringe" if kind == "syringe" else kind.capitalize(),
             "model":"Included repair kit","size":Data.TOOL_SIZES[kind],"owner":"Shop property","condition":"working","reserved":false,
             "note":"Included repair tool. Its storage space stays reserved while in use."}
-    var job: Dictionary = gs.job
-    if not job.is_empty() and job.get("state","open") != "done":
-        var uid: String = "pc:ticket:"+str(job["id"])+":"+str(job.get("customer_id",""))
+    var session: Node = gs.get_node_or_null("/root/NightSession")
+    var jobs: Array = session.jobs(gs) if session != null else [gs.job]
+    for job: Dictionary in jobs:
+        var marker: Dictionary = job.get("hardware_trial",{}).get("night_session",{})
+        var pc_id: String = str(marker.get("pc","legacy:"+str(job.get("id",""))+":"+str(job.get("customer_id",""))))
+        if job.is_empty() or job.get("state","open") == "done" or pc_id == "": continue
+        var uid: String = "pc:"+pc_id
         items[uid] = {"id":uid,"source_uid":str(job["id"]),"category":"pc","kind":"pc","label":"Customer PC",
             "model":("Compact PC" if job.get("layout","tower") == "compact" else "Tower PC")+" · "+str(job.get("customer","Customer")),
             "size":Vector2i(7,5) if job.get("layout","tower") == "compact" else Vector2i(8,6),"owner":"Customer property · "+str(job["id"]),
             "condition":"Needs repair" if not job.get("broken_parts",[]).is_empty() else "Awaiting service","reserved":false,
-            "note":"Whole PC, including its fitted parts. This remains the customer's property; moving it does not claim or dismantle it."}
+            "note":"Ticket %s. Whole customer PC, including fitted parts. Select it in Workshop to work on it."%str(job["id"])}
     return items

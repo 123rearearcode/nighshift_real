@@ -1,4 +1,4 @@
-# General storage rack — trial 0.29.0
+# General storage rack — trials 0.29.0–0.30.0
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 14 November 2026, Europe/Bucharest. User-requested gameplay feature (D109).
@@ -22,6 +22,8 @@ The scene uses the current in-memory demo save: load/return from the shop first 
 
 ## Source of truth
 
+0.30.0: New Game → Activities → Workshop selects PCs. Storage returns to Activities.
+
 `storage_sources.gd` reads player_inventory/inventory_layout/current job. It never writes them.
 Player-owned RAM/GPU/cooler records retain their existing UID under the `part:` namespace.
 Installed shop stock keeps a marked shelf reservation; arranging that reservation does not
@@ -29,12 +31,13 @@ uninstall it. Broken loose stock stays visible and is not mislabelled as install
 
 The five default tools use stable `tool:kit:` IDs. These refer to the existing included tool kit,
 not a new ownership/purchase system. Tools keep their storage allocation while used at the bench.
-The current customer PC uses `pc:ticket:<ticket>:<customer>` and disappears after pickup. Its whole
+Customer PCs use run-scoped physical PC IDs from NightSession and disappear after pickup.
+Build orders without supplied PCs create no storage tile. Its whole
 footprint includes fitted customer parts, so they are not counted twice. It cannot be sold,
 claimed or dismantled from this screen. Completed PCs are not retained as phantom stock.
 
 Storage dimensions describe packing space, separately from motherboard socket geometry.
-Tower/compact PCs are 8×6/7×5 cells. A rack has two 12×6 shelves, a cabinet three 12×2 drawers,
+Tower/compact PCs are 8×6/7×5 cells. A rack has three 12×6 shelves, a cabinet three 12×2 drawers,
 a tool board one 12×6 surface. These numbers and free furniture are provisional tuning.
 
 ## Save contract
@@ -57,8 +60,8 @@ No hot files or customer/shop code changed. The only existing view hook is a new
 button. The storage files are separate, ready for Claude to cross-review before any merge.
 
 The rack is usable now but deliberately does not implement the unapproved full PC model:
-multiple waiting PCs, player-built PCs, purchasable tool records and globally unique lifetime
-PC/visit IDs still need shared canonical records. The current trial has only one active PC.
+player-built PCs, purchasable tool records and globally unique lifetime
+PC/visit IDs still need shared canonical records. New games have two repair PCs; legacy saves retain their one actual ticket. See NIGHT_WORKSHOP.md.
 Purchase/intake/old drawer limits are unchanged; existing tools and benches work as before.
 The next integration is one shared capacity/reservation check used by purchases, intake and
 salvage transfer, coordinated with Claude's state work. Do not create a second item database

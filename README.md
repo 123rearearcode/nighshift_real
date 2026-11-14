@@ -1,6 +1,14 @@
-# Nightshift - Godot Foundation Trial (v0.29.0)
+# Nightshift - Godot Foundation Trial (v0.30.0)
 
-**New in this branch:** F5 → **Storage rack** (right side of the menu). Arrange real PCs, kit tools
+**This follow-up branch:** F5 → New game → Activities. Workshop lets you switch between two
+customer repair PCs, clean/repaste them and run a diagnosis without ending the job. Salvage is now
+under Activities. Storage has three-shelf racks. Good cooler mounts commit with the lever.
+Both this branch and the previous rack PR are intentionally unmerged. See
+[night-workshop controls and limits](docs/NIGHT_WORKSHOP.md). Existing saves retain their real ticket;
+start a New Game to try the two-PC setup.
+
+
+**Previous rack feature:** F5 → **Storage rack** (right side of the menu). Arrange real PCs, kit tools
 and stock on shelves; rotate with R/E or Q, expand with racks/cabinets/tool boards. Layout autosaves.
 Furniture is free in this prototype. Capacity integration with buying/intake remains a follow-up;
 see [storage controls and boundaries](docs/STORAGE.md). Branch is intentionally unmerged.

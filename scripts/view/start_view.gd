@@ -2,7 +2,7 @@
 extends Node2D
 const Layout = preload("res://scripts/data/layout.gd")
 
-const DEMO: String = "res://scenes/shop.tscn"
+const DEMO: String = "res://scenes/activities.tscn"
 var load_button: Button
 var status_label: Label
 var replace_dialog: ConfirmationDialog
@@ -20,12 +20,11 @@ func _ready() -> void:
     load_button.disabled = not GameState.has_saved_game()
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
-    _button("Salvage demo", 458, _on_salvage)
-    _button("Settings", 516, _on_settings)
+    _button("Settings", 458, _on_settings)
     var storage: Button = _button("Storage rack", 458, _on_storage)
     storage.position.x = 892
     storage.size.x = 280
-    status_label = _label("New game opens the repair shop. The salvage demo never touches your save.", Vector2(424, 574), Vector2(432, 56), 13)
+    status_label = _label("New game opens your night activities. Choose workshop or salvage from there.", Vector2(424, 520), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
@@ -76,11 +75,13 @@ func _on_new_game() -> void:
 
 func _start_new_game() -> void:
     GameState.new_game()
+    NightSession.start(GameState)
     get_tree().change_scene_to_file(DEMO)
 
 
 func _on_load_game() -> void:
     if GameState.load_game():
+        NightSession.ensure(GameState)
         get_tree().change_scene_to_file(DEMO)
     else:
         load_button.disabled = true
@@ -89,10 +90,6 @@ func _on_load_game() -> void:
 
 func _on_storage() -> void:
     get_tree().change_scene_to_file("res://scenes/storage.tscn")
-
-
-func _on_salvage() -> void:
-    get_tree().change_scene_to_file("res://scenes/salvage.tscn")
 
 
 # Settings (D107): just the sound slider for now. The value applies as it moves and is kept

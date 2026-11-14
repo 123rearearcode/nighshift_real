@@ -208,6 +208,26 @@ Screen flow: shop (`shop.tscn`) opens the cooler bench (`bench.tscn`) and the ha
 These files form an isolated feature module: model knows only data, sources only read state,
 store handles layout I/O, view orchestrates them. No dependency from GameState into storage.
 
+### Night workshop files (0.30.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_session.gd` | state bridge | Inactive job manifest, active GameState.job, PC identity, safe switching/recovery |
+| `scripts/night/night_diagnostics.gd` | rules | Pure non-completing temperature/boot/parts/fps report |
+| `scripts/night/paste_snapshot.gd` | sim adapter | Exact float32 paste-field JSON persistence and validation |
+| `scripts/night/activities_view.gd` | view | Workshop/salvage/storage selection and future activity space |
+| `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |
+| `scripts/night/repair_view.gd` | view adapter | Existing bench with workshop return and lever-driven paste commit |
+| `scripts/night/hardware_view.gd` | view adapter | Existing shop-stock sandbox, return to workshop |
+| `scripts/night/salvage_view.gd` | view adapter | Existing dump physics, return to Activities |
+| `scenes/activities.tscn` | scene | New/load-game destination |
+| `scenes/night_workshop.tscn` | scene | PC selection and diagnostics |
+| `scenes/night_bench.tscn` | scene | Night repair route |
+| `scenes/night_hardware.tscn` | scene | Night stock sandbox route |
+| `scenes/night_salvage.tscn` | scene | Dump accessed from Activities |
+| `tools/test_night_workshop.gd` | tooling | Multi-PC progress, save/recovery/ownership and scene contracts |
+| `docs/NIGHT_WORKSHOP.md` | docs | Controls, manifests, coordination and limitations |
+
 ## 6. Data contracts
 
 **Component** (`ComponentData.ram_stick()`): `id` String, `category` String, `display_name` String,
@@ -499,3 +519,15 @@ StorageModel.setup(sources,snapshot) reconciles ownership references; begin/rota
 edit committed allocations; drop commits only if can_place succeeds. StorageStore protects
 future-version files. No purchase/intake capacity hook yet; never silently discard overflow.
 The required workflow now also runs test_storage.gd (summary name Storage).
+
+
+### Night queue contract (0.30.0)
+NightSession autoload follows GameState. Marker namespace hardware_trial.night_session binds run,
+ticket and optional physical PC; hardware_trial.night_paste stores the physical field. Inactive tickets
+live in a version-1 `<save_path>.night.json` manifest; main save owns the selected active job.
+Checkpoint/readback precedes a switch; unknown/damaged manifests lock switching and preserve files.
+Shop stock/money remain only in GameState. Read-only sources never seed queue items. New Game seeds
+two existing-customer tickets; legacy migration retains only actual work. No root SAVE_FORMAT change.
+Full recovery/order contract and ownership limitation: docs/NIGHT_WORKSHOP.md. The workflow adds
+required suite test_night_workshop.gd (Night workshop); existing diagnostic rules still serve legacy
+payout tests, while the new pure report never mutates customer history or completes a ticket.

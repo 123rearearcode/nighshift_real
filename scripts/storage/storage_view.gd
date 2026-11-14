@@ -23,11 +23,12 @@ var edit_buttons: Array[Button] = []
 var furniture_buttons: Array[Button] = []
 
 func _ready() -> void:
+    if not GameState.job.get("hardware_trial",{}).get("night_session",{}).is_empty(): NightSession.ensure(GameState)
     model.setup(Sources.collect(GameState),store.read())
     selected_unit = model.units[0]["id"]
     _label("STORAGE / YOUR WORKSHOP",Vector2(24,18),Vector2(900,40),28)
     summary = _label("",Vector2(24,62),Vector2(940,30),16)
-    _button("Main menu",Rect2(1100,22,152,42),_leave)
+    _button("Activities",Rect2(1100,22,152,42),_leave)
     _label("FURNITURE",Vector2(24,128),Vector2(210,30),17)
     furniture_list = VBoxContainer.new()
     furniture_list.position = Vector2(24,168)
@@ -143,7 +144,7 @@ func _arrange() -> void:
 
 func _leave() -> void:
     _cancel()
-    get_tree().change_scene_to_file("res://scenes/start.tscn")
+    get_tree().change_scene_to_file("res://scenes/activities.tscn")
 
 func _cancel() -> void:
     model.cancel()
@@ -155,7 +156,7 @@ func _waiting_turn(step: int) -> void:
 
 func shelf_rect(index: int, shelf: int) -> Rect2:
     var spec: Dictionary = Data.MODELS[model.units[index]["model"]]
-    return Rect2(Vector2(274+(index%2)*374,214+shelf*(spec["size"].y*Data.CELL+30)),Vector2(spec["size"])*Data.CELL)
+    return Rect2(Vector2(274+(index%2)*374,184+shelf*(spec["size"].y*Data.CELL+30)),Vector2(spec["size"])*Data.CELL)
 
 func item_rect(uid: String) -> Rect2:
     var p: Dictionary = model.placements.get(uid,{})
@@ -267,8 +268,8 @@ func _draw() -> void:
         var u: Dictionary = model.units[i]
         var spec: Dictionary = Data.MODELS[u["model"]]
         var x: float = 254+(i%2)*374
-        draw_rect(Rect2(x,182,10,378),Color("647988"))
-        draw_rect(Rect2(x+318,182,10,378),Color("647988"))
+        draw_rect(Rect2(x,182,10,396),Color("647988"))
+        draw_rect(Rect2(x+Data.CELL*12+30,182,10,396),Color("647988"))
         _text("%d / %s"%[i+1,spec["name"]],Vector2(x+8,158),18)
         for shelf in range(spec["shelves"]):
             var rect := shelf_rect(i,shelf)
