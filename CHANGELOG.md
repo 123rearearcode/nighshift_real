@@ -39,6 +39,101 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.25.0 - 2026-11-14 - The customer model, first wave
+
+- Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
+- Based on: 0.24.0
+- Type: minor (new data/rules layer, a save field, a final-check rule change; saves migrate)
+
+### Execution status
+Godot was NOT run by me directly. GitHub Actions runs the automated suites on Godot 4.7.2
+headless on push; the result is recorded below once the run finishes. No interactive playtest
+is claimed.
+Actions result: run 43588417213 on 305acd0 succeeded — Data schema 198, Regression 543, Start screen 10, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36, Performance contracts 24, Pending contracts 0; 907 checks, 0 failures, plus the scripted bench playtest.
+
+### Added
+- `docs/CUSTOMER_MODEL_MAP.md`: the whole customer/software system as approved point by point
+  by the user before any code (D92–D97), with the wave-1 scope marked.
+- Customers v2 (`scripts/data/customers.gd`): profession (regular / gamer / clueless first cut),
+  persona, about, trust_start, budget, payout and NEEDS. Mara V. (regular: boots + quiet) is
+  joined by Relu D. (gamer: Counter Stroke 2 at 60 fps). Portraits stay blank on purpose —
+  they must later derive from the character's actual look.
+- Video games (`scripts/data/games.gd`): the shop BUYS games to test with (an investment).
+  One test game, Counter Stroke 2 ($12; gpu demand 55, cpu demand 60, 8 GB minimum — proposals).
+  `GameState.buy_game` / `owns_game`; owned games are the shop's property: saved, and kept
+  across new tickets.
+- FPS simulation (`scripts/rules/fps_sim.gd`, D94): fps = 60 × the worst of gpu/demand and
+  cpu/demand; heat throttles the GPU linearly from 60 C (no loss) to 90 C (half); RAM under the
+  game's minimum keeps 35% of the frames. The job now carries `pc_specs` (cpu_power, ram_gb).
+- Pickup score (`scripts/rules/pickup_score.gd`, D95): the FIRST passing final check scores the
+  pickup 0–100 against the customer's REAL needs (temperature, each named game at its minimum
+  fps on the PC as handed back, quiet). 70+ leaves happy; unhappy customers come back about it,
+  angrier sooner (<40 → 1 day, <60 → 2, else 3). Trust moves by (score−70)/10 per visit. The
+  score, misses and comeback land in `customer_state` (trust + history) in the save, which
+  survives new_game. The shop result and the Customer tab show the score and the comeback.
+
+### Changed
+- Boot test replaces the power threshold (D97, supersedes D79's threshold): the PC can be handed
+  back with ANY power output as long as it boots — it boots when nothing is broken and nothing
+  is left out. The final check reports "Boot test: the PC starts." / "Boot test FAILED". GPU
+  power levels stay; they now feed the fps simulation instead of gating the check.
+- The Customer tab is a dossier (name — profession — trust N/100, about, complaint, uses,
+  habits, time, budget and payout, last visit's score and comeback); the shop's lower card grew
+  to fit it.
+- `required_power` is erased from loaded jobs (migration); `pc_specs` is sanitised on load.
+
+### Fixed
+(nothing)
+
+### Removed
+- The "needs at least N graphics output" final-check rule and its regression checks (replaced
+  by boot-test assertions).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/CUSTOMER_MODEL_MAP.md` | A | The approved map, wave-1 scope and the user's answers |
+| `scripts/data/games.gd` | A | Buyable test games and their demands |
+| `scripts/rules/fps_sim.gd` | A | Simulated frame rate (thermal throttle, RAM stutter) |
+| `scripts/rules/pickup_score.gd` | A | Pickup score 0–100 and comeback days |
+| `scripts/data/customers.gd` | M | Customer records v2 (professions, trust, budget, needs); Relu D. added |
+| `scripts/state/game_state.gd` | M | pc_specs, boot test, buy/owns game, customer_state save + pickup recording |
+| `scripts/view/shop_view.gd` | M | Dossier Customer tab; pickup line in the check result |
+| `scripts/data/layout.gd` | M | Taller lower card for the dossier |
+| `scripts/data/service_parts.gd` | M | Comment: power feeds the fps simulation now |
+| `tools/test_data_schemas.gd` | M | Customers v2 + games schemas, profession membership, needs reference real games |
+| `tools/test_regressions.gd` | M | Boot-test assertions replace power gating; new test_0_25 (fps, buying, pickup, trust, history, persistence) |
+| `docs/DECISIONS.md` | M | D92–D97 |
+| `DEVELOPMENT.md` | M | File map: the three new files; customers.gd description |
+| `HANDOFF.md` | M | 0.25.0 section; version |
+| `README.md` | M | Version |
+| `project.godot` | M | config/version 0.25.0 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: result recorded below.
+- GitHub Actions (all suites incl. the new checks) on branch `feature/0.25.0`: recorded under
+  Execution status when the run finishes.
+
+### Decisions proposed (not approved)
+- All numbers: Counter Stroke 2's price/demands, throttle curve (60→90 C to half), RAM stutter
+  share (35%), score weights (temp 25, missed game 35, missed quiet 40), happy threshold (70),
+  trust step ((score−70)/10), comeback days (1/2/3), Mara's and Relu's trust/budget/payout.
+- "Quiet" read as final temp ≤ 65 C (hot PCs are loud PCs) until fans/noise are simulated.
+- Relu D.'s record itself (a second scripted customer to exercise the gamer needs).
+
+### Known issues and open items
+- The software-checks monitor screen (boot test, anti-virus, Vapor store, overclocker) is the
+  next wave; only its rules exist. The overclocker minigame is second wave (user).
+- Comeback visits need the night loop; the days are recorded, nothing returns yet.
+- Scam discovery (habits → delayed trust loss) is designed (D95) but not built.
+- Codex builds the dumpster-salvage minigame in parallel; Claude cross-reviews when both are done.
+
+### Next action
+Build the software-checks monitor screen (wave 2): boot test app, Vapor store (buy + run
+Counter Stroke 2 with the simulated fps), anti-virus first cut.
+
+
 ## 0.24.0 - 2026-11-14 - Unscrewing takes time; colour-coded tools; salvage assigned to Codex
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.23.0

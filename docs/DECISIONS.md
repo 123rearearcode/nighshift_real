@@ -205,3 +205,14 @@ D89 (confirmed): picking things up takes time, because the night is about managi
 D90 (confirmed): the four cleaning-tool buttons are colour-coded (vacuum blue, brush amber, move parts green, pick red). First pass colours the button text; tying the same colours into the tool drawings is open.
 D91 (confirmed): Codex is assigned the street/dumpster salvage minigame in parallel: design proposal first (docs/CODEX_PROMPT_SALVAGE.md), own scene and scripts, no hot files, state fields through Claude. The customer model rework (name, persona, trust, budget, portrait, profession with FPS needs, history, return and satisfaction) and the software-checks screen (monitor with anti-virus, game store with bought games and simulated FPS, overclocker) are MAPPED FIRST before any code, per the user; nothing of them is built yet.
 
+
+## The customer model, first wave — 14 November 2026, trial 0.25.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's point-by-point approval of
+docs/CUSTOMER_MODEL_MAP.md (their answers are quoted there).
+
+D92 (confirmed): trust is ONE number per customer, 0–100, starting at the record's trust_start and moving at pickup (±(score−70)/10 per visit, proposal). Earned trust, history and comeback live in the save under `customer_state` and survive new_game — like owned games, they are the shop's property.
+D93 (confirmed): no quoting flow for now; each ticket has a fixed payout and each customer a budget cap for later charging. Professions first cut: regular, gamer, clueless; a clueless customer's needs hold `stated` (a decoy) and `real` (what actually scores).
+D94 (confirmed): games have gpu/cpu demands and a RAM minimum; the shop must BUY a game ($, an investment) to test with it. One test game: Counter Stroke 2 ($12; demands 55/60/8 GB — proposals). fps = 60 × min(gpu×thermal/gpu_demand, cpu/cpu_demand); heat throttles the GPU linearly 60→90 C down to half; RAM under the minimum keeps 35% (stutter). The job carries pc_specs (cpu_power, ram_gb).
+D95 (confirmed): on the FIRST passing final check the pickup is scored 0–100 against the customer's REAL needs (temperature, named games at minimum fps, quiet). ≥70 leaves happy; unhappy customers come back about it, angrier sooner (<40 → 1 day, <60 → 2, else 3 — proposals). Scams are NOT scored at pickup; delayed discovery adjusts trust later (open).
+D96 (confirmed): the overclocker app is second wave. The software-checks screen (customer's monitor with boot test, anti-virus, Vapor game store, overclocker) is mapped in docs/CUSTOMER_MODEL_MAP.md; 0.25.0 builds only the rules behind it.
+D97 (confirmed, supersedes D79's threshold): the boot test replaces the required-power threshold. The PC can be handed back with ANY output as long as it boots (nothing broken, nothing left out); the final check runs and reports the boot test. GPU power levels stay — they now feed the fps simulation.

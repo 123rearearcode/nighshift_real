@@ -25,17 +25,17 @@ func _ready() -> void:
     title_label = _make_label(Vector2(40, 16), Vector2(900, 70), 20)
     title_label.text = "NIGHTSHIFT - shop (foundation trial)\nA plain stand-in for the future day/night loop. One repair ticket to complete."
     cash_label = _make_label(Vector2(940, 20), Vector2(300, 40), 28)
-    ticket_label = _make_label(Vector2(60, 125), Vector2(560, 300), 19)
+    ticket_label = _make_label(Vector2(60, 125), Vector2(560, 270), 18)
     # The lower card has two tabs: the final-check result, and what the shop knows about the customer.
     var tabs := ButtonGroup.new()
-    tab_check = _make_button("Final check", Vector2(60, 462), Vector2(130, 32), _show_tab.bind(0))
-    tab_customer = _make_button("Customer", Vector2(196, 462), Vector2(130, 32), _show_tab.bind(1))
+    tab_check = _make_button("Final check", Vector2(60, 432), Vector2(130, 32), _show_tab.bind(0))
+    tab_customer = _make_button("Customer", Vector2(196, 432), Vector2(130, 32), _show_tab.bind(1))
     for t: Button in [tab_check, tab_customer]:
         t.toggle_mode = true
         t.button_group = tabs
     tab_check.set_pressed_no_signal(true)
-    result_label = _make_label(Vector2(60, 500), Vector2(560, 160), 18)
-    customer_label = _make_label(Vector2(60, 500), Vector2(560, 160), 15)
+    result_label = _make_label(Vector2(60, 470), Vector2(560, 195), 17)
+    customer_label = _make_label(Vector2(60, 470), Vector2(560, 195), 14)
     customer_label.visible = false
     note_label = _make_label(Vector2(700, 490), Vector2(520, 170), 15)
     note_label.text = "Fix the ticket: clean, repaste, replace what is broken, then run the final check. Dust is not a blocker: it only adds temperature. The PC passes while it stays under the limit and every part works. All numbers are demo values. Progress and cash are saved automatically."
@@ -105,10 +105,14 @@ func _refresh() -> void:
     var temp: float = float(job["temp"])
     var paste_text: String = "(no result yet)" if grade == "" else "(result: %s)" % grade
     var check_text: String = "(not run yet)" if temp <= 0.0 else "(last: %d C, limit %d C)" % [roundi(temp), roundi(GameState.PASS_TEMP)]
-    var who: Dictionary = Customers.customer(str(job.get("customer_id", "")))
+    var who: Dictionary = GameState.customer_view(str(job.get("customer_id", "")))
     if not who.is_empty():
-        customer_label.text = "%s\n%s\n\nUses: %s\nHabits: %s\nTime: %s\nPays $%d on completion." % [
-            str(who["name"]), str(who["about"]), str(who["uses"]), str(who["habits"]), str(who["patience"]), int(job["payout"])]
+        var history: Array = who.get("history", [])
+        var last: String = "No past visits." if history.is_empty() else "Last visit: scored %d/100%s." % [int((history.back() as Dictionary).get("score", 0)),
+            "" if int((history.back() as Dictionary).get("comeback_days", 0)) == 0 else ", coming back about it in %d day(s)" % int((history.back() as Dictionary).get("comeback_days", 0))]
+        customer_label.text = "%s  -  %s  -  trust %d/100\n%s\n\nComplaint: %s\nUses: %s\nHabits: %s\nTime: %s\nBudget: $%d. Pays $%d on completion.\n%s" % [
+            str(who["name"]), str(who["profession"]), int(who["trust"]), str(who["about"]), str(who["complaint"]),
+            str(who["uses"]), str(who["habits"]), str(who["patience"]), int(who["budget"]), int(job["payout"]), last]
     ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nStatus: %s" % [
         job["id"], job["customer"], job["complaint"], int(job["payout"]),
         _check_mark(cleaned), parts_clean, parts_total, _check_mark(grade != ""), paste_text,
@@ -136,6 +140,10 @@ func _on_check_pressed() -> void:
     if r["passed"]:
         if int(r["paid"]) > 0:
             result_label.text = "FINAL CHECK PASSED: %d C. Payment received: $%d." % [temp, int(r["paid"])]
+            var pickup: Dictionary = r.get("pickup", {})
+            if not pickup.is_empty():
+                result_label.text += "\nPickup: the customer scored this %d/100%s." % [int(pickup["score"]),
+                    "" if int(pickup["comeback_days"]) == 0 else " and will be back about it in %d day(s)" % int(pickup["comeback_days"])]
         else:
             result_label.text = "FINAL CHECK PASSED: %d C. (This ticket was already paid.)" % temp
         result_label.add_theme_color_override("font_color", Color(0.25, 0.95, 0.35))

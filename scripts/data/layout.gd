@@ -25,8 +25,8 @@ const BENCH_LEVER := Rect2(552, 250, 44, 210)      # the cooler's retention leve
 const PANEL_X: float = 700.0                       # left edge of the bench's side panel
 
 # Shop
-const SHOP_JOB_CARD := Rect2(40, 105, 600, 340)
-const SHOP_LOWER_CARD := Rect2(40, 455, 600, 215)
+const SHOP_JOB_CARD := Rect2(40, 105, 600, 310)
+const SHOP_LOWER_CARD := Rect2(40, 425, 600, 250)   # taller since 0.25.0: the Customer tab holds a dossier
 
 # Hardware bench (workshop)
 const WORKSHOP_PC := Rect2(60, 165, 640, 420)
