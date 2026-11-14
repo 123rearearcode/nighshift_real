@@ -198,3 +198,10 @@ Recorded by Claude (Fable 5, model id claude-fable-5), from the user's 0.22.x pl
 D87 (confirmed): leftover dust never blocks the final check. It matters only through the temperature it adds (and the notes still say where it is). The check passes while the PC is under the limit and every part is functional: nothing broken, nothing left out, enough graphics output. The ticket keeps the full-clean checkbox as guidance only.
 D88 (confirmed): the shop's lower card has tabs: the final-check result and a Customer tab with what the shop knows about the customer (who they are, what the PC is used for and must output, habits, time, payment). Customer records live in `scripts/data/customers.gd`; the trial customer is Mara V. (fictional). Habits are written to feed the scam direction (D17/D18: persona-based discovery). Which habits actually do anything is still open.
 
+## Time, tool colours and the salvage assignment — 14 November 2026, trial 0.24.0
+Recorded by Claude (Fable 5, model id claude-fable-5), from the user's direction.
+
+D89 (confirmed): picking things up takes time, because the night is about managing limited time. First cut: unscrewing a FITTED cooler or GPU takes 1.2 s of holding on it (progress ring at the cursor; slipping off or letting go cancels; a part lying in the tray lifts instantly). The duration is a proposal; more pickup timings will follow the same rule.
+D90 (confirmed): the four cleaning-tool buttons are colour-coded (vacuum blue, brush amber, move parts green, pick red). First pass colours the button text; tying the same colours into the tool drawings is open.
+D91 (confirmed): Codex is assigned the street/dumpster salvage minigame in parallel: design proposal first (docs/CODEX_PROMPT_SALVAGE.md), own scene and scripts, no hot files, state fields through Claude. The customer model rework (name, persona, trust, budget, portrait, profession with FPS needs, history, return and satisfaction) and the software-checks screen (monitor with anti-virus, game store with bought games and simulated FPS, overclocker) are MAPPED FIRST before any code, per the user; nothing of them is built yet.
+

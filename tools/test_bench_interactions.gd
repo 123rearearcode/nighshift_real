@@ -55,6 +55,7 @@ func run_checks() -> void:
         bench._select_tool(0)
         bench._select_tool(2) # puts the vacuum down directly over the selected part
         click(bench,MOUSE_BUTTON_LEFT,true,home)
+        for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)   # D89: unscrewing takes time
         check(bench.active_tool == 2 and bench.access.dragging == part, "Move parts selects " + part + " even with a resting vacuum on top")
         bench.scripted_pointer = Access.TRAY.get_center()
         for frame in range(45): bench._physics_process(1.0/60.0)

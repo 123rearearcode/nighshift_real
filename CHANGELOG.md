@@ -39,6 +39,43 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.24.0 - 2026-11-14 - Unscrewing takes time; colour-coded tools; salvage assigned to Codex
+- Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
+- Based on: 0.23.0
+- Type: minor (interaction change). From the user's direction ("picking up stuff should take time; the night is about managing limited time").
+
+### Execution status
+**Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
+
+Actions result: not yet recorded.
+
+### Added / Changed / Fixed / Removed
+- Added (D89): unscrewing. In Move parts mode, a FITTED cooler or GPU is freed by holding on it for 1.2 s (progress ring at the cursor; letting go or slipping more than 24 px off cancels with a message; switching tool or stage cancels silently). The drag starts the moment it frees. A part lying in the tray lifts instantly. Direct calls to `_begin_part_drag` (tests, future code) bypass the hold on purpose.
+- Added (D90): the four tool buttons are colour-coded in all button states: vacuum blue, brush amber, move parts green, pick red.
+- Added (D91): `docs/CODEX_PROMPT_SALVAGE.md`, the user's parallel assignment for Codex: the street/dumpster salvage minigame, design proposal first, own scene and scripts, no hot files, saved fields through Claude.
+- Noted (D91): the customer model rework and the software-checks screen are to be MAPPED before any code; nothing of them is built here.
+- Tests: press alone does not lift a fitted part; early release cancels and the part stays fitted; holding through the time lifts it; the bench-interaction suite holds through the unscrew; every tool button has its own colour.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/view/bench_view.gd` | M | unscrew hold, progress ring, button colours |
+| `tools/test_regressions.gd`, `tools/test_bench_interactions.gd` | M | D89/D90 checks |
+| `docs/CODEX_PROMPT_SALVAGE.md` | A | assignment prompt |
+| `docs/DECISIONS.md` (D89-D91), `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `CHANGELOG.md`, `project.godot` | M | docs, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED. Godot 4.7.2 via Actions: see Execution status.
+
+### Decisions proposed (not approved)
+The 1.2 s duration and the 24 px slip allowance; which other pickups get timings next; the four colours.
+
+### Known issues and open items
+Tool drawings do not yet carry their button colours. The customer/software mapping is the next design conversation.
+
+### Next action
+User playtest of 0.24.0 (feel of the unscrew hold). User gives Codex docs/CODEX_PROMPT_SALVAGE.md. Then the customer/software mapping conversation. Hot files stay with Claude.
+
 ## 0.23.0 - 2026-11-14 - Dust is not a blocker; the shop knows its customer
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.22.1 (Codex's idle-performance pass, merged after cross-review)
