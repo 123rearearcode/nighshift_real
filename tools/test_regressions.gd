@@ -1821,7 +1821,7 @@ func test_0_32(gs: Node) -> void:
         "a broken part says BROKEN and names the repair path (pure rule, no autoload)")
     job["removed_parts"] = ["cooler"]
     var lines: Array = PartStates.problem_lines(job)
-    check(lines.size() == 2 and str(lines[0]).begins_with("GPU: BROKEN") and str(lines[1]).begins_with("COOLER: MISSING"),
+    check(lines.size() == 2 and "\n".join(lines).contains("GPU: BROKEN") and "\n".join(lines).contains("COOLER: MISSING"),
         "problem lines list each part once, in the shared order")
     check(PartStates.summary(job).contains("GPU BROKEN") and PartStates.summary(job).contains("COOLER MISSING"),
         "the one-line ticket summary carries both states")

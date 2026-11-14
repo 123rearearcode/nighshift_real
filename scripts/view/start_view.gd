@@ -21,10 +21,8 @@ func _ready() -> void:
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
     _button("Settings", 458, _on_settings)
-    var storage: Button = _button("Storage rack", 458, _on_storage)
-    storage.position.x = 892
-    storage.size.x = 280
-    status_label = _label("New game opens your night activities. Choose workshop or salvage from there.", Vector2(424, 520), Vector2(432, 56), 13)
+    _button("Storage rack", 516, _on_storage)
+    status_label = _label("New game opens your night activities. Choose workshop or salvage from there.", Vector2(424, 578), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
