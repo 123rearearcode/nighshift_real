@@ -134,13 +134,16 @@ func run_checks() -> void:
     press.button_index = MOUSE_BUTTON_LEFT
     press.pressed = true
     press.position = bench.access.current_rect("gpu").get_center()
+    bench.scripted_pointer = press.position
     bench._input(press)
+    for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)   # D89 unscrew hold
     var release := InputEventMouseButton.new()
     release.button_index = MOUSE_BUTTON_LEFT
     release.pressed = false
     release.position = Access.TRAY.get_center()
     bench._input(release)
     check("gpu" in bench.access.removed_ids(), "queued mouse events use event positions for reliable drags")
+    bench.scripted_pointer = null
     bench._select_stage(1)
     bench.wipe_button.button_pressed = true
     bench._on_wipe_toggled()
@@ -1252,7 +1255,18 @@ func test_bench_0_20(gs: Node) -> void:
     bench.scripted_pointer = cooler_home
     for frame in range(10): bench._physics_process(1.0/60.0)
     click(bench, MOUSE_BUTTON_LEFT, true, cooler_home)
-    check(bench.access.dragging == Ids.COOLER, "left press in Move parts lifts the cooler")
+    check(bench.access.dragging == "" and bench.lift_id == Ids.COOLER, "a fitted part is not lifted by the press alone: unscrewing starts (D89)")
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, cooler_home)
+    check(bench.lift_id == "" and bench.access.dragging == "" and not Ids.COOLER in bench.access.removed_ids(), "letting go early cancels the unscrewing and the part stays fitted")
+    click(bench, MOUSE_BUTTON_LEFT, true, cooler_home)
+    for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)
+    check(bench.access.dragging == Ids.COOLER, "holding through the unscrew time frees and lifts the cooler")
+    var colors_seen: Array = []
+    for b: Button in bench.tool_buttons:
+        check(b.has_theme_color_override("font_color"), "every tool button is colour-coded")
+        if not b.get_theme_color("font_color") in colors_seen: colors_seen.append(b.get_theme_color("font_color"))
+    check(colors_seen.size() == bench.tool_buttons.size(), "each tool has its own colour")
     var tray_spot: Vector2 = Access.TRAY.get_center() + Vector2(120, 0)
     for frame in range(30):
         bench.scripted_pointer = cooler_home.lerp(tray_spot, float(frame) / 29.0)

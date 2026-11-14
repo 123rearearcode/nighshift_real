@@ -41,6 +41,8 @@ const PASTE_ORIGIN: Vector2 = Layout.BENCH_SOCKET_ORIGIN
 const PASTE_CELL: int = Layout.BENCH_SOCKET_CELL
 const PANEL_X: float = Layout.PANEL_X
 const DEPOSIT_RATE: float = 60.0       # paste units per second while squeezing
+const PART_LIFT_SECONDS: float = 1.2   # unscrewing a fitted part takes this long (D89: the night is about time)
+const TOOL_COLORS: Array = [Color("5ab0f0"), Color("e0a95a"), Color("72d9ad"), Color("ed8d79")]   # vacuum, brush, move parts, pick
 const KEEP_GRADE_ABOVE: float = 0.95   # a graded CPU keeps its result until wiping takes it below this share of the graded paste
 const WIPE_RADIUS_CELLS: float = 4.5   # reach of the cloth on the paste grid (a square cloth reaches 4.5 cells each way)
 const WIPE_STRENGTH: float = 0.12      # share of paste removed per tick at the cloth centre (a blob takes about 1 s)
@@ -86,6 +88,8 @@ const TURN_DRAG_PIXELS: float = 26.0   # sideways middle-button drag needed per 
 var turning_with_mouse: bool = false
 var turn_travel: float = 0.0
 var bin_notified: bool = false
+var lift_id: String = ""              # fitted part being unscrewed (hold); the drag starts when it frees
+var lift_progress: float = 0.0
 var scripted_pressing: Variant = null # tools/playtest_bench.gd: pressing the cooler during mounting
 var scripted_pointer: Variant = null  # tools/playtest_bench.gd sets this to drive the bench without a real mouse
 var last_draw_usec: int = 0           # how long the last redraw took (CPU side, microseconds); read by tools/playtest_bench.gd
@@ -295,6 +299,10 @@ func _build_ui() -> void:
     var pick_button: Button = _make_button("Pick (4) / risky", Vector2(PANEL_X + 399, 164), Vector2(120, 36), _select_tool.bind(3), tool_group)
     tool_buttons.append(pick_button)
     for b: Button in [vac,brush,move_button,pick_button]: b.add_theme_font_size_override("font_size",14)
+    # Colour-coded tools (D90): the button's text carries its tool's colour in every state.
+    for slot in range(tool_buttons.size()):
+        for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color","font_hover_pressed_color"]:
+            (tool_buttons[slot] as Button).add_theme_color_override(state, TOOL_COLORS[slot])
     empty_bin_button = _make_button("Empty bin",Vector2(PANEL_X,220),Vector2(250,32),_empty_bin)
     stock_button = _make_button("Replacement stock",Vector2(PANEL_X+270,220),Vector2(250,32),_open_replacements)
     vacuum_status = Label.new()
@@ -338,6 +346,7 @@ func _select_stage(new_stage: int) -> void:
     AudioFeedback.stop_owner(self)
     if mount.active:
         _cancel_mount()   # a stage switch releases everything; only the lever may secure and grade (D57)
+    lift_id = ""
     stage = new_stage
     _paste_ui_key = -1
     backdrop.configure(stage == STAGE_CLEAN,str(GameState.job["layout"]),Rect2(PC_ORIGIN,DustZones.AREA_SIZE),COLOR_BG)
@@ -389,6 +398,7 @@ func _clean_hint() -> String:
 func _select_tool(new_tool: int) -> void:
     if is_instance_valid(replacement_panel) and replacement_panel.visible: return
     if new_tool != Ids.SLOT_PARTS and not _may_enter(HandState.USING_TOOL): return
+    lift_id = ""
     if access.dragging != "": access.dragging = ""
     holding = false
     clamp_button = 0
@@ -677,8 +687,19 @@ func _input(event: InputEvent) -> void:
                 return
             # In explicit parts mode, tools lying on a component must not steal its click.
             if stage == STAGE_CLEAN and active_tool == 2:
-                if mb.pressed: _begin_part_drag(mb.position)
-                else: _finish_part_drag(mb.position)
+                if mb.pressed:
+                    var under: String = _part_under(mb.position)
+                    if under != "" and not under in access.removed_ids() and _may_enter(HandState.DRAGGING_PART):
+                        # Unscrewing a fitted part takes time (D89): hold on it; the drag starts when it frees.
+                        lift_id = under
+                        lift_progress = 0.0
+                    elif under != "":
+                        _begin_part_drag(mb.position)   # a part lying in the tray lifts instantly
+                else:
+                    if lift_id != "":
+                        lift_id = ""
+                        _set_status("Let go before it was unscrewed: the part stays fitted.", 0)
+                    _finish_part_drag(mb.position)
                 holding = false
                 return
             if mb.pressed:
@@ -754,6 +775,21 @@ func _physics_process(delta: float) -> void:
 
 
 func _step_clean(delta: float, mouse: Vector2) -> void:
+    # Unscrewing (D89): holding on a fitted part frees it after PART_LIFT_SECONDS; slipping off cancels.
+    if lift_id != "":
+        if active_tool != 2 or lift_id in access.removed_ids():
+            lift_id = ""
+        else:
+            var rects: Dictionary = _part_rects()
+            if not (rects[lift_id] as Rect2).grow(24.0).has_point(mouse):
+                lift_id = ""
+                _set_status("Unscrewing cancelled: keep the cursor on the part.", 2)
+            else:
+                lift_progress += delta
+                if lift_progress >= PART_LIFT_SECONDS:
+                    var freed: String = lift_id
+                    lift_id = ""
+                    _start_part_drag(freed, mouse)
     access.move(mouse)
     _step_part_motion(delta)
     _sync_part_geometry()
@@ -1037,6 +1073,10 @@ func _draw_scene() -> void:
         CleaningRenderer.draw_power(self, bool(GameState.job["pc_powered"]), Layout.BENCH_POWER.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_trash(self, items.carried >= 0 and Layout.BENCH_TRASH.has_point(get_global_mouse_position()))
         CleaningRenderer.draw_items(self, items)
+        if lift_id != "":
+            var t: float = clampf(lift_progress / PART_LIFT_SECONDS, 0.0, 1.0)
+            draw_arc(_pointer(), 17.0, -PI * 0.5, -PI * 0.5 + TAU * t, 24, Color(0.95, 0.85, 0.45), 4.0, true)
+            draw_arc(_pointer(), 17.0, 0.0, TAU, 24, Color(0.95, 0.85, 0.45, 0.25), 1.5, true)
         CleaningRenderer.draw_motes(self, motes)
         _draw_clean_panel()
         _draw_clean_cursor()
@@ -1285,20 +1325,30 @@ func _save_service_positions() -> void:
     GameState.job["service_table_positions"] = saved
 
 
-func _begin_part_drag(point: Vector2) -> bool:
-    if not _may_enter(HandState.DRAGGING_PART):
-        return false
+# The movable part under `point`, or "".
+func _part_under(point: Vector2) -> String:
     var rects: Dictionary = _part_rects()
     for id: String in ServiceAccess.MOVABLE:
         var hit_rect: Rect2 = rects[id]
         if part_bodies.has(id):
             var edge: Vector2 = part_bodies[id].extent()
             hit_rect = Rect2(rects[id].get_center()-edge,edge*2)
-        if not hit_rect.has_point(point): continue
-        access.begin(access.current_rect(id).get_center())
-        access.drag_rect = rects[id]
-        access.drag_offset = point-rects[id].position
-        part_bodies.erase(id)
-        _sound("handling.pickup",{"kind":id,"item":"component"})
-        return true
-    return false
+        if hit_rect.has_point(point): return id
+    return ""
+
+
+func _begin_part_drag(point: Vector2) -> bool:
+    var id: String = _part_under(point)
+    return id != "" and _start_part_drag(id, point)
+
+
+func _start_part_drag(id: String, point: Vector2) -> bool:
+    if not _may_enter(HandState.DRAGGING_PART):
+        return false
+    var rects: Dictionary = _part_rects()
+    access.begin(access.current_rect(id).get_center())
+    access.drag_rect = rects[id]
+    access.drag_offset = (point-(rects[id] as Rect2).position).clamp(Vector2.ZERO,(rects[id] as Rect2).size)
+    part_bodies.erase(id)
+    _sound("handling.pickup",{"kind":id,"item":"component"})
+    return true
