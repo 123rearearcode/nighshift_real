@@ -12,6 +12,9 @@ const DustZones = preload("res://scripts/data/dust_zones.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const Customers = preload("res://scripts/data/customers.gd")
+const Games = preload("res://scripts/data/games.gd")
+const FpsSim = preload("res://scripts/rules/fps_sim.gd")
+const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -39,6 +42,8 @@ var ticket_sequence: int = 1
 var money: int = START_MONEY
 var job: Dictionary = {}
 var upgrades: Dictionary = {}   # upgrade id -> true once bought
+var owned_games: Array = []     # game ids the shop bought to test with (D94); kept across tickets
+var customer_state: Dictionary = {}   # customer id -> {"trust": int, "history": Array}; what the shop EARNED (kept across tickets)
 
 
 func _ready() -> void:
@@ -58,6 +63,7 @@ func new_game(persist: bool = true) -> void:
     inventory_layout = {}
     inventory_sequence = 10
     upgrades = {}
+    # owned_games and customer_state are NOT reset: the games and the relationships belong to the shop.
     if persist:
         save_game()
 
@@ -86,7 +92,7 @@ func _make_job() -> Dictionary:
         "paste_overflow": 0.0,
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
-        "required_power": 60,     # the PC must output at least this much graphics power (D79; will be renamed)
+        "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
         "pc_powered": true,       # the case power button (D83): fans stop while off
         "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
@@ -326,15 +332,6 @@ func run_final_check() -> Dictionary:
         if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
             temp += float(under["heat_penalty"])
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
-    # Graphics power (D79): a dead GPU outputs 0; a replacement outputs its tier's power.
-    var required_power: int = int(job.get("required_power", 60))
-    var gpu_power: int = 100
-    if Ids.GPU in job["broken_parts"]:
-        gpu_power = 0
-    elif job["service_replacements"].has(Ids.GPU):
-        gpu_power = int(ServiceParts.option(Ids.GPU, str(job["service_replacements"][Ids.GPU])).get("power", 100))
-    if gpu_power < required_power:
-        notes.append("Graphics output is %d; this PC needs at least %d. Fit a working graphics card." % [gpu_power, required_power])
     var removed_parts: Array = job.get("removed_parts", [])
     if not removed_parts.is_empty(): notes.append("Refit removed components before testing: " + ", ".join(removed_parts))
     var broken: Array = job["broken_parts"]
@@ -347,16 +344,22 @@ func run_final_check() -> Dictionary:
     # D87 (user, 2026-11-14): leftover dust is NOT a blocker. It only matters through the temperature
     # it adds (the notes keep saying where it is). The check passes while the PC is under the limit
     # and every part is functional: nothing broken, nothing left out, enough graphics output.
-    var passed: bool = temp < PASS_TEMP and removed_parts.is_empty() and broken.is_empty() and gpu_power >= required_power
+    # Boot test (D97): any power output is fine as long as the PC starts. It starts when every part is
+    # fitted and nothing is broken. Temperature stays the other half of the pass.
+    var boots: bool = removed_parts.is_empty() and broken.is_empty()
+    notes.append("Boot test: the PC starts." if boots else "Boot test FAILED: the PC does not start.")
+    var passed: bool = temp < PASS_TEMP and boots
     var already_done: bool = job["state"] == "done"
     var paid: int = 0
+    var pickup: Dictionary = {}
     if passed and not already_done:
         job["state"] = "done"
         paid = int(job["payout"])
         money += paid
+        pickup = _record_pickup(temp)
     job["temp"] = temp
     save_game()
-    return {"temp": temp, "passed": passed, "notes": notes, "paid": paid, "already_done": already_done}
+    return {"temp": temp, "passed": passed, "boots": boots, "notes": notes, "paid": paid, "already_done": already_done, "pickup": pickup}
 
 
 # The project version, set in project.godot as config/version (single source of truth).
@@ -374,6 +377,8 @@ func save_game() -> void:
         "inventory_sequence": inventory_sequence,
         "ticket_sequence": ticket_sequence,
         "upgrades": upgrades,
+        "owned_games": owned_games,
+        "customer_state": customer_state,
         "job": job,
     }
     SaveStore.write(save_path, data)
@@ -413,6 +418,21 @@ func load_game() -> bool:
         for key in up_dict:
             if UPGRADE_PRICES.has(key) and bool(up_dict[key]):
                 upgrades[key] = true
+    owned_games = []
+    var raw_games: Variant = data.get("owned_games", [])
+    if raw_games is Array:
+        for g: Variant in raw_games:
+            if not Games.game(str(g)).is_empty() and not str(g) in owned_games: owned_games.append(str(g))
+    customer_state = {}
+    var raw_customers: Variant = data.get("customer_state", {})
+    if raw_customers is Dictionary:
+        for cid: Variant in raw_customers:
+            if Customers.customer(str(cid)).is_empty(): continue
+            var entry: Variant = raw_customers[cid]
+            if not entry is Dictionary: continue
+            var past: Variant = (entry as Dictionary).get("history", [])
+            customer_state[str(cid)] = {"trust": clampi(int((entry as Dictionary).get("trust", 50)), 0, 100),
+                "history": past if past is Array else []}
     job = _make_job()
     var saved: Variant = data.get("job", {})
     if typeof(saved) == TYPE_DICTIONARY:
@@ -444,7 +464,10 @@ func load_game() -> bool:
         job["paste_done"] = str(job["paste_grade"]) != ""
     job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
-    job["required_power"] = maxi(0, int(job.get("required_power", 60)))
+    job.erase("required_power")   # 0.25.0 (D97): the boot test replaced the power threshold
+    var specs: Variant = job.get("pc_specs", {})
+    if not specs is Dictionary: specs = {}
+    job["pc_specs"] = {"cpu_power": maxi(1, int((specs as Dictionary).get("cpu_power", 100))), "ram_gb": maxi(1, int((specs as Dictionary).get("ram_gb", 8)))}
     if Customers.customer(str(job.get("customer_id", ""))).is_empty():
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
@@ -483,3 +506,54 @@ func load_game() -> bool:
         job["state"] = "open"
     _refresh_cleaned()
     return true
+
+
+# ----- customers (D92-D95) -----
+
+# The shop's live view of a customer: the data-file person plus earned trust and history.
+func customer_view(id: String) -> Dictionary:
+    var who: Dictionary = Customers.customer(id)
+    if who.is_empty(): return {}
+    var state: Dictionary = customer_state.get(id, {})
+    who["trust"] = clampi(int(state.get("trust", who.get("trust_start", 50))), 0, 100)
+    who["history"] = state.get("history", [])
+    return who
+
+
+# The GPU power of the PC as it stands (original 100, a replacement its tier, broken 0).
+func current_gpu_power() -> int:
+    if Ids.GPU in job["broken_parts"]: return 0
+    if job["service_replacements"].has(Ids.GPU):
+        return int(ServiceParts.option(Ids.GPU, str(job["service_replacements"][Ids.GPU])).get("power", 100))
+    return 100
+
+
+# Buying a game to test with (D94). Returns false when unknown, owned already or unaffordable.
+func buy_game(game_id: String) -> bool:
+    var game: Dictionary = Games.game(game_id)
+    if game.is_empty() or game_id in owned_games or money < int(game["price"]): return false
+    money -= int(game["price"])
+    owned_games.append(game_id)
+    save_game()
+    return true
+
+
+func owns_game(game_id: String) -> bool:
+    return game_id in owned_games
+
+
+# Called once, when the ticket first passes: score the pickup (D95) and write trust and history.
+func _record_pickup(temp: float) -> Dictionary:
+    var who: Dictionary = customer_view(str(job.get("customer_id", "")))
+    if who.is_empty(): return {}
+    var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
+    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP)
+    var days: int = PickupScore.comeback_days(int(result["score"]))
+    var trust: int = clampi(int(who["trust"]) + (int(result["score"]) - PickupScore.HAPPY_FROM) / 10, 0, 100)
+    var entry: Dictionary = {"ticket": str(job["id"]), "score": int(result["score"]), "misses": result["misses"],
+        "comeback_days": days, "scams": (job["scams"] as Array).duplicate()}
+    var state: Dictionary = customer_state.get(str(who["id"]), {"trust": int(who["trust"]), "history": []})
+    state["trust"] = trust
+    (state["history"] as Array).append(entry)
+    customer_state[str(who["id"])] = state
+    return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust}

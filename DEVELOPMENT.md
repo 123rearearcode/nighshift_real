@@ -95,6 +95,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
+| `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |
@@ -155,7 +156,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/dust_pick.gd` | sim/controller | Pick stroke timing and per-attempt random risk; injectable rolls for checks |
 | `scripts/data/service_parts.gd` | data | Two generic replacement tiers for cooler/GPU; trial only |
 | `scripts/data/paste_materials.gd` | data | What can go under the cooler: thermal paste ($3) or toothpaste (free, stiffer, +14 C, a scam) |
-| `scripts/data/customers.gd` | data | The customers behind the tickets: who they are, uses, habits (scam-relevant), patience, payout; the shop's Customer tab reads it |
+| `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
+| `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
+| `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
 | `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
 | `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
 | `scripts/bench/service_access.gd` | sim/controller | Service mount/tray geometry and drag state; no drawing/input |

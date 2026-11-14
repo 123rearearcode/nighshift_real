@@ -1,11 +1,25 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.24.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.25.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.25.0 — the customer model, first wave
+
+Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
+The user approved docs/CUSTOMER_MODEL_MAP.md point by point before any code (D92–D97). Customers
+now have professions, personas, trust, budgets and NEEDS; the boot test replaces the required-power
+threshold (any output passes as long as the PC starts); the shop can buy video games (Counter
+Stroke 2) and an fps simulation says how the PC runs them; the first passing final check scores
+the PICKUP 0–100 against the customer's real needs, writes trust and history into the save
+(`customer_state`, the shop's property, survives new_game), and says when an unhappy customer
+comes back. Split: Claude owns this customer/software part; Codex builds the dumpster-salvage
+minigame in parallel (docs/CODEX_PROMPT_SALVAGE.md); Claude cross-reviews Codex when both are
+done. The software-checks monitor screen (boot test, anti-virus, Vapor store, overclocker) is the
+next wave — the rules behind it are built, the screen is not.
 
 ## Current update 0.22.1 — bounded performance pass
 

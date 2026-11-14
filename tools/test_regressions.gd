@@ -28,6 +28,10 @@ const MountSession = preload("res://scripts/bench/mount_session.gd")
 const HandState = preload("res://scripts/bench/hand_state.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const BenchItems = preload("res://scripts/bench/bench_items.gd")
+const Games = preload("res://scripts/data/games.gd")
+const FpsSim = preload("res://scripts/rules/fps_sim.gd")
+const PickupScore = preload("res://scripts/rules/pickup_score.gd")
+const Customers = preload("res://scripts/data/customers.gd")
 const LayoutData = preload("res://scripts/data/layout.gd")
 
 func _initialize() -> void:
@@ -202,6 +206,7 @@ func run_checks() -> void:
     test_promoted_contracts(gs)
     test_0_21(gs)
     test_0_23(gs)
+    test_0_25(gs)
     test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
@@ -1483,26 +1488,21 @@ func test_0_21(gs: Node) -> void:
         "wiping on until below 95%% clears the grade (%.0f of %.0f after %d frames)" % [bench.paste.total_deposited, graded, frames_wiped])
     bench.scripted_pointer = null
     bench.queue_free()
-    # GPU power (D79): a dead GPU outputs 0 and fails; a fitted replacement outputs its tier's power.
+    # GPU power (D79), superseded by the boot test (D97): a dead GPU stops the boot; any working card passes.
     var fractions: Dictionary = {}
     for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
     gs.new_game()
     gs.set_dust(fractions)
     pasted(gs)
-    check(int(gs.job["required_power"]) == 60, "the trial job needs 60 graphics power")
+    # D97 (0.25.0): the boot test replaced the power threshold. Any output passes as long as it boots.
     gs.damage_service_part("gpu")
     var dead: Dictionary = gs.run_final_check()
-    check(not dead["passed"] and str(dead["notes"]).contains("Graphics output is 0"), "a dead GPU outputs 0 and the check says so")
+    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot test FAILED"), "a broken GPU means the PC does not boot, and the check says so")
     gs.job["removed_parts"].append("gpu")
     check(gs.replace_service_part("gpu", "budget"), "a budget GPU can be fitted from stock")
     var fitted: Dictionary = gs.run_final_check()
-    check(fitted["passed"] and not str(fitted["notes"]).contains("Graphics output is"), "a 65-power budget GPU meets this PC's 60 and the job passes")
-    gs.job["required_power"] = 100
-    var demanding: Dictionary = gs.run_final_check()
-    check(not demanding["passed"] and str(demanding["notes"]).contains("needs at least 100"), "a PC that needs 100 rejects the 65-power budget card")
-    gs.save_game()
-    gs.load_game()
-    check(int(gs.job["required_power"]) == 100, "the power requirement survives save and load")
+    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot test: the PC starts"), "any working GPU boots and passes; there is no power threshold any more")
+    check(not gs.job.has("required_power"), "the old power requirement is gone from the job")
 
 
 # 0.22.0: the hose end is attached to the vacuum, the clipped hose is a short leash, the PC power
@@ -1598,7 +1598,56 @@ func test_0_23(gs: Node) -> void:
     check(shop.customer_label != null and not shop.customer_label.visible and shop.result_label.visible, "the shop opens on the Final check tab")
     shop._show_tab(1)
     check(shop.customer_label.visible and not shop.result_label.visible, "the Customer tab swaps the lower card")
-    check(shop.customer_label.text.contains("Mara V.") and shop.customer_label.text.contains("60"), "the Customer tab shows who they are and what the PC must output")
+    check(shop.customer_label.text.contains("Mara V.") and shop.customer_label.text.contains("trust"), "the Customer tab shows who they are and the earned trust")
     shop._on_check_pressed()
     check(shop.result_label.visible and not shop.customer_label.visible, "running the check returns to the Final check tab")
     shop.queue_free()
+
+
+# 0.25.0: the customer model's first wave (D92-D97): fps simulation, bought games, pickup scores.
+func test_0_25(gs: Node) -> void:
+    var cs2: Dictionary = Games.game("counter_stroke_2")
+    check(FpsSim.fps(110.0, 120.0, 8.0, cs2) == 120, "double the demands yields double the base fps")
+    check(FpsSim.fps(65.0, 100.0, 8.0, cs2) == 70, "a budget GPU still clears 60 fps when cool")
+    check(FpsSim.fps(65.0, 100.0, 8.0, cs2, 90.0) < 60, "the same GPU throttled at 90 C drops below 60")
+    check(FpsSim.fps(110.0, 60.0, 8.0, cs2) == 60, "a weak CPU caps the frame rate (the slowest part sets the pace)")
+    var starved: int = FpsSim.fps(110.0, 120.0, 4.0, cs2)
+    check(starved < 60 and starved > 0, "too little RAM makes it stutter (%d fps)" % starved)
+    check(FpsSim.fps(0.0, 100.0, 8.0, cs2) == 0, "a dead GPU renders nothing")
+    check(FpsSim.thermal_factor(50.0) == 1.0 and FpsSim.thermal_factor(90.0) == 0.5, "throttling runs from none at 60 C to half at 90 C")
+    gs.new_game()
+    var cash: int = gs.money
+    check(not gs.buy_game("half life 3"), "an unknown game cannot be bought")
+    check(gs.buy_game("counter_stroke_2") and gs.money == cash - int(cs2["price"]) and gs.owns_game("counter_stroke_2"), "buying Counter Stroke 2 costs its price once")
+    check(not gs.buy_game("counter_stroke_2") and gs.money == cash - int(cs2["price"]), "a game cannot be bought twice")
+    gs.load_game()
+    check(gs.owns_game("counter_stroke_2"), "owned games survive save and load")
+    gs.new_game()
+    check(gs.owns_game("counter_stroke_2"), "a new ticket does not take the shop's games away")
+    # Pickup scoring: Mara, cool and quiet, leaves happy; trust rises; the visit is in the history.
+    # Earlier tests in this suite already passed her ticket, so start her slate clean.
+    gs.customer_state = {}
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    var pickup: Dictionary = r.get("pickup", {})
+    check(bool(r["passed"]) and not pickup.is_empty(), "the first pass records the pickup")
+    check(int(pickup["score"]) >= PickupScore.HAPPY_FROM and int(pickup["comeback_days"]) == 0, "a cool, quiet PC sends Mara home happy (score %d)" % int(pickup["score"]))
+    var view: Dictionary = gs.customer_view("t001_mara")
+    check(int(view["trust"]) > int(Customers.customer("t001_mara")["trust_start"]), "a happy pickup raises trust")
+    check((view["history"] as Array).size() == 1, "the visit is in the history")
+    var second: Dictionary = gs.run_final_check()
+    check((second.get("pickup", {}) as Dictionary).is_empty() and (gs.customer_view("t001_mara")["history"] as Array).size() == 1, "re-running the check does not score twice")
+    gs.load_game()
+    check((gs.customer_view("t001_mara")["history"] as Array).size() == 1, "history survives save and load")
+    # An unhappy gamer: a throttled budget GPU misses Relu's 60 fps and he comes back sooner.
+    var relu: Dictionary = Customers.customer("t002_relu")
+    var unhappy: Dictionary = PickupScore.score(relu, 74.0, 65.0, 100.0, 8.0, float(gs.PASS_TEMP))
+    check(int(unhappy["score"]) < PickupScore.HAPPY_FROM and not (unhappy["misses"] as Array).is_empty(), "a hot budget GPU misses Relu's frame rate (score %d)" % int(unhappy["score"]))
+    check(PickupScore.comeback_days(30) == 1 and PickupScore.comeback_days(50) == 2 and PickupScore.comeback_days(65) == 3 and PickupScore.comeback_days(70) == 0,
+        "angrier customers come back sooner; happy ones do not")
+    var happy_relu: Dictionary = PickupScore.score(relu, 45.0, 100.0, 100.0, 8.0, float(gs.PASS_TEMP))
+    check(int(happy_relu["score"]) >= PickupScore.HAPPY_FROM, "a cool full-power PC satisfies the gamer")

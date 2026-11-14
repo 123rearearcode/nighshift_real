@@ -10,6 +10,7 @@ const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const Customers = preload("res://scripts/data/customers.gd")
+const Games = preload("res://scripts/data/games.gd")
 
 # key -> Variant.Type. REQUIRED keys must exist; OPTIONAL keys may exist; any other key is a problem.
 const COMPONENT_REQUIRED: Dictionary = {"id": TYPE_STRING, "category": TYPE_STRING, "display_name": TYPE_STRING,
@@ -168,9 +169,13 @@ func test_paste_materials() -> void:
     check(PasteMaterials.material("ketchup").is_empty(), "an unknown paste material gives nothing")
 
 
-const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "about": TYPE_STRING,
-    "complaint": TYPE_STRING, "uses": TYPE_STRING, "required_power": TYPE_INT, "habits": TYPE_STRING,
-    "patience": TYPE_STRING, "payout": TYPE_INT}
+const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "portrait": TYPE_STRING,
+    "scripted": TYPE_BOOL, "profession": TYPE_STRING, "persona": TYPE_STRING, "about": TYPE_STRING,
+    "complaint": TYPE_STRING, "uses": TYPE_STRING, "habits": TYPE_STRING, "patience": TYPE_STRING,
+    "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY}
+const GAME_REQUIRED: Dictionary = {"id": TYPE_STRING, "title": TYPE_STRING, "price": TYPE_INT,
+    "gpu_demand": TYPE_INT, "cpu_demand": TYPE_INT, "ram_min": TYPE_INT}
+const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)
 
 
 func test_customers() -> void:
@@ -178,5 +183,20 @@ func test_customers() -> void:
         var who: Dictionary = Customers.customer(id)
         check_schema(who, CUSTOMER_REQUIRED, {}, "customer " + id)
         check(who.get("id", "") == id, "customer %s knows its own id" % id)
-        check(int(who.get("required_power", -1)) >= 0 and int(who.get("payout", 0)) > 0, "customer %s has sensible numbers" % id)
+        check(str(who.get("profession", "")) in PROFESSIONS, "customer %s has a first-cut profession" % id)
+        check(int(who.get("payout", 0)) > 0 and int(who.get("budget", 0)) >= int(who.get("payout", 0)), "customer %s can afford their own repair" % id)
+        check(clampi(int(who.get("trust_start", -1)), 0, 100) == int(who.get("trust_start", -1)), "customer %s trust starts within 0-100" % id)
+        var needs: Dictionary = who.get("needs", {})
+        if str(who.get("profession", "")) == "clueless":
+            check(needs.has("stated") and needs.has("real"), "clueless customer %s has a decoy and a real need" % id)
+            needs = needs.get("real", {})
+        for entry: Variant in needs.get("games", []):
+            check(entry is Dictionary and not Games.game(str((entry as Dictionary).get("game_id", ""))).is_empty() and int((entry as Dictionary).get("min_fps", 0)) > 0,
+                "customer %s needs a real game with a real minimum" % id)
     check(Customers.customer("nobody").is_empty(), "an unknown customer gives nothing")
+    for id: String in Games.IDS:
+        var game: Dictionary = Games.game(id)
+        check_schema(game, GAME_REQUIRED, {}, "game " + id)
+        check(game.get("id", "") == id, "game %s knows its own id" % id)
+        check(int(game.get("price", 0)) > 0 and int(game.get("gpu_demand", 0)) > 0 and int(game.get("cpu_demand", 0)) > 0 and int(game.get("ram_min", 0)) > 0, "game %s has sensible numbers" % id)
+    check(Games.game("half life 3").is_empty(), "an unknown game gives nothing")
