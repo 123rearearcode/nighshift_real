@@ -1,6 +1,9 @@
-# Nightshift - Godot Foundation Trial (v0.30.0)
+# Nightshift - Godot Foundation Trial (v0.32.0)
 
-**This follow-up branch:** F5 → New game → Activities. Workshop lets you switch between two
+**Salvage variety (0.31.0):** each Salvage arrival is a fresh random pile with fourteen collectible kinds,
+varied containers and heavy obstacles; cargo stays yours. See docs/SALVAGE_VARIETY.md.
+
+**Night workshop (0.30.0):** F5 → New game → Activities. Workshop lets you switch between two
 customer repair PCs, clean/repaste them and run a diagnosis without ending the job. Salvage is now
 under Activities. Storage has three-shelf racks. Good cooler mounts commit with the lever.
 Both this branch and the previous rack PR are intentionally unmerged. See

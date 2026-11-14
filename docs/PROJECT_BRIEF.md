@@ -1,5 +1,8 @@
 # Nightshift — Project Brief
 
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
 Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
 New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
 non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
@@ -117,6 +120,9 @@ The hardware sandbox now separates storage from installation: three generic samp
 ## Current trial0.11.0 — handling across both benches
 The user authorised tabletop throws/bounces, tactile repair tools, a flexible physical brush and replacement stock linked to player inventory. Implemented a shared bounded tabletop model (edge rebounds, spin, vertical hop/floor bounce and friction), repair-tool rig for vacuum/brush/pick/cloth/syringe, and real bristle contact points. Hardware flicks settle into free drawer cells; repair GPU/cooler can be thrown and recovered. A single owned stock list now feeds hardware storage and repair replacements. Buying adds a unique item; fitting consumes it with no second charge. This is a minimal shared stock foundation, not the final catalogue, supplier market or complete PC inventory. Fresh dirty tickets initialise visible dust; existing cleaned saves stay clean with explicit status and a New dirty PC action preserving cash/stock. The user's reported missing dust was not reproduced on a fresh ticket; do not claim an established root cause.
 
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
 
 ## General storage rack — trial 0.29.0, 14 November 2026
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

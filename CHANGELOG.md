@@ -39,10 +39,10 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
-## 0.29.0 - 2026-11-14 - The broken-GPU dead end, the bug register and the Upgrades tab
+## 0.32.0 - 2026-11-15 - The broken-GPU dead end, the bug register and the Upgrades tab
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
-- Based on: 0.28.0
+- Based on: 0.28.0 (first shipped alone as main 0.29.0, PR #37; re-based here on top of Codex's merged 0.29.0 storage rack, 0.30.0 night workshop and 0.31.0 salvage variety, with the version and D-number collisions renumbered)
 - Type: minor (new register + rules, UI restructure, sandbox data; saves migrate)
 
 ### Execution status
@@ -59,20 +59,20 @@ cargo body before the grab finished, and the menu label was sized before wrappin
 Godot clamped it to 600 px (recorded as the real root of B13).
 
 ### Added
-- `docs/BUGS.md` (D109): the bug register. Every bug found — playtest, CI, review — gets a row
+- `docs/BUGS.md` (D114): the bug register. Every bug found — playtest, CI, review — gets a row
   when found and a root cause when fixed; backfilled with B1–B15. Every 10 versions (0.30.0,
   0.40.0, …) it gets a structural review pass. AGENTS.md rule 6 and the HANDOFF checklist now
   require it.
-- `GameState.part_state(part_id)` (D110): ONE binary state pair per serviceable part
+- `GameState.part_state(part_id)` (D115): ONE binary state pair per serviceable part
   (fitted/working) with the exact repair path in words. The failed final check now prints
   "GPU: BROKEN - at the repair bench: move it to the tray, then open Replacement stock."
   instead of the old aggregate notes, and the TICKET carries a parts line too — the user's
   0.28.x playtest dead-ended on a broken GPU with no visible way forward (B10/B12, RC-1/RC-2).
-- The spare-part bench is coherent (D111): the starter stock includes a demo CPU, the demo
+- The spare-part bench is coherent (D116): the starter stock includes a demo CPU, the demo
   board gained a cooler mount, and the cooler only fits once the CPU sits in the socket
   (real-life order CPU → mount → cooler, as the user asked). Its banner and the shop button
   now say plainly that it is the SHOP'S stock bench, not the customer's PC (B11).
-- Upgrades tab (D112): the shop's lower card is Final check | Customer | Upgrades; both tool
+- Upgrades tab (D117): the shop's lower card is Final check | Customer | Upgrades; both tool
   upgrades (square cloth, longer hose) moved there, and future ones land there.
 
 ### Changed
@@ -97,8 +97,8 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 ### Files changed
 | File | Change | What |
 | --- | --- | --- |
-| `docs/BUGS.md` | A | The bug register (D109), backfilled B1–B15 with root causes RC-1..3 |
-| `scripts/state/game_state.gd` | M | part_state (D110); binary per-part final-check notes; CPU in starter stock |
+| `docs/BUGS.md` | A | The bug register (D114), backfilled B1–B15 with root causes RC-1..3 |
+| `scripts/state/game_state.gd` | M | part_state (D115); binary per-part final-check notes; CPU in starter stock |
 | `scripts/view/shop_view.gd` | M | Upgrades tab; ticket parts line + bounded ticket scroll; bench button renames |
 | `scripts/view/workshop_view.gd` | M | Spare-part-bench banner |
 | `scripts/data/component_data.gd` | M | Demo CPU part; cooler mount connector with "requires": "cpu" |
@@ -112,7 +112,7 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 | `tools/test_data_schemas.gd` | M | Connector schema allows "requires" |
 | `AGENTS.md` | M | Rule 6: the bug register |
 | `DEVELOPMENT.md` | M | File map: docs/BUGS.md |
-| `docs/DECISIONS.md` | M | D109–D112, D108 amendment |
+| `docs/DECISIONS.md` | M | D114–D117, D108 amendment |
 | `HANDOFF.md` | M | 0.29.0 section; checklist step 10 (bug register); version |
 | `README.md` | M | Version |
 | `project.godot` | M | config/version 0.29.0 |
@@ -134,14 +134,104 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 
 ### Known issues and open items
 - RC-1 remains structurally open: the customer's PC and the spare-part bench are still two
-  models; D110 surfaces one truth but does not merge them. Proposed next structural wave.
+  models; D115 surfaces one truth but does not merge them. Proposed next structural wave.
 - Wave 2 (software-checks monitor screen) still NOT started, per the user.
-- First structural bug review due at 0.30.0 (D109).
+- First structural bug review due at 0.30.0 (D114).
 
 ### Next action
 User playtest of 0.29.0 (the broken-GPU loop, the Upgrades tab, the menu). Then, on the user's
 word: wave 2 or the RC-1 structural wave.
 
+## 0.31.0 - 2026-11-15 - Fresh random salvage piles, more parts and heavy obstacles
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.29.0 (e6f89e3), rebased after Claude PR #37; inventory/night PRs remain separate
+- Type: minor (new salvage content, per-arrival generation rule and heavy physics)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally: ten required suites, 1,060 checks, zero failures;
+zero pending-contract checks and scripted bench smoke passed. No graphical/user playtest or
+target-hardware performance claim. Date: 15 November 2026, Europe/Bucharest.
+Independent main-based PR; prior local inventory/night fixes remain unpublished and unchanged.
+
+### Added / Changed / Fixed / Removed
+- Fresh random pile on EVERY successful arrival, including same-night return visits. Reopening
+  the active visit/containers does not reroll; normal travel cost still applies. Cargo/shelf stay.
+  Old stable/few-day pile refresh rule is superseded by user-requested D113; UI now explains visits.
+- Fourteen collectible PC/part kinds: previous PC/GPU/RAM/PSU/drive plus CPU, motherboard, cooler,
+  fan, SSD, HDD, Wi-Fi, sound and network cards. All pack/rotate in the trunk and remain untested.
+- Random root counts, size-varied bags/boxes, shuffled mix, weighted per-site component selection,
+  small tilts and random positions replace fixed columns. Contents are real records generated once.
+- Concrete blocks/heavy appliances are massive native dynamic obstructions with high friction and
+  reduced bounded grip/torque. HEAVY markings/hints explain barely nudging/working around them.
+  They can fall with the pile but cannot be packed or opened into lightweight shells.
+- Rotated root hulls start without overlap; no-space roots are skipped. Generation caps all visible
+  and hidden records at 64. Newly exposed contents stay on their own side of the bin rim.
+- Random visit IDs include session nonce/serial/seed to avoid matching cargo. Debug seed override
+  reproduces a report. Cycle metadata remains only for legacy/debug code, no longer a reroll gate.
+- Rebased on Claude’s main 0.29.0 update (PR #37); its GPU/CPU/UI fixes and salvage grace/staging
+  tests are retained. No edits to its hot files.
+- Follow the new bug-register rule: record B16 as local-only and B17 as a pending CPU-adapter compatibility gap, plus
+  structural review preparation. No inventory fix code or branch was published.
+- No shared stock/save/customer/bench changes, new commerce or finished repair-catalogue claim.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed salvage delivery record |
+| `docs/BUGS.md` | M | Record prior pending rack bug and prepare structural checkpoint review; no inventory fix code published |
+| `DEVELOPMENT.md` | M | Version, current scope, decision reconciliation or handoff |
+| `HANDOFF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `README.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/CURRENT_STATE.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DECISIONS.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DESIGN.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/PROJECT_BRIEF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/ROADMAP.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_VARIETY.md` | A | Version, current scope, decision reconciliation or handoff |
+| `docs/TESTING.md` | M | Version, current scope, decision reconciliation or handoff |
+| `project.godot` | M | Version, current scope, decision reconciliation or handoff |
+| `scripts/salvage/salvage_body.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_data.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_pile.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_session.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_view.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage_physics.gd` | M | Variety/arrival/heavy physics and regression contracts |
+
+### Checks performed
+- Godot 4.7.2: Data schema 206; Regression 586; Start screen 20; Dust flow 43;
+  Bench interaction 26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24;
+  Salvage 49; Salvage physics 43. Total 1,060 checks, zero failures/script errors.
+- Pending contracts: zero checks/failures. Legacy bench --smoke: Playtest finished, no script errors.
+- Salvage tests cover 128 seeded piles, no initial rotated-hull overlap, bounds/caps, catalogue and
+  weighted variety, valid hidden identities, fresh visit IDs, trunk/rotation/cargo and reveal invariants.
+- Native tests verify sustained heavy pull stays below 35 pixels displacement while ordinary parts
+  lift over 100 pixels, plus a generated pile with opened containers stays bounded/finite. No frame-time
+  threshold or performance benchmark inferred from this. All previous native cases still pass.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2; Salvage 49 and Salvage physics 43 passed, no script/resource errors.
+
+### Decisions proposed (not approved)
+D113 records the user's approved new arrival/randomness/content/heavy-item request. Root counts,
+weights, dimensions, 64-record cap, effort and force/mass/friction values are provisional tuning.
+No release catalogue, final balance or repair-stock integration approved by this prototype.
+
+### Known issues and open items
+Independent branch starts from main 0.29.0, so its test entry is the title-menu Salvage demo. The
+pending night activity wrapper will inherit the new session/view behavior when integrated later.
+App exit still discards standalone salvage progress. Left-behind unclaimed/sorting items are cleared
+on next arrival. Heavy bodies can move under gravity/contacts; they are not immovable scenery.
+Graphics/feel and target-device timing require a user playtest. No new owned-part model implemented.
+
+### Next action
+Claude cross-reviews the new separate PR next: arrival semantics, cargo identity, bounds and heavy
+physics; user playtests variety and weight. Do not auto-merge. Prior inventory/night PRs and local
+patches are unchanged; do not publish them with this PR. Hot files bench_view.gd, tool_rig.gd and
+game_state.gd are untouched and remain reserved for Claude; none is claimed free. WORK_PLAN.md is
+unchanged. Reconcile version metadata when combining the pending branches.
 
 ## 0.30.0 - 2026-11-14 - Night activities, two customer PCs and diagnostic-only checks
 

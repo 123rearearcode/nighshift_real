@@ -138,7 +138,7 @@ func parts_clean_count() -> int:
 
 
 # Service accidents and replacements are persistent; grades are derived from known tiers.
-# ONE source of truth for the state of a customer's serviceable part (D110): binary per part.
+# ONE source of truth for the state of a customer's serviceable part (D115): binary per part.
 # Everything that talks about parts (ticket, final check, benches) reads this, never its own copy.
 func part_state(part_id: String) -> Dictionary:
     var fitted: bool = not part_id in job.get("removed_parts", [])
@@ -362,7 +362,7 @@ func run_final_check() -> Dictionary:
         if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
             temp += float(under["heat_penalty"])
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
-    # D110: one binary line per serviceable part, with the exact place to fix it. This replaced
+    # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     var removed_parts: Array = job.get("removed_parts", [])
     var broken: Array = job["broken_parts"]
@@ -444,7 +444,7 @@ func load_game() -> bool:
             if str(record.get("owner","player")) != "player" or str(record.get("condition","working")) != "working": continue
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
-    # Saves from before the CPU existed gain the demo CPU once (D111); later loads keep it.
+    # Saves from before the CPU existed gain the demo CPU once (D116); later loads keep it.
     if raw_stock is Array and not (raw_stock as Array).is_empty() and not seen_stock.has("stock_cpu_demo"):
         player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"})
     var saved_layout: Variant = data.get("inventory_layout",{})

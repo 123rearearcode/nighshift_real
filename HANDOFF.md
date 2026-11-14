@@ -1,7 +1,13 @@
 # Handoff - read this first
 
+**0.31.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+15 November 2026, Europe/Bucharest. Rebased on main 0.29.0 after Claude's PR #37 landed.
+Fresh piles per arrival, fourteen collectibles, heavy native obstacles; see SALVAGE_VARIETY.md/D113.
+Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR unmerged for review.
+
+
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.30.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.32.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

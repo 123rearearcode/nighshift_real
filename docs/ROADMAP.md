@@ -1,5 +1,8 @@
 # Nightshift — Roadmap
 
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
 Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
 New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
 non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
@@ -171,6 +174,9 @@ Written by Claude (Opus 5.5, model id claude-opus-5-5). The project lives in the
 Added by Claude (Opus 5.5, model id claude-opus-5-5). The user approved `docs/WORK_PLAN.md`: Codex owns design and gameplay features, Claude owns engineering and code health (tests/CI, measurement, constants, a hand-state machine for bench input, save gaps, the `bench_view.gd` split, a typed job, later exported-build checks). Gameplay milestones above keep their order; plan steps run alongside them under the plan's hot-file rules.
 
 
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
 
 ## General storage rack — trial 0.29.0, 14 November 2026
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

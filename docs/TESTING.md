@@ -141,3 +141,9 @@ then back and confirm the work stays separate. Try a good lever mount without a 
 leave/reopen and inspect paste. Run Final Check repeatedly: no money, pickup or completion. Check
 Salvage returns to Activities, and all three shelves fit on screen. Existing save should retain its
 single actual ticket, while New Game deliberately gives two. Hardware bench is still shop stock.
+## Salvage variety — 0.31.0
+Existing Salvage/Salvage physics suites include 128 seeded layouts (bounded, non-overlapping rotated
+root hulls, record caps/IDs), all collectible packing/rotation, fresh-arrival/cargo invariants, new
+container reveals and native heavy/generated-pile cases. Test normal random mode manually: enter,
+inspect, drive home and re-enter; cargo stays while the pile changes. Try lifting a HEAVY item,
+ordinary parts, and opening a crowded box. No target-hardware performance claim; measure feel in Godot.

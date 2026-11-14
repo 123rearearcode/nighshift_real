@@ -1,5 +1,11 @@
 # Night salvage — agreed direction and implementation proposal
 
+**Current override (D113, 15 November 2026, 0.31.0):** the user requests fresh random piles on
+every arrival. Older persistent-site/few-day cycle proposals below are historical and are
+superseded for this prototype. Active visit/container reveals stay stable; packed cargo stays.
+Details: SALVAGE_VARIETY.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
 Based on runtime 0.25.0 and the user's night-outing discussion; standalone slice 0.26.0, upgraded to the 0.27.0 native-physics trial.
 This reconciles the unmerged PR #31 design with Claude's newer D92–D97.

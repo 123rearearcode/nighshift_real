@@ -1,5 +1,8 @@
 # Nightshift — Working Design
 
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
 Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
 New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
 non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
@@ -199,6 +202,9 @@ IMPLEMENTED: cleaning tool row and maintenance row; permanent bin state with exp
 
 CONFIRMED/IMPLEMENTED foundation: pickup, impacts, vacuuming, brushing, wiping, dispensing, pressing, lever and UI actions emit silent audio events. Six buses and managed per-owner loops prepare later sound work; no audio assets/playback exist. See AUDIO_DESIGN.md. Future samples, mix, tonal palette and exact feedback tuning are PROPOSALS. Critical state must stay visible and sound must not expose secret scam or diagnosis data.
 
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
 
 ## General storage rack — trial 0.29.0, 14 November 2026
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

@@ -1,5 +1,8 @@
 # Nightshift — Current State and Technical Handoff
 
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
 Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
 New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
 non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
@@ -148,6 +151,9 @@ A single top-level player_inventory now feeds hardware grid and repair replaceme
 Fresh tickets show71 visible groups plus14 protected groups without Reset; partial dust survives reopening. Saved clean PCs remain clean. Added brighter dust, ticket/visible-group status and New dirty PC keeping cash/stock/upgrades. The stale bench cannot save over a newly created ticket. No fresh-ticket missing-dust bug was reproduced; no unsupported root-cause claim. New dirty PC is a practice-ticket reset, not daytime intake.
 325 Godot4.6.3 regression checks passed before packaging; final checker/import/smoke/fresh-extract results are in CHANGELOG.md. GUI observed dust on first bench entry and a new ticket without Reset, physical brush/rack handling, purchase into shared drawer and corrected cooler shapes. Target4.7.2 and full human repair-payment path remain unverified. Physics is a custom bounded tabletop/bristle model, with no inter-object collision, sound, throw-induced damage or persistent flight state. Free tools reset on scene entry. This section supersedes earlier single/sandbox-only inventory and no-throw statements.
 
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
 
 ## General storage rack — trial 0.29.0, 14 November 2026
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

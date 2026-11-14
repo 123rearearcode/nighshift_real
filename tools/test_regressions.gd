@@ -1747,8 +1747,8 @@ func test_0_28(gs: Node) -> void:
     gs.new_game()
 
 
-# 0.29.0: one binary source of truth for part states (D110), the path out of a broken-GPU ticket,
-# the coherent spare-part bench (CPU before cooler, D111) and the Upgrades tab (D112).
+# 0.29.0: one binary source of truth for part states (D115), the path out of a broken-GPU ticket,
+# the coherent spare-part bench (CPU before cooler, D116) and the Upgrades tab (D117).
 func test_0_29(gs: Node) -> void:
     gs.tickets_taken = 0
     gs.new_game()
@@ -1774,7 +1774,7 @@ func test_0_29(gs: Node) -> void:
     check(bool(gs.part_state("gpu")["fitted"]) and bool(gs.part_state("gpu")["working"]) and str(gs.part_state("gpu")["tier"]) == "budget",
         "after the replacement the part reads fitted and working again")
     check(bool(gs.run_final_check()["passed"]), "the gameplay loop completes end to end after a broken GPU")
-    # The spare-part bench is coherent now: a CPU exists, and the cooler needs it first (D111).
+    # The spare-part bench is coherent now: a CPU exists, and the cooler needs it first (D116).
     var cpus: int = 0
     for record: Dictionary in gs.player_inventory:
         if str(record["kind"]) == "cpu": cpus += 1
