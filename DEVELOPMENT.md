@@ -191,6 +191,22 @@ Screen flow: shop (`shop.tscn`) opens the cooler bench (`bench.tscn`) and the ha
 (`main.tscn`); both have a button back to the shop. Scene changes use
 `get_tree().change_scene_to_file(...)`.
 
+### Storage rack files (0.29.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scenes/storage.tscn` | scene | General inventory entry |
+| `scripts/storage/storage_data.gd` | data | Furniture specs and storage footprints |
+| `scripts/storage/storage_sources.gd` | adapter | Read-only projection of canonical owned stock, included tools and current customer PC |
+| `scripts/storage/storage_model.gd` | rules | Shelf packing, rotation, transactional moves, overflow and layout snapshot |
+| `scripts/storage/storage_store.gd` | state | Auxiliary layout save via SafeStore; future-version guard |
+| `scripts/storage/storage_view.gd` | view | Rack/drawers/tool board, hover, drag and expansion |
+| `tools/test_storage.gd` | tooling | Source/ownership, packing/save and real scene-input contracts |
+| `docs/STORAGE.md` | docs | Controls, capacity boundaries and Claude handoff |
+
+These files form an isolated feature module: model knows only data, sources only read state,
+store handles layout I/O, view orchestrates them. No dependency from GameState into storage.
+
 ## 6. Data contracts
 
 **Component** (`ComponentData.ram_stick()`): `id` String, `category` String, `display_name` String,
@@ -473,3 +489,12 @@ resume. View departure/return/menu/focus changes coordinate sync/capture and nat
 Ten required suites: pure salvage rules plus native-frame tests. Optional stress profiler times the
 physics_frame→process_frame wall phase, not just view callbacks or the coarse Performance time counter.
 No GPU/whole-frame claim. Same session-only/save/stock/Claude hot-file boundaries as 0.26.0 remain.
+
+
+### Storage save contract (0.29.0)
+
+See docs/STORAGE.md for version-1 furniture/placement-only JSON. No change to SAVE_FORMAT.
+StorageModel.setup(sources,snapshot) reconciles ownership references; begin/rotate/cancel never
+edit committed allocations; drop commits only if can_place succeeds. StorageStore protects
+future-version files. No purchase/intake capacity hook yet; never silently discard overflow.
+The required workflow now also runs test_storage.gd (summary name Storage).

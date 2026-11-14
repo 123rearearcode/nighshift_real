@@ -39,6 +39,86 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.29.0 - 2026-11-14 - General storage rack and furniture expansion
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.28.0 (main 08a11a4)
+- Type: minor (new player-visible inventory scene and auxiliary layout contract)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. All 11 required suites passed (1,059 checks),
+plus the zero-check pending-contract report and scripted bench smoke diagnostics. No graphical
+or user playtest is claimed. All checks use isolated test saves. Date: 14 November 2026,
+Europe/Bucharest. Delivery is an unmerged feature branch; no game-state hot file was edited.
+
+### Added / Changed / Fixed / Removed
+- Start menu → Storage rack. General inventory projects current owned parts, included tools and
+  the active customer PC onto space-limited shelves. Generic names, colours and hover details.
+- Smooth pickup following, rotation around the grab point, valid/invalid placement previews,
+  safe cancellation, cross-shelf/furniture movement, paging and a visible overflow waiting area.
+- Add steel racks, shallow component cabinets or tool boards; remove empty furniture. Furniture
+  is free in this prototype, capped at eight units. No new economy or purchase charging.
+- Layout-only safe save, malformed-save reconciliation, backup recovery, future-version guard,
+  write-failure reporting. Source records remain canonical; no stock duplication or ownership transfer.
+- Separate feature files avoid Claude's hot files and customer/shop screen. One small menu hook.
+- Existing purchase/intake/drawer capacity checks remain unchanged; shared capacity integration
+  is an explicit follow-up. Customer PC includes its fitted parts; installed shop stock keeps a
+  marked reservation. Tool kit ownership and single-PC source remain the current trial's limits.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed 0.29.0 delivery record |
+| `.github/workflows/tests.yml` | M | Add required Storage suite |
+| `DEVELOPMENT.md` | M | File map and layout-only save contract |
+| `HANDOFF.md` | M | Version, coordination boundaries and next action |
+| `README.md` | M | Version and entry instructions |
+| `docs/CURRENT_STATE.md` | M | Storage feature scope and prototype limitations |
+| `docs/DECISIONS.md` | M | Storage feature scope and prototype limitations |
+| `docs/DESIGN.md` | M | Storage feature scope and prototype limitations |
+| `docs/PROJECT_BRIEF.md` | M | Storage feature scope and prototype limitations |
+| `docs/ROADMAP.md` | M | Storage feature scope and prototype limitations |
+| `docs/STORAGE.md` | A | Controls, ownership/capacity/save boundaries and review handoff |
+| `docs/TESTING.md` | M | Storage verification and manual playtest steps |
+| `project.godot` | M | Version 0.29.0 |
+| `scenes/storage.tscn` | A | New inventory scene |
+| `scripts/storage/storage_data.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_model.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_sources.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_store.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_view.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/view/start_view.gd` | M | Isolated Storage rack menu button |
+| `tools/test_storage.gd` | A | 55 ownership, packing, persistence and scene-input checks |
+
+### Checks performed
+- Godot 4.7.2 headless: Data schema 198; Regression 564; Start screen 14; Dust flow 43;
+  Bench interaction 26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24;
+  Salvage 40; Salvage physics 32; Storage 55. Total 1,059 checks, zero failures or script errors.
+- Pending contracts: zero checks, zero failures. Bench `--smoke`: Playtest finished, no script errors.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --cached --check`: clean.
+- Storage tests exercise failure/recovery paths intentionally; backup/read and blocked-write warnings
+  are expected. They verify ownership is unchanged by rack operations.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh source ZIP extracted: hygiene,
+  Godot 4.7.2 import and Storage suite passed; no missing resource or script errors.
+
+### Decisions proposed (not approved)
+D109 records the user-approved rack and expansion feature. Furniture being free, eight-unit cap,
+sizes, fixed starter tool IDs and reserving shelf space for fitted shop parts are provisional.
+A single capacity API shared by purchases/intake/salvage is the proposed next integration, not built.
+
+### Known issues and open items
+Graphical layout, mouse feel and display scaling need user playtest. No target-hardware performance
+claim. Current trial exposes only one active customer PC and RAM/GPU/cooler stock; future canonical
+PC/tool/catalogue records should extend the adapter, not create parallel owned stock. Furniture
+layout persists across New game; the current source inventory is reconciled on entry. Storage does
+not block buying/intake, and does not replace the old hardware drawer yet. Salvage remains isolated.
+
+### Next action
+Claude goes next: cross-review this unmerged PR and coordinate shared capacity/canonical item hooks;
+user playtests F5 → Storage rack. Do not merge automatically. Codex is finished editing these files.
+Hot files bench_view.gd, tool_rig.gd and game_state.gd were untouched and remain reserved for Claude's
+current engineering work; none is claimed free by this delivery. WORK_PLAN.md is unchanged.
+
 ## 0.28.0 - 2026-11-14 - Cross-review fixes, customer rotation, settings, rim containment
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
