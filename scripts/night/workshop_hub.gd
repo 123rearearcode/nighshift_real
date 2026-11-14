@@ -6,6 +6,8 @@ var ticket: Label
 var picker: OptionButton
 var ticket_ids: Array[String] = []
 var work_buttons: Array[Button] = []
+var upgrade_buttons: Dictionary = {}
+var cash_label: Label
 func _ready() -> void:
     NightSession.ensure(GameState)
     _label("WORKSHOP / NIGHT SHIFT",Vector2(32,24),Vector2(1000,48),28)
@@ -30,6 +32,13 @@ func _ready() -> void:
     work_buttons.append(check_button)
     _button("Storage rack",Rect2(710,346,530,50),"res://scenes/storage.tscn")
     _button("Activities",Rect2(710,414,530,50),"res://scenes/activities.tscn")
+    var x: float = 710
+    for id: String in ["square_cloth","long_hose"]:
+        var button := _button("",Rect2(x,490,255,46),"")
+        button.pressed.connect(_buy_upgrade.bind(id))
+        upgrade_buttons[id] = button
+        x += 275
+    cash_label = _label("",Vector2(710,564),Vector2(530,40),20)
     var scroll := ScrollContainer.new()
     scroll.position = Vector2(32,425)
     scroll.size = Vector2(630,225)
@@ -43,6 +52,19 @@ func _ready() -> void:
     scroll.add_child(report)
     message = _label("",Vector2(32,669),Vector2(1210,34),14)
     _refresh_ticket()
+    _refresh_upgrades()
+func _refresh_upgrades() -> void:
+    cash_label.text = "Shop cash: $%d"%GameState.money
+    for id: String in upgrade_buttons:
+        var owned: bool = GameState.has_upgrade(id)
+        upgrade_buttons[id].text = ("Square cloth" if id == "square_cloth" else "Longer hose")+(" · owned" if owned else " · $%d"%GameState.UPGRADE_PRICES[id])
+        upgrade_buttons[id].disabled = owned
+func _buy_upgrade(id: String) -> void:
+    var bought: bool = GameState.buy_upgrade(id)
+    if bought: NightSession.checkpoint(GameState)
+    message.text = ("Upgrade bought · cash $%d"%GameState.money) if bought else "Not enough cash for this upgrade."
+    if NightSession.status != "": message.text = NightSession.status
+    _refresh_upgrades()
 func _refresh_ticket() -> void:
     var job: Dictionary = GameState.job
     ticket.text = "TICKET %s / %s\n\n%s\n\nCollection request: %s\nQuote: $%d · paid at pickup, not by this check.\n\nSwitch PCs whenever you want; each keeps its own repair progress."%[job["id"],job["customer"],job["complaint"],str(GameState.customer_view(job["customer_id"]).get("patience","Collection date not set")),job["payout"]]

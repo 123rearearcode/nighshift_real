@@ -47,13 +47,14 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ### Execution status
 Codex ran Godot 4.7.2 headless locally. All 12 required suites passed in the final applicable runs:
-1,110 checks, zero failures; pending contracts zero checks. Scripted legacy bench smoke passed.
+1,112 checks, zero failures; pending contracts zero checks. Scripted legacy bench smoke passed.
 No graphical/manual playtest is claimed. Date: 14 November 2026, Europe/Bucharest.
 Follow-up is stacked on the unmerged rack branch; neither PR is merged by this delivery.
 
 ### Added / Changed / Fixed / Removed
 - New/Load Game enters Activities: Workshop, Salvage dump, Storage and a disabled future-activity
   space. Removed Salvage from the title menu. The dump now returns to Activities.
+- Existing square-cloth and longer-hose upgrades stay purchasable in Workshop, at unchanged prices.
 - Workshop selects between two real customer repair PCs on New Game (the two existing customers;
   one extra compact PC). Each has its own dust, damage, removal/replacement, scams and paste work.
   Existing saves migrate their actual single job; they never gain fabricated extra client PCs.
@@ -114,7 +115,7 @@ Follow-up is stacked on the unmerged rack branch; neither PR is merged by this d
 ### Checks performed
 - Godot 4.7.2: Data schema 198; Regression 564; Start screen 14; Dust flow 43; Bench interaction
   26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24; Salvage 40;
-  Salvage physics 32; Storage 55; Night workshop 51. Total 1,110 checks, zero failures.
+  Salvage physics 32; Storage 55; Night workshop 53. Total 1,112 checks, zero failures.
 - Pending contracts: zero checks/failures. Scripted bench --smoke: Playtest finished, no script errors.
 - Night coverage includes real scene navigation/PC picker, physical paste JSON roundtrip/reopening,
   lever-only commit and no double charge, canonical replacement consumption across switches,
@@ -124,7 +125,7 @@ Follow-up is stacked on the unmerged rack branch; neither PR is merged by this d
   Physics activity-navigation tests now use disposable main/manifest saves rather than default saves.
 - `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --cached --check`: clean.
 - `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
-  Godot 4.7.2: Night workshop 51 and Storage 55 passed; no script/resource errors.
+  Godot 4.7.2: Night workshop 53 and Storage 55 passed; no script/resource errors.
 
 ### Decisions proposed (not approved)
 D110–D112 record user-approved shelf, ticket/PC distinction, night checks/switching and activity hub.

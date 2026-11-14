@@ -18,7 +18,9 @@ Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 5. **Run final check** gives boot, heat, missing/damaged-part and owned-game-test information.
    Pass or fail, it never pays you, marks the ticket done, records pickup or advances customers.
    Keep working or switch PCs. Daytime customer pickup remains future work.
-6. Hardware bench is still the shop's stock/board sandbox. It is grouped here for access, but
+6. The existing square-cloth and longer-hose upgrades remain purchasable in Workshop.
+   Prices and effects are unchanged. No payout is granted by the diagnostic button.
+7. Hardware bench is still the shop's stock/board sandbox. It is grouped here for access, but
    it is not yet a complete customer-PC assembly system. Use repair-bench replacements for the
    current customer's damaged cooler/GPU. Salvage returns to Activities; its cargo/time remain
    isolated from campaign stock/time as before.

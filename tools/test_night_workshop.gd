@@ -147,6 +147,12 @@ func run_checks() -> void:
     await process_frame
     current_scene._check()
     check(current_scene.report.text.contains("Report only") and gs.job["state"] == "open","workshop final check diagnoses without completing ticket")
+    money = gs.money
+    current_scene._buy_upgrade("square_cloth")
+    check(gs.has_upgrade("square_cloth") and gs.money == money-gs.UPGRADE_PRICES["square_cloth"],"existing tool upgrades remain purchasable from workshop")
+    money = gs.money
+    current_scene._buy_upgrade("square_cloth")
+    check(gs.money == money,"owned workshop upgrade cannot be charged twice")
     current_scene._switch(1)
     check(gs.job["id"] == night.tickets[1]["id"],"real picker changes the active customer PC")
     current_scene._go("res://scenes/night_bench.tscn")
