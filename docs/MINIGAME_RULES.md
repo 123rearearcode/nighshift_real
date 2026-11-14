@@ -173,3 +173,27 @@ SALVAGE_DESIGN_PROPOSAL.md distinguish approved direction from tuning/proposed c
 
 No dust/paste mechanics changed here. In particular D87 and newer D97 govern current functional final
 checks; this salvage addition must not restore old full-clean/required-output blockers.
+
+
+## Side-view native physics trial — 0.27.0 (supersedes 0.26.0 movement)
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. Authorised trial: D103.
+
+- Gravity, support, rotation and collisions use Godot's native 2D physics. Pulling applies bounded forces;
+  the cursor cannot drag objects directly through their neighbours. There is no overlap-percentage gate.
+- Lift above the visible dumpster rim and clear it physically before releasing over trunk cells. A grid
+  drop while still trapped in the dumpster releases the world body safely rather than awarding cargo.
+- World release/cancellation drops the body at its current physical position. It can make the pile fall;
+  it never teleports back into an occupied old position. Cargo cancellation still restores committed grid
+  placement and removes its temporary physical body.
+- E opens a selected/hovered bag, box or PC. Boxes/PCs become hollow three-wall frames; bags flatten.
+  Previously hidden contents spawn once as real bodies that can fall, collide and be pulled out.
+- Sampled actual gripped-body travel is charged, not both cursor distance and physics distance. Idle
+  gravity/collapses do not additionally charge the normal clock. Exhausted search budget releases the
+  grip and protects return travel. Pause freezes bodies; focus loss releases/restores safely and pauses.
+- Objects use simple rigid collision shapes, sleep naturally and use CCD for small parts/open frames.
+  No soft-body/cloth simulation or real hardware damage is introduced by this experiment.
+
+Session persistence is still memory-only; campaign saves/stock/customer rules are unchanged. Human fun/
+feel validation remains needed. Native physics tests and a separate non-gating stress profiler replace
+0.26.0's fake-pile sleep/occlusion assertions; they do not claim GPU or whole-game FPS measurements.

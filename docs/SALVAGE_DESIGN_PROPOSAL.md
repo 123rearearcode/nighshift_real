@@ -1,14 +1,39 @@
 # Night salvage — agreed direction and implementation proposal
 
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
-Based on runtime 0.25.0 and the user's night-outing discussion; implemented standalone slice 0.26.0.
+Based on runtime 0.25.0 and the user's night-outing discussion; standalone slice 0.26.0, upgraded to the 0.27.0 native-physics trial.
 This reconciles the unmerged PR #31 design with Claude's newer D92–D97.
 
-**Status:** direction approved; a standalone in-memory demo is IMPLEMENTED in 0.26.0. Campaign integration is NOT implemented. The filename follows Claude's
+**Status:** direction approved; a standalone in-memory demo is IMPLEMENTED; latest is the 0.27.0 side-view native-physics trial. Campaign integration is NOT implemented. The filename follows Claude's
 assignment prompt. Sections labelled PROPOSAL are recommendations, not additional confirmed rules.
 Exact numbers, art, location names and final vehicle catalogue remain open. Parody brands only.
 
-## Playable slice — 0.26.0
+## Current trial — 0.27.0
+
+The user authorised the 2D side-view physics experiment after finding the 0.26.0 floating pile unfun.
+Godot RigidBody2D now handles gravity, mutual collisions, support, falling and sleep. A bounded force
+at the grip point pulls bodies; soft torque controls Q/E turning. Spawns are non-overlapping columns
+that settle into a pile. The rim and sorting surface are visible, matching static physics geometry.
+
+Removing a support lets the pile collapse. Opening bags flattens them and releases their previously
+assigned contents; boxes/PCs become hollow three-wall containers with tangible parts. Contents never
+reroll. Lift an object out over the rim before packing. Releasing a world grip drops it in place;
+failed/cancelled cargo rearrangement still restores committed grid placement. Physics point queries
+pick actual collision shapes, including the openings in containers. No artificial overlap gate remains.
+
+The scene-owned physics world copies poses into the session's item records, never Node references.
+Actual gripped-body travel is charged once; idle gravity and settling do not double-charge night time.
+Return, cargo identity, PC children, site refresh and campaign isolation retain their prior rules.
+Pause freezes native bodies; leaving/re-entering reconstructs bodies from in-memory item poses.
+
+This remains simple rigid geometry and placeholder graphics: no squishy bags, 3D depth, on-site full PC
+repair, campaign saving or shared stock awards. Cars/time/force/torque/friction/damping/shape/geometry
+values are feel tuning. The choice of final format remains contingent on the user's playtest (D103).
+See CHANGELOG for actual native tests and tools/profile_salvage_physics.gd for a repeatable 20/50/100-body
+fall/settle/pulling profile. Those wall-time phases include native physics plus sync/dispatch and exclude
+GPU rendering; the older 0.26.0 callback timing is not an apples-to-apples comparison.
+
+## Historical first slice — 0.26.0
 
 Launch F5 → Salvage demo. This has two test cars (fast/small hatchback, slow/roomy van), two sites,
 night budget/round-trip preview, seeded layered piles, obstructed pickups, partial effort charges,

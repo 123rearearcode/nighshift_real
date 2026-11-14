@@ -21,7 +21,7 @@ var rotation: int = 0
 var effort: Dictionary = {}
 var original: Dictionary = {}
 var message: String = "Choose a site and car. Cargo and piles last for this app session only."
-var hand_speed := Vector2.ZERO
+var physics_mode: bool = false
 
 func _init() -> void:
     for id: String in Data.CARS:
@@ -53,7 +53,7 @@ func depart(location: String) -> bool:
     reserve = travel(site)
     remaining -= reserve
     paused = false
-    message = "Hold to lift; drag aside. E opens a hovered bag/box or strips a PC."
+    message = "Hold and pull. Lift finds over the rim before packing. E opens containers / strips a PC."
     return true
 
 func next_night() -> bool:
@@ -75,11 +75,6 @@ func start_effort(uid: String, action: String) -> bool:
     var item: Dictionary = find(uid)
     if item.is_empty() or item["zone"] == "hidden": return false
     if not action in ["grab","open"]: return false
-    if item["zone"] == "pile":
-        var obstruction: String = pile.blocker(uid)
-        if obstruction != "":
-            message = "Move the %s off this %s first."%[pile.objects[obstruction]["kind"],item["kind"]]
-            return false
     if action == "open" and (item["zone"] == "cargo" or item["opened"] or not item["kind"] in ["bag","box","pc"]): return false
     var duration: float = 0.32 if item["zone"] == "sort" or item["zone"] == "cargo" else 0.60
     if float(item["mass"])>1.0: duration = 0.85
@@ -118,19 +113,6 @@ func step(delta: float, target: Vector2) -> void:
                 rotation = item["rotation"]
                 if pile.objects.has(uid): pile.raise_item(uid)
                 message = "Drag to the sorting area or trunk. Q/E or wheel rotates. Esc cancels."
-    if held != "":
-        var item: Dictionary = find(held)
-        var old: Vector2 = item["center"]
-        var weight: float = clampf(15.0/float(item["mass"]),6.0,20.0)
-        var move: Vector2 = (target-old)*(1.0-exp(-weight*dt))
-        var charge: float = move.length()*0.001
-        var budget: float = maxf(0,remaining-reserve)
-        if charge > budget and charge > 0: move *= budget/charge
-        remaining -= minf(charge,budget)
-        item["center"] = old+move
-        hand_speed = move/maxf(dt,0.001)
-        item["angle"] = lerpf(float(item["angle"]),clampf(-hand_speed.x*0.0003,-0.20,0.20),1-exp(-10*dt))
-    pile.step(dt,held)
 
 func turn(step_by: int) -> void:
     if held == "" or paused: return
@@ -143,6 +125,7 @@ func drop_world(point: Vector2) -> bool:
         cancel_hand()
         return false
     var item: Dictionary = find(held)
+    if physics_mode: point = item["center"]
     if not _finish_move(point):
         cancel_hand()
         return false
@@ -155,10 +138,10 @@ func drop_world(point: Vector2) -> bool:
         if not pile.order.has(child_id): pile.order.append(child_id)
     item.erase("packed_children")
     item["zone"] = "sort" if Pile.SORT.has_point(point) else "pile"
-    item["center"] = point
-    pile.clamp_item(item)
-    item["velocity"] = hand_speed.limit_length(240)*0.25/float(item["mass"])
-    pile.nudge_neighbours(held,hand_speed)
+    if not physics_mode:
+        item["center"] = point
+        pile.clamp_item(item)
+        item["velocity"] = Vector2.ZERO
     held = ""
     original.clear()
     return true
@@ -168,6 +151,10 @@ func drop_cargo(cell: Vector2i) -> bool:
     var item: Dictionary = find(held)
     if not Data.SHAPES.has(item["kind"]) or not grids[car].can_place(held,item["kind"],cell,rotation):
         message = "That does not fit. Returned to its last safe spot."
+        cancel_hand()
+        return false
+    if physics_mode and not _clear_of_bin(item):
+        message = "Lift the whole object over the rim before packing it."
         cancel_hand()
         return false
     var target: Vector2 = Data.CARGO_ORIGIN+(Vector2(cell)+Vector2(Data.footprint(item["kind"],rotation))*0.5)*Data.CELL
@@ -195,6 +182,7 @@ func drop_cargo(cell: Vector2i) -> bool:
     return true
 
 func _finish_move(target: Vector2) -> bool:
+    if physics_mode: return true # actual travelled grip distance was already charged
     var item: Dictionary = find(held)
     var cost: float = Vector2(item["center"]).distance_to(target)*0.001
     if cost > remaining-reserve:
@@ -203,12 +191,25 @@ func _finish_move(target: Vector2) -> bool:
     remaining -= cost
     return true
 
+func _clear_of_bin(item: Dictionary) -> bool:
+    var size: Vector2 = item["size"]
+    var angle: float = item["angle"]
+    var half_width: float = (absf(cos(angle))*size.x+absf(sin(angle))*size.y)*0.5
+    return Vector2(item["center"]).x-half_width > Pile.BIN.end.x+6
+
+func charge_motion(distance: float) -> void:
+    remaining = maxf(reserve,remaining-maxf(0,distance)*0.001)
+    if remaining <= reserve+0.000001 and held != "":
+        cancel_hand()
+        message = "Search time used. Object released safely; the drive home is reserved."
+
 func cancel_hand() -> void:
     cancel_effort()
     if held == "": return
     var item: Dictionary = find(held)
-    for key: String in original: item[key] = original[key]
-    item["velocity"] = Vector2.ZERO
+    if not physics_mode or original.get("zone","") == "cargo":
+        for key: String in original: item[key] = original[key]
+        item["velocity"] = Vector2.ZERO
     held = ""
     original.clear()
 

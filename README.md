@@ -1,8 +1,9 @@
-# Nightshift - Godot Foundation Trial (v0.26.0)
+# Nightshift - Godot Foundation Trial (v0.27.0)
 
 
 **Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting
-area, E to open/strip, Q/E or wheel to rotate carried finds, release over free trunk cells to pack.
+area, E to open/strip, Q/E or wheel to turn carried finds. Lift the whole object over the dumpster rim,
+then release over free trunk cells to pack. This trial uses real 2D gravity, collisions and a force-based mouse grip.
 Drive home, unload to the demo shelf, or advance the demo night to see site refreshes. P pauses;
 Esc cancels. This isolated demo lasts only until app exit/Reset; it does not replace your repair save,
 advance the campaign day or grant repair stock. Cars, timings, loot and refresh rates are prototype tuning.

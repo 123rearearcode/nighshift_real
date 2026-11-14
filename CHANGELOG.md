@@ -39,6 +39,101 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.27.0 - 2026-11-14 - Native 2D dumpster gravity, collisions and opening containers
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: 0.26.0, 15d616f4fe2654a6ae79eb6124693dd194e7d4cc, continuing the existing unmerged salvage PR #33; latest main remains 0.25.0.
+- Type: minor — user-authorised side-view native-physics experiment; no shared campaign/save contract change.
+
+### Execution status
+Codex ran Godot 4.7.2.stable.official.ed1daf0bf locally, headless. All ten required suites passed:
+974 checks, zero failures. The bench smoke diagnostic completed without script errors. Native tests await
+actual PhysicsServer2D frames; these are not fake manually stepped body positions. No human visual/feel
+acceptance is claimed. The user decides whether this trial is fun enough to keep.
+
+### Added / Changed / Fixed / Removed
+- Replaced the floating top-down overlap/nudge pile with a side-view native RigidBody2D world: gravity,
+  object-object collisions, support, natural falling/rotation and sleep. Initial columns do not overlap.
+- Added bounded force/torque mouse grips. Held bodies still collide with the pile; removing support can
+  make it collapse. Removed the artificial overlap-percentage blocking rule and custom pile solver.
+- Visible floor/rim/sorting geometry matches static colliders. A find must physically clear the rim
+  before a trunk claim; dropping the cursor on the grid cannot extract a still-trapped item.
+- Boxes/PCs open into three-wall hollow bodies with their pre-generated tangible contents; bags flatten
+  into light bodies and spill contents. Reopening cannot reroll/spawn more rewards. Rigid placeholders,
+  not real soft bags or final graphics.
+- World cancellation releases in place, avoiding teleportation into a now-occupied old pose. Cargo
+  rollback still restores its committed placement and removes its transient body. Pause/focus/menu and
+  motion-time charging coordinate native state without changing UID/cycle/return rules.
+- Added native physics tests and a separate 20/50/100-body stress profiler. Pure salvage time/grid/UID
+  checks remain; obsolete fake-solver/percentage-gate checks were removed and scene/input checks moved
+  to the real native-frame suite. Ten suites now required. No host timing pass/fail thresholds.
+- Reconciled core docs to revision 1.15, recorded D103 as an authorised prototype trial, and updated
+  handoff/contracts. Same session-only progress, no campaign inventory/save/clock/customer/software
+  integration. No hot file or WORK_PLAN.md edit. Existing PR #33 is updated, not merged.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/salvage/salvage_body.gd` | A | Native body shapes, material/sleep/CCD and bounded grip force/torque integrator |
+| `scripts/salvage/salvage_physics.gd` | A | Native world/bounds, pose/identity sync, picking, pause and cargo grip handoff |
+| `scripts/salvage/salvage_pile.gd` | M | Non-overlapping side-view generation, opening/flattening; remove fake physics/occlusion/picking |
+| `scripts/salvage/salvage_session.gd` | M | Engine-owned motion mode, physical extraction/release, one motion charge, logical cargo rollback |
+| `scripts/salvage/salvage_view.gd` | M | Native-world lifecycle/input/query integration, cutaway/rim/hollow-container drawing and grip line |
+| `tools/test_salvage.gd` | M | 40 retained pure rule cases, remove obsolete fake-physics checks; move scene coverage |
+| `tools/test_salvage_physics.gd` | A | 27 native-frame support/collision/grip/opening/cargo/pause/scene checks |
+| `tools/profile_salvage_physics.gd` | A | Optional fall/settle/pulling physics-phase percentile/load profile |
+| `.github/workflows/tests.yml` | M | Tenth required native physics suite |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | M | Current physics-trial behaviour and limits; retain historical first slice |
+| `docs/DECISIONS.md`, `docs/DESIGN.md`, `docs/MINIGAME_RULES.md` | M | D103, native support/opening/extraction/release rules |
+| `docs/PROJECT_BRIEF.md`, `docs/CURRENT_STATE.md`, `docs/ROADMAP.md` | M | Revision 1.15, trial status and isolated next steps |
+| `docs/TESTING.md` | M | Ten-suite policy, real engine-frame checks and correct profiling method |
+| `DEVELOPMENT.md` | M | Four new files, native-world ownership, pause/custody/motion contracts |
+| `HANDOFF.md` | M | Signed 0.27.0 trial instructions, scope and cross-review handoff |
+| `README.md`, `project.godot` | M | Version and updated play instructions; normal launch/autoloads unchanged |
+| `CHANGELOG.md` | M | This signed delivery entry |
+
+### Checks performed
+Godot 4.7.2 suites: schema 198, regression 543, start screen 10, dust flow 43, bench interaction 26,
+bench feedback 27, audio and vacuum 36, performance contracts 24, salvage rules 40, native salvage
+physics 27: all passed, zero failures (974 total). Bench --smoke: Playtest finished; no script/parse errors.
+Initial native probe confirmed 17 generated bodies settled; flatter bag colliders stopped prolonged
+rocking. Actual tests prove support removal/collapse, collisions/floor, force pulling, sleep, pause,
+container contents/hollow walls, physical rim clearance, cargo rollback, real menu/input and campaign isolation.
+Python CI-scope tests: 9 passed. Project hygiene PASSED (zero problems); diff check PASSED; workflow YAML parsed and tenth suite listed.
+Fresh source ZIP extracted: hygiene checker PASSED, Godot 4.7.2 import PASSED, pure salvage
+40 checks/zero failures PASSED, native salvage physics 27 checks/zero failures PASSED. All five core
+documents included; no cache/generated UID sidecars. No graphical acceptance is claimed.
+
+Native stress profile, same container/engine, headless, sequential (no competing Godot test): 240 samples
+of fall/settle, 60 of late-settle, 120 of pulling per load. Physics-phase wall time spans physics_frame
+through process_frame, including native physics and model sync/dispatch. It is not just the view callback
+and does not use the coarse Performance.TIME_PHYSICS_PROCESS monitor as a per-frame percentile source.
+
+| Bodies | Fall/settle mean ms | p95 ms | p99 ms | Max ms | Pulling mean ms | Pulling p95 ms | Sleeping after 240 ticks |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20 | 0.284 | 0.516 | 0.660 | 0.981 | 0.254 | 0.434 | 20 |
+| 50 | 0.793 | 1.038 | 1.278 | 1.997 | 0.795 | 1.076 | 50 |
+| 100 | 1.453 | 2.472 | 3.954 | 5.453 | 1.209 | 1.659 | 100 |
+
+These are synthetic simple-box loads, not a GPU/whole-game FPS guarantee or comparable to 0.26.0's
+33 us fake-pile view callback. Reproduce with tools/profile_salvage_physics.gd. Normal generated sites
+start with 17 visible bodies; pre-generated contents add bodies only on opening.
+
+### Decisions proposed (not approved)
+Force/torque/velocity limits, friction/damping, primitive bag geometry, rim height, transfer-point target,
+spawn layout and all previous car/time/loot tuning remain provisional. Final camera/minigame choice
+awaits user feel feedback. Soft bodies, 3D and new campaign integration are not introduced.
+
+### Known issues and open items
+Headless tests cannot assess human drag feel/art/readability. Bags remain rigid approximations; 3D depth
+is absent. Synthetic CPU numbers do not predict every player's hardware or graphical frame costs.
+Scene/session progress is still in-memory only. Claude must supply reviewed campaign state adapters.
+
+### Next action
+User tests F5 → Salvage demo: pull a support, open/tilt a box or bag, lift over the rim and pack; compare
+feel with 0.26.0. Claude cross-reviews force stability/native lifecycle/custody and the proposed adapters.
+Do not self-merge PR #33. Who goes next: user for feel and Claude for cross-review; Codex for separately
+requested Claude review/tuning. Hot files free to Codex: none; Claude retains all three.
+
 ## 0.26.0 - 2026-11-14 - Playable standalone night salvage demo
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 - Based on: main 0.25.0, 4377ff4e161a3e8565775b6c3ddd7577ec6bd57a (Claude's merged customer wave).

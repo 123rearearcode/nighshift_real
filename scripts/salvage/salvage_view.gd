@@ -3,10 +3,12 @@ extends Node2D
 const Data = preload("res://scripts/salvage/salvage_data.gd")
 const Session = preload("res://scripts/salvage/salvage_session.gd")
 const Pile = preload("res://scripts/salvage/salvage_pile.gd")
+const PhysicsWorld = preload("res://scripts/salvage/salvage_physics.gd")
 const Ui = preload("res://scripts/view/ui_style.gd")
 const CARGO_ORIGIN := Data.CARGO_ORIGIN
 const CELL: int = Data.CELL
 var session: RefCounted
+var physics: Node2D
 var selected: String = ""
 var hover: String = ""
 var pointer := Vector2.ZERO
@@ -26,6 +28,10 @@ var _last_impacts: int = 0
 
 func _ready() -> void:
     session = Session.shared_demo()
+    session.physics_mode = true
+    physics = PhysicsWorld.new()
+    add_child(physics)
+    physics.sync(session,pointer)
     _label("NIGHTSHIFT / NIGHT SALVAGE",Vector2(32,18),Vector2(1000,40),27)
     _label("STANDALONE DEMO · no campaign saves or repair stock · progress lasts until app exit",Vector2(34,62),Vector2(1150,27),15)
     _button("Main menu",Rect2(1100,20,145,38),_back)
@@ -105,7 +111,7 @@ func _refresh() -> void:
         detail = str(hovered["kind"]).to_upper()+" · "+("rated %d, untested"%hovered["power"] if hovered["kind"] in ["gpu","pc"] else "untested" if Data.SHAPES.has(hovered["kind"]) else "opened" if hovered["opened"] else "rubbish / container")
     if not hovered.is_empty() and hovered["kind"] == "pc":
         detail = "PC CASE · parts removed" if hovered["opened"] else "PC · unopened / untested"
-    help.text = detail+"\nHold left: lift · E: open / strip\nHeld: Q/E / wheel rotate · Esc cancels"
+    help.text = detail+"\nHold left: pull · E: open / strip\nQ/E / wheel: turn · over rim → trunk"
     queue_redraw()
 
 func _choose_car(id: String) -> void:
@@ -114,7 +120,10 @@ func _choose_car(id: String) -> void:
     _refresh()
 
 func _depart(id: String) -> void:
+    session.physics_mode = true
     session.depart(id)
+    physics.sync(session,pointer)
+    physics.capture()
     selected = ""
     _refresh()
 
@@ -127,29 +136,40 @@ func _unload() -> void:
     _refresh()
 
 func _reset() -> void:
+    physics.clear_bodies()
     Session.demo = Session.new()
     session = Session.demo
+    session.physics_mode = true
     selected = ""
     _refresh()
 
 func _return_home() -> void:
+    physics.capture()
     session.return_home()
+    physics.clear_bodies()
     selected = ""
     _refresh()
 
 func _pause() -> void:
     session.paused = not session.paused
+    physics.sync(session,pointer)
     _refresh()
 
 func _back() -> void:
+    physics.capture()
     session.cancel_hand()
+    physics.sync(session,pointer)
+    physics.capture()
+    physics.clear_bodies()
     AudioFeedback.stop_owner(self)
     get_tree().change_scene_to_file("res://scenes/start.tscn")
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_APPLICATION_FOCUS_OUT and session != null:
+        physics.capture()
         session.cancel_hand()
         session.paused = true
+        physics.sync(session,pointer)
         _refresh()
 
 func _open_selected() -> void:
@@ -162,7 +182,9 @@ func _input(event: InputEvent) -> void:
         match event.keycode:
             KEY_P: _pause()
             KEY_ESCAPE:
+                physics.capture()
                 session.cancel_hand()
+                physics.sync(session,pointer)
                 _refresh()
             KEY_Q: _turn(-1)
             KEY_E:
@@ -174,6 +196,7 @@ func _input(event: InputEvent) -> void:
     pointer = event.position
     if session.paused and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
         session.cancel_hand()
+        physics.sync(session,pointer)
         _refresh()
         return
     if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
@@ -181,16 +204,18 @@ func _input(event: InputEvent) -> void:
         return
     if event.button_index != MOUSE_BUTTON_LEFT: return
     if event.pressed:
-        var id: String = session.grids[session.car].at(_cell(pointer)) if _trunk_rect().has_point(pointer) else session.pile.hit(pointer)
+        var id: String = session.grids[session.car].at(_cell(pointer)) if _trunk_rect().has_point(pointer) else physics.at(pointer)
         if id != "":
             selected = id
-            session.start_effort(id,"grab")
+            if session.start_effort(id,"grab"): physics.remember_grab(id,pointer)
     else:
+        physics.capture()
         if session.held != "":
             var uid: String = session.held
             var packed: bool = session.drop_cargo(_cell(pointer)) if _trunk_rect().has_point(pointer) else session.drop_world(pointer)
             if packed: AudioFeedback.request(self,"handling.putdown",{"kind":session.find(uid).get("kind","part")})
         elif session.effort.get("action","") == "grab": session.cancel_effort()
+    physics.sync(session,pointer)
     _refresh()
 
 func _turn(by: int) -> void:
@@ -206,10 +231,13 @@ func _trunk_rect() -> Rect2:
 
 func _physics_process(delta: float) -> void:
     var started: int = Time.get_ticks_usec()
+    physics.capture()
     var previous: String = session.held
     session.step(delta,pointer)
+    physics.sync(session,pointer)
+    physics.capture()
     if previous == "" and session.held != "": AudioFeedback.request(self,"handling.pickup",{"kind":session.find(session.held)["kind"]})
-    if session.site != "": hover = session.pile.hit(pointer)
+    if session.site != "": hover = physics.at(pointer)
     if session.site != "" and session.pile.impacts > _last_impacts:
         AudioFeedback.request(self,"handling.impact",{"kind":"salvage","count":session.pile.impacts-_last_impacts})
     _last_impacts = session.pile.impacts if session.site != "" else 0
@@ -227,19 +255,25 @@ func _draw() -> void:
     else:
         _draw_work_area()
     _draw_cargo()
-    if session.site != "" and session.held != "": _draw_item(session.find(session.held),true)
+    if session.site != "" and session.held != "":
+        var item: Dictionary = session.find(session.held)
+        _draw_item(item,true)
+        draw_line(Vector2(item["center"]),pointer,Color(0.95,0.82,0.55,0.65),2)
     if not session.effort.is_empty():
         var f: float = float(session.effort["elapsed"])/float(session.effort["duration"])
         draw_arc(pointer,23,-PI*0.5,-PI*0.5+TAU*f,28,Color("e8b76c"),4)
         Ui.label(self,pointer+Vector2(28,0),"%.1f min"%float(session.effort["cost"]),13)
 
 func _draw_work_area() -> void:
-    draw_rect(Pile.BIN.grow(8),Color("3e5b5d"))
     draw_rect(Pile.BIN,Color("202d32"))
     for x in range(70,630,80): draw_line(Vector2(x,178),Vector2(x,617),Color("2d4045"),3)
     draw_rect(Pile.SORT,Color("283843"))
     draw_rect(Pile.SORT,Color("5a747a"),false,2)
-    Ui.label(self,Vector2(44,162),Data.SITES[session.site]["name"].to_upper()+" / drag to uncover",15)
+    draw_rect(Rect2(36,350,12,272),Color("688f91"))
+    draw_rect(Rect2(624,350,12,272),Color("688f91"))
+    draw_rect(Rect2(36,622,600,12),Color("688f91"))
+    draw_rect(Rect2(636,622,218,12),Color("879b9d"))
+    Ui.label(self,Vector2(44,162),Data.SITES[session.site]["name"].to_upper()+" / lift above rim, then pack",15)
     Ui.label(self,Vector2(656,162),"SORTING AREA",15)
     for uid: String in session.pile.order:
         var item: Dictionary = session.pile.objects[uid]
@@ -249,9 +283,9 @@ func _draw_item(item: Dictionary, carried: bool) -> void:
     var size: Vector2 = item["size"]
     var kind: String = item["kind"]
     var center: Vector2 = item["center"]
-    draw_set_transform(center+Vector2(4,7),float(item["rotation"])*PI/2+float(item["angle"]))
+    draw_set_transform(center+Vector2(4,7),float(item["angle"]))
     draw_rect(Rect2(-size/2,size),Color(0,0,0,0.35))
-    draw_set_transform(center,float(item["rotation"])*PI/2+float(item["angle"]))
+    draw_set_transform(center,float(item["angle"]))
     var color: Color = Data.COLOURS[kind]
     if item["opened"]: color = color.darkened(0.28)
     if kind == "bag":
@@ -261,7 +295,11 @@ func _draw_item(item: Dictionary, carried: bool) -> void:
     else:
         draw_rect(Rect2(-size/2,size),color)
         draw_rect(Rect2(-size/2,size),color.lightened(0.25),false,2)
-        if kind == "box":
+        if kind in ["box","pc"] and item["opened"]:
+            draw_rect(Rect2(-size/2+Vector2(6,0),size-Vector2(12,6)),Color("15232c"))
+            draw_line(Vector2(-size.x/2,-size.y/2),Vector2(-size.x/2-14,-size.y/2-14),color.lightened(0.3),4)
+            draw_line(Vector2(size.x/2,-size.y/2),Vector2(size.x/2+14,-size.y/2-14),color.lightened(0.3),4)
+        elif kind == "box":
             draw_rect(Rect2(Vector2(-7,-size.y/2),Vector2(14,size.y)),Color("d0b88c"))
         elif kind in ["gpu","psu","pc"]:
             draw_circle(Vector2.ZERO,minf(size.y*0.32,22),Color("23313c"))

@@ -1,4 +1,4 @@
-# Salvage rules and real scene/menu input. Never writes campaign state or a player save.
+# Pure salvage time/grid/custody rules. Native movement/input tests live in test_salvage_physics.gd.
 extends "res://tools/test_support.gd"
 const Session = preload("res://scripts/salvage/salvage_session.gd")
 const Data = preload("res://scripts/salvage/salvage_data.gd")
@@ -28,15 +28,6 @@ func run() -> void:
     var initial: float = s.remaining
     for frame in range(60): s.step(1.0/60.0,Vector2.ZERO)
     check(s.remaining == initial,"ordinary elapsed time does not double-charge the outing")
-    var blocked: Dictionary = fixture(s,"gpu","blocked-gpu",Vector2(300,300))
-    var cover: Dictionary = fixture(s,"box","blocking-box",Vector2(300,300))
-    check(not s.start_effort("blocked-gpu","grab") and s.remaining == initial,"exposed edge does not bypass a physical obstruction or charge time")
-    s.start_effort("blocking-box","grab")
-    finish_effort(s,cover["center"])
-    s.drop_world(Vector2(730,500))
-    check(s.start_effort("blocked-gpu","grab"),"moving obstruction into sorting area exposes the valuable part")
-    s.cancel_effort()
-    initial = s.remaining
     var item: Dictionary = fixture(s,"gpu","test-gpu")
     check(s.start_effort("test-gpu","grab"),"start lifting visible hardware")
     s.step(0.1,item["center"])
@@ -86,8 +77,6 @@ func run() -> void:
     check(s.pile.objects.has("test-gpu") and box["opened"],"same-cycle revisit retains cleared/revealed state")
     s.return_home()
     test_refresh_and_identity()
-    test_physics()
-    await test_view()
     Session.demo = null
     finish("Salvage")
 
@@ -146,60 +135,3 @@ func test_refresh_and_identity() -> void:
     check(a.objects == b.objects,"site cycle generation is deterministic")
     b.generate("mixed",1)
     check(a.objects != b.objects,"refresh cycle changes object identities and contents")
-
-func test_physics() -> void:
-    var s := Session.new()
-    s.depart("mixed")
-    var item: Dictionary = fixture(s,"gpu","flying",Vector2(620,400))
-    item["velocity"] = Vector2(900,0)
-    for frame in range(300): s.pile.step(1.0/60.0,"")
-    var half: Vector2 = s.pile.extent(item)
-    check(Pile.BIN.encloses(Rect2(Vector2(item["center"])-half,half*2)) and s.pile.impacts > 0,"thrown object bounces and stays inside visible work area")
-    var before: int = s.pile.solver_steps
-    var start: int = Time.get_ticks_usec()
-    for frame in range(30): s.pile.step(1.0/60.0,"")
-    check(s.pile.solver_steps == before,"settled objects stop solving physics")
-    print("SALVAGE PROFILE idle pile avg_us=",float(Time.get_ticks_usec()-start)/30.0," (headless CPU, no timing gate)")
-
-func test_view() -> void:
-    var gs: Node = root.get_node("GameState")
-    var money: int = gs.money
-    var stock: Array = gs.player_inventory.duplicate(true)
-    var job: Dictionary = gs.job.duplicate(true)
-    var view: Node = load("res://scenes/salvage.tscn").instantiate()
-    root.add_child(view)
-    view.set_physics_process(false)
-    view.session = Session.new()
-    view._depart("mixed")
-    var item: Dictionary = fixture(view.session,"gpu","input-part",Vector2(120,250))
-    click(view,MOUSE_BUTTON_LEFT,true,item["center"])
-    for frame in range(70): view._physics_process(1.0/60.0)
-    check(view.session.held == "input-part","real press-and-hold input lifts topmost object")
-    click(view,MOUSE_BUTTON_LEFT,false,Vector2(906,230))
-    check(view.session.cargo[view.session.car].has("input-part"),"real release input packs the lifted object")
-    view._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
-    var time_left: float = view.session.remaining
-    view._physics_process(1.0/60.0)
-    check(view.session.paused and view.session.remaining == time_left,"focus loss safely pauses session")
-    check(gs.money == money and gs.player_inventory == stock and gs.job == job,"salvage has no campaign money, stock or customer/job side effects")
-    view.session.paused = false
-    for frame in range(5): view._physics_process(1.0/60.0)
-    var writes: int = view.ui_updates
-    for frame in range(20): view._physics_process(1.0/60.0)
-    check(view.ui_updates == writes,"idle view does not repeatedly rewrite unchanged controls")
-    Session.demo = view.session
-    var expected: RefCounted = view.session
-    view.free()
-    # Actual menu route is independent of New/Load and preserves the same in-memory outing.
-    var menu: Node = load("res://scenes/start.tscn").instantiate()
-    root.add_child(menu)
-    menu._on_salvage()
-    await process_frame
-    await process_frame
-    check(current_scene != null and current_scene.scene_file_path == "res://scenes/salvage.tscn" and current_scene.session == expected and expected.cargo[expected.car].has("input-part"),"start-screen Salvage demo resumes the same isolated outing and cargo")
-    current_scene._back()
-    await process_frame
-    await process_frame
-    check(current_scene.scene_file_path == "res://scenes/start.tscn" and gs.job == job,"main-menu return leaves the campaign job untouched")
-    current_scene.free()
-    menu.free()

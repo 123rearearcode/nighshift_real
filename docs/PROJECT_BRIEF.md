@@ -1,5 +1,13 @@
 # Nightshift — Project Brief
 
+Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
+native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
+containers with physical contents. Pull objects over the rim before trunk packing. This supersedes the
+0.26.0 top-down overlap/nudge movement; whether the format is fun still needs the user's playtest.
+Session-only cargo/time/site rules and campaign isolation remain. Bench/customer/shared saves are
+unchanged. Exact physics/performance evidence and limitations are in the newest CHANGELOG entry.
+
 Current 0.26.0 update — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 F5 → Salvage demo opens the separate playable dumpster slice: car/site selection, physical searching,
 opening/stripping, effort/travel time, sorting, trunk packing and periodically refreshed piles.
@@ -9,7 +17,7 @@ Claude's merged 0.25.0 customer work is preserved. Shared adapters/whole-PC iden
 integration. Design and proposed contracts: SALVAGE_DESIGN_PROPOSAL.md (D98–D102). Unmerged design PR #31
 is superseded by this reconciled delivery. Older baseline paragraphs below are historical snapshots.
 
-Version 1.14 · 14 November 2026
+Version 1.15 · 14 November 2026
 
 ## Read this first
 This pack guides human-directed collaboration between AIs; the user is creative director. Current 0.19.0 scope: persistent full-bin feedback and accessible emptying, organised tool/service controls, hose self-crossing recovery and a silent action-driven audio foundation. No sound assets/playback or cooler art. Pressure build/release and deliberate lever feedback are accepted interaction goals; the exact redesigned puzzle remains open. Physical lever and good-result completion stay required. User clarified that current cooler work should be design-led, not graphics-led.
