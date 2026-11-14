@@ -46,9 +46,17 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new register + rules, UI restructure, sandbox data; saves migrate)
 
 ### Execution status
-Godot was NOT run by me directly. GitHub Actions runs all eleven suites on Godot 4.7.2 headless
-on push; the result is recorded below once the run finishes. No interactive playtest is claimed.
-Actions result: pending.
+Godot was NOT run by me directly. GitHub Actions ran all eleven suites on Godot 4.7.2 headless.
+No interactive playtest is claimed.
+Actions result: run 43653162382 on c335f55 succeeded — Data schema 206, Regression 586, Start
+screen 20, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36,
+Performance contracts 24, Salvage 40, Salvage physics 38, Pending contracts 0; 1046 checks,
+0 failures, plus the scripted bench playtest. Five earlier pushes failed and were fixed in
+place: the cooler mount overlapped a RAM slot (invalidating the whole board), the load
+validator dropped the new CPU record (and a migration briefly respawned it on empty stock),
+the CPU's drawer position shifted the packing that older tests pin, a salvage test read a
+cargo body before the grab finished, and the menu label was sized before wrapping was set so
+Godot clamped it to 600 px (recorded as the real root of B13).
 
 ### Added
 - `docs/BUGS.md` (D109): the bug register. Every bug found — playtest, CI, review — gets a row
