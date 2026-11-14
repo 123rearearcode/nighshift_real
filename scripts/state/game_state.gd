@@ -450,11 +450,13 @@ func load_game() -> bool:
                     if not visit is Dictionary: continue
                     var v: Dictionary = visit
                     var misses: Array = []
-                    if v.get("misses", []) is Array:
-                        for miss: Variant in v["misses"]: misses.append(str(miss))
+                    var raw_misses: Variant = v.get("misses", [])
+                    if raw_misses is Array:
+                        for miss: Variant in raw_misses: misses.append(str(miss))
                     var scams: Array = []
-                    if v.get("scams", []) is Array:
-                        for scam: Variant in v["scams"]: scams.append(str(scam))
+                    var raw_scams: Variant = v.get("scams", [])
+                    if raw_scams is Array:
+                        for scam: Variant in raw_scams: scams.append(str(scam))
                     past.append({"ticket": str(v.get("ticket", "")), "score": clampi(int(v.get("score", 0)), 0, 100),
                         "misses": misses, "comeback_days": maxi(0, int(v.get("comeback_days", 0))), "scams": scams})
             while past.size() > HISTORY_KEEP: past.pop_front()
