@@ -15,14 +15,14 @@ var volume_label: Label
 func _ready() -> void:
     _label("NIGHTSHIFT", Vector2(440, 140), Vector2(400, 65), 48)
     _label("PC REPAIR / FOUNDATION DEMO", Vector2(440, 208), Vector2(400, 36), 17)
-    var first: Button = _button("New game", 300, _on_new_game)
-    load_button = _button("Load game", 366, _on_load_game)
+    var first: Button = _button("New game", 284, _on_new_game)
+    load_button = _button("Load game", 342, _on_load_game)
     load_button.disabled = not GameState.has_saved_game()
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
-    _button("Achievements", 432, _on_achievements)
-    _button("Salvage demo", 498, _on_salvage)
-    _button("Settings", 564, _on_settings)
-    status_label = _label("New game opens the repair shop. Salvage demo is separate and never replaces your save.", Vector2(380, 624), Vector2(520, 34), 13)
+    _button("Achievements", 400, _on_achievements)
+    _button("Salvage demo", 458, _on_salvage)
+    _button("Settings", 516, _on_settings)
+    status_label = _label("New game opens the repair shop. The salvage demo never touches your save.", Vector2(424, 574), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
@@ -40,12 +40,14 @@ func _ready() -> void:
 
 func _label(text: String, at: Vector2, area: Vector2, font_size: int) -> Label:
     var label := Label.new()
-    label.text = text
-    label.position = at
-    label.size = area
+    # Wrap and font first, THEN position and size: a Label sized before wrapping is clamped up to
+    # its one-line width (600 px for the status text) and never shrinks back (BUGS.md B13).
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     label.add_theme_font_size_override("font_size", font_size)
+    label.text = text
+    label.position = at
+    label.size = area
     add_child(label)
     return label
 

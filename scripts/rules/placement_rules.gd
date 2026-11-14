@@ -73,6 +73,8 @@ static func check_placement(board: Dictionary, component: Dictionary, rot: int, 
 
     var cid: String = connector["id"]
     var label: String = connector["label"]
+    if connector.has("requires") and not occupied.has(str(connector["requires"])):
+        return _result(false, "", "", "%s needs the %s filled first - fit that part, then this one." % [connector["label"], str(connector["requires"])])
     var slot_type: String = connector["type"]
     var part_type: String = component["connector_type"]
     if slot_type != part_type:

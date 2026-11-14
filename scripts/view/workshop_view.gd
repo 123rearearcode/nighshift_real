@@ -62,7 +62,7 @@ func _build_ui() -> void:
     title.position = Vector2(40,16)
     title.size = Vector2(1200,70)
     title.add_theme_font_size_override("font_size",20)
-    title.text = "NIGHTSHIFT / hardware sandbox\nDrag to arrange. Flick-release to throw; Shift-drop places precisely. R / right-click turns. Esc puts back."
+    title.text = "NIGHTSHIFT / SPARE-PART BENCH - the shop's own stock, NOT the customer's PC\nThe customer's PC is repaired at the repair bench (Replacement stock). Drag to arrange; flick to throw; Shift-drop places precisely. R turns. Esc puts back."
     add_child(title)
     status_label = Label.new()
     status_label.position = STATUS_RECT.position + Vector2(12,12)

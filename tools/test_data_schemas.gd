@@ -19,7 +19,7 @@ const BOARD_REQUIRED: Dictionary = {"id": TYPE_STRING, "display_name": TYPE_STRI
     "rows": TYPE_ARRAY, "connectors": TYPE_ARRAY}
 const CONNECTOR_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "short_label": TYPE_STRING,
     "type": TYPE_STRING, "origin": TYPE_VECTOR2I, "footprint": TYPE_VECTOR2I}
-const CONNECTOR_OPTIONAL: Dictionary = {"allowed_rotations": TYPE_ARRAY}
+const CONNECTOR_OPTIONAL: Dictionary = {"allowed_rotations": TYPE_ARRAY, "requires": TYPE_STRING}
 const PROFILE_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "size": TYPE_VECTOR2I, "depth": TYPE_INT,
     "board_origin": TYPE_VECTOR2I, "board": TYPE_DICTIONARY, "fan": TYPE_RECT2, "psu": TYPE_RECT2, "filter": TYPE_RECT2}
 const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rect": TYPE_RECT2,
