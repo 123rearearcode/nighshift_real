@@ -1,4 +1,4 @@
-# Test policy — 0.22.1
+# Test policy — 0.27.0
 
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work · 13 November 2026.
 User authorised the test audit recommendations. Gameplay is unchanged; Claude still owns the Phase 2 hot files.
@@ -8,7 +8,7 @@ User authorised the test audit recommendations. Gameplay is unchanged; Claude st
 | Change | Required checks | Diagnostic work |
 | --- | --- | --- |
 | Markdown only, optionally a project version-only bump | Project checker and CI scope tests | No Godot download, style pass or playtest |
-| Runtime code, tests, workflow or other non-doc files | Project checker, CI scope tests and all eight Godot suites | Short representative smoke playtest |
+| Runtime code, tests, workflow or other non-doc files | Project checker, CI scope tests and all ten Godot suites | Short representative smoke playtest |
 | Bench physics/controllers, game data, bench_view, part_motion or playtest driver | Same required checks | Complete original matrix and frame-time measurements |
 | Manual workflow run | Same required checks | Smoke by default; select full_diagnostics for full matrix |
 | Unknown/missing comparison history | Same required checks | Full diagnostics, conservatively |
@@ -18,7 +18,7 @@ The classifier examines actual Git diffs. Only config/version changes are exempt
 other settings, code deletions and code renamed to Markdown still require runtime checks. Workflow
 changes run the suites too. The scope tests create real temporary Git histories to check these boundaries.
 
-Keep all eight suites while Claude refactors the bench. Do not judge coverage by the headline count:
+Keep all ten suites while Claude refactors the bench. Do not judge coverage by the headline count:
 schema loops and frame loops can count the same scenario repeatedly. A fixed bug's regression test
 remains useful; older-save migration tests remain until compatibility is explicitly dropped.
 
@@ -58,7 +58,7 @@ results. Fixture setup checks in that file distinguish inability to reproduce fr
 ## Local commands
 
 Use the user's target engine, Godot 4.7.2. Run python3 -I tools/check_project.py for project hygiene and
-python3 tools/test_ci_scope.py for the nine CI-selection integration tests. The eight GDScript suites
+python3 tools/test_ci_scope.py for the nine CI-selection integration tests. The ten GDScript suites
 remain listed explicitly in .github/workflows/tests.yml; each ends with its own summary and exit status.
 CI now retains nonzero process exits, continues to later suites and handles missing summaries safely.
 
@@ -92,3 +92,35 @@ and full dirty-PC saves. It does not measure GPU rendering, display latency or p
 disposable path and retain safe readback/backup rotation. Run comparison builds sequentially on the same
 host, without other Godot tests competing. Full deterministic playtest comparison is still required for
 behaviour-preserving changes; the quick profiler does not replace that matrix.
+
+
+## Salvage isolation and correctness — 0.26.0
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+The ninth required suite is tools/test_salvage.gd. It exercises real menu/scene press-hold-release input,
+obstructed targets, partial effort/cancel/pause charges, return protection, committed grid rotation and
+rejected drops, pre-existing container contents, PC child custody/stripping across sites, refresh,
+separate-car cargo, idempotent unload and no campaign side effects. Idle solver/UI checks protect skipped
+work without timing thresholds. A small headless CPU observation is printed, not treated as an FPS claim.
+The harness never writes the player's save. Disk save/load recovery and actual campaign awards are not
+implemented and are not claimed as tested. Existing bench suites still run; isolated salvage changes use
+the smoke bench diagnostic under the existing CI classifier. No additional full brush matrix is needed
+unless shared bench/data code changes. A human must still evaluate physical feel, layout and readability.
+
+
+## Native salvage physics — 0.27.0
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+The tenth required suite, tools/test_salvage_physics.gd, awaits real PhysicsServer2D frames. It checks
+support/fall/collision/sleep, support removal causing collapse, bounded force pulling, in-place release,
+pause, physical rim extraction, bag contents and collapsed volume, hollow boxes, physical-to-grid custody,
+rollback, real scene/menu input and campaign isolation. Pure tools/test_salvage.gd retains time/grid/UID/
+refresh tests. Removed obsolete 0.26.0 percentage-occlusion/custom-solver assertions and moved scene
+coverage into native-frame tests; no fake gravity assertions or machine-dependent timing gates.
+
+Optional: godot --headless --path . --script res://tools/profile_salvage_physics.gd. Three loads (20, 50,
+100 simple boxes) each sample 240 fall/settle ticks, 60 late-settle ticks, 120 pulling ticks. Timings run
+from physics_frame to process_frame and include native physics, sync and scene dispatch; they are wall
+phase samples, not the coarsely sampled Performance.TIME_PHYSICS_PROCESS counter. Sleep/active/pair
+counts aid interpretation. No GPU/display/FPS claim. Run without other Godot tests competing. Human
+corner-grip feel, sorting readability and container handling must still be playtested.

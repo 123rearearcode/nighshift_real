@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.13 · 13 November 2026
+Version 1.15 · 14 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -216,3 +216,43 @@ D94 (confirmed): games have gpu/cpu demands and a RAM minimum; the shop must BUY
 D95 (confirmed): on the FIRST passing final check the pickup is scored 0–100 against the customer's REAL needs (temperature, named games at minimum fps, quiet). ≥70 leaves happy; unhappy customers come back about it, angrier sooner (<40 → 1 day, <60 → 2, else 3 — proposals). Scams are NOT scored at pickup; delayed discovery adjusts trust later (open).
 D96 (confirmed): the overclocker app is second wave. The software-checks screen (customer's monitor with boot test, anti-virus, Vapor game store, overclocker) is mapped in docs/CUSTOMER_MODEL_MAP.md; 0.25.0 builds only the rules behind it.
 D97 (confirmed, supersedes D79's threshold): the boot test replaces the required-power threshold. The PC can be handed back with ANY output as long as it boots (nothing broken, nothing left out); the final check runs and reports the boot test. GPU power levels stay — they now feed the fps simulation.
+
+
+## Night salvage approval and first isolated demo — 14 November 2026, trial 0.26.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work. The user approved the direction,
+then requested code. These IDs reconcile unmerged design PR #31 with Claude's newer D92–D97 above;
+the customer rules are preserved. Full specification: SALVAGE_DESIGN_PROPOSAL.md.
+
+D98 (confirmed): car model determines travel time and trunk capacity. Faster cars travel faster;
+pack finds using a size-aware trunk grid and rotation. Catalogue/unlocks/prices/exact values remain open.
+D99 (confirmed): multiple locations have different item odds and are re-dumped every few in-game days.
+Exact intervals/visibility are open. The demo uses deterministic per-site cycles and shows its sample
+schedule; cargo/shelf survive refresh. No live campaign save/refresh interface exists yet.
+D100 (confirmed direction): physically clear layered bags/boxes/rubbish to uncover hardware/whole PCs.
+Moving takes time. Searching, recognising value and deciding whether to continue all matter. Use clues,
+a sorting area, whole-PC versus stripped-part choices and satisfying bounded 2D handling. Contents are
+not rerolled on opening. The demo's geometry/weights/hold durations are tuning, not final realism/art.
+D101 (confirmed): ordinary night-clock progression pauses during outings; explicit travel/action costs
+consume time instead, without double charging. Return reserves, proportional partial-effort charging
+and refusal of unaffordable actions are the demo's provisional implementation, not a final overtime policy.
+D102 (confirmed direction): show tendencies, car-adjusted travel time and known activity, hiding exact
+contents/true condition. Tips can attract visits, but their delivery/reliability remain open with Claude.
+Junk, damage, irrelevant finds, space and time can make salvage unwise. The demo uses static information;
+no customer tip, reputation, sale, claim or automatic diagnosis system was added.
+
+D91 boundary retained: Codex's separate scene/salvage scripts/tests; Claude's shared clock/save/stock/
+customer adapters. The first demo is session-only, does not award campaign stock or write GameState, and
+leaves every hot file untouched. See the handoff for exact limitations and proposed interfaces.
+
+
+## Native 2D dumpster physics trial — 14 November 2026, trial 0.27.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work.
+D103 (confirmed prototype request): try the side-view 2D dumpster format with real gravity, object-object
+collisions and force-based grabbing. Items must support/displace each other; removing support allows
+collapse, and containers must open into actual accessible contents. The user found 0.26.0's top-down
+layer/nudge movement unsatisfying. Implemented with native RigidBody2D; opened boxes/PC frames have
+three wall colliders, opened bags flatten and spill pre-existing contents. Springs/torque/force caps,
+friction, damping, spawn layout and rim/sorting geometry are provisional feel tuning. No final format,
+soft-body simulation, new economy or target hardware performance is approved by this trial. Grid/time/
+identity rules remain; world release is physical, cargo rollback stays logical. Existing ownership and
+no-hot-file/shared-state boundary remain in force. Updated in the existing salvage PR; no self-merge.

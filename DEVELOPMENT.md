@@ -94,6 +94,18 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | docs | Approved salvage direction, implemented standalone slice, future shared-state interfaces and open questions |
+| `scenes/salvage.tscn` | view | Separate session-only salvage scene; start-screen entry, not a campaign hub |
+| `scripts/salvage/salvage_data.gd` | data | Sample car/site/footprint/power/colour definitions and local layout/timing values |
+| `scripts/salvage/cargo_grid.gd` | rules | Identity-aware footprint rotation, bounds/overlap and committed cargo placements |
+| `scripts/salvage/salvage_body.gd` | sim | Native RigidBody2D primitive/hollow shapes and bounded force/torque grip integrator |
+| `scripts/salvage/salvage_physics.gd` | controller | Scene-owned bodies/rim/floor, physical picking, pose sync, pause and grip/record handoff |
+| `tools/test_salvage_physics.gd` | tooling | Real engine-frame gravity/collision/support/opening/grip/cargo/scene isolation checks |
+| `tools/profile_salvage_physics.gd` | tooling | Optional 20/50/100-body native physics-phase fall/settle/pulling stress profile |
+| `scripts/salvage/salvage_pile.gd` | sim | Deterministic side-view item/contents records and opening transitions; native world owns movement |
+| `scripts/salvage/salvage_session.gd` | controller | In-memory outing, effort/time/return reserve, cargo and nested-PC custody; no GameState/save writes |
+| `scripts/salvage/salvage_view.gd` | view | Map/site controls, pile/trunk input/drawing, hints, pause and silent handling events |
+| `tools/test_salvage.gd` | tooling | Pure isolated time, grid, custody and cycle regressions |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
@@ -400,3 +412,64 @@ percent, full state and exact empty state; paste UI key includes mount/wiping/do
 and resets on stage entry. Keep external control changes in sync with these keys.
 Eight required suites; new performance tests check correctness rather than host-dependent speed limits.
 Quick profiler uses disposable saves; it measures full snapshot+safe write, without altering save safety.
+
+
+## 0.26.0 standalone salvage contracts
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D98–D102 and the
+salvage specification reconcile unmerged design PR #31 with Claude's customer D92–D97. The new scene
+is reachable through start_view._on_salvage(); New/Load behaviour is unchanged. No hot files edited.
+
+SalvageSession.shared_demo() retains only in-memory demo state through menu navigation; Reset replaces
+it and app exit loses it. No autoload, JSON write, campaign clock/day/stock/customer integration exists.
+Session fields: day/remaining/car/site/reserve, per-site piles/cycles, per-car grids/cargo, demo shelf,
+effort/held/original/rotation and pause. depart() reserves and charges travel; next_night() only on map.
+start_effort(uid,grab/open),step(),cancel_effort() charge partial effort once, with no idle wall-clock
+charge. Moving uses sampled motion plus final-drop distance so instant release cannot teleport for free.
+Unfinished/cancelled moves restore the committed record; pause/focus loss is safe. Return charges its
+reserve once. Overtime policy remains open; the demo refuses new effort that cannot preserve return.
+
+CargoGrid keeps committed placements while held; failed/cancelled drops restore rotation/position.
+A successful claim removes the same UID from the site's map/order; a PC moves its hidden child records
+into packed_children with it. Unpacking moves them into the current site, never resurrecting an old-site
+copy. Opening clears installed child references, reveals those records and marks a stripped PC incomplete
+with zero rated output. Separate cars cannot claim one another's cargo by UID. unload() moves records
+once to the isolated shelf, never into player_inventory. Source UID carries site/cycle identity.
+
+Site piles generate from site/cycle seed; opening containers does not roll loot. Same-session re-entry
+keeps reveal/positions/removals; a due cycle replaces that site's abandoned objects while cargo/shelf
+remain separate. No refresh runs mid-visit in the current demo. Objects use layer occlusion, weighted
+follow, restrained neighbour nudges/edge bounce, visual sway and sleep; no full 3D/soft-body simulation.
+True working/broken condition stays hidden/untested on collection. Existing budget/similar GPU sample
+power ratings are reused; no independent FPS, sales value or catalogue system is introduced.
+
+View rewrites controls only when its state stamp changes; drawing stays dynamic. It emits existing
+AudioFeedback handling/UI events but adds no sounds/playback. Nine required suites; salvage suite prints
+an idle CPU observation without a host timing gate. Claude owns future clock/save/stock/PC adapters.
+
+
+## 0.27.0 native salvage physics (supersedes 0.26.0 motion)
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D103 authorises this trial.
+SalvageBody is a native RigidBody2D; _integrate_forces applies capped grip forces/soft rotation without
+setting body transforms every drag frame. Primitive shapes, low bounce, friction/damping, sleep and
+selective CCD keep the pile bounded. Open boxes/PCs replace their solid collider with three walls;
+opened bags become flat light bodies. Hidden pre-generated contents become separate bodies once.
+
+SalvagePhysics is scene-owned (physics layer/mask 128), contains static matching rim/floor/bounds and
+UID->body mapping. sync creates/removes/configures bodies from current visible item records/held cargo;
+capture copies pose/velocity/nearest grid orientation back to records. No Node reference is saved in
+Session. Physics queries select actual shapes, not drawing rectangles. Grip of committed cargo uses a
+transient body at the sorting transfer point; failed/cancelled cargo edits remove it before capture can
+corrupt the committed placement. World cancellation releases at the physical pose, never restores an
+old now-occupied pose. Rim clearance uses actual rotated bounds before a trunk claim.
+
+Session.physics_mode means the engine owns motion; pure logical tests still exercise direct placement
+commits without a world. step only advances effort; native gripped distance charges charge_motion once.
+No manual pile stepping/nudges or percentage occlusion remain. No-space/exhausted-work handling does not
+award items or consume the reserved return. Pause freezes native bodies and preserves velocities for
+resume. View departure/return/menu/focus changes coordinate sync/capture and native-node cleanup.
+
+Ten required suites: pure salvage rules plus native-frame tests. Optional stress profiler times the
+physics_frame→process_frame wall phase, not just view callbacks or the coarse Performance time counter.
+No GPU/whole-frame claim. Same session-only/save/stock/Claude hot-file boundaries as 0.26.0 remain.

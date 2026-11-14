@@ -17,7 +17,8 @@ func _ready() -> void:
     load_button.disabled = not GameState.has_saved_game()
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 432, _on_achievements)
-    status_label = _label("New game opens the current repair-shop demo.", Vector2(380, 515), Vector2(520, 60), 16)
+    _button("Salvage demo", 498, _on_salvage)
+    status_label = _label("New game opens the repair shop. Salvage demo is separate and never replaces your save.", Vector2(380, 564), Vector2(520, 60), 16)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
@@ -74,6 +75,10 @@ func _on_load_game() -> void:
     else:
         load_button.disabled = true
         status_label.text = "No readable save was found. Start a new game."
+
+
+func _on_salvage() -> void:
+    get_tree().change_scene_to_file("res://scenes/salvage.tscn")
 
 
 func _on_achievements() -> void:

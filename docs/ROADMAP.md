@@ -1,6 +1,23 @@
 # Nightshift — Roadmap
 
-Version 1.13 · 13 November 2026
+Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
+native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
+containers with physical contents. Pull objects over the rim before trunk packing. This supersedes the
+0.26.0 top-down overlap/nudge movement; whether the format is fun still needs the user's playtest.
+Session-only cargo/time/site rules and campaign isolation remain. Bench/customer/shared saves are
+unchanged. Exact physics/performance evidence and limitations are in the newest CHANGELOG entry.
+
+Current 0.26.0 update — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+F5 → Salvage demo opens the separate playable dumpster slice: car/site selection, physical searching,
+opening/stripping, effort/travel time, sorting, trunk packing and periodically refreshed piles.
+Two test cars/sites; all values are tuning. Progress lasts only within the running app; return/menu and
+revisits preserve it, app exit/Reset does not. No shared campaign clock/save/inventory/customer changes.
+Claude's merged 0.25.0 customer work is preserved. Shared adapters/whole-PC identity precede campaign
+integration. Design and proposed contracts: SALVAGE_DESIGN_PROPOSAL.md (D98–D102). Unmerged design PR #31
+is superseded by this reconciled delivery. Older baseline paragraphs below are historical snapshots.
+
+Version 1.15 · 14 November 2026
 
 ## Position after 0.19.0
 

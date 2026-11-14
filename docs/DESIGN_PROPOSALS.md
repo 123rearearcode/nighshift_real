@@ -6,6 +6,14 @@ Status key: **AGREED** = the supplied Claude notes report the user said yes in c
 **OPEN** = a question nobody has answered. Nothing here exists in code yet. These notes do not change
 decisions D01 to D33 in the handoff documents; if they conflict, ask the user.
 
+## Salvage reconciliation — 0.26.0, 14 November 2026
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work. D98–D102 and SALVAGE_DESIGN_PROPOSAL.md
+now record approved car/trunk, site odds/refresh and physical-search direction. A separate session-only
+salvage demo is implemented, not a real night hub or campaign stock pipeline. Earlier salvage OPEN
+labels apply to exact costs, destinations, tips, contracts and campaign details. Unmerged PR #31 IDs
+D92–D96 have been renumbered around Claude's merged customer D92–D97 without altering those rules.
+
 ## 1. Screen hierarchy (screens are one scene each)
 
 ```
@@ -44,7 +52,7 @@ Three nested grids, all using the same data idea as the existing shaped board (`
 - A tiny case gives a cyberdeck, a huge one a gigantic tower. Same rules for both.
 - Board layouts are rarely regular, so each board model needs its own hand-authored layout.
 - Customer PCs arrive pre-built; taking one apart moves parts into storage while preserving customer ownership (D19).
-- The backpack size limits what can be carried back from Go out locations (PROPOSED link).
+- Car model and trunk grid limit salvage cargo (D98). A separate backpack is not required by this decision.
 - Heat and airflow: a cramped build runs hotter, feeding the final-check temperature (PROPOSED).
 - Custom builds commissioned by customers: **AGREED, a mid-game feature to expand on later.**
 

@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.13 · 13 November 2026
+Version 1.15 · 14 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -52,7 +52,20 @@ List whole builds, individual parts and bulk lots. Choose asking prices, specifi
 ## 9. Personal PC and salvage — CONFIRMED
 The personal PC serves as technician terminal; it can be built, upgraded, kept, sold and replaced. Test its power level through a mechanism still OPEN. It can break with a 1% daily probability after at least five days of protection following acquisition of a new PC. Precise day-boundary, what qualifies as a new PC, repair failure handling and anti-reset exploits are OPEN.
 
-Entering the dump starts a dedicated minigame; choices determine whether and how much time it costs. Minigame rules are OPEN. Do not assume an unconditional entry fee or that the shop clock also runs during the minigame: that could double-charge time.
+Confirmed night salvage direction (D98–D102): cars determine travel time and trunk space; multiple sites have different loot odds and are re-dumped every few days. Physically move layered bags/boxes/rubbish to uncover useful parts/PCs, with a sorting area and rotatable trunk grid. Site tendencies, travel estimates and known activity inform an uncertain gamble; proper diagnosis is back at the bench. Ordinary clock progression pauses during outings; explicit travel/action costs consume night time. Salvage can be a bad choice compared with repairs or buying stock.
+
+IMPLEMENTED 0.26.0: isolated in-memory demo, two sample cars/sites, explicit effort/travel budget with return reserved, pre-generated container contents, obstructed extraction, sorting/packing, same-session revisits and few-day cycles. No campaign inventory, saving or real night hub integration. Exact numbers, return/overtime rules, inspection, tips and physics remain tuning/proposals as labelled in SALVAGE_DESIGN_PROPOSAL.md. No fuel/wear/stealth system implied. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+
+### 0.27.0 authorised physics experiment
+
+D103: try the dumpster as a side-on cutaway using native 2D gravity/collisions and a force-based mouse
+grip. Objects support each other; removing a support changes the pile. Boxes/PCs open into solid wall
+frames, while bags collapse and their pre-generated parts become physical. No invisible percentage
+blocking gate remains. Players must physically clear the rim before transferring an item to the trunk.
+Cargo cancellation restores its committed grid; releasing/cancelling a world grip lets the body drop
+where it actually is, rather than teleporting it back through the pile. This is a playable trial, not
+approval of final art, perfect soft-body bags or a guaranteed frame-rate budget. See the specification
+and measured 20/50/100-body stress profiles. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work.
 
 ## 10. Later and unresolved scope
 LATER UPDATE: diagnostic software requiring particular hardware; buying games and testing customer-requested performance. LONG-TERM: B2B/bulk sales unlock under conditions; more complex server demands. Whether servers are initial release or an update is OPEN. Advanced endgame must remain enjoyable and change the experience substantially, but its systems are not selected.
