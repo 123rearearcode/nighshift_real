@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43584646673, branch feature/0.24.0): checker passed; all nine suites green (876 checks, 0 failures) including the new D89/D90 checks. A first run failed one older check that pressed and released a fitted part in the same frame; it now holds through the unscrew time, which keeps what it really tested (event positions driving the drag).
 
 ### Added / Changed / Fixed / Removed
 - Added (D89): unscrewing. In Move parts mode, a FITTED cooler or GPU is freed by holding on it for 1.2 s (progress ring at the cursor; letting go or slipping more than 24 px off cancels with a message; switching tool or stage cancels silently). The drag starts the moment it frees. A part lying in the tray lifts instantly. Direct calls to `_begin_part_drag` (tests, future code) bypass the hold on purpose.
