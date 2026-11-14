@@ -40,12 +40,14 @@ func _ready() -> void:
 
 func _label(text: String, at: Vector2, area: Vector2, font_size: int) -> Label:
     var label := Label.new()
-    label.text = text
-    label.position = at
-    label.size = area
+    # Wrap and font first, THEN position and size: a Label sized before wrapping is clamped up to
+    # its one-line width (600 px for the status text) and never shrinks back (BUGS.md B13).
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     label.add_theme_font_size_override("font_size", font_size)
+    label.text = text
+    label.position = at
+    label.size = area
     add_child(label)
     return label
 

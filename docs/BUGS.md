@@ -30,7 +30,7 @@ fix ships now.
 | B10 | 0.28.0 | 0.29.0 | user playtest | **Loop-blocker:** GPU replaced "at the hardware bench" but the final check still failed | two disconnected PCs: the sandbox never writes job state (see RC-1) |
 | B11 | 0.28.0 | 0.29.0 | user playtest | Coolers unmountable at the hardware bench ("needs a mount"); no CPU exists | sandbox board had no COOLER_MOUNT slot and stock had no CPU (see RC-1) |
 | B12 | 0.28.0 | 0.29.0 | user playtest | Broken GPU came as a surprise at the final check | damage feedback was a 3 s status line; ticket/check never showed part states (see RC-2) |
-| B13 | 0.28.0 | 0.29.0 | user playtest | Main-menu status text crossed the card border | buttons were added (salvage, settings) without growing the card (see RC-2) |
+| B13 | 0.28.0 | 0.29.0 | user playtest | Main-menu status text crossed the card border | buttons were added without growing the card; AND the label was sized before autowrap was set, so Godot clamped it to its one-line width (600 px) and it never shrank back (see RC-2) |
 | B14 | 0.27.0 | 0.29.0 | Codex review of the D108 plan | Releasing a find overlapping the rim barrier could fling it | collider re-enabled inside a body; fixed with a grace exemption until clear |
 | B15 | 0.27.0 | 0.29.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
 
