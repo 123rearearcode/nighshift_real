@@ -1,5 +1,13 @@
 # Nightshift — Project Brief
 
+Current delivery: **0.29.0 general storage rack**, pending review/unmerged. Signed: Codex
+(GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+F5 → Storage rack; PCs/tools/parts share expandable furniture grids. See the final section and
+STORAGE.md for controls, save boundaries and capacity integration still to coordinate with Claude.
+
+Earlier milestone notes follow.
+
+
 Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
 native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
@@ -102,3 +110,29 @@ The hardware sandbox now separates storage from installation: three generic samp
 
 ## Current trial0.11.0 — handling across both benches
 The user authorised tabletop throws/bounces, tactile repair tools, a flexible physical brush and replacement stock linked to player inventory. Implemented a shared bounded tabletop model (edge rebounds, spin, vertical hop/floor bounce and friction), repair-tool rig for vacuum/brush/pick/cloth/syringe, and real bristle contact points. Hardware flicks settle into free drawer cells; repair GPU/cooler can be thrown and recovered. A single owned stock list now feeds hardware storage and repair replacements. Buying adds a unique item; fitting consumes it with no second charge. This is a minimal shared stock foundation, not the final catalogue, supplier market or complete PC inventory. Fresh dirty tickets initialise visible dust; existing cleaned saves stay clean with explicit status and a New dirty PC action preserving cash/stock. The user's reported missing dust was not reproduced on a fresh ticket; do not claim an established root cause.
+
+
+## General storage rack — trial 0.29.0, 14 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+The user approved a general inventory occupied by PCs, owned tools and parts, shown as a rack
+and expandable with more furniture. The first implementation is `scenes/storage.tscn`, available
+from the start menu's **Storage rack** button. Steel racks, shallow parts cabinets and tool boards
+provide distinct grid capacity. Drag, rotate, move between shelves/furniture and add units; invalid
+drops return safely. A visible waiting area retains everything that cannot fit.
+
+The rack reads current player stock, the included five-tool kit and the one active customer PC.
+It stores only furniture and allocations in `user://nightshift_storage.json`; ownership stays in
+GameState. Installed shop parts retain marked shelf reservations; a whole customer PC includes
+its fitted customer parts. No duplication or ownership transfer occurs by moving a tile.
+
+Prototype choices, not final balance: furniture is free, at most eight units, example shelf sizes
+and storage footprints. Furniture/layout survives New game independently of demo progress.
+This is not the final shared-PC/owned-part model: multiple waiting PCs, owned built PCs and a
+purchasable tool catalogue need canonical source records first. The current old hardware drawer
+and buying/intake capacity checks are unchanged. The rack enforces its own allocation space and
+shows overflow, but does not yet reject purchases, intake or salvage on capacity grounds.
+
+Claude owns current concurrent engineering work. No changes to bench_view.gd, tool_rig.gd,
+game_state.gd, shop_view.gd or WORK_PLAN.md in this delivery. Coordinate capacity hooks after
+review; do not merge automatically. Contract, file map and playtest steps: docs/STORAGE.md.

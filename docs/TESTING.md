@@ -124,3 +124,11 @@ from physics_frame to process_frame and include native physics, sync and scene d
 phase samples, not the coarsely sampled Performance.TIME_PHYSICS_PROCESS counter. Sleep/active/pair
 counts aid interpretation. No GPU/display/FPS claim. Run without other Godot tests competing. Human
 corner-grip feel, sorting readability and container handling must still be playtested.
+
+
+## Storage rack, 0.29.0
+Run `godot --headless --path . --script res://tools/test_storage.gd` (required in CI).
+For the graphical playtest: F5 → Storage rack; drag/rotate each kind, transfer to a new rack,
+try wrong cabinet/tool-board types, fill shelves until overflow appears, reload and check saved
+allocations. Cancel mid-drag/focus loss, navigate pages while holding, remove an empty unit.
+Confirm ownership/repair state and money are unchanged. Read docs/STORAGE.md for boundaries.

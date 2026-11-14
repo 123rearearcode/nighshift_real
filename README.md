@@ -1,5 +1,11 @@
 # Nightshift - Godot Foundation Trial (v0.29.0)
 
+**New in this branch:** F5 → **Storage rack** (right side of the menu). Arrange real PCs, kit tools
+and stock on shelves; rotate with R/E or Q, expand with racks/cabinets/tool boards. Layout autosaves.
+Furniture is free in this prototype. Capacity integration with buying/intake remains a follow-up;
+see [storage controls and boundaries](docs/STORAGE.md). Branch is intentionally unmerged.
+
+
 
 **Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting
 area, E to open/strip, Q/E or wheel to turn carried finds. Lift the whole object over the dumpster rim,

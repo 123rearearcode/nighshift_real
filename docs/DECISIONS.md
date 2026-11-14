@@ -266,6 +266,16 @@ D106 (confirmed, fixes Codex finding 3 on 0.25.0): loaded customer history is re
 D107 (confirmed): the main menu gets a Settings option — for now one sound slider (master volume, applied live, muted at zero). Settings live in their own `user://nightshift_settings.json`, never in the game save, and survive new games.
 D108 (confirmed, user playtest of the salvage demo): the find you HOLD must be lifted over the dumpster rim, but it cannot be used as a bulldozer: a rim barrier (layer 256, rim up to the ceiling) stops every body except the held one, so only the carried find can cross. Pile physics inside the dumpster stay fully interactive.
 
+## General inventory — 14 November 2026, trial 0.29.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+D109 (confirmed user request): general inventory contains PCs, owned tools and parts; it is
+visually a rack, expandable with several furniture types. Implement code on a separate branch
+and leave it unmerged while Claude works. First implementation and boundaries: docs/STORAGE.md.
+Free furniture, eight units, shelf sizes and installed-part shelf reservations are provisional
+prototype choices, not approved economy or final storage rules. Current purchases still use
+the old drawer capacity checks until a coordinated shared-capacity hook is approved.
+
 ## The broken-GPU dead end, the bug register and bench coherence — 14 November 2026, trial 0.29.0
 Recorded by Claude (Fable 5, model id claude-fable-5), from the user's playtest and direction.
 

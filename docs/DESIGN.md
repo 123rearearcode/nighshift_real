@@ -1,5 +1,13 @@
 # Nightshift — Working Design
 
+Current delivery: **0.29.0 general storage rack**, pending review/unmerged. Signed: Codex
+(GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+F5 → Storage rack; PCs/tools/parts share expandable furniture grids. See the final section and
+STORAGE.md for controls, save boundaries and capacity integration still to coordinate with Claude.
+
+Earlier milestone notes follow.
+
+
 Version 1.15 · 14 November 2026
 
 ## Status vocabulary
@@ -184,3 +192,29 @@ CONFIRMED: current cooler iteration prioritises interaction design, button organ
 IMPLEMENTED: cleaning tool row and maintenance row; permanent bin state with explicit Empty bin; thermal material/tool row followed by mount/complete. A full bin pauses suction by design. Hose crossing recovery prevents persistent loop artefacts in tested rapid drags and clamp transitions.
 
 CONFIRMED/IMPLEMENTED foundation: pickup, impacts, vacuuming, brushing, wiping, dispensing, pressing, lever and UI actions emit silent audio events. Six buses and managed per-owner loops prepare later sound work; no audio assets/playback exist. See AUDIO_DESIGN.md. Future samples, mix, tonal palette and exact feedback tuning are PROPOSALS. Critical state must stay visible and sound must not expose secret scam or diagnosis data.
+
+
+## General storage rack — trial 0.29.0, 14 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+The user approved a general inventory occupied by PCs, owned tools and parts, shown as a rack
+and expandable with more furniture. The first implementation is `scenes/storage.tscn`, available
+from the start menu's **Storage rack** button. Steel racks, shallow parts cabinets and tool boards
+provide distinct grid capacity. Drag, rotate, move between shelves/furniture and add units; invalid
+drops return safely. A visible waiting area retains everything that cannot fit.
+
+The rack reads current player stock, the included five-tool kit and the one active customer PC.
+It stores only furniture and allocations in `user://nightshift_storage.json`; ownership stays in
+GameState. Installed shop parts retain marked shelf reservations; a whole customer PC includes
+its fitted customer parts. No duplication or ownership transfer occurs by moving a tile.
+
+Prototype choices, not final balance: furniture is free, at most eight units, example shelf sizes
+and storage footprints. Furniture/layout survives New game independently of demo progress.
+This is not the final shared-PC/owned-part model: multiple waiting PCs, owned built PCs and a
+purchasable tool catalogue need canonical source records first. The current old hardware drawer
+and buying/intake capacity checks are unchanged. The rack enforces its own allocation space and
+shows overflow, but does not yet reject purchases, intake or salvage on capacity grounds.
+
+Claude owns current concurrent engineering work. No changes to bench_view.gd, tool_rig.gd,
+game_state.gd, shop_view.gd or WORK_PLAN.md in this delivery. Coordinate capacity hooks after
+review; do not merge automatically. Contract, file map and playtest steps: docs/STORAGE.md.
