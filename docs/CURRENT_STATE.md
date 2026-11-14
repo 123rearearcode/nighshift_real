@@ -1,5 +1,13 @@
 # Nightshift — Current State and Technical Handoff
 
+Current delivery: **0.29.0 general storage rack**, pending review/unmerged. Signed: Codex
+(GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+F5 → Storage rack; PCs/tools/parts share expandable furniture grids. See the final section and
+STORAGE.md for controls, save boundaries and capacity integration still to coordinate with Claude.
+
+Earlier milestone notes follow.
+
+
 Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
 native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
@@ -133,3 +141,29 @@ Shared tabletop dynamics adds reflected edge impacts, spin, height/gravity/floor
 A single top-level player_inventory now feeds hardware grid and repair replacement rows. Unique owned records and shared inventory_layout prevent duplication; stock is bought into the grid, then consumed on fit without charging again. Installed hardware-board pieces are unavailable as drawer stock. Broken customer originals and consumed replacement ids remain on the repair ticket, outside saleable player stock. Six starting demonstration items are not a release catalogue; general storage/ownership for full customer PCs is still absent. Legacy hardware snapshots migrate once for the active profile; empty stock stays empty. Payout/cloth prices unchanged.
 Fresh tickets show71 visible groups plus14 protected groups without Reset; partial dust survives reopening. Saved clean PCs remain clean. Added brighter dust, ticket/visible-group status and New dirty PC keeping cash/stock/upgrades. The stale bench cannot save over a newly created ticket. No fresh-ticket missing-dust bug was reproduced; no unsupported root-cause claim. New dirty PC is a practice-ticket reset, not daytime intake.
 325 Godot4.6.3 regression checks passed before packaging; final checker/import/smoke/fresh-extract results are in CHANGELOG.md. GUI observed dust on first bench entry and a new ticket without Reset, physical brush/rack handling, purchase into shared drawer and corrected cooler shapes. Target4.7.2 and full human repair-payment path remain unverified. Physics is a custom bounded tabletop/bristle model, with no inter-object collision, sound, throw-induced damage or persistent flight state. Free tools reset on scene entry. This section supersedes earlier single/sandbox-only inventory and no-throw statements.
+
+
+## General storage rack — trial 0.29.0, 14 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+The user approved a general inventory occupied by PCs, owned tools and parts, shown as a rack
+and expandable with more furniture. The first implementation is `scenes/storage.tscn`, available
+from the start menu's **Storage rack** button. Steel racks, shallow parts cabinets and tool boards
+provide distinct grid capacity. Drag, rotate, move between shelves/furniture and add units; invalid
+drops return safely. A visible waiting area retains everything that cannot fit.
+
+The rack reads current player stock, the included five-tool kit and the one active customer PC.
+It stores only furniture and allocations in `user://nightshift_storage.json`; ownership stays in
+GameState. Installed shop parts retain marked shelf reservations; a whole customer PC includes
+its fitted customer parts. No duplication or ownership transfer occurs by moving a tile.
+
+Prototype choices, not final balance: furniture is free, at most eight units, example shelf sizes
+and storage footprints. Furniture/layout survives New game independently of demo progress.
+This is not the final shared-PC/owned-part model: multiple waiting PCs, owned built PCs and a
+purchasable tool catalogue need canonical source records first. The current old hardware drawer
+and buying/intake capacity checks are unchanged. The rack enforces its own allocation space and
+shows overflow, but does not yet reject purchases, intake or salvage on capacity grounds.
+
+Claude owns current concurrent engineering work. No changes to bench_view.gd, tool_rig.gd,
+game_state.gd, shop_view.gd or WORK_PLAN.md in this delivery. Coordinate capacity hooks after
+review; do not merge automatically. Contract, file map and playtest steps: docs/STORAGE.md.

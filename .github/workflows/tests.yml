@@ -82,7 +82,8 @@ jobs:
           test_audio_and_vacuum|Audio and vacuum
           test_performance|Performance contracts
           test_salvage|Salvage
-          test_salvage_physics|Salvage physics"
+          test_salvage_physics|Salvage physics
+          test_storage|Storage"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"
