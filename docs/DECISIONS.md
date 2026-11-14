@@ -1,6 +1,6 @@
 # Nightshift — Decision Register
 
-Version 1.13 · 13 November 2026
+Version 1.14 · 14 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.
 
@@ -205,3 +205,31 @@ D89 (confirmed): picking things up takes time, because the night is about managi
 D90 (confirmed): the four cleaning-tool buttons are colour-coded (vacuum blue, brush amber, move parts green, pick red). First pass colours the button text; tying the same colours into the tool drawings is open.
 D91 (confirmed): Codex is assigned the street/dumpster salvage minigame in parallel: design proposal first (docs/CODEX_PROMPT_SALVAGE.md), own scene and scripts, no hot files, state fields through Claude. The customer model rework (name, persona, trust, budget, portrait, profession with FPS needs, history, return and satisfaction) and the software-checks screen (monitor with anti-virus, game store with bought games and simulated FPS, overclocker) are MAPPED FIRST before any code, per the user; nothing of them is built yet.
 
+
+## Night outings, cars and recurring dump sites — 14 November 2026, docs 0.24.1
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work from the user's salvage discussion.
+Design approval only; no salvage code is delivered. This extends D12/D37/D91.
+
+D92 (confirmed): travel to salvage sites by car. The model determines journey time and trunk capacity;
+faster cars travel faster. Pack finds into the trunk's size-aware grid, with rotation. Vehicle catalogue,
+prices/unlocks, exact speed/capacity and return/overflow details are not selected.
+D93 (confirmed): multiple locations have different odds for item categories. Every location is re-dumped
+every few in-game days. Exact intervals, schedule visibility and mid-visit refresh behaviour are open.
+Persistence/seed/refresh rules in SALVAGE_DESIGN_PROPOSAL.md are proposed implementation contracts.
+D94 (confirmed direction): a layered dumpster of bags/boxes/rubbish and occasional PCs/hardware must
+be physically cleared to reach promising finds; moving takes time. Searching, recognising value and
+pushing one's luck all belong, with recognition and satisfying physical uncovering central. Use clues,
+a sorting area, whole-PC versus selected-part carrying choices and tactile bounded 2D handling. Contents
+belong to the generated pile, not a reroll on opening. Exact physics/action timing/disassembly are open.
+D95 (confirmed): ordinary night-clock progression pauses during an outing; explicit travel/action costs
+consume the shared night budget instead. No double charge from elapsed play time plus action costs.
+Return allowance, overtime/cancellation rules and exact cost formulas are still proposals/open.
+D96 (confirmed direction): show site tendencies, car-adjusted travel time and known recent activity
+before departure; exact loot is hidden. Occasional tips can attract visits; their sources/reliability
+remain open with Claude's customer work. Visible clues help on-site recognition; proper testing is back
+at the bench. Luck, junk, broken/inappropriate finds, space and time can make salvage a bad choice.
+Neither free guaranteed replacement stock nor automatic knowledge of true condition is implied.
+
+Implementation boundary: Codex's separate salvage scene/scripts/tests; Claude supplies reviewed shared
+clock, save, ownership/inventory interfaces and continues customer/software mapping. No hot file or
+WORK_PLAN.md edit in this docs PR. Full specification, proposals and questions: SALVAGE_DESIGN_PROPOSAL.md.

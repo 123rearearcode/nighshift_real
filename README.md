@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.24.0)
+# Nightshift - Godot Foundation Trial (v0.24.1)
 
 **0.18.0 adds trapped-dust threads and clearer bench controls.** Short tails protrude from under parts: precise vacuuming pulls them free slowly; removing the part is easier. Drag the clamp with either mouse button; a stationary left click unclips. The standard hose now only just reaches the far-left corner with careful rotation. Tools can be put down throughout cooler mounting, including after the pressing timer expires. Cooler visual redesign is proposed in `docs/DESIGN_PROPOSALS.md` section 6.
 

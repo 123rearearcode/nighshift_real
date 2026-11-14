@@ -1,6 +1,13 @@
 # Nightshift — Roadmap
 
-Version 1.13 · 13 November 2026
+Salvage design update 0.24.1 — 14 November 2026, Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work.
+D92–D96 are approved direction, not implementation progress. Specification: SALVAGE_DESIGN_PROPOSAL.md.
+Proposed sequence: one tactile pile/car/trunk test; contrasting sites and persistent refresh/time in a
+standalone harness; campaign wiring through Claude's reviewed shared APIs. No dates or effort estimate
+are committed. Claude continues customers/software mapping in parallel; Codex does not edit those or
+any hot file. Return-time policy, on-site disassembly and shared persistence precede campaign integration.
+
+Version 1.14 · 14 November 2026
 
 ## Position after 0.19.0
 
@@ -85,7 +92,7 @@ Use a small representative catalogue first; the final release catalogue requirem
 4. Whole-PC storage sizes and incomplete-build persistence.
 5. Minimal power/stability benchmark and component data definitions.
 6. Reputation/relationship update rules and persona/deception probabilities.
-7. Small salvage minigame specification; supplier generation bounds that preserve viable supply.
+7. Salvage direction is specified (D92–D96); settle return/inspection/time/cycle details and Claude's shared-state adapter before integration. Supplier generation bounds still need design.
 
 Resolve only what the next milestone needs. Optional refinements remain open.
 

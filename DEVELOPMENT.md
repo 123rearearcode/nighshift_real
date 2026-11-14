@@ -94,6 +94,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | docs | Approved car/site/pile/time direction, proposed save/inventory interfaces, scope boundaries and open questions; no implementation |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
@@ -396,3 +397,15 @@ percent, full state and exact empty state; paste UI key includes mount/wiping/do
 and resets on stage entry. Keep external control changes in sync with these keys.
 Eight required suites; new performance tests check correctness rather than host-dependent speed limits.
 Quick profiler uses disposable saves; it measures full snapshot+safe write, without altering save safety.
+
+
+## 0.24.1 salvage design boundary (no production contract change)
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+D92–D96 and docs/SALVAGE_DESIGN_PROPOSAL.md record the user's approved night-outing direction.
+All field tables/operation suggestions in that document are PROPOSALS, not save-format additions.
+Codex's future separate scene/scripts/tests must use Claude-reviewed shared clock/save/ownership APIs.
+The current stock loader filters non-working records; untested/broken salvage requires an adapter before
+campaign awards. Whole-PC integration also awaits shared PC identity. Do not patch around either gap
+inside a salvage view. No hot files, customer data, software screen, workflow or runtime script changes
+in this delivery. Coordinate shared docs/version/changelog edits when integrating parallel branches.

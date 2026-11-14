@@ -1,6 +1,6 @@
 # Nightshift — Working Design
 
-Version 1.13 · 13 November 2026
+Version 1.14 · 14 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -52,7 +52,11 @@ List whole builds, individual parts and bulk lots. Choose asking prices, specifi
 ## 9. Personal PC and salvage — CONFIRMED
 The personal PC serves as technician terminal; it can be built, upgraded, kept, sold and replaced. Test its power level through a mechanism still OPEN. It can break with a 1% daily probability after at least five days of protection following acquisition of a new PC. Precise day-boundary, what qualifies as a new PC, repair failure handling and anti-reset exploits are OPEN.
 
-Entering the dump starts a dedicated minigame; choices determine whether and how much time it costs. Minigame rules are OPEN. Do not assume an unconditional entry fee or that the shop clock also runs during the minigame: that could double-charge time.
+Night salvage is CONFIRMED: go by car to multiple sites with different loot probabilities. Car model determines travel time and trunk capacity; the trunk uses size-aware grid packing and rotation. Locations are re-dumped every few in-game days; exact intervals remain OPEN. Move bags, boxes and rubbish in a layered dumpster to uncover hardware/whole PCs, using a sorting area. Moving/searching takes time. Searching, recognising useful finds and deciding whether to continue all matter. Salvage can waste the night and should not always beat buying parts or staying at the bench.
+
+Before departure show general site tendencies, car-adjusted travel time and known recent activity, with occasional tips; exact contents stay hidden. Visible clues help recognition; proper testing happens at the bench. Contents are generated for the pile, not rerolled whenever a box opens. Tactile bounded 2D handling is the starting direction. Normal clock progression pauses during the outing; travel/actions explicitly deduct night time without an additional real-time charge. Return-time protection, partial-action charging, persistent cycle details, inspection limits, tip reliability, exact costs/physics and save APIs remain PROPOSALS/OPEN as labelled in SALVAGE_DESIGN_PROPOSAL.md. Nothing of salvage is implemented in runtime 0.24.0.
+
+Recorded 14 November 2026 by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work; D92–D96.
 
 ## 10. Later and unresolved scope
 LATER UPDATE: diagnostic software requiring particular hardware; buying games and testing customer-requested performance. LONG-TERM: B2B/bulk sales unlock under conditions; more complex server demands. Whether servers are initial release or an update is OPEN. Advanced endgame must remain enjoyable and change the experience substantially, but its systems are not selected.

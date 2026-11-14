@@ -39,6 +39,69 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.24.1 - 2026-11-14 - Record the agreed car and dumpster salvage direction
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: main 0.24.0, d9f0e75 (Claude's unscrew/tool-colour and salvage-assignment delivery).
+- Type: patch — design documentation and version metadata only; gameplay remains 0.24.0.
+
+### Execution status
+Godot was NOT run for this docs-only delivery. No salvage code, save fields, customer changes or new
+runtime tests were added. Python hygiene/scope checks and source-package validation are recorded below;
+they do not establish interactive gameplay or test Claude's latest runtime work.
+
+### Added / Changed / Fixed / Removed
+- Added docs/SALVAGE_DESIGN_PROPOSAL.md: accepted direction, one-screen loop, physical pile/recognition,
+  car/trunk packing, multiple sites and few-day re-dumping, information/luck/economic trade-offs.
+- Recorded D92–D96: cars set travel time/cargo; locations have different item odds and refresh every few
+  days; physical searching and sorting; ordinary clock pauses while explicit travel/action costs apply;
+  informed uncertainty, tips and the possibility that salvage is a bad choice.
+- Marked return reserves, partial-action charging, persistent-cycle behaviour, inspection/disassembly,
+  tip reliability and exact numbers as proposals/open. No unconditional loot, rewards or approved formulas.
+- Proposed the shared item/site/vehicle/outing records and operations Claude must review before campaign
+  integration. Today's stock loader rejects non-working finds; do not silently award broken/untested
+  salvage through it. Whole-PC integration depends on shared PC identity, not a duplicate inventory.
+- Reconciled all five core docs to revision 1.14, legacy salvage notes and minigame rules. Clear parallel
+  boundary: Codex salvage design/future isolated scene; Claude customer/software mapping and shared state.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | A | Full agreed direction, proposed integration contract and open questions |
+| `docs/DECISIONS.md` | M | D92–D96, design revision |
+| `docs/DESIGN.md` | M | Confirmed car/sites/pile/clock direction and remaining open details |
+| `docs/PROJECT_BRIEF.md` | M | Current approved salvage scope and parallel roles |
+| `docs/ROADMAP.md` | M | Proposed isolated prototype/integration sequence, no promised dates |
+| `docs/CURRENT_STATE.md` | M | Explicitly not implemented; current runtime/stock-loader boundary |
+| `docs/DESIGN_PROPOSALS.md` | M | Reconcile stale salvage/backpack labels with car trunk decision |
+| `docs/MINIGAME_RULES.md` | M | Salvage rules, accepted versus proposed details; no dust/paste rule change |
+| `DEVELOPMENT.md` | M | New file map entry and no-code integration boundary |
+| `HANDOFF.md` | M | Signed handoff, ownership/dependencies, version reconciliation |
+| `README.md`, `project.godot` | M | Documentation patch version metadata only |
+| `CHANGELOG.md` | M | This signed entry |
+
+### Checks performed
+python3 -I tools/check_project.py: PASSED, zero problems. Python CI-scope integration tests: 9 passed.
+git diff --check: passed. Diff audit: no scripts/scenes/tools/workflow/WORK_PLAN.md changes; project
+settings change only config/version. All five core docs carry revision 1.14. No Godot/runtime result
+is claimed. Fresh source ZIP extracted and checked: PASSED, zero problems; all five required core docs included.
+
+### Decisions proposed (not approved)
+Return-time reserve and overtime handling; effort/cancel charging; persistence/refresh transaction
+semantics; exact inspection/stripping limits; fields/API names; vehicle/site catalogue and balance.
+These are labelled in the specification; the user's approved principles remain distinct.
+
+### Known issues and open items
+No salvage implementation yet. Car/site/clock/save/stock APIs need Claude's review; broken/untested
+stock and whole PCs are not yet supported end-to-end. Claude's concurrent branch may advance main's
+version or decision numbering; reconcile version/changelog/D92–D96 at integration, preserving both contributors' records. No edit
+to WORK_PLAN.md, hot files, customer data, software screen, workflow, scenes or runtime scripts.
+
+### Next action
+User reviews this design PR; next requested task is Codex review of Claude's work. Claude cross-reviews
+the proposed shared-state boundary before salvage implementation. Do not merge automatically or start
+new salvage code in this delivery. Who goes next: Codex for the user's requested Claude review; Claude
+continues customer mapping/state coordination. Hot files free to Codex: none; they remain Claude-owned.
+
 ## 0.24.0 - 2026-11-14 - Unscrewing takes time; colour-coded tools; salvage assigned to Codex
 - Author: Claude (Fable 5, model id claude-fable-5) in a chat session; the project is in the user's GitHub repository `123rearearcode/nighshift_real`.
 - Based on: 0.23.0

@@ -1,12 +1,23 @@
 # Nightshift — Current State and Technical Handoff
 
+Current delivery: 0.24.1 documentation; runtime behaviour is unchanged from merged 0.24.0.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+Approved salvage design now covers cars/trunk grids, multiple periodically re-dumped sites, physical
+searching/sorting, informed luck and explicit travel/action costs with the normal clock paused.
+SALVAGE_DESIGN_PROPOSAL.md separates those approvals from proposed implementation contracts/questions.
+No salvage scene, clock, site refresh, car storage or campaign return transfer is implemented. Claude's
+customer-system work remains separate. The current working-only stock loader cannot yet retain arbitrary
+broken/untested finds; shared save/stock wiring is a dependency owned by Claude.
+The earlier 0.22.1 branch note below is historical; that pass is merged. Latest runtime changes and
+actual checks are in CHANGELOG.md (0.23.0 customer tab/final-check rule; 0.24.0 unscrew/tool colours).
+
 Engineering update 0.22.1 (13 November 2026), Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work:
 performance branch only, awaiting Claude cross-review/user playtest. Clamped hose idle sleep with wake
 checks, paste/UI caches and separate static drawing are implemented. Eight automated suites pass on
 Godot 4.7.2; this is not interactive visual acceptance. No gameplay scope/save-format change. Exact
 measurements and limitations: PERFORMANCE.md; delivery validation: latest CHANGELOG entry.
 
-Version 1.13 · 13 November 2026
+Version 1.14 · 14 November 2026
 
 ## Current baseline — trial 0.19.0
 

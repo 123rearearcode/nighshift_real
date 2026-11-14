@@ -1,8 +1,17 @@
 # Nightshift — Project Brief
 
-Version 1.13 · 13 November 2026
+Version 1.14 · 14 November 2026
 
 ## Read this first
+
+Current design update 0.24.1 (runtime stays 0.24.0): car-based night salvage, trunk grid, multiple
+probability-based sites re-dumped every few days, physical layered searching and explicit action/travel
+time are approved. See SALVAGE_DESIGN_PROPOSAL.md for accepted direction versus open details. Salvage
+is not coded. Codex owns its isolated design/minigame; Claude owns customer/software mapping and shared
+state/save wiring. This note supersedes older salvage OPEN labels only, not unrelated design choices.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+
+The following 0.19.0 scope paragraph is a historical task snapshot, not the newest runtime inventory.
 This pack guides human-directed collaboration between AIs; the user is creative director. Current 0.19.0 scope: persistent full-bin feedback and accessible emptying, organised tool/service controls, hose self-crossing recovery and a silent action-driven audio foundation. No sound assets/playback or cooler art. Pressure build/release and deliberate lever feedback are accepted interaction goals; the exact redesigned puzzle remains open. Physical lever and good-result completion stay required. User clarified that current cooler work should be design-led, not graphics-led.
 
 GitHub repository `123rearearcode/nighshift_real` is connected. Use scoped branches, checked PRs, preserved archive baselines and signed changelog entries. The earlier 0.15.2 no-merge restriction was superseded by the user's merge instruction. Seven scam concepts remain accepted, C excluded; promise/claim/consequence systems are still future work. Fan-driven dust redistribution remains queued.

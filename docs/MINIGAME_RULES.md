@@ -1,4 +1,4 @@
-# Nightshift — dust and paste minigame rules
+# Nightshift — minigame rules
 
 Design specification revision 1 · 13 November 2026 · docs patch 0.15.2.
 
@@ -149,3 +149,29 @@ A full vacuum bin pauses extraction. Its persistent warning and Empty bin action
 The current cooler still uses its existing pressure rules and explicit lever followed by Complete repaste. Leaving an unfinished mount cancels it; it does not secure or grade the cooler. Pressure/release readability is an accepted goal, but redesigned scoring/input is pending. No graphics work is required now.
 
 Sound cues are currently silent events. They may later communicate actual contact, load, speed and state, but essential warnings remain readable and secret scams cannot be exposed through an omniscient cue.
+
+
+## Night salvage rules — approved direction, docs 0.24.1
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+Canonical specification: SALVAGE_DESIGN_PROPOSAL.md; confirmed decisions D92–D96. Not implemented.
+
+- Drive to one of multiple sites. Vehicle model sets travel time and available trunk grid.
+- Clear actual bags, boxes and rubbish to uncover partially hidden finds. Moving costs time. Search,
+  recognition and deciding whether to continue are all part of play; use a sorting area and tactile handling.
+- Reveal existing contents; opening/loading cannot be used to reroll a container. A possible PC-shaped
+  clue need not guarantee a useful working PC. Proper testing remains at the bench.
+- Pack by item footprint and rotation; whole-PC extraction versus selected components trades space/time.
+- Locations are re-dumped every few days. Exact intervals and refresh/persistence details are not fixed;
+  the proposed cycle contract must protect claimed cargo and avoid duplicate finds.
+- Pause normal night-clock progression during the outing. Travel/action costs use the night budget;
+  never charge both real elapsed time and the same action's cost. Show cost/progress clearly.
+- General tendencies, travel estimates and known activity guide the gamble; actual contents/condition
+  stay uncertain. Junk, damage, unsuitable parts, travel and opportunity cost can make a trip unwise.
+- Salvaging is not itself deception. Honest used-part sales and falsely claiming used as new feed the
+  existing agreement/actual-work/claim distinction; no new customer discovery system is introduced.
+
+Return-time reserves/overtime, partial effort/cancel charging, on-site stripping limits, exact physics,
+car costs/capacities, tip reliability and refresh visibility remain OPEN/PROPOSED. The future acceptance
+checks are in the specification and have not been run. This does not change dust/paste mechanics;
+D87 remains the current functional final-check rule, superseding older mandatory full-clean descriptions.

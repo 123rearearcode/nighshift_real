@@ -6,6 +6,14 @@ Status key: **AGREED** = the supplied Claude notes report the user said yes in c
 **OPEN** = a question nobody has answered. Nothing here exists in code yet. These notes do not change
 decisions D01 to D33 in the handoff documents; if they conflict, ask the user.
 
+## Salvage reconciliation — 0.24.1, 14 November 2026
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work. Read SALVAGE_DESIGN_PROPOSAL.md and
+D92–D96: cars/trunk grids, multiple periodically re-dumped sites, physical layered searching and
+explicit travel/action costs while the normal clock pauses are now approved. Older generic salvage
+OPEN labels below apply only to unresolved details. Exact destinations, refresh intervals, costs,
+return policy and shared-state contracts remain open/proposed. No salvage is implemented.
+
 ## 1. Screen hierarchy (screens are one scene each)
 
 ```
@@ -15,7 +23,7 @@ Main menu (Continue / New game / Settings)                      PROPOSED
                   Job checklist: Clean the PC, Hardware bench,
                   Paste and mount, Final check, Deliver          PROPOSED order; the user wants the
                                                                  hardware bench BEFORE the final check
-    Go out   -> Map -> Location (each has its own mechanic)      AGREED idea, locations OPEN
+    Go out   -> Map -> Location (each has its own mechanic)      AGREED; exact destinations OPEN
     Shop     -> Upgrades, tools, parts stock                     AGREED as a hub option
     End night -> Summary (earnings, bills, reputation)           PROPOSED
 ```
@@ -44,7 +52,7 @@ Three nested grids, all using the same data idea as the existing shaped board (`
 - A tiny case gives a cyberdeck, a huge one a gigantic tower. Same rules for both.
 - Board layouts are rarely regular, so each board model needs its own hand-authored layout.
 - Customer PCs arrive pre-built; taking one apart moves parts into storage while preserving customer ownership (D19).
-- The backpack size limits what can be carried back from Go out locations (PROPOSED link).
+- Confirmed 14 November: car model determines travel time and trunk capacity; trunk grid limits salvage cargo (D92). A separate backpack is not required by this decision.
 - Heat and airflow: a cramped build runs hotter, feeding the final-check temperature (PROPOSED).
 - Custom builds commissioned by customers: **AGREED, a mid-game feature to expand on later.**
 
