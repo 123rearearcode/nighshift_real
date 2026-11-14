@@ -13,6 +13,9 @@ var angular_offset: float = 0.0
 var previous_grip_position := Vector2.ZERO
 var is_paused: bool = false
 var paused_velocities: Dictionary = {}
+const RIM_ZONE := Rect2(624,140,12,210)   # the D108 barrier column
+var rim_grace: Dictionary = {}   # uid -> true: released while overlapping the barrier; keep it
+                                 # exempt until clear, so re-enabling the column cannot fling it
 
 func _ready() -> void:
     terrain = Node2D.new()
@@ -57,6 +60,7 @@ func wall(rect: Rect2) -> void:
 func clear_bodies() -> void:
     for uid: String in bodies: _remove(uid)
     bodies.clear()
+    rim_grace.clear()
     bound_pile = null
     active_session = null
     last_held = ""
@@ -91,6 +95,25 @@ func _item(uid: String) -> Dictionary:
     if bound_pile != null: return bound_pile.objects.get(uid,{})
     return {}
 
+# A cargo body re-enters the world at the first staging spot its rectangle does not overlap
+# anything (Codex's review point 4: a fixed point could materialise inside a staged find).
+# When every candidate is occupied it falls back to the highest one: spawning high in the open
+# sorting column lets gravity resolve what little overlap remains.
+func _free_spawn(size: Vector2) -> Vector2:
+    var candidates: Array = [Vector2(780,200), Vector2(716,200), Vector2(780,260), Vector2(716,260), Vector2(748,170)]
+    if not is_inside_tree(): return candidates[0]
+    var shape := RectangleShape2D.new()
+    shape.size = size + Vector2(8,8)
+    var query := PhysicsShapeQueryParameters2D.new()
+    query.shape = shape
+    query.collision_mask = 128
+    for spot: Vector2 in candidates:
+        query.transform = Transform2D(0.0, spot)
+        if get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty():
+            return spot
+    return Vector2(748,170)
+
+
 func remember_grab(uid: String, at: Vector2) -> void:
     pending_uid = uid
     pending_local = bodies[uid].to_local(at) if bodies.has(uid) else Vector2.ZERO
@@ -118,7 +141,7 @@ func sync(session: RefCounted, pointer: Vector2) -> void:
             var body := Body.new()
             body.set_meta("salvage_uid",uid)
             body.configure(item)
-            body.position = Vector2(780,220) if item["zone"] == "cargo" else Vector2(item["center"])
+            body.position = _free_spawn(Vector2(item["size"])) if item["zone"] == "cargo" else Vector2(item["center"])
             body.rotation = float(item["rotation"])*PI/2 if item["zone"] == "cargo" else float(item["angle"])
             body.linear_velocity = item["velocity"]
             body.angular_velocity = float(item["spin"])
@@ -132,7 +155,16 @@ func sync(session: RefCounted, pointer: Vector2) -> void:
         var held: bool = uid == session.held
         body.gripped = held
         body.can_sleep = not held
-        body.collision_mask = 128 if held else 384   # only the carried find may pass the rim barrier (D108)
+        # D108: only the carried find may pass the rim barrier. A body released while overlapping
+        # the column keeps its exemption until it is physically clear (Codex's review point 2:
+        # re-enabling a collider inside a body would fling it and disturb its neighbours).
+        var half: float = maxf(Vector2(wanted[uid]["size"]).x, Vector2(wanted[uid]["size"]).y) * 0.5
+        var over_rim: bool = RIM_ZONE.grow(half).has_point(body.position)
+        if held:
+            rim_grace[uid] = true if over_rim else false
+        elif bool(rim_grace.get(uid, false)) and not over_rim:
+            rim_grace[uid] = false
+        body.collision_mask = 128 if held or bool(rim_grace.get(uid, false)) else 384
         if held:
             if last_held != uid:
                 body.grip_local = pending_local if pending_uid == uid else Vector2.ZERO

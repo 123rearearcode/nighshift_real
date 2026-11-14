@@ -20,6 +20,14 @@ func run_checks() -> void:
     await process_frame
     check(current_scene.load_button.disabled, "Load game is disabled without a readable save")
     var menu: Node = current_scene
+    # 0.29.0: everything on the card stays inside it (the status text used to cross the border).
+    var card: Rect2 = preload("res://scripts/data/layout.gd").START_CARD
+    var status_rect := Rect2(menu.status_label.position, menu.status_label.size)
+    check(card.encloses(status_rect), "the menu status text stays inside the card")
+    for child: Node in menu.get_children():
+        if child is Button:
+            check(card.encloses(Rect2((child as Button).position, (child as Button).size)),
+                "menu button '%s' stays inside the card" % (child as Button).text)
     menu._on_achievements()
     check(menu.achievements_dialog.visible and current_scene == menu, "Achievements opens a clearly labelled placeholder without entering game")
     menu.achievements_dialog.hide()

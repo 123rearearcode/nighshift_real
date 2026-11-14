@@ -35,4 +35,4 @@ const WORKSHOP_DRAWER_GRID_ORIGIN := Vector2(826, 148)
 const WORKSHOP_STATUS := Rect2(800, 450, 440, 110)
 
 # Start screen
-const START_CARD := Rect2(410, 108, 460, 500)
+const START_CARD := Rect2(410, 100, 460, 528)   # fits five menu buttons and the status line (0.29.0)

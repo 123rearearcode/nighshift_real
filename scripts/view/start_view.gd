@@ -15,14 +15,14 @@ var volume_label: Label
 func _ready() -> void:
     _label("NIGHTSHIFT", Vector2(440, 140), Vector2(400, 65), 48)
     _label("PC REPAIR / FOUNDATION DEMO", Vector2(440, 208), Vector2(400, 36), 17)
-    var first: Button = _button("New game", 300, _on_new_game)
-    load_button = _button("Load game", 366, _on_load_game)
+    var first: Button = _button("New game", 284, _on_new_game)
+    load_button = _button("Load game", 342, _on_load_game)
     load_button.disabled = not GameState.has_saved_game()
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
-    _button("Achievements", 432, _on_achievements)
-    _button("Salvage demo", 498, _on_salvage)
-    _button("Settings", 564, _on_settings)
-    status_label = _label("New game opens the repair shop. Salvage demo is separate and never replaces your save.", Vector2(380, 624), Vector2(520, 34), 13)
+    _button("Achievements", 400, _on_achievements)
+    _button("Salvage demo", 458, _on_salvage)
+    _button("Settings", 516, _on_settings)
+    status_label = _label("New game opens the repair shop. The salvage demo never touches your save.", Vector2(420, 578), Vector2(440, 42), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"

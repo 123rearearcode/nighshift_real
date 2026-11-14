@@ -3,6 +3,7 @@ extends "res://tools/test_support.gd"
 const Session = preload("res://scripts/salvage/salvage_session.gd")
 const World = preload("res://scripts/salvage/salvage_physics.gd")
 const Pile = preload("res://scripts/salvage/salvage_pile.gd")
+const RIM_GRACE_ZONE := Rect2(624,140,12,210)
 var pointer := Vector2.ZERO
 
 func _initialize() -> void: call_deferred("run")
@@ -29,6 +30,7 @@ func run() -> void:
     Engine.max_fps = 120
     await test_stack_and_grip()
     await test_rim_barrier()
+    await test_rim_release_and_cargo_spawn()
     await test_containers_and_cargo()
     await test_scene()
     Session.demo = null
@@ -100,6 +102,57 @@ func test_rim_barrier() -> void:
     check(s.held == "loose" and w.bodies["loose"].collision_mask == 128,"the carried find alone ignores the rim barrier")
     await ticks(w,s,300,Vector2(760,260))
     check(w.bodies["loose"].position.x > 640,"the carried find is lifted over the rim as before")
+    w.free()
+    await physics_frame
+
+# 0.29.0, from Codex's qualifications on the D108 fix: releasing a find while it overlaps the
+# barrier must not fling it (the grace keeps it exempt until clear), and a cargo body must not
+# materialise inside a staged find (free-space spawn probe).
+func test_rim_release_and_cargo_spawn() -> void:
+    var s: RefCounted = blank()
+    add(s,"carried","box",Vector2(400,520),Vector2(60,60))
+    var w := World.new()
+    root.add_child(w)
+    w.sync(s,pointer)
+    await ticks(w,s,30)
+    check(s.start_effort("carried","grab"),"grip the find to carry it to the rim")
+    w.remember_grab("carried",w.bodies["carried"].position)
+    await ticks(w,s,50)
+    await ticks(w,s,200,Vector2(630,250))   # hold it right in the barrier column
+    var at_rim: Vector2 = w.bodies["carried"].position
+    s.cancel_hand()
+    w.sync(s,pointer)
+    var calm: bool = true
+    for i in range(90):
+        await physics_frame
+        w.capture()
+        s.step(1.0/60.0,pointer)
+        w.sync(s,pointer)
+        if w.bodies.has("carried") and w.bodies["carried"].linear_velocity.length() > 900.0: calm = false
+    check(calm,"release inside the barrier column never flings the find (grace until clear)")
+    check(w.bodies["carried"].position.distance_to(at_rim) < 420.0,"the released find settles nearby instead of teleporting")
+    if not RIM_GRACE_ZONE.grow(34.0).has_point(w.bodies["carried"].position):
+        check(w.bodies["carried"].collision_mask == 384,"the exemption ends once the find is clear of the rim")
+    # Cargo re-entry: the old fixed spawn point is occupied by a staged find.
+    add(s,"staged","box",Vector2(780,200),Vector2(60,60))
+    s.pile.objects["staged"]["zone"] = "sort"
+    add(s,"packed","gpu",Vector2(760,560),Vector2(78,26))
+    var item: Dictionary = s.pile.objects["packed"]
+    s.pile.objects.erase("packed")
+    s.pile.order.erase("packed")
+    item["zone"] = "cargo"
+    s.cargo[s.car]["packed"] = item
+    s.grids[s.car].place("packed","gpu",Vector2i(0,0),0)
+    w.sync(s,pointer)
+    await ticks(w,s,40)
+    var staged_at: Vector2 = w.bodies["staged"].position
+    check(s.start_effort("packed","grab"),"grip the packed find to bring it back out")
+    await ticks(w,s,30)
+    check(s.held == "packed" and w.bodies.has("packed"),"the cargo body re-enters the world")
+    check(w.bodies["staged"].position.distance_to(staged_at) < 12.0,
+        "re-entry does not materialise inside the staged find and knock it away")
+    s.cancel_hand()
+    w.sync(s,pointer)
     w.free()
     await physics_frame
 

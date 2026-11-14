@@ -108,6 +108,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_salvage.gd` | tooling | Pure isolated time, grid, custody and cycle regressions |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
+| `docs/BUGS.md` | docs | The bug register: every bug found, its root cause, and the every-10-versions structural review |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |

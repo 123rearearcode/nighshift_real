@@ -39,6 +39,102 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.29.0 - 2026-11-14 - The broken-GPU dead end, the bug register and the Upgrades tab
+
+- Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
+- Based on: 0.28.0
+- Type: minor (new register + rules, UI restructure, sandbox data; saves migrate)
+
+### Execution status
+Godot was NOT run by me directly. GitHub Actions runs all eleven suites on Godot 4.7.2 headless
+on push; the result is recorded below once the run finishes. No interactive playtest is claimed.
+Actions result: pending.
+
+### Added
+- `docs/BUGS.md` (D109): the bug register. Every bug found — playtest, CI, review — gets a row
+  when found and a root cause when fixed; backfilled with B1–B15. Every 10 versions (0.30.0,
+  0.40.0, …) it gets a structural review pass. AGENTS.md rule 6 and the HANDOFF checklist now
+  require it.
+- `GameState.part_state(part_id)` (D110): ONE binary state pair per serviceable part
+  (fitted/working) with the exact repair path in words. The failed final check now prints
+  "GPU: BROKEN - at the repair bench: move it to the tray, then open Replacement stock."
+  instead of the old aggregate notes, and the TICKET carries a parts line too — the user's
+  0.28.x playtest dead-ended on a broken GPU with no visible way forward (B10/B12, RC-1/RC-2).
+- The spare-part bench is coherent (D111): the starter stock includes a demo CPU, the demo
+  board gained a cooler mount, and the cooler only fits once the CPU sits in the socket
+  (real-life order CPU → mount → cooler, as the user asked). Its banner and the shop button
+  now say plainly that it is the SHOP'S stock bench, not the customer's PC (B11).
+- Upgrades tab (D112): the shop's lower card is Final check | Customer | Upgrades; both tool
+  upgrades (square cloth, longer hose) moved there, and future ones land there.
+
+### Changed
+- The ticket is a bounded ScrollContainer like the other cards (its new parts line must not
+  recreate B5).
+- Main menu: the card grew to hold its five buttons, and the status line sits inside it again
+  (B13 — the salvage and settings buttons had pushed the text over the border).
+- Salvage, from Codex's verified qualifications on the D108 fix: a find released while
+  overlapping the rim barrier keeps its exemption until physically clear (no fling, B14), and
+  a cargo body re-enters the world at the first FREE staging spot instead of the fixed point
+  (no materialising inside a staged find, B15).
+
+### Fixed
+- B10 (loop-blocker): see part_state above — the path out of a broken-GPU ticket is now named
+  at every surface that mentions the part, and test_0_29 walks the whole loop end to end.
+- B11: coolers were unmountable at the spare-part bench (no mount slot, no CPU existed).
+- B13: main-menu text out of its card.
+
+### Removed
+(nothing)
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/BUGS.md` | A | The bug register (D109), backfilled B1–B15 with root causes RC-1..3 |
+| `scripts/state/game_state.gd` | M | part_state (D110); binary per-part final-check notes; CPU in starter stock |
+| `scripts/view/shop_view.gd` | M | Upgrades tab; ticket parts line + bounded ticket scroll; bench button renames |
+| `scripts/view/workshop_view.gd` | M | Spare-part-bench banner |
+| `scripts/data/component_data.gd` | M | Demo CPU part; cooler mount connector with "requires": "cpu" |
+| `scripts/rules/placement_rules.gd` | M | Connector "requires" dependency rule |
+| `scripts/view/start_view.gd` | M | Menu layout inside the grown card |
+| `scripts/data/layout.gd` | M | START_CARD fits five buttons + status |
+| `scripts/salvage/salvage_physics.gd` | M | Rim release grace; free-space cargo spawn probe |
+| `tools/test_regressions.gd` | M | test_0_29 (end-to-end broken-GPU loop, part states, mount order, Upgrades tab); stock counts 6→7 |
+| `tools/test_start_screen.gd` | M | Card-containment checks for every menu button and the status text |
+| `tools/test_salvage_physics.gd` | M | Rim-release grace + cargo-spawn probe checks |
+| `tools/test_data_schemas.gd` | M | Connector schema allows "requires" |
+| `AGENTS.md` | M | Rule 6: the bug register |
+| `DEVELOPMENT.md` | M | File map: docs/BUGS.md |
+| `docs/DECISIONS.md` | M | D109–D112, D108 amendment |
+| `HANDOFF.md` | M | 0.29.0 section; checklist step 10 (bug register); version |
+| `README.md` | M | Version |
+| `project.godot` | M | config/version 0.29.0 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: PASSED (0 problems).
+- GitHub Actions (all suites) on branch `feature/0.29.0`: recorded under Execution status when
+  the run finishes.
+
+### Decisions proposed (not approved)
+- The bug register's shape (table + root-cause sections + reviews) and the backfilled list.
+- The spare-part bench staying a SANDBOX for now, clearly labelled; connecting the customer's
+  real PC to it is the open structural step (RC-1, D79 note) — proposed as its own future wave.
+- Demo CPU and cooler-mount geometry; the "requires" rule living on the connector.
+- Why the GPU broke at all: the pick tool's damage roll (D-series pick risk) — the bench shows
+  "DAMAGED" while cleaning, but the user met it only at the check. part_state surfaces it
+  everywhere now; if it still reads as "random", the pick's risk/reward needs a design pass.
+
+### Known issues and open items
+- RC-1 remains structurally open: the customer's PC and the spare-part bench are still two
+  models; D110 surfaces one truth but does not merge them. Proposed next structural wave.
+- Wave 2 (software-checks monitor screen) still NOT started, per the user.
+- First structural bug review due at 0.30.0 (D109).
+
+### Next action
+User playtest of 0.29.0 (the broken-GPU loop, the Upgrades tab, the menu). Then, on the user's
+word: wave 2 or the RC-1 structural wave.
+
+
 ## 0.28.0 - 2026-11-14 - Cross-review fixes, customer rotation, settings, rim containment
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session

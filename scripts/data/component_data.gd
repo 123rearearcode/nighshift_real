@@ -21,6 +21,23 @@ static func ram_stick() -> Dictionary:
     }
 
 
+static func cpu_chip() -> Dictionary:
+    return {
+        "id": "cpu_demo",
+        "category": "CPU",
+        "display_name": "Demo CPU",
+        "short_label": "CPU",
+        "connector_type": "CPU_SOCKET",
+        "footprint": Vector2i(3, 3),
+        "height": 1,
+        "details": [
+            ["Cores", "4"],
+            ["Socket", "Demo socket"],
+            ["Note", "Fit the CPU before the cooler clamps onto its mount."],
+        ],
+    }
+
+
 # '#' = usable board cell, '.' = cutout (no board there).
 # Connectors are rectangles of cells; "type" decides what can plug in.
 # "allowed_rotations" (optional) lists the facings a part may have there:
@@ -53,6 +70,10 @@ static func demo_board() -> Dictionary:
                 "origin": Vector2i(0, 1), "footprint": Vector2i(3, 3)},
             {"id": "pcie", "label": "PCIe x16 slot", "short_label": "PCIe x16", "type": "PCIE_X16",
                 "origin": Vector2i(0, 6), "footprint": Vector2i(8, 1)},
+            # Real-life order (user, 0.29.0): the CPU goes into the socket, the cooler clamps onto
+            # the mount around it. "requires" makes a slot usable only once that other slot is filled.
+            {"id": "cooler_mount", "label": "Cooler mount", "short_label": "CM", "type": "COOLER_MOUNT",
+                "origin": Vector2i(3, 1), "footprint": Vector2i(2, 2), "requires": "cpu"},
         ],
     }
 

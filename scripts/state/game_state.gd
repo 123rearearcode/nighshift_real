@@ -138,6 +138,22 @@ func parts_clean_count() -> int:
 
 
 # Service accidents and replacements are persistent; grades are derived from known tiers.
+# ONE source of truth for the state of a customer's serviceable part (D110): binary per part.
+# Everything that talks about parts (ticket, final check, benches) reads this, never its own copy.
+func part_state(part_id: String) -> Dictionary:
+    var fitted: bool = not part_id in job.get("removed_parts", [])
+    var working: bool = not part_id in job.get("broken_parts", [])
+    var tier: String = str(job.get("service_replacements", {}).get(part_id, ""))
+    var text: String
+    if not fitted:
+        text = "MISSING - lying in the repair-bench tray; drag it back or fit a replacement"
+    elif not working:
+        text = "BROKEN - at the repair bench: move it to the tray, then open Replacement stock"
+    else:
+        text = "working" + (" (%s replacement)" % tier if tier != "" else "")
+    return {"fitted": fitted, "working": working, "tier": tier, "text": text}
+
+
 func damage_service_part(part_id: String) -> bool:
     if job["state"] == "done" or not part_id in ServiceParts.IDS or part_id in job["broken_parts"]:
         return false
@@ -188,6 +204,7 @@ func start_repair_ticket() -> void:
 func _starter_inventory() -> Array:
     return [{"uid":"trial_ram_a","kind":"ram","tier":"similar","owner":"player","condition":"working"},
         {"uid":"trial_ram_b","kind":"ram","tier":"similar","owner":"player","condition":"working"},
+        {"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"},
         {"uid":"trial_gpu","kind":Ids.GPU,"tier":"similar","owner":"player","condition":"working"},
         {"uid":"stock_gpu_budget","kind":Ids.GPU,"tier":"budget","owner":"player","condition":"working"},
         {"uid":"stock_cooler_similar","kind":Ids.COOLER,"tier":"similar","owner":"player","condition":"working"},
@@ -199,6 +216,9 @@ func inventory_components() -> Array:
         var component: Dictionary
         if record["kind"] == "ram":
             component = ComponentData.ram_stick()
+            component["id"] = record["uid"]
+        elif record["kind"] == "cpu":
+            component = ComponentData.cpu_chip()
             component["id"] = record["uid"]
         else: component = ServiceParts.component(record["uid"],record["kind"],record["tier"])
         stock.append(component)
@@ -341,10 +361,14 @@ func run_final_check() -> Dictionary:
         if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
             temp += float(under["heat_penalty"])
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
+    # D110: one binary line per serviceable part, with the exact place to fix it. This replaced
+    # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     var removed_parts: Array = job.get("removed_parts", [])
-    if not removed_parts.is_empty(): notes.append("Refit removed components before testing: " + ", ".join(removed_parts))
     var broken: Array = job["broken_parts"]
-    if not broken.is_empty(): notes.append("Damaged parts must be replaced: " + ", ".join(broken))
+    for part_id: String in ServiceParts.IDS:
+        var state: Dictionary = part_state(part_id)
+        if not bool(state["fitted"]) or not bool(state["working"]):
+            notes.append("%s: %s." % [part_id.to_upper(), str(state["text"])])
     for id: String in job["service_replacements"]:
         var replacement: Dictionary = ServiceParts.option(id, str(job["service_replacements"][id]))
         temp += float(replacement["heat_penalty"])

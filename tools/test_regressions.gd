@@ -209,6 +209,7 @@ func run_checks() -> void:
     test_0_23(gs)
     test_0_25(gs)
     test_0_28(gs)
+    test_0_29(gs)
     test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
@@ -545,7 +546,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     check(stacked.hit(stacked.motions["brush"].center,["vacuum","brush"]) == "brush", "overlapping tool pickup matches visible topmost tool")
     check(stacked.hit(stacked.motions["cloth"].center,["vacuum","brush","pick"]) == "", "hidden-stage tools cannot intercept clicks")
     gs.new_game()
-    check(gs.player_inventory.size() == 6, "one shared initial stock list")
+    check(gs.player_inventory.size() == 7, "one shared initial stock list")
     var cash: int = gs.money
     var stock: int = gs.stock_count("gpu","budget")
     check(gs.buy_service_stock("gpu","budget") and gs.money == cash-18, "buying stock charges the advertised price")
@@ -648,7 +649,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     check(view.thrown.is_empty() and drawer_body.impacts > 1, "drawer throw settles after physical edge/table impacts")
     var packed: bool = true
     for i in range(view.inventory.items.size()): packed = packed and view.inventory.can_store(i,view.inventory.items[i]["cell"])
-    check(packed and view.inventory.items.size() == 6, "throw and resnap preserves all shared items without overlaps")
+    check(packed and view.inventory.items.size() == 7, "throw and resnap preserves all shared items without overlaps")
     check(view.inventory.items[0]["rotation"] == 1, "rotation selected before throw is retained on settling")
     view.free()
     # Legacy migration is scoped to this suite's isolated file.
@@ -659,11 +660,11 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     file.store_string(JSON.stringify(legacy))
     file.close()
     gs.load_game()
-    check(gs.player_inventory.size() == 6 and gs.money == 77,"older save gains starter stock exactly once without resetting money")
+    check(gs.player_inventory.size() == 7 and gs.money == 77,"older save gains starter stock exactly once without resetting money")
     check(gs.inventory_layout.get("trial_ram_a",{}).get("rotation",0) == 1,"older active-profile drawer arrangement migrates")
     gs.save_game()
     gs.load_game()
-    check(gs.player_inventory.size() == 6,"migration does not repeat or duplicate stock on reload")
+    check(gs.player_inventory.size() == 7,"migration does not repeat or duplicate stock on reload")
 
 
 func _write_raw(path: String, text: String) -> void:
@@ -1743,4 +1744,63 @@ func test_0_28(gs: Node) -> void:
     check(shop_relu.customer_label.text.contains("Counter Stroke 2 at 60 fps"), "Relu's dossier names the game and frame rate he needs")
     shop_relu.queue_free()
     gs.tickets_taken = 0
+    gs.new_game()
+
+
+# 0.29.0: one binary source of truth for part states (D110), the path out of a broken-GPU ticket,
+# the coherent spare-part bench (CPU before cooler, D111) and the Upgrades tab (D112).
+func test_0_29(gs: Node) -> void:
+    gs.tickets_taken = 0
+    gs.new_game()
+    var fine: Dictionary = gs.part_state("gpu")
+    check(bool(fine["fitted"]) and bool(fine["working"]), "a fresh PC reports every part fitted and working")
+    gs.damage_service_part("gpu")
+    var broken: Dictionary = gs.part_state("gpu")
+    check(not bool(broken["working"]) and str(broken["text"]).contains("Replacement stock"),
+        "a broken part says BROKEN and names the exact place to fix it")
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    check(not bool(r["passed"]) and str(r["notes"]).contains("GPU: BROKEN") and str(r["notes"]).contains("Replacement stock"),
+        "the failed check lists the part's binary state and the repair path (the 0.28.x playtest dead end)")
+    gs.job["removed_parts"].append("gpu")
+    var missing: Dictionary = gs.part_state("gpu")
+    check(not bool(missing["fitted"]) and str(gs.run_final_check()["notes"]).contains("GPU: MISSING"),
+        "a part in the tray reads MISSING, not a vague refusal")
+    check(gs.replace_service_part("gpu", "budget"), "the named path actually repairs it")
+    check(bool(gs.part_state("gpu")["fitted"]) and bool(gs.part_state("gpu")["working"]) and str(gs.part_state("gpu")["tier"]) == "budget",
+        "after the replacement the part reads fitted and working again")
+    check(bool(gs.run_final_check()["passed"]), "the gameplay loop completes end to end after a broken GPU")
+    # The spare-part bench is coherent now: a CPU exists, and the cooler needs it first (D111).
+    var cpus: int = 0
+    for record: Dictionary in gs.player_inventory:
+        if str(record["kind"]) == "cpu": cpus += 1
+    check(cpus == 1, "the starter stock includes a CPU for the spare-part bench")
+    var pc: Dictionary = Layout.profile("tower")
+    var board: Dictionary = pc["board"]
+    var cooler: Dictionary = ServiceParts.component("stock_cooler_similar", "cooler", "similar")
+    var cpu: Dictionary = Data.cpu_chip()
+    var mount_cell: Vector2i = Vector2i(3, 1)
+    var blocked: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {}, pc["depth"])
+    check(not blocked["ok"] and str(blocked["message"]).contains("cpu"), "the cooler mount refuses until a CPU sits in the socket (real-life order)")
+    var with_cpu: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {"cpu": "stock_cpu_demo"}, pc["depth"])
+    check(bool(with_cpu["ok"]), "with the CPU fitted, the cooler clamps onto its mount")
+    check(bool(Rules.check_placement(board, cpu, 0, Vector2i(0, 1), {}, pc["depth"])["ok"]), "the demo CPU fits its socket")
+    # The shop: Upgrades tab groups the tool upgrades; the ticket carries the binary parts line.
+    gs.new_game()
+    gs.damage_service_part("gpu")
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.tab_upgrades != null and not shop.upgrade_panel.visible, "the shop opens with the Upgrades tab closed")
+    shop._show_tab(2)
+    check(shop.upgrade_panel.visible and not shop.result_scroll.visible and not shop.customer_scroll.visible, "the Upgrades tab swaps the lower card")
+    check(shop.upgrade_button.get_parent() == shop.upgrade_panel and shop.hose_button.get_parent() == shop.upgrade_panel,
+        "all tool upgrades live together under the Upgrades tab")
+    check(shop.ticket_label.text.contains("GPU BROKEN") and shop.ticket_label.text.contains("Replacement stock"),
+        "the ticket itself shows the broken part and where to fix it")
+    check(shop.ticket_label.get_parent() == shop.ticket_scroll, "the ticket is bounded like the other cards")
+    shop.queue_free()
     gs.new_game()

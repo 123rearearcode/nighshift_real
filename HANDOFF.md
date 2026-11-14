@@ -1,11 +1,28 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.28.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.29.0.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
 **Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026, 0.27.0 native dumpster physics (also 0.26.0 salvage demo). Earlier contributors: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.29.0 — the broken-GPU dead end, the bug register, Upgrades tab
+
+Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
+The user's playtest hit a loop-blocker: a broken GPU "replaced" at the hardware bench still
+failed the final check, because the hardware bench is a sandbox that never writes job state
+(root cause RC-1 in the NEW `docs/BUGS.md` — the bug register every bug now goes into, with a
+structural review every 10 versions, next at 0.30.0). 0.29.0 makes part states ONE binary
+source of truth (`GameState.part_state`): the ticket, the final check and the benches all show
+fitted/working per part and name the exact repair path (repair bench → tray → Replacement
+stock). The spare-part bench now says what it is, and its own loop is coherent: a demo CPU
+exists and the board has a cooler mount that requires the CPU first (real-life order). Also:
+tool upgrades grouped under a shop Upgrades tab; the ticket is a bounded scroll like the other
+cards; the main-menu card fits its buttons and status text again; and the two real
+qualifications from Codex's review of the D108 fix are addressed (release-at-rim grace,
+free-space cargo spawn). Still open structurally: actually connecting the customer's PC to the
+hardware bench (RC-1 / D79 note).
 
 ## Current update 0.28.0 — cross-review fixes, rotation, settings, rim containment
 
@@ -202,7 +219,9 @@ The user said they will work on the parts catalogue themselves first. Do not sta
    working; the checker fails until you replace it with real results.
 8. Update the first line of `README.md` to `(vX.Y.Z)`, plus any instructions that changed.
 9. Update `DEVELOPMENT.md` sections 5 and 6 if files or contracts changed, in the same version.
-10. Run `python3 -I tools/check_project.py` from the project folder and fix every FAIL.
+10. If the version found or fixed any bug, add or update its row in `docs/BUGS.md` (AGENTS.md rule 6);
+    at every 10th version (0.30.0, 0.40.0, ...) run that file's structural review first.
+11. Run `python3 -I tools/check_project.py` from the project folder and fix every FAIL.
 11. Build the ZIP with the new number, check a fresh extract with the checker, and report to the user
     what was run and what was not.
 
