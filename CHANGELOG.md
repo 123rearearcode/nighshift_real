@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ### Execution status
 **Godot was NOT run by me directly.** GitHub Actions runs everything on Godot 4.7.2 headless; results below. Not hand-tested.
 
-Actions result: not yet recorded.
+Actions result (Godot 4.7.2 headless, run 43581035981, branch feature/0.23.0): checker passed; all suites green, 0 failures (counts recorded in the log; regression includes the new D87/D88 checks). Two earlier pushes failed the checker because my edit script aborted half-way (wrong anchor text), leaving the version bumped without its changelog entry; the checker caught exactly that.
 
 ### Added / Changed / Fixed / Removed
 - Changed (D87, the user's screenshot): the final check no longer fails a cool PC for leftover dust. Dust counts only through the temperature it adds; the notes still name the dusty parts, the "Every part must be cleaned" line is gone, and the shop's hint text says the new rule. Functionality is still required: broken parts, parts left out or missing graphics output fail as before, and a fully dusty PC still fails on temperature alone.
