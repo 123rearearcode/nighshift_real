@@ -46,9 +46,14 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new menu feature, rotation rule, save hardening; saves migrate)
 
 ### Execution status
-Godot was NOT run by me directly. GitHub Actions runs all eleven suites on Godot 4.7.2 headless
-on push; the result is recorded below once the run finishes. No interactive playtest is claimed.
-Actions result: pending.
+Godot was NOT run by me directly. GitHub Actions ran all eleven suites on Godot 4.7.2 headless.
+No interactive playtest is claimed.
+Actions result: run 43612741461 on 9d6251f succeeded — Data schema 198, Regression 564, Start
+screen 14, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36,
+Performance contracts 24, Salvage 40, Salvage physics 32, Pending contracts 0; 1004 checks,
+0 failures, plus the scripted bench playtest. The first push failed one new check (sparse visit
+records crashed the history normaliser); fixed in 9d6251f and caught only because test_0_28
+feeds the loader damaged saves.
 
 ### Added
 - Settings on the main menu (D107): a sound slider (master volume, applied live, muted at zero).
