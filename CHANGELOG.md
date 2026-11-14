@@ -49,7 +49,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 Godot was NOT run by me directly. GitHub Actions runs the automated suites on Godot 4.7.2
 headless on push; the result is recorded below once the run finishes. No interactive playtest
 is claimed.
-Actions result: pending.
+Actions result: run 43588417213 on 305acd0 succeeded — Data schema 198, Regression 543, Start screen 10, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36, Performance contracts 24, Pending contracts 0; 907 checks, 0 failures, plus the scripted bench playtest.
 
 ### Added
 - `docs/CUSTOMER_MODEL_MAP.md`: the whole customer/software system as approved point by point
