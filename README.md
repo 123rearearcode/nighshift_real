@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.25.0)
+# Nightshift - Godot Foundation Trial (v0.26.0)
+
+
+**Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting
+area, E to open/strip, Q/E or wheel to rotate carried finds, release over free trunk cells to pack.
+Drive home, unload to the demo shelf, or advance the demo night to see site refreshes. P pauses;
+Esc cancels. This isolated demo lasts only until app exit/Reset; it does not replace your repair save,
+advance the campaign day or grant repair stock. Cars, timings, loot and refresh rates are prototype tuning.
 
 **0.18.0 adds trapped-dust threads and clearer bench controls.** Short tails protrude from under parts: precise vacuuming pulls them free slowly; removing the part is easier. Drag the clamp with either mouse button; a stationary left click unclips. The standard hose now only just reaches the far-left corner with careful rotation. Tools can be put down throughout cooler mounting, including after the pressing timer expires. Cooler visual redesign is proposed in `docs/DESIGN_PROPOSALS.md` section 6.
 

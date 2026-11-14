@@ -80,7 +80,8 @@ jobs:
           test_bench_interactions|Bench interaction
           test_bench_feedback|Bench feedback
           test_audio_and_vacuum|Audio and vacuum
-          test_performance|Performance contracts"
+          test_performance|Performance contracts
+          test_salvage|Salvage"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

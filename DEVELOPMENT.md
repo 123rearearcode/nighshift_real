@@ -94,6 +94,14 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | docs | Approved salvage direction, implemented standalone slice, future shared-state interfaces and open questions |
+| `scenes/salvage.tscn` | view | Separate session-only salvage scene; start-screen entry, not a campaign hub |
+| `scripts/salvage/salvage_data.gd` | data | Sample car/site/footprint/power/colour definitions and local layout/timing values |
+| `scripts/salvage/cargo_grid.gd` | rules | Identity-aware footprint rotation, bounds/overlap and committed cargo placements |
+| `scripts/salvage/salvage_pile.gd` | sim | Deterministic site cycles/containers, occlusion, bounded weighted pile nudges/edge bounce/sleep |
+| `scripts/salvage/salvage_session.gd` | controller | In-memory outing, effort/time/return reserve, cargo and nested-PC custody; no GameState/save writes |
+| `scripts/salvage/salvage_view.gd` | view | Map/site controls, pile/trunk input/drawing, hints, pause and silent handling events |
+| `tools/test_salvage.gd` | tooling | Isolated time, grid, custody, cycle/physics and real scene/menu input regressions |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
@@ -400,3 +408,37 @@ percent, full state and exact empty state; paste UI key includes mount/wiping/do
 and resets on stage entry. Keep external control changes in sync with these keys.
 Eight required suites; new performance tests check correctness rather than host-dependent speed limits.
 Quick profiler uses disposable saves; it measures full snapshot+safe write, without altering save safety.
+
+
+## 0.26.0 standalone salvage contracts
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D98–D102 and the
+salvage specification reconcile unmerged design PR #31 with Claude's customer D92–D97. The new scene
+is reachable through start_view._on_salvage(); New/Load behaviour is unchanged. No hot files edited.
+
+SalvageSession.shared_demo() retains only in-memory demo state through menu navigation; Reset replaces
+it and app exit loses it. No autoload, JSON write, campaign clock/day/stock/customer integration exists.
+Session fields: day/remaining/car/site/reserve, per-site piles/cycles, per-car grids/cargo, demo shelf,
+effort/held/original/rotation and pause. depart() reserves and charges travel; next_night() only on map.
+start_effort(uid,grab/open),step(),cancel_effort() charge partial effort once, with no idle wall-clock
+charge. Moving uses sampled motion plus final-drop distance so instant release cannot teleport for free.
+Unfinished/cancelled moves restore the committed record; pause/focus loss is safe. Return charges its
+reserve once. Overtime policy remains open; the demo refuses new effort that cannot preserve return.
+
+CargoGrid keeps committed placements while held; failed/cancelled drops restore rotation/position.
+A successful claim removes the same UID from the site's map/order; a PC moves its hidden child records
+into packed_children with it. Unpacking moves them into the current site, never resurrecting an old-site
+copy. Opening clears installed child references, reveals those records and marks a stripped PC incomplete
+with zero rated output. Separate cars cannot claim one another's cargo by UID. unload() moves records
+once to the isolated shelf, never into player_inventory. Source UID carries site/cycle identity.
+
+Site piles generate from site/cycle seed; opening containers does not roll loot. Same-session re-entry
+keeps reveal/positions/removals; a due cycle replaces that site's abandoned objects while cargo/shelf
+remain separate. No refresh runs mid-visit in the current demo. Objects use layer occlusion, weighted
+follow, restrained neighbour nudges/edge bounce, visual sway and sleep; no full 3D/soft-body simulation.
+True working/broken condition stays hidden/untested on collection. Existing budget/similar GPU sample
+power ratings are reused; no independent FPS, sales value or catalogue system is introduced.
+
+View rewrites controls only when its state stamp changes; drawing stays dynamic. It emits existing
+AudioFeedback handling/UI events but adds no sounds/playback. Nine required suites; salvage suite prints
+an idle CPU observation without a host timing gate. Claude owns future clock/save/stock/PC adapters.

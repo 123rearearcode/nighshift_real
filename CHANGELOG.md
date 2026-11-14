@@ -39,6 +39,95 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.26.0 - 2026-11-14 - Playable standalone night salvage demo
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+- Based on: main 0.25.0, 4377ff4e161a3e8565775b6c3ddd7577ec6bd57a (Claude's merged customer wave).
+- Type: minor — new isolated scene and minigame. No campaign save-format or customer/bench rule change.
+
+### Execution status
+Codex ran Godot 4.7.2.stable.official.ed1daf0bf locally, headless: all nine required suites passed,
+958 checks, zero failures; the representative bench smoke diagnostic completed without script errors.
+New salvage checks were rerun after further isolated handling/feedback fixes and passed. No interactive
+visual/feel acceptance is claimed; no display server was available. Read the PR checks for independent
+Actions results rather than treating them as already run in this entry.
+
+### Added / Changed / Fixed / Removed
+- Added F5 → Salvage demo, separate from New/Load. Two test cars trade speed for trunk size; two sites
+  have different hardware odds, travel costs and few-day deterministic refresh cycles.
+- Move/open bags and boxes, uncover clues and parts, strip a PC, use the sorting area and pack a
+  rotatable trunk grid. Mostly covered objects require clearing cover first. Weighted following/sway,
+  restrained neighbour nudges/throws/edge bounce and sleeping bodies provide a bounded 2D prototype.
+- Explicit partial-effort/drag/travel charges; idle wall time does not also consume the night. Return
+  travel is reserved and charged once. Pause, cancellation, focus loss and failed drops preserve custody.
+- Finds retain true hidden versus untested condition, sample tier/rated output and UID. A packed PC
+  takes its real hidden child parts with it; stripping reveals them and marks the case incomplete.
+  Cross-site movement cannot resurrect a duplicate on the original site. Cargo/shelf survive refresh.
+- Return/unload move items once into an isolated demo shelf. Menu/revisits retain the session; app exit
+  or Reset clears it. No shared save, night/day, stock, money or customer writes. Campaign wiring waits
+  for Claude's reviewed APIs and shared-PC model; no pretending broken stock fits today's working-only loader.
+- UI preserves warnings, shows hover/action/time/grid feedback, skips unchanged controls and emits
+  existing silent handling/UI events. No new sounds/assets, final graphics or full soft-body/3D physics.
+- Incorporated approved design PR #31 and renumbered its decisions D98–D102 around Claude's customer
+  D92–D97. All five core docs revision 1.14. No hot file, customer/software code or WORK_PLAN.md edit.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scenes/salvage.tscn` | A | Separate salvage screen |
+| `scripts/salvage/salvage_data.gd` | A | Car/site/shape/sample ratings, local layout and tuning |
+| `scripts/salvage/cargo_grid.gd` | A | Committed UID/rotation/footprint grid packing |
+| `scripts/salvage/salvage_pile.gd` | A | Deterministic layered pile/containers, obstructions and bounded physical response |
+| `scripts/salvage/salvage_session.gd` | A | Isolated effort/travel/cycles, custody, nested PCs and return/unload |
+| `scripts/salvage/salvage_view.gd` | A | Map/pile/trunk input and drawing, cached controls, hints/pause/feedback |
+| `scripts/view/start_view.gd` | M | Independent Salvage demo entry; New/Load unchanged |
+| `tools/test_salvage.gd` | A | 51 correctness/input/isolation checks plus an informational idle CPU observation |
+| `.github/workflows/tests.yml` | M | Ninth required salvage suite |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | A | Reconciled approved direction, implemented slice, future contracts and limits |
+| `docs/DECISIONS.md` | M | D98–D102 and design revision |
+| `docs/DESIGN.md` | M | Approved salvage scope and implementation/integration distinction |
+| `docs/DESIGN_PROPOSALS.md` | M | Reconcile older salvage/backpack labels and concurrent decision IDs |
+| `docs/MINIGAME_RULES.md` | M | Salvage rules, prototype tuning and session-only boundary |
+| `docs/PROJECT_BRIEF.md`, `docs/CURRENT_STATE.md`, `docs/ROADMAP.md` | M | Current playable scope, prototype limitations and collaboration |
+| `docs/TESTING.md` | M | Nine-suite policy and salvage correctness coverage |
+| `DEVELOPMENT.md` | M | All new files and session/custody/clock contracts |
+| `HANDOFF.md` | M | Signed handoff, starting instructions, exact integration limits |
+| `README.md` | M | Version and play instructions |
+| `project.godot` | M | Version only; normal main scene/autoloads unchanged |
+| `CHANGELOG.md` | M | This signed delivery entry |
+
+### Checks performed
+Godot 4.7.2: schema 198, regression 543, start screen 10, dust flow 43, bench interaction 26, bench
+feedback 27, audio and vacuum 36, performance contracts 24, salvage 51: all passed, zero failures.
+Salvage covers grid bounds/overlap/rotation, obstruction/clearing, proportional effort/cancel/pause,
+return replay, generated contents, custody across cars/sites, PC stripping, cycle refresh, unload replay,
+throw bounds/sleep, real menu/input and absence of campaign money/stock/job side effects.
+Representative --smoke diagnostic: Playtest finished; no SCRIPT ERROR/Parse Error. Python CI-scope
+integration tests: 9 passed. Diff audit confirms no hot file/customer/software/WORK_PLAN changes.
+New scene headless startup passed. Idle salvage-view physics probe: 60 warmup + 600 ticks, mean 33.1 us,
+p50 27 us, p95 52 us, p99 96 us, max 1011 us. Same container/engine, CPU only; not player FPS or a gate.
+Project checker: PASSED, zero problems. Workflow YAML parsed; ninth suite listed. git diff --check
+passed. Fresh source ZIP extracted: checker PASSED (zero problems), target Godot 4.7.2 import PASSED,
+Salvage 51 checks/zero failures PASSED. All five core docs included; caches/generated UID sidecars excluded.
+
+### Decisions proposed (not approved)
+All prototype numbers: car models/speeds/grids, 180-minute budget, 3/4-day refresh, loot weights, effort
+holds/costs/drag rate and physics weights. Return reservation/refusal is a playable default, not the final
+overtime policy. On-site disassembly is limited to the prototype PC's hidden RAM/GPU; full catalogue,
+vehicle purchases, tip events, diagnosis and campaign transfers are not authorised through this demo.
+
+### Known issues and open items
+Session-only: app exit/Reset loses salvage progress; goods never enter campaign repair stock. No shared
+clock/save/PC adapter yet. Simple top-down layers/nudges are not full stacked rigid bodies or soft bags.
+Only hardware packs; unopened bags/boxes stay on site. Human layout/feel testing remains required.
+This reconciles/supersedes unmerged design PR #31; keep Claude's newer decisions intact. If parallel work
+advances versions/IDs again, reconcile at integration, preserving both contributors' entries.
+
+### Next action
+Claude cross-reviews the isolated minigame and proposed state interfaces; user playtests F5 → Salvage
+demo. Codex reviews Claude's work when requested. Do not self-merge. No campaign wiring until Claude
+hands over reviewed APIs. Who goes next: Claude for cross-review and the user for feel; Codex for the
+separately requested Claude review. Hot files free to Codex: none; Claude retains them.
+
 ## 0.25.0 - 2026-11-14 - The customer model, first wave
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session

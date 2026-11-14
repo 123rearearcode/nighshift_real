@@ -1,4 +1,4 @@
-# Nightshift — dust and paste minigame rules
+# Nightshift — minigame rules
 
 Design specification revision 1 · 13 November 2026 · docs patch 0.15.2.
 
@@ -149,3 +149,27 @@ A full vacuum bin pauses extraction. Its persistent warning and Empty bin action
 The current cooler still uses its existing pressure rules and explicit lever followed by Complete repaste. Leaving an unfinished mount cancels it; it does not secure or grade the cooler. Pressure/release readability is an accepted goal, but redesigned scoring/input is pending. No graphics work is required now.
 
 Sound cues are currently silent events. They may later communicate actual contact, load, speed and state, but essential warnings remain readable and secret scams cannot be exposed through an omniscient cue.
+
+
+## Night salvage — direction and isolated demo 0.26.0
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D98–D102 and the canonical
+SALVAGE_DESIGN_PROPOSAL.md distinguish approved direction from tuning/proposed campaign integration.
+
+- Car model sets travel time and a rotatable, size-aware trunk grid. Multiple sites differ in loot odds
+  and refresh every few days. Sample schedules, costs and capacities are not final balance.
+- Hold to lift an accessible object; move cover first. Drag into the pile/sorting area or pack actual
+  hardware in the trunk. E opens containers/strips PCs, Q/E or wheel rotates carried items, Esc cancels.
+- Revealed contents retain identity; packing a PC includes its real child components, stripping removes
+  those components from it. Packing/unpacking, changing sites and repeat unload cannot create copies.
+- Partial effort charges as it progresses; cancellation refunds nothing already spent. Looking/idle
+  time does not also advance the clock. Return travel is reserved; exhausted search time still permits
+  returning. This reserve policy is prototype tuning, not the approved final overtime rule.
+- Pause/focus loss freezes work safely. Invalid drops return to the last committed placement quietly.
+- Known site tendencies guide luck; actual condition remains untested. Collecting something is not
+  diagnosis or deception. Proper honest/scam handling still belongs to the future shared campaign.
+- Same-app visits retain the pile; a due refresh changes it, preserving cargo/shelf. Next demo night
+  advances only the sandbox. No disk save, real day progression or campaign stock award is implemented.
+
+No dust/paste mechanics changed here. In particular D87 and newer D97 govern current functional final
+checks; this salvage addition must not restore old full-clean/required-output blockers.
