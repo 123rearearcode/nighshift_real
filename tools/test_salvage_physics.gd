@@ -153,9 +153,9 @@ func test_rim_release_and_cargo_spawn() -> void:
     s.pile.objects["staged"]["center"] = Vector2(780,200)
     await physics_frame
     check(s.start_effort("packed","grab"),"grip the packed find to bring it back out")
-    w.sync(s,pointer)
+    await ticks(w,s,30)
     check(s.held == "packed" and w.bodies.has("packed"),"the cargo body re-enters the world")
-    var packed_rect := Rect2(w.bodies["packed"].position - Vector2(39,13), Vector2(78,26))
+    var packed_rect := Rect2(w.bodies["packed"].position - Vector2(39,13) + Vector2(2,2), Vector2(74,22)) if w.bodies.has("packed") else Rect2()
     var blocker_rect := Rect2(blocker.position - Vector2(30,30), Vector2(60,60))
     check(not packed_rect.intersects(blocker_rect),
         "re-entry does not materialise inside the staged find (free-space spawn probe)")

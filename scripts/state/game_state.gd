@@ -445,7 +445,7 @@ func load_game() -> bool:
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
     # Saves from before the CPU existed gain the demo CPU once (D111); later loads keep it.
-    if raw_stock is Array and not seen_stock.has("stock_cpu_demo"):
+    if raw_stock is Array and not (raw_stock as Array).is_empty() and not seen_stock.has("stock_cpu_demo"):
         player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"})
     var saved_layout: Variant = data.get("inventory_layout",{})
     inventory_layout = saved_layout if saved_layout is Dictionary else {}

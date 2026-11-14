@@ -23,7 +23,7 @@ func run_checks() -> void:
     # 0.29.0: everything on the card stays inside it (the status text used to cross the border).
     var card: Rect2 = preload("res://scripts/data/layout.gd").START_CARD
     var status_rect := Rect2(menu.status_label.position, menu.status_label.size)
-    check(card.encloses(status_rect), "the menu status text stays inside the card")
+    check(card.encloses(status_rect), "the menu status text stays inside the card (label %s, card %s)" % [str(status_rect), str(card)])
     for child: Node in menu.get_children():
         if child is Button:
             check(card.encloses(Rect2((child as Button).position, (child as Button).size)),
