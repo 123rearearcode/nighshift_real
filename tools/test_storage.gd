@@ -22,6 +22,10 @@ func run_checks() -> void:
     check(sources.size() == inventory.size()+6,"starter projects every owned part, five tools and one customer PC")
     check(gs.money == cash and gs.player_inventory == inventory and gs.job == job,"source projection never mutates game state")
     check(Sources.collect(gs) == sources,"source IDs are stable across repeated reads")
+    # B17: the canonical projection carries the CPU; the rack must show it as a 3x3 CPU, not drop it.
+    var cpu_item: Dictionary = sources.get("part:stock_cpu_demo",{})
+    check(not cpu_item.is_empty() and cpu_item["label"] == "CPU" and cpu_item["size"] == Vector2i(3,3),
+        "the starter CPU appears on the rack as a 3x3 CPU (never silently dropped)")
     var first_uid: String = inventory[0]["uid"]
     gs.inventory_layout[first_uid] = {"location":"motherboard","cell":[0,0]}
     check(Sources.collect(gs)["part:"+first_uid]["reserved"],"installed shop part keeps marked storage reservation")

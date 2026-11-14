@@ -46,9 +46,9 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new register + rules, UI restructure, sandbox data; saves migrate)
 
 ### Execution status
-Godot was NOT run by me directly. GitHub Actions ran all eleven suites on Godot 4.7.2 headless.
+Godot was NOT run by me directly. GitHub Actions runs the suites on Godot 4.7.2 headless.
 No interactive playtest is claimed.
-Actions result: run 43653162382 on c335f55 succeeded — Data schema 206, Regression 586, Start
+Standalone build (as main 0.29.0, PR #37): run 43653162382 on c335f55 succeeded — Data schema 206, Regression 586, Start
 screen 20, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36,
 Performance contracts 24, Salvage 40, Salvage physics 38, Pending contracts 0; 1046 checks,
 0 failures, plus the scripted bench playtest. Five earlier pushes failed and were fixed in
@@ -57,6 +57,7 @@ validator dropped the new CPU record (and a migration briefly respawned it on em
 the CPU's drawer position shifted the packing that older tests pin, a salvage test read a
 cargo body before the grab finished, and the menu label was sized before wrapping was set so
 Godot clamped it to 600 px (recorded as the real root of B13).
+Integrated build (this entry, after merging Codex's three PRs): Actions result: pending.
 
 ### Added
 - `docs/BUGS.md` (D114): the bug register. Every bug found — playtest, CI, review — gets a row
@@ -74,6 +75,13 @@ Godot clamped it to 600 px (recorded as the real root of B13).
   now say plainly that it is the SHOP'S stock bench, not the customer's PC (B11).
 - Upgrades tab (D117): the shop's lower card is Final check | Customer | Upgrades; both tool
   upgrades (square cloth, longer hose) moved there, and future ones land there.
+
+- Integration (this version): `scripts/rules/part_states.gd` — the part-state rule is now PURE and
+  shared (D115). `GameState.part_state`, the old final check, the shop ticket AND Codex's night
+  workshop (diagnosis report + workshop ticket) all read it, so the night flow that replaced the
+  shop screen names the broken part and its repair path too (BUGS.md B18). The storage rack now
+  reads the canonical `GameState.inventory_components()` projection and shows the starter CPU as a
+  3x3 CPU instead of silently dropping it (B17, found by Codex's review of my 0.29.0).
 
 ### Changed
 - The ticket is a bounded ScrollContainer like the other cards (its new parts line must not
@@ -113,7 +121,13 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 | `AGENTS.md` | M | Rule 6: the bug register |
 | `DEVELOPMENT.md` | M | File map: docs/BUGS.md |
 | `docs/DECISIONS.md` | M | D114–D117, D108 amendment |
-| `HANDOFF.md` | M | 0.29.0 section; checklist step 10 (bug register); version |
+| `scripts/rules/part_states.gd` | A | Pure shared part-state rule (D115) |
+| `scripts/night/night_diagnostics.gd` | M | Uses the shared lines instead of "Damaged: gpu. Replace these parts." |
+| `scripts/night/workshop_hub.gd` | M | Workshop ticket shows the parts line |
+| `scripts/storage/storage_sources.gd` | M | Canonical component projection (CPU no longer dropped, B17) |
+| `scripts/storage/storage_data.gd` | M | CPU colour |
+| `tools/test_storage.gd` | M | Starter CPU appears on the rack |
+| `HANDOFF.md` | M | 0.32.0 section; checklist step 10 (bug register); version |
 | `README.md` | M | Version |
 | `project.godot` | M | config/version 0.29.0 |
 | `CHANGELOG.md` | M | This entry |
@@ -133,6 +147,8 @@ Godot clamped it to 600 px (recorded as the real root of B13).
   everywhere now; if it still reads as "random", the pick's risk/reward needs a design pass.
 
 ### Known issues and open items
+- Integration was done by merging Codex's PRs #35/#36/#38 (archives archive/v0.29.0, archive/v0.30.0,
+  archive/v0.31.0 preserved) and renumbering Claude's release 0.29.0 → 0.32.0, D109-D112 → D114-D117.
 - RC-1 remains structurally open: the customer's PC and the spare-part bench are still two
   models; D115 surfaces one truth but does not merge them. Proposed next structural wave.
 - Wave 2 (software-checks monitor screen) still NOT started, per the user.

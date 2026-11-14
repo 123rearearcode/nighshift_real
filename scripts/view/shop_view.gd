@@ -6,7 +6,7 @@ const Layout = preload("res://scripts/data/layout.gd")
 const COLOR_BG := Color(0.11, 0.12, 0.15)
 const COLOR_CARD := Color(0.17, 0.19, 0.24)
 const DustZones = preload("res://scripts/data/dust_zones.gd")
-const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Games = preload("res://scripts/data/games.gd")
 
@@ -172,14 +172,11 @@ func _refresh() -> void:
         customer_label.text = "%s\n\n%s  -  %s  -  trust %d/100\n%s\nComplaint: %s\nUses: %s\nHabits: %s\nTime: %s\nBudget: $%d. Pays $%d on completion.\n%s" % [
             _needs_text(who), str(who["name"]), str(who["profession"]), int(who["trust"]), str(who["about"]), str(who["complaint"]),
             str(who["uses"]), str(who["habits"]), str(who["patience"]), int(who["budget"]), int(job["payout"]), last]
-    var part_lines: Array = []
-    for part_id: String in ServiceParts.IDS:
-        part_lines.append("%s %s" % [part_id.to_upper(), str(GameState.part_state(part_id)["text"])])
     ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nParts: %s\nStatus: %s" % [
         job["id"], job["customer"], job["complaint"], int(job["payout"]),
         _check_mark(cleaned), parts_clean, parts_total, _check_mark(grade != ""), paste_text,
         _check_mark(done), check_text,
-        " | ".join(part_lines),
+        PartStates.summary(job),
         "COMPLETED" if done else "OPEN"]
     queue_redraw()
 

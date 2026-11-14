@@ -210,6 +210,7 @@ func run_checks() -> void:
     test_0_25(gs)
     test_0_28(gs)
     test_0_29(gs)
+    test_0_32(gs)
     test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
@@ -1803,4 +1804,38 @@ func test_0_29(gs: Node) -> void:
         "the ticket itself shows the broken part and where to fix it")
     check(shop.ticket_label.get_parent() == shop.ticket_scroll, "the ticket is bounded like the other cards")
     shop.queue_free()
+    gs.new_game()
+
+
+# 0.32.0 integration: the part-state rule is pure and shared by every surface (D115), including
+# the night workshop's diagnosis, which used to say only "Damaged: gpu. Replace these parts."
+func test_0_32(gs: Node) -> void:
+    var PartStates: GDScript = load("res://scripts/rules/part_states.gd")
+    var Diagnostics: GDScript = load("res://scripts/night/night_diagnostics.gd")
+    var job: Dictionary = {"removed_parts": [], "broken_parts": [], "service_replacements": {}}
+    check(PartStates.problem_lines(job).is_empty() and PartStates.state(job, "gpu")["text"] == "working",
+        "a healthy job has no part problems")
+    job["broken_parts"] = ["gpu"]
+    var broken: Dictionary = PartStates.state(job, "gpu")
+    check(not bool(broken["working"]) and bool(broken["fitted"]) and str(broken["text"]).contains("Replacement stock"),
+        "a broken part says BROKEN and names the repair path (pure rule, no autoload)")
+    job["removed_parts"] = ["cooler"]
+    var lines: Array = PartStates.problem_lines(job)
+    check(lines.size() == 2 and str(lines[0]).begins_with("GPU: BROKEN") and str(lines[1]).begins_with("COOLER: MISSING"),
+        "problem lines list each part once, in the shared order")
+    check(PartStates.summary(job).contains("GPU BROKEN") and PartStates.summary(job).contains("COOLER MISSING"),
+        "the one-line ticket summary carries both states")
+    job["service_replacements"] = {"gpu": "budget"}
+    job["broken_parts"] = []
+    check(str(PartStates.state(job, "gpu")["text"]).contains("budget replacement"), "a replaced part reads working with its tier")
+    # The night workshop diagnosis uses the same lines instead of its own vague aggregate notes.
+    gs.tickets_taken = 0
+    gs.new_game(false)
+    gs.damage_service_part("gpu")
+    var report: Dictionary = Diagnostics.evaluate(gs.job, gs.owned_games)
+    var joined: String = "\n".join(report["notes"])
+    check(not bool(report["boots"]) and joined.contains("GPU: BROKEN") and joined.contains("Replacement stock"),
+        "the night diagnosis names the broken part and the repair path (BUGS.md B18)")
+    check(not joined.contains("Replace these parts"), "the old vague aggregate note is gone from the diagnosis")
+    check(gs.part_state("gpu") == PartStates.state(gs.job, "gpu"), "GameState.part_state is the pure rule, not a copy")
     gs.new_game()

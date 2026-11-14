@@ -7,7 +7,7 @@ real bug. Rules for keeping this file are in `AGENTS.md` (rule 6) and `DEVELOPME
 
 **Structural review: every 10 versions** (0.30.0, 0.40.0, …) the integrating AI re-reads this
 whole file, writes a short "Patterns" entry at the top of the Reviews section below, and
-proposes structural work to the user. 0.30.0 checkpoint review is prepared in the 0.31.0 branch below; after integration, the next regular review is **0.40.0**.
+proposes structural work to the user. The 0.30.0 checkpoint was prepared by Codex and completed by Claude at integration (0.32.0, see Reviews); the next regular review is **0.40.0**.
 
 ## How to file a bug
 
@@ -37,7 +37,9 @@ fix ships now.
 
 | B16 | pending rack/night PRs #35/#36 | local patches only; not in main | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
 
-| B17 | pending rack/night integration with main 0.29.0 | open (pending integration; not in salvage runtime) | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); runtime integration not claimed tested |
+| B17 | pending rack/night integration with main 0.29.0 | 0.32.0 | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); fixed in 0.32.0: the rack reads the canonical `GameState.inventory_components()` projection (test_storage checks the CPU appears) |
+
+| B18 | 0.30.0 | 0.32.0 | Claude integration review | The night workshop diagnosis said only "Damaged: gpu. Replace these parts." - the B12 dead end again, on the screen that replaced the shop | a second surface wrote its own aggregate notes instead of reading the shared part rule (RC-1/RC-2); fixed with the pure `part_states.gd` rule used by every surface |
 
 ## Root causes (structural)
 
@@ -70,6 +72,22 @@ Those fixes are NOT included/published in this salvage PR, per user instruction.
 answer: UI lifecycle tests should exercise signal dispatch, with stable controls for state-only updates.
 
 ## Reviews (newest first)
+
+### 0.32.0 - integration review (the 0.30.0 checkpoint, completed)
+
+Claude (Sonnet 5.5, model id claude-sonnet-5-5), 15 November 2026, after merging PRs #35, #36 and #38.
+Patterns confirmed from Codex's preparation: (1) RC-1 recurred immediately: two independently
+built surfaces (shop ticket, night diagnosis) each described part state their own way, and a CPU
+stock record I added broke a third (the rack's per-kind dispatch). Both fixes are now
+STRUCTURAL: one pure rule (`part_states.gd`) and one canonical component projection
+(`inventory_components()`); new surfaces must read them, never re-derive. (2) Parallel branches
+collided on version numbers and decision ids (three branches each claimed 0.29-0.31; D109-D113
+used twice). Proposed process fix, for the user: the integrating AI assigns the next version and
+decision-id block BEFORE a parallel branch starts, and branches record them in their PR body.
+(3) The old shop scene is now partly legacy (the night workshop replaced it as the player-facing
+flow) but still carries the legacy payout path and tests; retiring it deliberately is a later,
+explicit step. (4) RC-4 (UI lifecycle tests that exercise signal dispatch) accepted as proposed by
+Codex; a shared helper is the next structural test work. Next structural checkpoint: 0.40.0.
 
 ### 0.31.0 branch — preparation for the 0.30.0 structural checkpoint
 

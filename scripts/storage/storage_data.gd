@@ -8,7 +8,7 @@ const MODELS: Dictionary = {
     "pegboard":{"name":"Tool board","size":Vector2i(12,6),"shelves":1,"accepts":["tool"],"hint":"Dedicated tool storage frees the main rack."}
 }
 const TOOL_SIZES: Dictionary = {"vacuum":Vector2i(4,2),"brush":Vector2i(3,1),"pick":Vector2i(2,1),"cloth":Vector2i(2,2),"syringe":Vector2i(1,2)}
-const COLOURS: Dictionary = {"pc":Color("82a9bb"),"ram":Color("7cc694"),"gpu":Color("b89ada"),"cooler":Color("80b9ce"),"vacuum":Color("7caee1"),"brush":Color("d7ae66"),"pick":Color("da8b82"),"cloth":Color("a1c4ba"),"syringe":Color("bc9fce")}
+const COLOURS: Dictionary = {"pc":Color("82a9bb"),"ram":Color("7cc694"),"gpu":Color("b89ada"),"cpu":Color("d9b27c"),"cooler":Color("80b9ce"),"vacuum":Color("7caee1"),"brush":Color("d7ae66"),"pick":Color("da8b82"),"cloth":Color("a1c4ba"),"syringe":Color("bc9fce")}
 
 static func footprint(item: Dictionary, rotation: int) -> Vector2i:
     var size: Vector2i = item["size"]

@@ -22,7 +22,7 @@ on cross-review and eventual canonical-state integration.
 **Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026, 0.27.0 native dumpster physics (also 0.26.0 salvage demo). Earlier contributors: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
 
-## Current update 0.29.0 — the broken-GPU dead end, the bug register, Upgrades tab
+## Current update 0.32.0 — integration of all open PRs, the broken-GPU dead end, the bug register, Upgrades tab
 
 Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
 The user's playtest hit a loop-blocker: a broken GPU "replaced" at the hardware bench still
@@ -38,6 +38,13 @@ cards; the main-menu card fits its buttons and status text again; and the two re
 qualifications from Codex's review of the D108 fix are addressed (release-at-rim grace,
 free-space cargo spawn). Still open structurally: actually connecting the customer's PC to the
 hardware bench (RC-1 / D79 note).
+Integration note (15 November 2026, user: "Everything ChatGPT did is correct. Merge those two PR, as
+well as PR 38 ... keep an archive"): main now contains Codex's 0.29.0 storage rack, 0.30.0 night
+workshop and 0.31.0 salvage variety plus this release, renumbered 0.32.0 (it first shipped alone
+as 0.29.0; decisions D109-D112 became D114-D117). The new `scripts/rules/part_states.gd` is the one
+part-state rule for the shop ticket, the old final check, and the night workshop. Archives:
+archive/v0.29.0 (storage), v0.30.0 (night), v0.31.0 (salvage variety), v0.29.0-claude (standalone
+0.29.0), v0.32.0 (this integration).
 
 ## Current update 0.28.0 — cross-review fixes, rotation, settings, rim containment
 

@@ -1,21 +1,24 @@
 # Read-only adapter. These are references/projections, never a second owned-item database.
 extends RefCounted
 const Data = preload("res://scripts/storage/storage_data.gd")
-const Parts = preload("res://scripts/data/service_parts.gd")
-const Ram = preload("res://scripts/data/component_data.gd")
 
 static func collect(gs: Node) -> Dictionary:
     var items: Dictionary = {}
+    # The canonical component projection from GameState (RAM, CPU, GPU, cooler): the rack never
+    # keeps its own per-kind dispatch, which silently dropped the CPU (BUGS.md B17).
+    var projected: Dictionary = {}
+    for built: Dictionary in gs.inventory_components():
+        projected[str(built.get("id",""))] = built
     for record: Dictionary in gs.player_inventory:
         var raw_uid: String = str(record.get("uid",""))
         var kind: String = str(record.get("kind",""))
         if raw_uid == "" or record.get("owner","") != "player": continue
-        var component: Dictionary = Ram.ram_stick() if kind == "ram" else Parts.component(raw_uid,kind,str(record.get("tier","similar")))
+        var component: Dictionary = projected.get(raw_uid,{})
         if component.is_empty(): continue
         var layout: Variant = gs.inventory_layout.get(raw_uid,{})
         var fitted: bool = layout is Dictionary and layout.get("location","drawer") != "drawer"
         var uid: String = "part:"+raw_uid
-        items[uid] = {"id":uid,"source_uid":raw_uid,"category":"part","kind":kind,"label":kind.to_upper() if kind == "ram" or kind == "gpu" else kind.capitalize(),
+        items[uid] = {"id":uid,"source_uid":raw_uid,"category":"part","kind":kind,"label":kind.to_upper() if kind in ["ram","gpu","cpu"] else kind.capitalize(),
             "model":str(component["display_name"]),"size":component["footprint"],"owner":"Shop property","condition":str(record.get("condition","working")),
             "reserved":fitted,"note":"Fitted on the hardware bench; this shelf space is reserved." if fitted else "Loose stock. Available to the hardware bench and replacement drawer."}
     for kind: String in Data.TOOL_SIZES:

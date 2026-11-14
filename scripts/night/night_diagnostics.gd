@@ -4,6 +4,7 @@ const Legacy = preload("res://scripts/state/game_state.gd")
 const Zones = preload("res://scripts/data/dust_zones.gd")
 const Materials = preload("res://scripts/data/paste_materials.gd")
 const Parts = preload("res://scripts/data/service_parts.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
 const Games = preload("res://scripts/data/games.gd")
 const Frames = preload("res://scripts/rules/fps_sim.gd")
 
@@ -29,8 +30,7 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
         notes.append("Cooler contact: %s. Material: %s."%[grade,material.get("label","Unknown")])
     var broken: Array = job.get("broken_parts",[])
     var removed: Array = job.get("removed_parts",[])
-    if not broken.is_empty(): notes.append("Damaged: "+", ".join(broken)+". Replace these parts.")
-    if not removed.is_empty(): notes.append("Not fitted: "+", ".join(removed)+". Refit before a boot check.")
+    notes.append_array(PartStates.problem_lines(job))   # D115: binary per part, with the exact repair path
     var gpu: float = 100.0
     for id: String in job.get("service_replacements",{}):
         var replacement: Dictionary = Parts.option(id,str(job["service_replacements"][id]))

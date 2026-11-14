@@ -1,6 +1,7 @@
 # PC selection and read-only diagnostics. This is not the future daytime shop.
 extends "res://scripts/night/activities_view.gd"
 const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
 var report: Label
 var ticket: Label
 var picker: OptionButton
@@ -68,6 +69,7 @@ func _buy_upgrade(id: String) -> void:
 func _refresh_ticket() -> void:
     var job: Dictionary = GameState.job
     ticket.text = "TICKET %s / %s\n\n%s\n\nCollection request: %s\nQuote: $%d · paid at pickup, not by this check.\n\nSwitch PCs whenever you want; each keeps its own repair progress."%[job["id"],job["customer"],job["complaint"],str(GameState.customer_view(job["customer_id"]).get("patience","Collection date not set")),job["payout"]]
+    ticket.text += "\n\nParts: "+PartStates.summary(job)
     report.text = "Run a final check to inspect boot, heat, fitted parts and any owned game tests. A pass does not finish this job or pay you. Customer pickup will be a separate daytime action."
     message.text = NightSession.status
     var marker: Dictionary = job["hardware_trial"].get("night_session",{})

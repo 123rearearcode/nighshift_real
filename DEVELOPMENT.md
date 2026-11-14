@@ -172,6 +172,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
 | `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
 | `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
 | `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
 | `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
 | `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
