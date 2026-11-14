@@ -39,6 +39,97 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.31.0 - 2026-11-15 - Fresh random salvage piles, more parts and heavy obstacles
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.29.0 (e6f89e3), rebased after Claude PR #37; inventory/night PRs remain separate
+- Type: minor (new salvage content, per-arrival generation rule and heavy physics)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally: ten required suites, 1,060 checks, zero failures;
+zero pending-contract checks and scripted bench smoke passed. No graphical/user playtest or
+target-hardware performance claim. Date: 15 November 2026, Europe/Bucharest.
+Independent main-based PR; prior local inventory/night fixes remain unpublished and unchanged.
+
+### Added / Changed / Fixed / Removed
+- Fresh random pile on EVERY successful arrival, including same-night return visits. Reopening
+  the active visit/containers does not reroll; normal travel cost still applies. Cargo/shelf stay.
+  Old stable/few-day pile refresh rule is superseded by user-requested D113; UI now explains visits.
+- Fourteen collectible PC/part kinds: previous PC/GPU/RAM/PSU/drive plus CPU, motherboard, cooler,
+  fan, SSD, HDD, Wi-Fi, sound and network cards. All pack/rotate in the trunk and remain untested.
+- Random root counts, size-varied bags/boxes, shuffled mix, weighted per-site component selection,
+  small tilts and random positions replace fixed columns. Contents are real records generated once.
+- Concrete blocks/heavy appliances are massive native dynamic obstructions with high friction and
+  reduced bounded grip/torque. HEAVY markings/hints explain barely nudging/working around them.
+  They can fall with the pile but cannot be packed or opened into lightweight shells.
+- Rotated root hulls start without overlap; no-space roots are skipped. Generation caps all visible
+  and hidden records at 64. Newly exposed contents stay on their own side of the bin rim.
+- Random visit IDs include session nonce/serial/seed to avoid matching cargo. Debug seed override
+  reproduces a report. Cycle metadata remains only for legacy/debug code, no longer a reroll gate.
+- Rebased on Claude’s main 0.29.0 update (PR #37); its GPU/CPU/UI fixes and salvage grace/staging
+  tests are retained. No edits to its hot files.
+- Follow the new bug-register rule: record B16 as local-only and B17 as a pending CPU-adapter compatibility gap, plus
+  structural review preparation. No inventory fix code or branch was published.
+- No shared stock/save/customer/bench changes, new commerce or finished repair-catalogue claim.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed salvage delivery record |
+| `docs/BUGS.md` | M | Record prior pending rack bug and prepare structural checkpoint review; no inventory fix code published |
+| `DEVELOPMENT.md` | M | Version, current scope, decision reconciliation or handoff |
+| `HANDOFF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `README.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/CURRENT_STATE.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DECISIONS.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DESIGN.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/PROJECT_BRIEF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/ROADMAP.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_VARIETY.md` | A | Version, current scope, decision reconciliation or handoff |
+| `docs/TESTING.md` | M | Version, current scope, decision reconciliation or handoff |
+| `project.godot` | M | Version, current scope, decision reconciliation or handoff |
+| `scripts/salvage/salvage_body.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_data.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_pile.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_session.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_view.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage_physics.gd` | M | Variety/arrival/heavy physics and regression contracts |
+
+### Checks performed
+- Godot 4.7.2: Data schema 206; Regression 586; Start screen 20; Dust flow 43;
+  Bench interaction 26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24;
+  Salvage 49; Salvage physics 43. Total 1,060 checks, zero failures/script errors.
+- Pending contracts: zero checks/failures. Legacy bench --smoke: Playtest finished, no script errors.
+- Salvage tests cover 128 seeded piles, no initial rotated-hull overlap, bounds/caps, catalogue and
+  weighted variety, valid hidden identities, fresh visit IDs, trunk/rotation/cargo and reveal invariants.
+- Native tests verify sustained heavy pull stays below 35 pixels displacement while ordinary parts
+  lift over 100 pixels, plus a generated pile with opened containers stays bounded/finite. No frame-time
+  threshold or performance benchmark inferred from this. All previous native cases still pass.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2; Salvage 49 and Salvage physics 43 passed, no script/resource errors.
+
+### Decisions proposed (not approved)
+D113 records the user's approved new arrival/randomness/content/heavy-item request. Root counts,
+weights, dimensions, 64-record cap, effort and force/mass/friction values are provisional tuning.
+No release catalogue, final balance or repair-stock integration approved by this prototype.
+
+### Known issues and open items
+Independent branch starts from main 0.29.0, so its test entry is the title-menu Salvage demo. The
+pending night activity wrapper will inherit the new session/view behavior when integrated later.
+App exit still discards standalone salvage progress. Left-behind unclaimed/sorting items are cleared
+on next arrival. Heavy bodies can move under gravity/contacts; they are not immovable scenery.
+Graphics/feel and target-device timing require a user playtest. No new owned-part model implemented.
+
+### Next action
+Claude cross-reviews the new separate PR next: arrival semantics, cargo identity, bounds and heavy
+physics; user playtests variety and weight. Do not auto-merge. Prior inventory/night PRs and local
+patches are unchanged; do not publish them with this PR. Hot files bench_view.gd, tool_rig.gd and
+game_state.gd are untouched and remain reserved for Claude; none is claimed free. WORK_PLAN.md is
+unchanged. Reconcile version metadata when combining the pending branches.
+
 ## 0.29.0 - 2026-11-14 - The broken-GPU dead end, the bug register and the Upgrades tab
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session

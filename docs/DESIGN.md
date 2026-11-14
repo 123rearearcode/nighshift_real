@@ -1,5 +1,10 @@
 # Nightshift — Working Design
 
+Current branch: **0.31.0 salvage variety**, based on main 0.29.0. Fresh piles per arrival,
+more components and heavy obstacles. Inventory/night PRs remain separate and unmerged.
+See SALVAGE_VARIETY.md and D113. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
 Version 1.15 · 14 November 2026
 
 ## Status vocabulary
@@ -184,3 +189,28 @@ CONFIRMED: current cooler iteration prioritises interaction design, button organ
 IMPLEMENTED: cleaning tool row and maintenance row; permanent bin state with explicit Empty bin; thermal material/tool row followed by mount/complete. A full bin pauses suction by design. Hose crossing recovery prevents persistent loop artefacts in tested rapid drags and clamp transitions.
 
 CONFIRMED/IMPLEMENTED foundation: pickup, impacts, vacuuming, brushing, wiping, dispensing, pressing, lever and UI actions emit silent audio events. Six buses and managed per-owner loops prepare later sound work; no audio assets/playback exist. See AUDIO_DESIGN.md. Future samples, mix, tonal palette and exact feedback tuning are PROPOSALS. Critical state must stay visible and sound must not expose secret scam or diagnosis data.
+
+
+## Salvage variety — trial 0.31.0, 15 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+User-approved: fresh random dump on every arrival, more component types, very heavy obstacles.
+This supersedes the prototype's old persistent site/few-day reroll behavior. Containers do not
+reroll while a visit is active; menu reopening resumes that visit. Driving home then returning
+charges normal travel and creates a fresh layout/contents, clearing abandoned unclaimed items.
+Packed cargo and the demo shelf remain intact and retain their unique identities.
+
+Random piles vary root count, container size, horizontal placement, slight tilt, hardware type and
+pre-generated container contents. Fourteen collectible kinds: PC, GPU, RAM, PSU, generic drive,
+CPU, motherboard, cooler, fan, SSD, HDD, Wi-Fi adapter, sound card and network card. Office/mixed
+sites retain different hardware odds and now have per-part weighted tendencies. No diagnosis or
+repair-stock integration is granted merely by salvaging these new types.
+
+Concrete blocks/heavy appliances are native dynamic bodies with high mass/friction, reduced grip
+force and torque; they can settle/fall with the pile but cannot be casually lifted or packed as loot.
+Visible HEAVY labels and hover hints explain nudging/working around them. All tuning is provisional.
+Generation is bounded to 64 total records, skips roots without safe space and starts rotated root
+hulls without overlaps. Hidden contents simulate only once exposed. Exact seeds can reproduce bugs.
+
+Independent PR from main 0.29.0; inventory/night PRs and their unpushed local patches are excluded.
+No shared saves, customer state, global clock or repair/part catalog changes. No hot files touched.
+Details, source map and tests: SALVAGE_VARIETY.md. Claude cross-reviews next; do not auto-merge.

@@ -1,5 +1,10 @@
 # Nightshift — Project Brief
 
+Current branch: **0.31.0 salvage variety**, based on main 0.29.0. Fresh piles per arrival,
+more components and heavy obstacles. Inventory/night PRs remain separate and unmerged.
+See SALVAGE_VARIETY.md and D113. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
 Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
 native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
@@ -102,3 +107,28 @@ The hardware sandbox now separates storage from installation: three generic samp
 
 ## Current trial0.11.0 — handling across both benches
 The user authorised tabletop throws/bounces, tactile repair tools, a flexible physical brush and replacement stock linked to player inventory. Implemented a shared bounded tabletop model (edge rebounds, spin, vertical hop/floor bounce and friction), repair-tool rig for vacuum/brush/pick/cloth/syringe, and real bristle contact points. Hardware flicks settle into free drawer cells; repair GPU/cooler can be thrown and recovered. A single owned stock list now feeds hardware storage and repair replacements. Buying adds a unique item; fitting consumes it with no second charge. This is a minimal shared stock foundation, not the final catalogue, supplier market or complete PC inventory. Fresh dirty tickets initialise visible dust; existing cleaned saves stay clean with explicit status and a New dirty PC action preserving cash/stock. The user's reported missing dust was not reproduced on a fresh ticket; do not claim an established root cause.
+
+
+## Salvage variety — trial 0.31.0, 15 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+User-approved: fresh random dump on every arrival, more component types, very heavy obstacles.
+This supersedes the prototype's old persistent site/few-day reroll behavior. Containers do not
+reroll while a visit is active; menu reopening resumes that visit. Driving home then returning
+charges normal travel and creates a fresh layout/contents, clearing abandoned unclaimed items.
+Packed cargo and the demo shelf remain intact and retain their unique identities.
+
+Random piles vary root count, container size, horizontal placement, slight tilt, hardware type and
+pre-generated container contents. Fourteen collectible kinds: PC, GPU, RAM, PSU, generic drive,
+CPU, motherboard, cooler, fan, SSD, HDD, Wi-Fi adapter, sound card and network card. Office/mixed
+sites retain different hardware odds and now have per-part weighted tendencies. No diagnosis or
+repair-stock integration is granted merely by salvaging these new types.
+
+Concrete blocks/heavy appliances are native dynamic bodies with high mass/friction, reduced grip
+force and torque; they can settle/fall with the pile but cannot be casually lifted or packed as loot.
+Visible HEAVY labels and hover hints explain nudging/working around them. All tuning is provisional.
+Generation is bounded to 64 total records, skips roots without safe space and starts rotated root
+hulls without overlaps. Hidden contents simulate only once exposed. Exact seeds can reproduce bugs.
+
+Independent PR from main 0.29.0; inventory/night PRs and their unpushed local patches are excluded.
+No shared saves, customer state, global clock or repair/part catalog changes. No hot files touched.
+Details, source map and tests: SALVAGE_VARIETY.md. Claude cross-reviews next; do not auto-merge.

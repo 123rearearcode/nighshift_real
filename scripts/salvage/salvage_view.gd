@@ -96,9 +96,7 @@ func _refresh() -> void:
     for control: Control in field_controls: control.visible = on_site
     for id: String in car_buttons: car_buttons[id].text = ("● " if session.car == id else "")+"%s · %d × %d trunk"%[Data.CARS[id]["name"],Data.CARS[id]["grid"].x,Data.CARS[id]["grid"].y]
     for id: String in site_buttons:
-        var cycle: int = session.cycle_for(id)
-        var days: int = int(Data.SITES[id]["refresh"])-posmod(session.day-1,int(Data.SITES[id]["refresh"]))
-        site_buttons[id].text = "%s  →  %.1f min each way\n%s\nNew load in %d nights · %s"%[Data.SITES[id]["name"],session.travel(id),Data.SITES[id]["hint"],days,"visited this load" if session.cycles.get(id,-1) == cycle else "unsearched load"]
+        site_buttons[id].text = "%s  →  %.1f min each way\n%s\nFresh random pile on every arrival · %d visits"%[Data.SITES[id]["name"],session.travel(id),Data.SITES[id]["hint"],session.visit_counts.get(id,0)]
         site_buttons[id].disabled = session.remaining < session.travel(id)*2
     status.text = "PAUSED · P or Resume to continue. No effort or time is advancing." if session.paused else session.message
     pause_button.text = "Resume · P" if session.paused else "Pause · P"
@@ -108,9 +106,10 @@ func _refresh() -> void:
     var detail: String = "Drag to sort / pack"
     var hovered: Dictionary = session.find(hover)
     if not hovered.is_empty():
-        detail = str(hovered["kind"]).to_upper()+" · "+("rated %d, untested"%hovered["power"] if hovered["kind"] in ["gpu","pc"] else "untested" if Data.SHAPES.has(hovered["kind"]) else "opened" if hovered["opened"] else "rubbish / container")
+        detail = Data.label(str(hovered["kind"]))+" · "+("rated %d, untested"%hovered["power"] if hovered["kind"] in ["gpu","pc","cpu"] else "untested" if Data.SHAPES.has(hovered["kind"]) else "opened" if hovered["opened"] else "rubbish / container")
     if not hovered.is_empty() and hovered["kind"] == "pc":
         detail = "PC CASE · parts removed" if hovered["opened"] else "PC · unopened / untested"
+    if not hovered.is_empty() and Data.is_heavy(hovered["kind"]): detail = Data.label(hovered["kind"])+" · VERY HEAVY · nudge / work around"
     help.text = detail+"\nHold left: pull · E: open / strip\nQ/E / wheel: turn · over rim → trunk"
     queue_redraw()
 
@@ -306,6 +305,11 @@ func _draw_item(item: Dictionary, carried: bool) -> void:
             for i in range(5): draw_line(Vector2.ZERO,Vector2.from_angle(i*TAU/5)*minf(size.y*0.25,18),color.lightened(0.3),3)
         elif kind == "ram":
             for i in range(3): draw_rect(Rect2(-size/2+Vector2(7+i*13,5),Vector2(9,12)),Color("223a34"))
+    if Data.is_heavy(kind):
+        for y in range(-int(size.y/2)+12,int(size.y/2)-8,15): draw_line(Vector2(-size.x/2+8,y),Vector2(size.x/2-8,y),color.darkened(0.3),3)
+        Ui.label(self,Vector2(-22,5),"HEAVY",12,Color("283136"))
+    elif kind in ["cpu","motherboard","ssd","hdd","wifi","soundcard","networkcard"]:
+        draw_rect(Rect2(-size/2+Vector2(7,7),size-Vector2(14,14)),color.darkened(0.35),false,2)
     if carried or item["uid"] == hover or item["uid"] == selected: draw_rect(Rect2(-size/2-Vector2(3,3),size+Vector2(6,6)),Color("f4d59a"),false,2)
     draw_set_transform(Vector2.ZERO)
 
@@ -321,7 +325,7 @@ func _draw_cargo() -> void:
         var p: Dictionary = grid.placements[uid]
         var r := Rect2(CARGO_ORIGIN+Vector2(p["cell"])*CELL,Vector2(Data.footprint(p["kind"],p["rotation"]))*CELL)
         draw_rect(r.grow(-3),Data.COLOURS[p["kind"]])
-        Ui.label(self,r.position+Vector2(5,18),str(p["kind"]).to_upper(),13,Color("13232a"))
+        Ui.label(self,r.position+Vector2(5,18),Data.short_label(str(p["kind"])),13,Color("13232a"))
     if session.held != "" and rect.has_point(pointer):
         var item: Dictionary = session.find(session.held)
         if Data.SHAPES.has(item["kind"]):

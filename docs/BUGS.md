@@ -7,7 +7,7 @@ real bug. Rules for keeping this file are in `AGENTS.md` (rule 6) and `DEVELOPME
 
 **Structural review: every 10 versions** (0.30.0, 0.40.0, …) the integrating AI re-reads this
 whole file, writes a short "Patterns" entry at the top of the Reviews section below, and
-proposes structural work to the user. Next review due: **0.30.0**.
+proposes structural work to the user. 0.30.0 checkpoint review is prepared in the 0.31.0 branch below; after integration, the next regular review is **0.40.0**.
 
 ## How to file a bug
 
@@ -34,6 +34,11 @@ fix ships now.
 | B14 | 0.27.0 | 0.29.0 | Codex review of the D108 plan | Releasing a find overlapping the rim barrier could fling it | collider re-enabled inside a body; fixed with a grace exemption until clear |
 | B15 | 0.27.0 | 0.29.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
 
+
+| B16 | pending rack/night PRs #35/#36 | local patches only; not in main | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
+
+| B17 | pending rack/night integration with main 0.29.0 | open (pending integration; not in salvage runtime) | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); runtime integration not claimed tested |
+
 ## Root causes (structural)
 
 ### RC-1: more than one representation of "the customer's PC" (B10, B11)
@@ -58,6 +63,24 @@ Save data (and any future imported data) must be rebuilt field by field with def
 clamps, never cast in the UI. B8 showed even the VALIDATOR can make the same mistake — tests
 must feed damaged data on purpose.
 
+### RC-4: destroying an event source while its signal is active (B16)
+Local fixes on the rack/night branches keep selection controls alive and defer structural deletion.
+A native Button-signal regression reproduces the old failure; direct method calls had missed it.
+Those fixes are NOT included/published in this salvage PR, per user instruction. Proposed structural
+answer: UI lifecycle tests should exercise signal dispatch, with stable controls for state-only updates.
+
 ## Reviews (newest first)
 
-*(none yet — first structural review due at 0.30.0)*
+### 0.31.0 branch — preparation for the 0.30.0 structural checkpoint
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+Patterns: RC-1 still needs one canonical customer-PC/part model; B17 shows derived type lists can
+drift as main gains CPU stock. Pending rack adapter must consume the canonical component projection
+before integration. Inventory and inactive-ticket bridges
+must remain explicit until integrated. RC-2 needs bounded labels plus persistent actionable state;
+new salvage labels use short cargo names and detailed hover text. RC-3 needs per-field save validation
+and identity checks; new random visits must never duplicate packed cargo. RC-4 adds event-source
+lifetime to the UI test gap. Proposed next structural work (not implemented): consolidate a reusable
+signal-driven UI test helper and finish canonical PC/state seams before expanding duplicate models.
+This review is prepared in a PR, not a claim that pending branches were merged. Next regular
+structural checkpoint after integration: 0.40.0.

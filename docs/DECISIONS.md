@@ -274,3 +274,17 @@ D110 (confirmed): each serviceable part of the customer's PC has ONE binary stat
 D111 (confirmed): the hardware bench is, for now, explicitly the SHOP'S spare-part bench (banner says so; the shop button says so) and its own loop is coherent: the starter stock includes a demo CPU, the demo board has a cooler mount, and the cooler can only be fitted once the CPU sits in its socket — the user confirmed the real-life order CPU → mount → cooler. Connecting the customer's actual PC to this bench remains the open structural step (D79 note, RC-1).
 D112 (confirmed): all tool upgrades are grouped under an Upgrades tab on the shop's lower card (Final check | Customer | Upgrades); future upgrades land there. The right-hand column keeps only navigation and the final check.
 D108 amendment (from Codex's qualifications, verified): a find released while overlapping the rim barrier keeps its exemption until physically clear (no fling), and a cargo body re-enters the world at the first free staging spot instead of a fixed point (no spawning inside a staged find). Codex's other two points are conceded: the bulldozer bypassed the victim's lift effort, not all time cost, and the paint/pick order contract has no drift.
+
+
+## Salvage variety — 15 November 2026, trial 0.31.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+
+D113 (confirmed user request): randomize dump spawning every time, include more components and
+add very heavy items that cannot be moved much. Implemented as a fresh pile per actual arrival;
+opening containers or reopening the same active visit never rerolls. This supersedes older
+persistent site/few-day refresh behavior for this prototype; normal travel still applies.
+Cargo/shelf remain intact; old unclaimed leftovers are abandoned. Heavy obstacles are dynamic,
+barely draggable waste, not collectible components. Sizes, counts, per-part weights and masses
+are provisional feel tuning. New components are salvage records, not a completed repair catalogue.
+D109–D112 on main belong to Claude’s 0.29.0 decisions. Pending inventory/night PRs need their
+provisional decision numbering reconciled at integration; this branch does not publish their local fixes. No hot-file edits, automatic merges or shared-stock writes.
