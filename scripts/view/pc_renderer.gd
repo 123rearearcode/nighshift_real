@@ -12,7 +12,7 @@ static func fan(canvas: CanvasItem, center: Vector2, radius: float, angle: float
         canvas.draw_colored_polygon(points, Color("627e9a"))
     canvas.draw_circle(center, radius * 0.17, Color("98b5bd"))
 
-static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: Array, case_angle: float, cooler_angle: float, part_rects: Dictionary = {}, poses: Dictionary = {}) -> void:
+static func draw_static_pc(canvas: CanvasItem, profile_id: String, area: Rect2) -> void:
     var pc: Dictionary = PCLayout.profile(profile_id)
     var layout: Dictionary = PCLayout.display(pc, area)
     var board: Dictionary = pc["board"]
@@ -32,6 +32,12 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
                 canvas.draw_rect(rect, Color("4c8061"), false)
     var font: Font = ThemeDB.fallback_font
     canvas.draw_string(font, bounds.position + Vector2(5, 16), pc["name"] + " / " + str(pc["size"]) + " cells", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
+
+static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: Array, case_angle: float, cooler_angle: float, part_rects: Dictionary = {}, poses: Dictionary = {}, with_static: bool = true) -> void:
+    if with_static: draw_static_pc(canvas,profile_id,area)
+    var pc: Dictionary = PCLayout.profile(profile_id)
+    var cell: float = PCLayout.display(pc,area)["cell"]
+    var font: Font = ThemeDB.fallback_font
     for z: Dictionary in zones:
         if z.has("covered_by") or z["id"] == "case_interior": continue
         var r: Rect2 = z["rect"]

@@ -21,6 +21,7 @@ const HandState = preload("res://scripts/bench/hand_state.gd")
 const BenchItems = preload("res://scripts/bench/bench_items.gd")
 const ServiceAccess = preload("res://scripts/bench/service_access.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
+const Backdrop = preload("res://scripts/view/bench_backdrop.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
@@ -129,6 +130,10 @@ var vacuum_status: Label
 var _audio_activity: Dictionary = {}
 var _impact_counts: Dictionary = {}
 var stock_button: Button
+var backdrop: Node2D
+var _vacuum_ui_key := Vector3i(-1,-1,-1)
+var _paste_ui_key: int = -1
+var vacuum_ui_updates: int = 0
 
 
 func _ready() -> void:
@@ -145,6 +150,9 @@ func _ready() -> void:
     paste_image = Image.create_empty(PasteSim.GRID, PasteSim.GRID, false, Image.FORMAT_RGBA8)
     paste_image.fill(Color(0, 0, 0, 0))
     paste_texture = ImageTexture.create_from_image(paste_image)
+    backdrop = Backdrop.new()
+    backdrop.z_index = -1
+    add_child(backdrop)
     _build_ui()
     _select_stage(STAGE_CLEAN)
 
@@ -331,6 +339,8 @@ func _select_stage(new_stage: int) -> void:
     if mount.active:
         _cancel_mount()   # a stage switch releases everything; only the lever may secure and grade (D57)
     stage = new_stage
+    _paste_ui_key = -1
+    backdrop.configure(stage == STAGE_CLEAN,str(GameState.job["layout"]),Rect2(PC_ORIGIN,DustZones.AREA_SIZE),COLOR_BG)
     clamp_button = 0
     holding = false
     _equip_tool(Ids.SYRINGE if stage == STAGE_PASTE else Ids.SLOT_TOOL[active_tool], _pointer())
@@ -882,6 +892,10 @@ func _after_dust_step(delta: float, nozzle: Vector2) -> void:
 func _refresh_vacuum_status() -> void:
     if not is_instance_valid(vacuum_status): return
     var full: bool = bin.is_full()
+    var key := Vector3i(roundi(bin.fraction()*100.0),int(full),int(bin.fill<=0.0))
+    if key == _vacuum_ui_key: return
+    _vacuum_ui_key = key
+    vacuum_ui_updates += 1
     vacuum_status.text = "BIN FULL — suction paused. Empty bin to continue." if full else "Vacuum ready  /  bin %d%%" % roundi(bin.fraction()*100.0)
     vacuum_status.add_theme_color_override("font_color",TONE_COLORS[2] if full else TONE_COLORS[0])
     empty_bin_button.text = "Empty bin (%d%%)" % roundi(bin.fraction()*100.0)
@@ -935,16 +949,20 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
             paste.deposit(cell.x, cell.y, DEPOSIT_RATE * delta)
             _audio_loop("paste.squeeze",true,{"material":paste.material,"rate":DEPOSIT_RATE})
             paste_dirty = true
-    mount_button.disabled = mount.active
-    wipe_button.disabled = mount.active
-    clear_button.disabled = mount.active
-    material_button.disabled = mount.active
     var done: bool = bool(GameState.job["paste_done"])
-    complete_button.visible = true
-    complete_button.disabled = mount.active or done or not GameState.can_complete_repaste()
-    wipe_button.text = "Tool: cloth (switch to syringe)" if wiping else "Tool: syringe (switch to cloth)"
-    complete_button.tooltip_text = "Lock the cooler with its lever and obtain a good result before completing."
-    complete_button.text = "Repaste complete" if done else ("Complete repaste" if GameState.can_complete_repaste() else "Complete repaste")
+    var can_complete: bool = GameState.can_complete_repaste()
+    var key: int = int(mount.active)+int(wiping)*2+int(done)*4+int(can_complete)*8
+    if key != _paste_ui_key:
+        _paste_ui_key = key
+        mount_button.disabled = mount.active
+        wipe_button.disabled = mount.active
+        clear_button.disabled = mount.active
+        material_button.disabled = mount.active
+        complete_button.visible = true
+        complete_button.disabled = mount.active or done or not can_complete
+        wipe_button.text = "Tool: cloth (switch to syringe)" if wiping else "Tool: syringe (switch to cloth)"
+        complete_button.tooltip_text = "Lock the cooler with its lever and obtain a good result before completing."
+        complete_button.text = "Repaste complete" if done else "Complete repaste"
     if paste_dirty:
         _refresh_paste_image()
         paste_dirty = false
@@ -1009,7 +1027,6 @@ func _draw() -> void:
 
 
 func _draw_scene() -> void:
-    draw_rect(Layout.SCREEN, COLOR_BG)
     if stage == STAGE_CLEAN:
         _draw_pc()
         _text(Vector2(PANEL_X,155),"TOOLS",12)
@@ -1089,10 +1106,7 @@ func _finish_part_drag(point: Vector2) -> void:
     if result.get("message", "") != "": _set_status(result["message"], 0)
 
 func _draw_pc() -> void:
-    draw_rect(ServiceAccess.TRAY, Color("283644"))
-    draw_rect(ServiceAccess.TRAY, Color("9ba7a9"), false, 2.0)
-    _text(ServiceAccess.TRAY.position + Vector2(8, 16), "SERVICE TRAY / move parts here, then refit", 13)
-    PCRenderer.draw_pc(self, str(GameState.job.get("layout", "tower")), Rect2(PC_ORIGIN, DustZones.AREA_SIZE), zones, case_angle, cooler_angle, _part_rects(), _part_poses())
+    PCRenderer.draw_pc(self, str(GameState.job.get("layout", "tower")), Rect2(PC_ORIGIN, DustZones.AREA_SIZE), zones, case_angle, cooler_angle, _part_rects(), _part_poses(), false)
     for id: String in GameState.job["broken_parts"]:
         var rect: Rect2 = access.current_rect(id)
         draw_rect(rect.grow(3), TONE_COLORS[3], false, 3)

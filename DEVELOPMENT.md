@@ -90,6 +90,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
+| `docs/PERFORMANCE.md` | docs | Measured 0.22.0/0.22.1 comparison, cache/wake contracts and profiling limits |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
@@ -124,6 +125,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build; also a frame-time table (physics tick and redraw, average and worst) |
+| `tools/test_performance.gd` | tooling | Cache invalidation, clamped hose wake/sleep, static redraw and UI correctness; no timing gates |
+| `tools/profile_bench.gd` | tooling | Short isolated CPU physics/draw/save profile with nearest-rank p50/p95/p99 |
+| `scripts/view/bench_backdrop.gd` | view | Static background, case grid and tray on a separately redrawn CanvasItem |
 | `tools/test_support.gd` | tooling | Shared base for the test suites: check(), disposable save path, click(), finish() summary line; each suite extends it |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
 | `tools/test_bench_feedback.gd` | tooling | Real trapped-tail extraction, clamp gestures/UI exclusion, corner hose reach and mount put-down checks |
@@ -370,3 +374,23 @@ HoseSim._untangle reverses intersecting link subsequences with reset history, pr
 ## 0.20.1 test policy
 
 See docs/TESTING.md. Pure Markdown plus version-only metadata runs hygiene and scope tests; other changes retain all seven required Godot suites. Bench/data/geometry or playtest-driver edits retain the full matrix; other runtime edits use --smoke. The pending-contract report is deliberately non-blocking while the existing D57/highlight bugs await Claude; promote it after fixes. No production contract or save format changes.
+
+
+## 0.22.1 performance contracts
+
+User-authorised scoped performance pass; Claude retains Phase 2 hot-file ownership. Only bench_view
+integration changes, for cross-review before step 7. See docs/PERFORMANCE.md for measurements/limits.
+HoseSim sleeps with an unchanged pin too; endpoint displacement accumulates while asleep. Pin target,
+anchor, length, reset and individual obstacle geometry changes wake before solving. No solver iteration,
+tug, collision or untangling formula changes. sleeping/solver_steps are diagnostic, not saved.
+PasteSim.revision invalidates measure() caching; deposit/wipe/flow/clear call mark_changed(). Any future
+bulk restore/direct h write MUST call mark_changed(). measure() returns a separate dictionary.
+PasteRenderer texture-local stamp includes sim/image identity, revision, material and both overlay flags;
+external modification/reuse of a texture must remove its paste_stamp metadata or call refresh on a new
+texture. No global growing cache. Diagnostics count scans/uploads; they are not save data.
+BenchBackdrop.configure must be called on stage/profile/area/background changes. Dynamic draw_pc can
+retain its static drawing by default for other consumers; bench passes false. Bin UI key includes rounded
+percent, full state and exact empty state; paste UI key includes mount/wiping/done/completion eligibility
+and resets on stage entry. Keep external control changes in sync with these keys.
+Eight required suites; new performance tests check correctness rather than host-dependent speed limits.
+Quick profiler uses disposable saves; it measures full snapshot+safe write, without altering save safety.

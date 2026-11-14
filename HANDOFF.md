@@ -1,11 +1,23 @@
 # Handoff - read this first
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.22.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.22.1.**
 **Owner:** the user, the creative director, a complete beginner. GitHub is connected; scoped branches/PRs are current workflow, with ZIPs available for playtests.
 
-**Signed:** Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
+**Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
+
+## Current update 0.22.1 — bounded performance pass
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
+The user explicitly authorised the measured performance recommendations. This isolated PR makes narrow
+bench_view integration edits; it does not change tool_rig, game_state or hand rules. Claude retains
+Phase 2 ownership and must cross-review before merging/continuing step 7. Read docs/PERFORMANCE.md
+and the newest changelog. Settled clamped hoses now sleep and wake on changed constraints; paste
+measurements/uploads and bin/paste controls skip unchanged work. Static case/tray commands live on
+a separate CanvasItem. Paste height-field writes must invalidate its revision. No save format or
+asynchronous-save change. Eight required suites (new cache/wake contracts); quick profiling is optional.
+No interactive visual/feel acceptance is claimed.
 
 ## Current update 0.20.1 — test cleanup only
 

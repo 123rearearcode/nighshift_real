@@ -38,6 +38,10 @@ const MESSY_OVERFLOW: float = 0.25
 
 var h: PackedFloat32Array = PackedFloat32Array()
 var flow: PackedFloat32Array = PackedFloat32Array()
+var revision: int = 0
+var _measure_revision: int = -1
+var _measurement: Dictionary = {}
+var measure_scans: int = 0
 var total_deposited: float = 0.0
 var last_wipe_on_cpu: float = 0.0   # how much the LAST wipe call removed from the CPU itself (not the overflow beside it)
 var material: String = "thermal"    # "thermal" or "toothpaste" (see scripts/data/paste_materials.gd)
@@ -52,6 +56,7 @@ func _init() -> void:
 
 
 func clear() -> void:
+    mark_changed()
     h.resize(GRID * GRID)
     flow.resize(GRID * GRID)
     h.fill(0.0)
@@ -76,6 +81,7 @@ func deposit(cx: float, cy: float, volume: float) -> void:
             total_w += maxf(0.0, 1.0 - Vector2(x + 0.5, y + 0.5).distance_to(center) / DEPOSIT_RADIUS)
     if total_w <= 0.0:
         return
+    if volume != 0.0: mark_changed()
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             var w: float = maxf(0.0, 1.0 - Vector2(x + 0.5, y + 0.5).distance_to(center) / DEPOSIT_RADIUS)
@@ -131,6 +137,7 @@ func wipe(cx: float, cy: float, radius: float, strength: float, square: bool = f
             h[i] = nv
     total_deposited = maxf(0.0, total_deposited - removed_on_cpu)
     last_wipe_on_cpu = removed_on_cpu
+    if removed > 0.0: mark_changed()
     return removed
 
 
@@ -205,6 +212,7 @@ func step(yield_h: float = YIELD_H) -> float:
     max_x = nmax_x
     min_y = nmin_y
     max_y = nmax_y
+    if moved > 0.0: mark_changed()
     return moved
 
 
@@ -230,7 +238,13 @@ func gauge_tone() -> int:
 
 
 # Current coverage of the CPU and share of paste outside it. Keys: coverage, overflow.
+func mark_changed() -> void:
+    revision += 1
+
+
 func measure() -> Dictionary:
+    if _measure_revision == revision: return _measurement.duplicate()
+    measure_scans += 1
     var inside_cells: int = 0
     var covered: int = 0
     var total: float = 0.0
@@ -248,7 +262,9 @@ func measure() -> Dictionary:
     var overflow: float = 0.0
     if total > 0.0:
         overflow = outside / total
-    return {"coverage": float(covered) / float(inside_cells), "overflow": overflow}
+    _measurement = {"coverage": float(covered) / float(inside_cells), "overflow": overflow}
+    _measure_revision = revision
+    return _measurement.duplicate()
 
 
 # Score the pressed paste. Keys: coverage, overflow, volume, grade, message, tone (1 good, 2 warn, 3 bad)

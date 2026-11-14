@@ -1,4 +1,4 @@
-# Test policy — 0.20.1
+# Test policy — 0.22.1
 
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work · 13 November 2026.
 User authorised the test audit recommendations. Gameplay is unchanged; Claude still owns the Phase 2 hot files.
@@ -8,7 +8,7 @@ User authorised the test audit recommendations. Gameplay is unchanged; Claude st
 | Change | Required checks | Diagnostic work |
 | --- | --- | --- |
 | Markdown only, optionally a project version-only bump | Project checker and CI scope tests | No Godot download, style pass or playtest |
-| Runtime code, tests, workflow or other non-doc files | Project checker, CI scope tests and all seven Godot suites | Short representative smoke playtest |
+| Runtime code, tests, workflow or other non-doc files | Project checker, CI scope tests and all eight Godot suites | Short representative smoke playtest |
 | Bench physics/controllers, game data, bench_view, part_motion or playtest driver | Same required checks | Complete original matrix and frame-time measurements |
 | Manual workflow run | Same required checks | Smoke by default; select full_diagnostics for full matrix |
 | Unknown/missing comparison history | Same required checks | Full diagnostics, conservatively |
@@ -18,7 +18,7 @@ The classifier examines actual Git diffs. Only config/version changes are exempt
 other settings, code deletions and code renamed to Markdown still require runtime checks. Workflow
 changes run the suites too. The scope tests create real temporary Git histories to check these boundaries.
 
-Keep all seven suites while Claude refactors the bench. Do not judge coverage by the headline count:
+Keep all eight suites while Claude refactors the bench. Do not judge coverage by the headline count:
 schema loops and frame loops can count the same scenario repeatedly. A fixed bug's regression test
 remains useful; older-save migration tests remain until compatibility is explicitly dropped.
 
@@ -36,9 +36,14 @@ remains useful; older-save migration tests remain until compatibility is explici
 - The pick's 47 pre-completion frames are all still simulated and observed, but report one combined
   assertion instead of 47 almost identical success counts. Stroke completion has its own assertion.
 - Removed the test endorsing tab navigation as a substitute for the securing lever. That behaviour
-  conflicts with D57; the correct expectation now lives in the visible pending-contract report below.
+  conflicts with D57; the correct expectation moved to the pending-contract report, then into required tests in 0.21.0.
 
-## Known defects are not passing coverage
+## Historical pending-contract lane
+
+Update: 0.21.0 fixed and promoted these cases into required regressions. The pending script is now an
+empty stub; the older CI lane/summary wording remains for Claude to retire. The paragraph below records
+what the 0.20.1 cleanup did, rather than asserting these defects are still open.
+
 
 tools/test_pending_contracts.gd checks the intended lever rule on same-tab and cross-tab navigation,
 and the selected-tool highlight after a refused switch while gripping the hose. At baseline 0.20.0
@@ -53,7 +58,7 @@ results. Fixture setup checks in that file distinguish inability to reproduce fr
 ## Local commands
 
 Use the user's target engine, Godot 4.7.2. Run python3 -I tools/check_project.py for project hygiene and
-python3 tools/test_ci_scope.py for the nine CI-selection integration tests. The seven GDScript suites
+python3 tools/test_ci_scope.py for the nine CI-selection integration tests. The eight GDScript suites
 remain listed explicitly in .github/workflows/tests.yml; each ends with its own summary and exit status.
 CI now retains nonzero process exits, continues to later suites and handles missing summaries safely.
 
@@ -73,3 +78,17 @@ when a relevant edit, failure or unresolved concern warrants it. Documentation-o
 full game run. For behaviour-preserving engineering changes, retain the approved work plan's comparison
 of full deterministic tables; intentional gameplay/tuning changes need an approved new baseline instead.
 No runtime save, inventory, physics, sound or ownership rules change in this cleanup.
+
+
+## Performance checks (0.22.1)
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 13 November 2026.
+The eighth required suite, tools/test_performance.gd, checks sleeping/waking constraints, paste cache
+invalidation and isolated return values, unchanged texture uploads, bin status and static redraw independence.
+It deliberately has no millisecond thresholds: shared runners are noisy.
+Run `godot --headless --path . --script res://tools/profile_bench.gd` for the short optional CPU profile,
+or enable quick_profile on a manual workflow. It prints mean, p50/p95/p99/max for physics, CPU drawing
+and full dirty-PC saves. It does not measure GPU rendering, display latency or player FPS. Saves use a
+disposable path and retain safe readback/backup rotation. Run comparison builds sequentially on the same
+host, without other Godot tests competing. Full deterministic playtest comparison is still required for
+behaviour-preserving changes; the quick profiler does not replace that matrix.
