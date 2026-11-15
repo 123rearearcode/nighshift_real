@@ -47,7 +47,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ### Execution status
 Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is
-recorded below once it exists. No interactive playtest is claimed, so how the screws and film FEEL
+recorded here: run 43717692734 passed the required suites (all 16, including the new Install technique suite). No interactive playtest is claimed, so how the screws and film FEEL
 is unverified.
 
 ### Added / Changed / Fixed / Removed
