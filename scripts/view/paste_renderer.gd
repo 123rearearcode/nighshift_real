@@ -173,3 +173,15 @@ static func draw_screws(canvas: CanvasItem, centers: Array, clicks: Array, turns
         if fill > 0.0:
             canvas.draw_arc(at, radius - 5.0, -PI / 2.0, -PI / 2.0 + TAU * fill, 24, Color(1.0, 0.85, 0.45), 4.0)
         canvas.draw_line(at + Vector2(-6, 0).rotated(done * 0.8), at + Vector2(6, 0).rotated(done * 0.8), Color(0.9, 0.92, 0.95), 2.0)
+
+
+# D131: the install order on one line: done steps tick, the current one is highlighted.
+static func draw_install_steps(canvas: CanvasItem, at: Vector2, current: int, steps: Array) -> void:
+    var x: float = at.x
+    var font: Font = ThemeDB.fallback_font
+    for i in range(steps.size()):
+        var done: bool = i < current
+        var text: String = ("%s %d %s" % ["\u2713" if done else " ", i + 1, steps[i]]) + ("  >  " if i < steps.size() - 1 else "")
+        var color: Color = Color(0.45, 0.85, 0.6) if done else (Color(1.0, 0.85, 0.45) if i == current else Color(0.62, 0.66, 0.72))
+        UiStyle.label(canvas, Vector2(x, at.y), text, 12, color)
+        x += font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x

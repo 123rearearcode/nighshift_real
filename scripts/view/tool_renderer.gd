@@ -40,6 +40,8 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
             for i in range(fabric.size()): fabric[i] += tip
             canvas.draw_colored_polygon(fabric,Color("ddd6b6"))
             for i in range(4): canvas.draw_line(tip+Vector2(-18+i*11,-11),tip+Vector2(-16+i*11,12),Color("b4ac90"),1)
+        elif id == Ids.SCREWDRIVER:
+            draw_screwdriver(canvas)
         else:
             canvas.draw_line(Vector2(-9,11),Vector2(13,-19),Color("b9deea"),13)
             canvas.draw_line(Vector2(13,-19),Vector2(24,-34),Color("96a4ae"),4)
@@ -48,6 +50,15 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         canvas.draw_set_transform(Vector2.ZERO)
         if id != rig.selected or not rig.equipped:
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
+
+
+# D131: the screwdriver, in a tool's own frame (tip at the usual tool tip). Also drawn by the hardware bench.
+static func draw_screwdriver(canvas: CanvasItem) -> void:
+    var tip: Vector2 = Rig.TIP
+    canvas.draw_line(tip, tip + Vector2(8, -16), Color("cbd3d8"), 3)          # steel shaft
+    canvas.draw_line(tip + Vector2(8, -16), tip + Vector2(21, -40), Color("d8453f"), 12)   # red handle
+    canvas.draw_line(tip + Vector2(11, -22), tip + Vector2(18, -34), Color("f08a85"), 4)    # grip highlight
+    canvas.draw_line(tip + Vector2(-3, 1), tip + Vector2(3, 1), Color("eef2f4"), 3)          # flat tip
 
 
 # The vacuum hose: a see-through corrugated tube following the simulated chain of points (drawn

@@ -105,6 +105,7 @@ func _make_job() -> Dictionary:
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
+        "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
         "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
@@ -175,6 +176,8 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
     inventory_layout.erase(uid)
     job["broken_parts"].erase(part_id)
     job["removed_parts"].erase(part_id)
+    if part_id == Ids.GPU:
+        job["gpu_screws"] = 0   # D131: a new card is not screwed in yet
     job["service_replacements"][part_id] = record["tier"]
     job["service_replacement_ids"][part_id] = uid
     if part_id == Ids.COOLER:
@@ -291,6 +294,38 @@ func set_paste(result: Dictionary, cpu_units: float = 0.0) -> void:
 func set_install_faults(faults: Array) -> void:
     job["install_faults"] = InstallFaults.sanitize(faults)
     save_game()
+
+
+# D131: turn one GPU bracket screw (needs the screwdriver, enforced by the view). True if a turn was made.
+func turn_gpu_screw() -> bool:
+    if Ids.GPU in job["removed_parts"] or int(job["gpu_screws"]) >= InstallFaults.GPU_SCREW_COUNT:
+        return false
+    job["gpu_screws"] = int(job["gpu_screws"]) + 1
+    save_game()
+    return true
+
+
+# D131: the hardware bench moves the customer's GPU/cooler between the board and the drawer. The job's
+# removed_parts is the one record both benches read. Taking a GPU out unscrews it.
+func set_service_part_fitted(part_id: String, fitted: bool) -> bool:
+    if job["state"] == "done" or not part_id in ServiceParts.IDS:
+        return false
+    var removed: bool = part_id in job["removed_parts"]
+    if fitted == not removed:
+        return false
+    if fitted:
+        job["removed_parts"].erase(part_id)
+    else:
+        job["removed_parts"].append(part_id)
+        if part_id == Ids.GPU:
+            job["gpu_screws"] = 0
+    save_game()
+    return true
+
+
+# D131: what the customer finds at pickup: recorded cooler-mount faults plus an unscrewed GPU.
+func pickup_faults() -> Array:
+    return InstallFaults.pickup_faults(job.get("install_faults", []), not Ids.GPU in job["removed_parts"], int(job.get("gpu_screws", 2)))
 
 
 func peel_cooler_film() -> void:
@@ -529,6 +564,7 @@ func load_game() -> bool:
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
     job["cooler_film_peeled"] = bool(job.get("cooler_film_peeled", false)) if typeof(job.get("cooler_film_peeled", false)) == TYPE_BOOL else false
     job["install_faults"] = InstallFaults.sanitize(job.get("install_faults", []))
+    job["gpu_screws"] = clampi(int(job.get("gpu_screws", 2)), 0, InstallFaults.GPU_SCREW_COUNT) if typeof(job.get("gpu_screws", 2)) in [TYPE_INT, TYPE_FLOAT] else InstallFaults.GPU_SCREW_COUNT
     job.erase("required_power")   # 0.25.0 (D97): the boot test replaced the power threshold
     var specs: Variant = job.get("pc_specs", {})
     if not specs is Dictionary: specs = {}
@@ -639,7 +675,7 @@ func _record_pickup(temp: float) -> Dictionary:
     var who: Dictionary = customer_view(str(job.get("customer_id", "")))
     if who.is_empty(): return {}
     var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
-    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP, InstallFaults.sanitize(job.get("install_faults", [])))
+    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP, pickup_faults())
     var days: int = PickupScore.comeback_days(int(result["score"]))
     var trust: int = clampi(int(who["trust"]) + trust_step(int(result["score"])), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)
