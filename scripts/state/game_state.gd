@@ -14,6 +14,7 @@ const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Games = preload("res://scripts/data/games.gd")
 const PartStates = preload("res://scripts/rules/part_states.gd")
+const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 const Software = preload("res://scripts/rules/software_checks.gd")
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
@@ -103,6 +104,8 @@ func _make_job() -> Dictionary:
         "paste_overflow": 0.0,
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
+        "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
+        "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
         "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
         "paste_material": "thermal",   # what is under the cooler: canonical PasteMaterials ID
@@ -284,7 +287,19 @@ func set_paste(result: Dictionary, cpu_units: float = 0.0) -> void:
     save_game()
 
 
+# D130: the last locked mount's hidden mistakes. They are never listed by run_final_check.
+func set_install_faults(faults: Array) -> void:
+    job["install_faults"] = InstallFaults.sanitize(faults)
+    save_game()
+
+
+func peel_cooler_film() -> void:
+    job["cooler_film_peeled"] = true
+    save_game()
+
+
 func clear_paste() -> void:
+    job["install_faults"] = []
     job["paste_grade"] = ""
     job["paste_coverage"] = 0.0
     job["paste_overflow"] = 0.0
@@ -512,6 +527,8 @@ func load_game() -> bool:
         job["paste_done"] = str(job["paste_grade"]) != ""
     job["paste_done"] = bool(job["paste_done"]) if typeof(job["paste_done"]) == TYPE_BOOL else false
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
+    job["cooler_film_peeled"] = bool(job.get("cooler_film_peeled", false)) if typeof(job.get("cooler_film_peeled", false)) == TYPE_BOOL else false
+    job["install_faults"] = InstallFaults.sanitize(job.get("install_faults", []))
     job.erase("required_power")   # 0.25.0 (D97): the boot test replaced the power threshold
     var specs: Variant = job.get("pc_specs", {})
     if not specs is Dictionary: specs = {}
@@ -622,7 +639,7 @@ func _record_pickup(temp: float) -> Dictionary:
     var who: Dictionary = customer_view(str(job.get("customer_id", "")))
     if who.is_empty(): return {}
     var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
-    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP)
+    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP, InstallFaults.sanitize(job.get("install_faults", [])))
     var days: int = PickupScore.comeback_days(int(result["score"]))
     var trust: int = clampi(int(who["trust"]) + trust_step(int(result["score"])), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)

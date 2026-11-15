@@ -39,6 +39,59 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.38.0 - 2026-11-15 - Cooler install technique: the film, the screws and delayed discovery
+
+- Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5)
+- Based on: 0.37.0 (9c894f8), Codex's PR #41. STACKED: this branch must merge after #41 (both touch bench_view.gd and game_state.gd)
+- Type: minor (new compatible mechanic; job gains two optional fields, no save-format change)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is
+recorded here: run 43717692734 passed the required suites (all 16, including the new Install technique suite). No interactive playtest is claimed, so how the screws and film FEEL
+is unverified.
+
+### Added / Changed / Fixed / Removed
+- Added (D130): `scripts/rules/install_faults.gd`, a pure rule for hidden installation mistakes.
+  Film left on the cooler base (+30 C at the customer's PC, -30 pickup score), screws tightened
+  round the square instead of opposite corners (+10 C, -12), screws skipped or half-turned
+  (+15 C, -25). One wrong screw pair is forgiven. All numbers are trial proposals.
+- Added: a "Cooler base" button on the Thermal service tab that peels the clear film (drawn as a pale
+  blue sheet, never explained), and four clickable corner screws while a cooler is pressed on
+  (two turns each, shown as snug/tight, never judged). The lever still locks the cooler (D57) and
+  records the mistakes. The first screw shows a manual hint: opposite corners, two passes.
+- Changed: `PickupScore.score` takes optional `faults`; heat and complaints apply to the CUSTOMER's
+  check only. `run_final_check` temperature and notes are unchanged, so the shop's own test still
+  passes and never mentions the mistake. The complaint appears in the pickup misses/history.
+- Changed: `clear_paste` clears the recorded faults; peeled film stays peeled for the ticket.
+- New job fields `cooler_film_peeled`, `install_faults`, validated on load (unknown ids dropped).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/install_faults.gd` | A | Pure rule: faults, screw geometry, heat and annoyance |
+| `scripts/rules/pickup_score.gd` | M | Optional faults: customer-only heat and complaints |
+| `scripts/state/game_state.gd` | M | Two job fields, set/peel functions, fault pass-through to pickup |
+| `scripts/view/bench_view.gd` | M | Film button, screw clicks, faults recorded at the lever |
+| `scripts/view/paste_renderer.gd` | M | Cooler base and screw drawing |
+| `tools/test_install_technique.gd` | A | New suite: rule, pickup, hidden final check, save, real clicks |
+| `.github/workflows/tests.yml` | M | Register the suite |
+| `docs/INSTALL_TECHNIQUE.md` | A | Design and numbers |
+| `project.godot`, `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/TESTING.md` | M | Version and documentation |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passes. Godot not run by me; suite results below once CI finishes.
+
+### Decisions proposed
+D130: install mistakes are hidden from the shop's check and felt by the customer (the user's answer, 15 November 2026: "mistakes dont come to bite you until the customer checks"). The bench is meant to feel true to the real process without being a lesson.
+
+### Known issues and open items
+- Needs a human playtest: whether the film is too easy to miss or notice, and whether clicking screws while pressing feels right (a screw click also counts as pressure).
+- Faults are per mount; nothing yet makes a customer return in person (comeback days exist, the visit does not).
+- Not built, from the idea list: seating the CPU with a bent-pin risk, paste patterns by CPU type, cooler variety, the tech notebook.
+
+### Next action
+Claude or the user: playtest, then tune the numbers. Hot files bench_view.gd and game_state.gd stay with PR #41 until it merges; then this branch rebases onto main.
+
 ## 0.37.0 - 2026-11-15 - Thermal controls, super-paste and retract on the vacuum bin
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

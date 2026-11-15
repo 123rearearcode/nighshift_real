@@ -142,3 +142,34 @@ static func draw_panel(canvas: CanvasItem, paste: PasteSim, panel_x: float, moun
         if mount.active:
             UiStyle.label(canvas, Vector2(panel_x, 500), "Time left: %.1f s" % maxf(0.0, mount.time_left), 14)
             UiStyle.bar(canvas, Rect2(panel_x + 130, 492, 390, 8), mount.time_left / MountSession.MOUNT_TIME, Color(0.8, 0.8, 0.85))
+
+
+# D130: the cooler's contact plate. With the clear plastic film on, a pale blue sheet with a pull tab
+# covers the metal; peeled, it is bare brushed metal. It is drawn, never explained.
+static func draw_cooler_base(canvas: CanvasItem, rect: Rect2, peeled: bool) -> void:
+    canvas.draw_rect(rect, Color(0.62, 0.64, 0.68) if peeled else Color(0.55, 0.57, 0.61))
+    canvas.draw_rect(rect, Color(0.85, 0.87, 0.9), false, 2.0)
+    if peeled:
+        for i in range(6):
+            canvas.draw_line(rect.position + Vector2(10, 8 + i * 5), rect.end - Vector2(10, 40 - 8 - i * 5), Color(1, 1, 1, 0.18), 1.0)
+        UiStyle.label(canvas, rect.position + Vector2(8, 26), "bare metal", 13, Color(0.1, 0.12, 0.15))
+    else:
+        var sheet := Rect2(rect.position + Vector2(4, 4), rect.size - Vector2(8, 8))
+        canvas.draw_rect(sheet, Color(0.55, 0.78, 0.95, 0.55))
+        canvas.draw_rect(Rect2(sheet.end.x - 34, sheet.position.y, 30, 10), Color(0.7, 0.88, 1.0, 0.9))
+        UiStyle.label(canvas, rect.position + Vector2(8, 26), "plate", 13, Color(0.1, 0.14, 0.2))
+
+
+# D130: four corner screws while a cooler is pressed on. Turns are shown (snug / tight) but never judged.
+static func draw_screws(canvas: CanvasItem, centers: Array, clicks: Array, turns_needed: int, radius: float) -> void:
+    for i in range(centers.size()):
+        var done: int = 0
+        for c: Variant in clicks:
+            if int(c) == i: done += 1
+        var at: Vector2 = centers[i]
+        canvas.draw_circle(at, radius, Color(0.20, 0.22, 0.26))
+        canvas.draw_arc(at, radius, 0.0, TAU, 24, Color(0.75, 0.8, 0.88), 2.0)
+        var fill: float = clampf(float(done) / float(turns_needed), 0.0, 1.0)
+        if fill > 0.0:
+            canvas.draw_arc(at, radius - 5.0, -PI / 2.0, -PI / 2.0 + TAU * fill, 24, Color(1.0, 0.85, 0.45), 4.0)
+        canvas.draw_line(at + Vector2(-6, 0).rotated(done * 0.8), at + Vector2(6, 0).rotated(done * 0.8), Color(0.9, 0.92, 0.95), 2.0)

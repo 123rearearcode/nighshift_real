@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.37.0)
+# Nightshift - Godot Foundation Trial (v0.38.0)
+
+New in 0.38.0: **installing the cooler now has technique.** On the Thermal service tab the "Cooler base"
+button peels the clear plastic film off the cooler's contact plate (people forget it). While the
+cooler is pressed down, click the four corner screws: tighten opposite corners in turn, two passes
+each, then click the lever. The bench never tells you if you did it right. Mistakes are invisible to
+your own final check and only show when the customer uses the PC (their pickup score and complaint).
+See docs/INSTALL_TECHNIQUE.md. This is stacked on Codex's unmerged PR #41 (0.37.0).
 
 New in 0.37.0: Cleaning is teal and Thermal service purple. Pick up the syringe/cloth physically;
 the redundant tool-toggle button is gone. Choose Normal thermal paste, Super-paste or Toothpaste
