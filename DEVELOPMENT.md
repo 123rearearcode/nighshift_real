@@ -172,6 +172,11 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
 | `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
 | `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/customer_pc.gd` | rules | Pure projection of a ticket's PC (CPU, RAM, GPU, cooler) into hardware-bench components and placements (D131) |
+| `scripts/data/upgrades.gd` | data | The tool upgrades the Shop sells (D131) |
+| `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
+| `scenes/night_shop.tscn` | scene | Shop activity scene |
+| `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
 | `scripts/rules/install_faults.gd` | rules | Hidden cooler-install mistakes (film, screw pattern), their heat and complaint, screw geometry (D130) |
 | `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
 | `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
