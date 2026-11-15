@@ -622,3 +622,22 @@ Navigation.attach uses ActivitiesButton/RECT on six work screens; scene cleanup 
 existing owners (repair dust/paste, hardware settling/stock save, salvage capture/cancel). Generic
 night navigation blocks on failed checkpoints. Existing scene-specific return-to-workshop actions
 remain. No hot files or WORK_PLAN.md modified by 0.36.0.
+
+
+## Thermal/paste/bin contract / 0.37.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `tools/test_thermal_service.gd` | tooling | Native tab/menu/mount/retract input, obsolete UI absence, premium cooling/charge/persistence |
+| `docs/THERMAL_SERVICE.md` | docs | Current controls, trial material tuning and bin-reel behavior |
+
+PasteMaterials.IDS is canonical for menus, main-save validation and physical PasteSnapshot loading.
+`super` is a new compatible string value, not a new save shape. Signed heat_penalty values apply
+in both night/legacy thermal reports. Renderer color uses material ID, including the legend/cache.
+Tool selection has no wipe_button; cloth/syringe are physical tools. Shared paste UI sync includes
+stage and mount readiness, so mass/result changes cannot leave a stale Mount action. Menu state
+refreshes only on open/selection, never per physics tick. Material edits refuse deposited layers.
+BENCH_RETRACT lies inside BENCH_BIN; no BENCH_SPOOL or draw_spool remains. Raw bench input delegates
+that rectangle to the native button so it cannot also vacuum, pick an item, or empty dust. Button
+minimum size/theme margins are explicitly bounded to the physical bin. Internal reel state/method
+names remain for compatibility; no separate spool entity. Same PR owns all hot-file changes.

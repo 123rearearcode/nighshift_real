@@ -174,3 +174,12 @@ hub ticket, and click one identically positioned Activities control on each of s
 Checks preserve per-PC progress, canonical item counts and money; failed checkpoint blocks exit.
 Recording evidence shows v0.32.0. Test the fresh version rather than only replaying its old UI.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+### Thermal service / 0.37.0
+Required `test_thermal_service.gd`: actual tab click, native material-menu opening/keyboard choice,
+mount and bin-retract clicks; visibility below socket; obsolete tool toggle absence; no mixed layer;
+premium cooling parity, charge once, honest scam state, save/snapshot roundtrip; retraction cannot
+empty dust and the old spool area does not retract. Existing tests replace obsolete button-based
+fixtures with tool selection; physical pickup coverage remains. CI includes the new suite.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

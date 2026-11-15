@@ -86,7 +86,8 @@ jobs:
           test_storage|Storage
           test_night_workshop|Night workshop
           test_software|Software
-          test_room_workshop|Room workshop"
+          test_room_workshop|Room workshop
+          test_thermal_service|Thermal service"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

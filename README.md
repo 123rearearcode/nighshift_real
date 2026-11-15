@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.36.0)
+# Nightshift - Godot Foundation Trial (v0.37.0)
+
+New in 0.37.0: Cleaning is teal and Thermal service purple. Pick up the syringe/cloth physically;
+the redundant tool-toggle button is gone. Choose Normal thermal paste, Super-paste or Toothpaste
+from the Paste menu (wipe/reset before changing a layer). Super-paste has a subtle blue-purple hue
+and improves cooling; trial cost $6 / benefit −4°C at equal contact, versus normal $3.
+Mount cooler appears below the socket only when there is paste and the cooler is not already
+being mounted/graded. The vacuum bin now has a RETRACT push-button; the separate spool is gone.
+Extract/import the fresh v0.37.0 folder and confirm that title version. See docs/THERMAL_SERVICE.md.
 
 New in 0.36.0: **New Game → Activities → Workshop room → drag a customer PC into the right-hand
 workshop slot.** The selected PC opens its workshop. To change PCs, return to the room and drag
@@ -6,8 +14,8 @@ another in. A marked rack reservation remains for the PC on the bench; it is the
 All six night work screens have Activities in the same top-right position. No rack-list buttons,
 PC dropdown or duplicate Storage shortcut on the title/activity menus.
 
-**Use the new build:** close the old demo, extract the v0.36.0 ZIP into a fresh folder, then in
-Godot Project Manager choose Import and select that folder's project.godot. Confirm **v0.36.0**
+**Use the new build:** close the old demo, extract the v0.37.0 ZIP into a fresh folder, then in
+Godot Project Manager choose Import and select that folder's project.godot. Confirm **v0.37.0**
 on the title/room screen before testing. The attached 02:05 recording shows v0.32.0 and its old
 self-freeing rack-selector implementation; the direct room fix was introduced in v0.33.0.
 Do not delete your saves or overwrite an old project folder to install this source package.

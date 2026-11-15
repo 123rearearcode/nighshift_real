@@ -366,3 +366,20 @@ The activity hub itself is the destination. Remove duplicate Storage shortcuts f
 menus; furniture utility controls remain, numbered rack-selector Buttons do not exist.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+### D127 — Thermal interaction cleanup (user approved, 0.37.0)
+Cleaning/thermal tabs have different colors. Remove obsolete cloth/syringe toggle; tools are
+picked up physically. Mount cooler belongs below the socket and appears only after some paste
+is present, before active/already-graded mounting. Lever and bad-result/rework rules remain.
+
+### D128 — Super-paste choice (user approved, 0.37.0)
+Material menu chooses normal, super-paste or toothpaste, with no mixed layers. Super-paste has
+a subtle blue/purple tint and better cooling, is not a scam, and persists like other material IDs.
+$6/−4°C is provisional tuning, not final balance. Same mount grade still controls quality.
+
+### D129 — Bin push-button retract (user approved, 0.37.0)
+Replace separate spool with RETRACT on the bin itself. Preserve actual deployed-length/payout
+rules; this button never empties dust. Existing Empty bin action remains separate.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

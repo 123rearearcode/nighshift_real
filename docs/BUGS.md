@@ -124,3 +124,8 @@ sort/save/add/multiple-title selections and assert persistent control identities
 This identifies a build mismatch in this evidence, not a claim that unseen current-build failures
 are impossible. Fresh-folder/version instructions are in README. Signed Codex (GPT 6.1 Sol,
 model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+| B26 | 0.36.0 | 0.37.0 | user screenshot | Mount cooler remains in side panel even after a locked mount | visibility gated only by stage/active flag; shared readiness includes mass, result, completion and stage |
+| B27 | 0.36.0 | 0.37.0 | user screenshot | Obsolete cloth/syringe toggle duplicates physical tool pickup | old toggle widget/state wiring retained; removed widget and updated fixtures |
+| B28 | 0.37.0 development | 0.37.0 | native UI regression | Retract Button's minimum size protrudes outside bin | native theme inflated requested rectangle; bounded font/margins and reset size after overrides |
+| B29 | 0.37.0 extension | 0.37.0 | Codex review | Premium negative heat modifier would be ignored in legacy check | legacy only added positive penalties; signed modifier now applies in both report paths, checked together |

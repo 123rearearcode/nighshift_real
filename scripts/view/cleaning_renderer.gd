@@ -59,21 +59,6 @@ static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_don
 
 
 # Floating dust: faint specks that fade in and out as they drift.
-# The hose spool beside the bin. Clicking it rewinds the hose; it glows a little under the cursor.
-static func draw_spool(canvas: CanvasItem, hovered: bool) -> void:
-    var rect: Rect2 = Layout.BENCH_SPOOL
-    canvas.draw_rect(rect.grow(2), Color("171d22"))
-    canvas.draw_rect(rect, Color("3b4752"))
-    var center: Vector2 = rect.get_center()
-    var radius: float = minf(rect.size.x, rect.size.y) * 0.38
-    canvas.draw_circle(center, radius + 3.0, Color("222a31"))
-    canvas.draw_circle(center, radius, Color(0.72, 0.84, 0.92, 0.55) if hovered else Color(0.52, 0.64, 0.72, 0.45))
-    for k in range(3):
-        canvas.draw_arc(center, radius - 2.0 - float(k) * 3.0, 0.0, TAU, 20, Color("2c3640"), 2.0)
-    canvas.draw_circle(center, 4.0, Color("171d22"))
-    UiStyle.label(canvas, Vector2(rect.position.x + 6, rect.end.y + 14), "spool", 12, Color(0.7, 0.75, 0.8))
-
-
 # The PC's power button on the case. Lit green when on; grey when off; brighter under the cursor.
 static func draw_power(canvas: CanvasItem, on: bool, hovered: bool) -> void:
     var rect: Rect2 = Layout.BENCH_POWER
@@ -135,11 +120,11 @@ static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
     var level: float = bin.fraction()
     canvas.draw_rect(rect.grow(2), Color("171d22"))
     canvas.draw_rect(rect, Color("46535e"))
-    var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, rect.size.y - 24))
+    var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, 8))
     canvas.draw_rect(meter, Color("0e1317"))
     var tone: Color = UiStyle.TONE_COLORS[2] if level >= DustBin.WARN_AT else COLOR_DUST
-    var filled: float = meter.size.y * level
-    canvas.draw_rect(Rect2(meter.position + Vector2(0, meter.size.y - filled), Vector2(meter.size.x, filled)), tone)
+    var filled: float = meter.size.x * level
+    canvas.draw_rect(Rect2(meter.position, Vector2(filled, meter.size.y)), tone)
     canvas.draw_rect(meter, Color("8aa0ad"), false, 1.0)
     canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
     UiStyle.label(canvas, rect.position + Vector2(4, 10), "BIN %d%%" % roundi(level * 100.0), 10)

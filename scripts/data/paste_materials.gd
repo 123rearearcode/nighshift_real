@@ -3,12 +3,15 @@
 # scam (the customer pays for a repaste they did not get). Numbers are trial proposals.
 extends RefCounted
 
-const IDS: Array = ["thermal", "toothpaste"]
+const IDS: Array = ["thermal", "super", "toothpaste"]
 
 static func material(id: String) -> Dictionary:
     if id == "toothpaste":
         return {"id": "toothpaste", "label": "Toothpaste", "cost": 0, "heat_penalty": 14.0,
             "yield_scale": 1.5, "mobility_scale": 0.75, "scam": true}
+    if id == "super":
+        return {"id": "super", "label": "Super-paste", "cost": 6, "heat_penalty": -4.0,
+            "yield_scale": 1.0, "mobility_scale": 1.0, "scam": false}
     if id == "thermal":
         return {"id": "thermal", "label": "Thermal paste", "cost": 3, "heat_penalty": 0.0,
             "yield_scale": 1.0, "mobility_scale": 1.0, "scam": false}

@@ -105,7 +105,7 @@ func _make_job() -> Dictionary:
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
         "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
-        "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
+        "paste_material": "thermal",   # what is under the cooler: canonical PasteMaterials ID
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
         "payout": int(who["payout"]),
@@ -303,7 +303,7 @@ func can_complete_repaste() -> bool:
     return job["state"] != "done" and not bool(job["paste_done"]) and str(job["paste_grade"]) in GOOD_PASTE
 
 
-# The Complete repaste button. `material` is what was squeezed ("thermal" or "toothpaste").
+# The Complete repaste button. `material` is what was squeezed (canonical PasteMaterials ID).
 # Thermal paste costs a little; toothpaste is free and is recorded as a scam on this job.
 # Returns {ok, cost, message}.
 func complete_repaste(material: String) -> Dictionary:
@@ -351,9 +351,11 @@ func run_final_check() -> Dictionary:
         notes.append("Paste result was %s (+%d C)." % [grade, int(penalty)])
     if completed:
         var under: Dictionary = PasteMaterials.material(str(job["paste_material"]))
-        if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
+        if not under.is_empty() and float(under["heat_penalty"]) != 0.0:
             temp += float(under["heat_penalty"])
-            notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
+            var effect: String = "%s under the cooler (%+d C)." % [under["label"], int(under["heat_penalty"]) ]
+            if bool(under["scam"]): effect += " The customer will not notice today; it dries out. Consequences are not simulated yet."
+            notes.append(effect)
     # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     notes.append_array(PartStates.problem_lines(job))

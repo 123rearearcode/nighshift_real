@@ -49,6 +49,5 @@ func _save_dust() -> void:
     if loaded_job_id == str(GameState.job["id"]):
         GameState.job["hardware_trial"]["night_paste"] = PasteSnapshot.capture(paste)
     super._save_dust()
-func _on_material_toggled() -> void:
-    super._on_material_toggled()
-    if paste.material == "thermal": _set_status("Thermal paste is charged automatically when a good cooler mount is locked with the lever.",0)
+func _material_charge_note() -> String:
+    return ", charged automatically when a good cooler mount is locked"

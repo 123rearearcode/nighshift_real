@@ -39,6 +39,99 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.37.0 - 2026-11-15 - Thermal controls, super-paste and retract on the vacuum bin
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.36.0 (5c3866f), continuing the same unmerged PR #41
+- Type: minor (new compatible material choice and revised bench interaction)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Fifteen required suites: final applicable total 1,312
+checks, zero failures; pending contracts zero checks. Includes native UI input. No manual
+visual/feel acceptance or target-hardware performance claim. Date: 15 November 2026,
+Europe/Bucharest. User directly requested these narrow hot-file changes; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- D127/B26: teal Cleaning and purple Thermal service tabs, with labeled/selected borders. Mount
+  cooler moves below socket/legend and is visible only with paste before active/graded completion.
+  Lever and bad-result/rework rules stay; mount readiness does not demand a perfect-size blob.
+- B27: remove obsolete cloth/syringe toggle widget and its state wiring. Physical tool pickup
+  remains; instructions say so. Retain logical selection helpers for input/regression coverage.
+- D128: canonical three-choice MenuButton: normal, super-paste, toothpaste. Dirty/locked layers
+  cannot be relabeled/mixed; menu and guarded handler explain wipe/reset first.
+- Super-paste: subtle blue-purple rendering/legend, normal flow, honest material. Trial cost $6,
+  signed heat effect −4°C at equal completed grade. Normal $3/0°C, toothpaste free/+14°C unchanged.
+  Apply signed effects in night and legacy reports, with no scam warning for premium. Main save and
+  physical per-PC snapshots recognize canonical IDs without an incompatible save-shape change.
+- D129: RETRACT is a native push-button on the vacuum bin. Remove external spool drawing/click
+  rectangle; reel remains inside bin. Same shortening/capacity/pull-out rules, parked beside bin.
+  Raw input delegates this rectangle to the button, never bin-empty/tool use. Separate Empty bin stays.
+- B28: explicitly bound button font/style margins/size inside bin; native theme minimum had grown it.
+- Required thermal-service suite and revised obsolete-control fixtures; native input covers menu
+  open + choice, service tab, mount and retract. No extra part catalogue/clock/save ownership system.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `CHANGELOG.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `DEVELOPMENT.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `HANDOFF.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `README.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/BUGS.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/CURRENT_STATE.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/DECISIONS.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/DESIGN.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/MINIGAME_RULES.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/PROJECT_BRIEF.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/ROADMAP.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/TESTING.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/THERMAL_SERVICE.md` | A | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `project.godot` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/bench/paste_sim.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/bench/tool_rig.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/data/layout.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/data/paste_materials.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/night/paste_snapshot.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/night/repair_view.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/state/game_state.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/bench_view.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/cleaning_renderer.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/paste_renderer.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_audio_and_vacuum.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_regressions.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_thermal_service.gd` | A | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+
+### Checks performed
+- Godot 4.7.2: schemas 209, regressions 594, start 20, dust 43, bench interactions 31, feedback 27,
+  audio/vacuum 46, performance 24, salvage 49, salvage physics 44, storage 82, night workshop 53,
+  software 31, room/workshop 33, thermal service 26: zero failures (1,312 final applicable total).
+- Full suites initially used thermal-service 25; reran its final 26 checks after adding the
+  insufficient-funds case and final silent UI-event/menu-refresh changes. No duplicate-run inflation.
+- Native material choice uses the actual embedded-menu input path, not a fabricated signal.
+  Same-grade premium cooling parity, charge once/insufficient funds, honest scam state, main-save
+  and physical snapshot roundtrip checked. Bin click does not empty dust; old spool area is inactive.
+- Full bench state/frame/paste diagnostic matrix completed without script errors. It began before
+  the last menu/audio-status-only tweaks; final thermal-service checks exercise those changes.
+- Fresh extracted source imported in Godot 4.7.2 and passed all 26 thermal-service checks,
+  without script errors.
+- CI scope: 9 tests passed. Project hygiene and diff whitespace checks passed.
+
+### Decisions proposed (not approved)
+Super-paste $6 and −4°C are provisional balance values. The three choices, better cooling/tint,
+conditional Mount, removed toggle and bin button are user-approved behavior (D127–D129).
+
+### Known issues and open items
+- No manual graphical acceptance yet. Existing trial heat estimate is not a physical CPU simulator.
+- Internal reel state/method names retain 'spool' for compatibility; no external spool object remains.
+- Existing master-PC/owned-parts integration and later Wave 2 apps remain separate work.
+
+### Next action
+User playtests v0.37.0; Claude goes next for cross-review of PR #41 before merging. Do not
+merge automatically. bench_view.gd, tool_rig.gd and game_state.gd remain owned by this ONE open
+PR for review; after merge they are free subject to Claude's work-plan ownership. No competing
+hot-file PR or WORK_PLAN.md edit.
+
 ## 0.36.0 - 2026-11-15 - Drag a PC into the workshop and consistent Activities exits
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

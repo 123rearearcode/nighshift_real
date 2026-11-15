@@ -1,5 +1,6 @@
 # The physical paste field belongs to its PC, not to the bench screen.
 extends RefCounted
+const Materials = preload("res://scripts/data/paste_materials.gd")
 const Paste = preload("res://scripts/bench/paste_sim.gd")
 static func capture(paste: RefCounted) -> Dictionary:
     return {"version":1,"height_bytes":Marshalls.raw_to_base64(paste.h.to_byte_array()),"deposited":paste.total_deposited,"material":paste.material}
@@ -9,7 +10,7 @@ static func restore(paste: RefCounted,raw: Variant) -> bool:
     var bytes: PackedByteArray = Marshalls.base64_to_raw(raw["height_bytes"])
     if bytes.size() != Paste.GRID*Paste.GRID*4: return false
     var field: PackedFloat32Array = bytes.to_float32_array()
-    if not raw.get("material","") in ["thermal","toothpaste"]: return false
+    if not raw.get("material","") in Materials.IDS: return false
     if not typeof(raw.get("deposited",null)) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(raw["deposited"])) or raw["deposited"]<0: return false
     for value: Variant in field:
         if not typeof(value) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(value)) or value<0 or value>10000: return false

@@ -210,14 +210,14 @@ func release_hose(drop_point: Vector2 = Vector2.INF) -> void:
     hose_grab = -1
 
 
-# The spool beside the bin: clicking it rewinds the hose. Any clamped point is unclipped and the hose
+# The reel inside the bin: clicking it rewinds the hose. Any clamped point is unclipped and the hose
 # re-lays itself neatly from the bin to wherever the nozzle is now (tangles around pieces are undone).
 func rewind_hose() -> void:
     unclamp_hose()
     hose.reset(DustBin.hose_anchor(), hose_end())
 
 
-# Clicking the spool starts reeling the vacuum in: the hose winds up and drags the vacuum to the
+# Pressing the bin button starts reeling the vacuum in: the hose winds up and drags the vacuum to the
 # spool. A held vacuum is put down first. Taking the vacuum (or grabbing the hose) stops the reel.
 func start_spool_retract() -> void:
     unclamp_hose()
@@ -234,7 +234,7 @@ func _step_spool(delta: float) -> void:
         spool_retracting = false
         return
     hose.set_length(maxf(MIN_DEPLOYED,hose.length()-SPOOL_SPEED*maxf(0,delta)))
-    var target: Vector2 = keep_inside(Layout.BENCH_SPOOL.get_center()+Vector2(-52,-6),motion.angle)
+    var target: Vector2 = keep_inside(DustBin.hose_anchor()+Vector2(-78,25),motion.angle)
     var before: Vector2 = motion.center
     motion.center = motion.center.move_toward(target,SPOOL_SPEED*maxf(0,delta))
     motion.velocity = (motion.center-before)/maxf(delta,0.00001)

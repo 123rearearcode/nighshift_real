@@ -13,10 +13,17 @@ const PASTE_THIN := Color(0.55, 0.85, 0.95)
 const PASTE_THICK := Color(1.0, 1.0, 1.0)
 const TOOTH_THIN := Color(0.70, 0.95, 0.85)    # toothpaste: minty white
 const TOOTH_THICK := Color(0.98, 1.0, 0.98)
+const SUPER_THIN := Color(0.62, 0.75, 0.96)
+const SUPER_THICK := Color(0.94, 0.93, 1.0)
 const PASTE_EDGE := Color(0.20, 0.55, 0.70)
 const COLOR_BARE := Color(1.0, 0.25, 0.25, 0.55)
 const COLOR_SQUEEZED := Color(1.0, 0.72, 0.2, 0.95)
 
+
+static func material_color(material: String,t: float) -> Color:
+    if material == "super": return SUPER_THIN.lerp(SUPER_THICK,t)
+    if material == "toothpaste": return TOOTH_THIN.lerp(TOOTH_THICK,t)
+    return PASTE_THIN.lerp(PASTE_THICK,t)
 
 static func _paste_at(paste: PasteSim, x: int, y: int) -> float:
     if x < 0 or y < 0 or x >= PasteSim.GRID or y >= PasteSim.GRID:
@@ -37,7 +44,7 @@ static func refresh_image(paste: PasteSim, image: Image, texture: ImageTexture, 
             var c := Color(0, 0, 0, 0)
             if v >= 0.015:
                 var t: float = clampf(sqrt(v) / 1.2, 0.0, 1.0)
-                c = TOOTH_THIN.lerp(TOOTH_THICK, t) if paste.material == "toothpaste" else PASTE_THIN.lerp(PASTE_THICK, t)
+                c = material_color(paste.material,t)
                 c.a = 0.92
                 var rim: bool = _paste_at(paste, x + 1, y) < 0.015 or _paste_at(paste, x - 1, y) < 0.015 or _paste_at(paste, x, y + 1) < 0.015 or _paste_at(paste, x, y - 1) < 0.015
                 if show_outside and not on_cpu:
@@ -80,7 +87,7 @@ static func draw_stage(canvas: CanvasItem, paste: PasteSim, texture: ImageTextur
         UiStyle.label(canvas, plate.position + Vector2(8, 22), "cooler pressing down...", 14)
     # Legend under the socket.
     var ly: float = origin.y + side + 36.0
-    _legend_item(canvas, Vector2(origin.x, ly), Color(0.85, 0.97, 1.0), "paste")
+    _legend_item(canvas, Vector2(origin.x, ly), material_color(paste.material,0.5), "paste")
     _legend_item(canvas, Vector2(origin.x + 110, ly), COLOR_BARE, "bare CPU (after mounting)")
     _legend_item(canvas, Vector2(origin.x + 330, ly), COLOR_SQUEEZED, "squeezed out")
 

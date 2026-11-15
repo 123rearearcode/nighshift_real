@@ -59,7 +59,7 @@ func run_checks() -> void:
     check(not overlap,"cleaning controls are separate non-overlapping groups")
     bench._select_stage(1)
     check(not has_loop(bench,"pc.fan"),"stage change releases the previous scene's machine loops")
-    check(bench.material_button.position.y<bench.mount_button.position.y and bench.complete_button.position.y==bench.mount_button.position.y,"paste controls follow material/tool then mount/complete order")
+    check(bench.mount_button.position.y>bench.PASTE_ORIGIN.y+51*bench.PASTE_CELL and bench.complete_button.position.x>=bench.PANEL_X,"mount action is below socket; legacy completion stays in the side panel")
     var cpu: Vector2=bench.PASTE_ORIGIN+Vector2(25,25)*bench.PASTE_CELL
     bench.scripted_pointer=cpu
     bench._select_dispense()
@@ -69,8 +69,7 @@ func run_checks() -> void:
     bench.holding=false
     bench._physics_process(1.0/60.0)
     check(not has_loop(bench,"paste.squeeze"),"syringe release ends dispensing loop")
-    bench.wipe_button.set_pressed_no_signal(true)
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     bench.holding=true
     bench._physics_process(1.0/60.0)
     check(has_loop(bench,"cloth.wipe"),"wiping has its own audio hook")

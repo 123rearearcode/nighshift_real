@@ -208,3 +208,16 @@ Cloth fabric pickup follows its drawn rotated/skewed shape inset one pixel; wipi
 one world pixel, not one 8px paste cell. Square-cloth shape advantage and wipe strength remain.
 Wave 2's desktop has boot, thermal and Vapor/FPS; anti-virus/overclock mechanics remain future slices.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+## 0.37.0 thermal/paste/bin update (current)
+Distinct Cleaning/thermal tabs remain textual as well as colored. Tools are chosen by physical
+pickup, without the redundant toggle. Mount appears below the socket only when some paste exists
+and no mount/result is active; it does not enforce the green gauge, so poor work is still allowed.
+Use the retention lever to lock/grade. Material choice never changes an existing layer's identity:
+wipe/reset first. Super-paste is honest, same flow/contact, better cooling and slightly blue-purple;
+trial $6/−4°C. Normal $3/0°C and toothpaste free/+14°C remain. Honest premium work pays its actual
+material cost once on successful completion, automatic at the lever in the night route.
+RETRACT is now on the vacuum bin, distinct from emptying it. The old external spool is removed;
+shortened deployed hose and deliberate pull-out behavior stay. See THERMAL_SERVICE.md.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

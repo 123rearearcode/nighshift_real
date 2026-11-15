@@ -1,5 +1,13 @@
 # Handoff - read this first
 
+**Current 0.37.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+15 November 2026, Europe/Bucharest. User-approved thermal UI/paste/bin changes: see THERMAL_SERVICE.md.
+Three-choice material MenuButton, real super-paste cooling/tint/persistence, no tool toggle,
+readiness-only Mount under socket, distinct tabs, retract push-button physically on the bin.
+Extends PR #41 only; keep unmerged for Claude cross-review. Narrow bench_view/tool_rig/GameState
+hot-file edits are explicitly user assigned and part of that same PR. WORK_PLAN.md unchanged.
+
+
 **Current 0.36.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. New user assignment: room PC drop slot, remove dropdown/duplicate
 shortcuts, standard top-right Activities. See ROOM_WORKSHOP.md. The uploaded 02:05 recording visibly
@@ -42,7 +50,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.36.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.37.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

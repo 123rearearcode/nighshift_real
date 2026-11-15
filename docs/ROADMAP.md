@@ -316,3 +316,18 @@ hub are now scrolled/bounded. The uploaded recording displays v0.32.0 and the re
 implementation; fresh v0.36.0 installation instructions avoid confusing project copies. No universal
 crash-freedom claim: real native input regression tests cover the reported sequence and navigation.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+## 0.37.0 — Thermal controls and bin retraction
+
+User approved: distinct teal Cleaning / purple Thermal tabs; remove redundant cloth/syringe
+button in favor of physical tools. Mount cooler moves below the socket, visible only after
+paste is present and before mounting/graded completion. This does not force a good-size blob:
+poor paste work remains possible. The lever still locks/grades; mounting never auto-completes.
+One material menu offers normal thermal paste, super-paste and toothpaste. Wipe/reset a layer
+before changing material. Super-paste is honest, uses normal flow/contact rules with a subtle
+blue-purple tint, and improves cooling at equal grade. Trial numbers: $6 and −4°C versus normal
+$3/0°C and toothpaste free/+14°C. Both thermal reports and saved/per-PC physical fields honor it.
+The reel is inside the vacuum bin: RETRACT on the bin replaces the separate spool. It does not
+empty the bin; hose stays shortened until pulled. No new campaign system or save-shape change.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
