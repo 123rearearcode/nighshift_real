@@ -39,6 +39,41 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.40.0 - 2026-11-15 - Wave 2: anti-virus and overclocker
+
+- Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5) in a chat session
+- Based on: 0.39.0
+- Type: minor (two new apps; the job gains optional `infection` and `overclock`; old saves load clean)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is recorded below once it ran. No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D132): `malware.gd` (adware, hidden miner, scan, pickup faults) and `overclock.gd` (multiplier, voltage, heat, stability, stress tests, pickup faults). Numbers are trial proposals.
+- Added: Anti-virus scan / Remove threat and the Overclocker controls on the diagnostic monitor, replacing the two "later" buttons. The second demo PC arrives with adware.
+- Changed: the shop's final check and the monitor include overclock heat; game tests and pickup use the overclocked CPU and the miner's CPU share.
+- Changed: `GameState.pickup_faults(temp)` composes install, infection and overclock faults.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/malware.gd`, `scripts/rules/overclock.gd`, `tools/test_malware_overclock.gd` | A | New rules and suite |
+| `scripts/night/software_view.gd`, `scripts/night/night_diagnostics.gd`, `scripts/night/night_session.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/pickup_score.gd`, `scripts/state/game_state.gd` | M | Apps, heat, fps, faults, fields |
+| `tools/test_software.gd`, `.github/workflows/tests.yml` | M | Scan replaces the future-app check; suite registered |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/BUGS.md`, `docs/SOFTWARE_WAVE_2.md` | M | Docs, version, 0.40.0 structural checkpoint |
+
+### Checks performed
+`python3 -I tools/check_project.py` (see PR). CI result recorded on the PR.
+
+### Decisions proposed (not approved)
+All D132 numbers: strain penalties, +6% power per step, +4 C per step, +3 C per voltage step, hot threshold 80 C, $2 long test.
+
+### Known issues and open items
+Only the demo ticket arrives infected. Not playtested.
+
+### Next action
+Playtest 0.38-0.40, then feedback.
+
 ## 0.39.0 - 2026-11-15 - Hardware bench shows the ticket's PC, screwdriver, Shop
 
 - Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5) in a chat session

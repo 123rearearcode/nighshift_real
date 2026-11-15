@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.39.0)
+# Nightshift - Godot Foundation Trial (v0.40.0)
+
+New in 0.40.0: **the diagnostic monitor's last two apps work.** Anti-virus: some PCs arrive infected
+(the customer only hints: pop-ups, fans spinning up). Scan, then Remove threat; if you never scan, the
+customer finds it at pickup. Overclocker: raise the CPU multiplier for more FPS; voltage keeps it stable
+but heats it. The heat shows in every check; instability does not: a quick stress test only catches a
+crashing setting, the long test ($2) catches a marginal one, and a marginal one left on crashes at the
+customer's home. All numbers are trial proposals.
 
 New in 0.39.0: **the hardware bench now shows the PC of the ticket you are working on** (its CPU, RAM, GPU
 and cooler; anything you removed or broke at the repair bench is in the drawer, and what you move there

@@ -3,6 +3,7 @@
 extends Node
 const Store = preload("res://scripts/state/save_store.gd")
 const Customers = preload("res://scripts/data/customers.gd")
+const Malware = preload("res://scripts/rules/malware.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -42,6 +43,7 @@ func start(gs: Node) -> bool:
     other["payout"] = who["payout"]
     other["layout"] = "compact"
     other["broken_parts"] = ["gpu"] if cid == "t002_relu" else []
+    Malware.infect(other, Malware.ADWARE)   # D132: the second demo PC arrives with adware (the hint is in the complaint)
     _tag(other,str(other["id"]),run_id+":pc:2")
     tickets.append(other)
     gs.ticket_sequence += 1

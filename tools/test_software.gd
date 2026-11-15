@@ -69,8 +69,8 @@ func run_checks() -> void:
     check(view.output.text.contains("No live temperature"),"failed boot blocks live thermal reading")
     gs.job["broken_parts"] = []
     var unchanged: Dictionary = gs.job.duplicate(true)
-    view._future("Anti-virus")
-    check(gs.job == unchanged and view.output.text.contains("No scan or tuning"),"future app does not pretend to repair anything")
+    view._scan()
+    check(gs.job == unchanged and view.output.text.contains("no threats"),"a scan of a clean PC reports clean and changes nothing")
     view._power()
     check(not gs.job["pc_powered"] and view.output.text.contains("readings cleared"),"powering down clears the live report")
     check(night.switch_pc(gs,second) and not gs.job["pc_powered"],"other customer's PC retains its own off switch")
