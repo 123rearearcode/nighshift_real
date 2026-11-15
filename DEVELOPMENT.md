@@ -572,3 +572,17 @@ controls handle GUI dispatch. No rack selector Buttons, furniture pages or synch
 Tests dispatch native viewport mouse input through toolbar/popup, with embedded popup coordinates,
 and validate choice rectangles, direct room dragging, migration and repeated interaction lifecycles.
 Earlier version-1 storage contract is historical; see STORAGE_ROOM.md for the current format.
+
+
+## Tool/hose feel contract — 0.34.0
+ToolRig.hose_capacity is total available hose; hose.length() is deployed length. start_spool_retract
+releases hose/clamp pins, parks a held vacuum and reduces deployed length while returning it. The
+remaining chain stays short; _pay_out_hose feeds to capacity only under nozzle/rope/active clamp pulling. Passive/throw motion is constrained to the currently deployed length; it cannot feed the reel itself. Upgrading capacity preserves a coiled chain. Existing spool cancellation,
+rope solver, clamp and hand-state rules remain. Bench instance only; no save-format change.
+Brush key 1 / vacuum key 2 are input mappings, NOT renamed physics indices. Tool-buttons array stays
+indexed by DustSim ids; all highlights are synchronized on accepted switch. Heavy tuning changes only
+salvage data/material/force values. User directly requested these narrow feel edits; no concurrent hot PR.
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `docs/BENCH_FEEL_0_34.md` | docs | Requested behavior, tests and review handoff |

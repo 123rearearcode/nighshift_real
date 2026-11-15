@@ -19,13 +19,13 @@ func configure(item: Dictionary) -> void:
     collision_layer = 128
     collision_mask = 384   # finds (128) + the rim barrier (256, D108); the held body drops the barrier bit
     continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE if Data.SHAPES.has(item["kind"]) or item["opened"] else RigidBody2D.CCD_MODE_DISABLED
-    linear_damp = 3.0 if heavy else 0.65
+    linear_damp = 8.0 if heavy else 0.65
     angular_damp = 5.0 if heavy else 1.5
     can_sleep = true
     max_contacts_reported = 4
     contact_monitor = true
     var material := PhysicsMaterial.new()
-    material.friction = 1.1 if heavy else 0.65
+    material.friction = 0.22 if heavy else 0.65
     material.bounce = 0.0 if heavy else 0.035
     physics_material_override = material
     for child: Node in get_children():
@@ -53,7 +53,7 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
     var offset: Vector2 = state.transform.basis_xform(grip_local)
     var point: Vector2 = state.transform.origin+offset
     var velocity: Vector2 = state.linear_velocity+Vector2(-offset.y,offset.x)*state.angular_velocity
-    var force: Vector2 = ((target-point)*STIFFNESS-velocity*25.0*sqrt(mass)).limit_length(MAX_FORCE*0.65 if heavy else MAX_FORCE)
+    var force: Vector2 = ((target-point)*STIFFNESS-velocity*25.0*sqrt(mass)).limit_length(MAX_FORCE*0.5 if heavy else MAX_FORCE)
     state.apply_force(force,offset)
     var turn: float = angle_difference(state.transform.get_rotation(),target_angle)
     state.apply_torque(clampf(turn*850.0-state.angular_velocity*110.0,-1800,1800)*(1.0 if heavy else mass))

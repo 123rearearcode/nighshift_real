@@ -278,12 +278,13 @@ func test_heavy_obstacles() -> void:
     await ticks(w,s,150)
     var block: RigidBody2D = w.bodies["block"]
     var part: RigidBody2D = w.bodies["part"]
-    check(block.mass>part.mass*10 and not block.freeze,"heavy obstruction is a massive dynamic body, not scenery")
+    check(block.mass>part.mass*4 and not block.freeze,"heavy obstruction is a massive dynamic body, not scenery")
     var start: Vector2 = block.position
     s.start_effort("block","grab")
     w.remember_grab("block",start)
     await ticks(w,s,200,Vector2(520,180))
-    check(s.held == "block" and block.position.distance_to(start)<35,"sustained pull barely moves a settled heavy block")
+    check(s.held == "block" and block.position.distance_to(start)>5 and block.position.distance_to(start)<120,"sustained pull nudges a heavy block without making it fly")
+    check(block.position.y>start.y-30,"heavy block remains grounded while being pulled upward")
     check(not s.drop_cargo(Vector2i.ZERO),"heavy waste cannot be claimed as a component in cargo")
     s.cancel_hand()
     w.sync(s,pointer)

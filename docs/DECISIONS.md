@@ -325,3 +325,15 @@ zoom/pan and no furniture pages. Eight bays and equal furniture footprints are p
 not a room-upgrade economy. Code remains local under the previous no-push instruction.
 Storage layout schema 2 adds room coordinates, retaining v1 shelf/owner references. No source-of-truth
 or purchase-capacity change. PR #39 is already merged; review results are in REVIEW_0_32.md.
+
+
+## Spool / brush / heavy feel — 15 November 2026, 0.34.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+D119 (confirmed): the spool shortens hose until it is pulled back out. Deployed length is separate
+from capacity, remains short when idle and pays out under pulling (nozzle, hose or clipped moving clamp).
+D120 (confirmed): repair bench starts with brush; brush is key 1, vacuum moves to key 2. Simulation
+indices stay unchanged. Tool highlights must agree with actual selection/refused transitions.
+D121 (confirmed): heavy salvage must remain slightly movable. Lower mass/friction plus strong damping
+allows nudging; it is still grounded and cannot be packed. Numerical tuning remains provisional.
+The user authorized merging room 0.33.0 (PR #40); old no-push notes for that delivery are superseded.
+These new changes get their own review. No new save/PC schema, tool-arrangement persistence or sounds.

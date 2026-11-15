@@ -1,4 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.33.0)
+# Nightshift - Godot Foundation Trial (v0.34.0)
+
+**0.34.0 bench feel:** Brush starts equipped (1); Vacuum is 2. The spool really shortens deployed
+hose and keeps it short until the nozzle/hose is pulled out. Heavy salvage can be nudged while
+remaining too heavy to lift casually. Room update 0.33.0 was approved and merged as PR #40.
+See docs/BENCH_FEEL_0_34.md for details and limits.
+
 
 **Local 0.33.0 room update:** F5 → Storage rack. Furniture is shown together in a 4×2 floor grid;
 there are no per-rack selector buttons. Add furniture, drag its title bar to an empty bay, and use

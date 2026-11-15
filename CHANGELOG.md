@@ -39,6 +39,76 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.34.0 - 2026-11-15 - Retractable hose, brush-first controls and movable heavy waste
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.33.0, room PR #40 merged at f31eaea after CI passed
+- Type: minor (deployed hose length/payout behavior and user-requested feel changes)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally, including the full bench diagnostic matrix.
+Final applicable suite results total 1,219 checks, zero failures; pending contracts zero checks.
+No graphical/manual playtest or target-hardware performance claim. Date: 15 November 2026,
+Europe/Bucharest. Approved room delivery is merged; this follow-up awaits cross-review/playtest.
+
+### Added / Changed / Fixed / Removed
+- Spool actually reduces deployed hose to 140 world pixels. It stays short at rest; pulling the
+  vacuum, rope or clipped clamp pays out up to the owned capacity. Passive motion cannot unspool it.
+  Reel releases carried rope pins; upgrades preserve already coiled hose. Length is bench-session state.
+- Repair bench starts with Brush: key 1 Brush, key 2 Vacuum. Internal simulation ids stay unchanged.
+  Fix mutually exclusive button highlights on hotkey changes, preserving refused-switch behavior.
+- Heavy concrete/appliances remain uncollectable obstacles but can be nudged/tipped. Lower mass and
+  friction, stronger damping, grip still below weight; normal parts remain much easier to lift.
+- Publish/archive approved 0.33.0 room and merge PR #40. Preserve canonical stock and existing room.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `DEVELOPMENT.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `HANDOFF.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `README.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/BENCH_FEEL_0_34.md` | A | Gameplay, regression coverage or signed scope documentation |
+| `docs/BUGS.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/CURRENT_STATE.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/DECISIONS.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/DESIGN.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/PROJECT_BRIEF.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/ROADMAP.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `project.godot` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/bench/tool_rig.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/data/ids.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/salvage/salvage_body.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/salvage/salvage_data.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/view/bench_view.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_audio_and_vacuum.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_bench_interactions.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_regressions.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_salvage_physics.gd` | M | Gameplay, regression coverage or signed scope documentation |
+
+### Checks performed
+- Full required suites: data schemas 206, regressions 594, start screen 20, dust flow 43,
+  bench interactions 31, bench feedback 27, audio/vacuum 45, performance 24, salvage 49,
+  salvage physics 44, storage 82, night workshop 53: zero failures.
+- After the final passive-payout guard, reran audio/vacuum (46 checks) and regressions (594):
+  zero failures. Final applicable total is 1,219; no duplicate-run inflation.
+- Full playtest_bench diagnostic state/frame matrix completed without script errors. It preceded
+  the final passive-payout guard; targeted spool tests cover that change. Frame figures are local
+  headless observations, not a target-hardware benchmark.
+- CI scope tests: 9 passed. Project hygiene and diff whitespace checks passed.
+
+### Decisions proposed (not approved)
+Numeric force/length tuning remains provisional. User approved behavior is D119–D121.
+
+### Known issues and open items
+- Deployed hose length resets with a new bench instance, like tool positions; no save schema change.
+- B19 workshop ticket overflow remains open. User should playtest feel and graphical layout.
+
+### Next action
+User playtests the separate 0.34.0 PR; do not automatically merge it. Claude goes next for
+cross-review. Hot files bench_view.gd and tool_rig.gd are free after this delivery; game_state.gd
+was untouched and is free subject to Claude's current work-plan ownership. WORK_PLAN.md unchanged.
+
 ## 0.33.0 - 2026-11-15 - Direct room furniture and storage crash fixes (local)
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

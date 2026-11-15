@@ -1,5 +1,10 @@
 # Nightshift — Project Brief
 
+Current review build: **0.34.0 spool, brush-first controls and movable heavy waste**. Room 0.33.0
+was approved/published/merged in PR #40; its older local-only notes below are historical.
+See BENCH_FEEL_0_34.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
 Current local delivery: **0.33.0 room storage**, based on integrated main 0.32.0. Prior branch-status
 notes are historical. Room has direct furniture, eight floor bays and zoom/pan; no rack-selector list.
 See STORAGE_ROOM.md and REVIEW_0_32.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
@@ -201,3 +206,22 @@ no room purchase/expansion economy or shared capacity hook introduced. Full cont
 Main 0.32.0 already integrates the prior PRs. Earlier pending/independent-branch notes below are
 historical. Review of Claude PR #39: canonical CPU/part-state fixes retained; night ticket overflow
 B19 remains open with measured evidence, reported to Claude. Code is local; no pushes or merges.
+
+
+## Bench feel — trial 0.34.0
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest.
+Room 0.33.0 is published and merged (PR #40, user authorized). This new review branch keeps that
+room and adds requested feel fixes. Spool winds in deployed hose instead of restoring a full coil;
+idle hose stays short, and pulling the nozzle/hose/clipped moving clamp feeds out only needed length,
+up to base/upgrade capacity. Spooling releases a held rope point and removes the clamp constraint.
+
+Repair benches (legacy and night) start with Brush, key 1. Vacuum is key 2; Parts 3 and Pick 4 stay.
+Internal physics slots remain vacuum=0/brush=1. Tool highlights explicitly follow actual selection,
+including hotkeys and refused hand-state transitions. Heavy concrete/appliances retain dynamic mass
+and cannot be packed; lower mass/friction and strong damping allow controlled nudging without flight.
+All weight/force/length tuning is provisional. Deployed hose length remains local to a bench instance,
+like existing tool poses; cross-scene tool arrangement persistence is later engineering work.
+
+No shared save/ownership changes. User-requested narrow edits touch ToolRig spool and BenchView
+initial-tool/keys/labels/highlights; no competing bench PR was open. Hand-state rules are unchanged.
+Claude cross-reviews next; the new feel changes are not automatically merged with the approved room.

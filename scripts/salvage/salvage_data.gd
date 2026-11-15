@@ -24,7 +24,7 @@ const LABELS: Dictionary = {"cpu":"CPU","gpu":"GPU","ram":"RAM","psu":"PSU","ssd
 const WEIGHTS: Dictionary = {
     "mixed":{"gpu":2,"ram":8,"psu":5,"drive":7,"pc":2,"cpu":3,"motherboard":3,"cooler":6,"fan":9,"ssd":3,"hdd":8,"wifi":5,"soundcard":4,"networkcard":5},
     "office":{"gpu":3,"ram":12,"psu":7,"drive":6,"pc":6,"cpu":6,"motherboard":7,"cooler":5,"fan":6,"ssd":10,"hdd":10,"wifi":5,"soundcard":2,"networkcard":10}}
-const MASSES: Dictionary = {"cpu":0.3,"motherboard":0.9,"psu":2.2,"hdd":1.1,"cooler":1.3,"concrete":32.0,"appliance":26.0}
+const MASSES: Dictionary = {"cpu":0.3,"motherboard":0.9,"psu":2.2,"hdd":1.1,"cooler":1.3,"concrete":12.0,"appliance":10.0}
 const MAX_OBJECTS: int = 64
 
 static func label(kind: String) -> String:

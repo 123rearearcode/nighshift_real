@@ -73,7 +73,7 @@ var pick := DustPick.new()
 var replacement_panel: Panel
 var replacement_summary: Label
 var replacement_buttons: Array = []
-var active_tool: int = DustSim.TOOL_VACUUM
+var active_tool: int = DustSim.TOOL_BRUSH
 var zones: Array = []
 var zone_done: Array = []              # bool per zone: counted as clean
 var access: ServiceAccess = ServiceAccess.new()
@@ -289,9 +289,9 @@ func _build_ui() -> void:
     b1.button_pressed = true
 
     var tool_group := ButtonGroup.new()
-    var vac: Button = _make_button("Vacuum (1)", Vector2(PANEL_X, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_VACUUM), tool_group)
-    var brush: Button = _make_button("Brush (2)", Vector2(PANEL_X + 133, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_BRUSH), tool_group)
-    vac.button_pressed = true
+    var vac: Button = _make_button("Vacuum (2)", Vector2(PANEL_X + 133, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_VACUUM), tool_group)
+    var brush: Button = _make_button("Brush (1)", Vector2(PANEL_X, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_BRUSH), tool_group)
+    brush.button_pressed = true
     tool_buttons = [vac, brush]
     var reset_dust: Button = _make_button("Practice: new dirty PC", Vector2(PANEL_X + 270, 645), Vector2(250, 40), _new_ticket)
     move_button = _make_button("Move parts (3)", Vector2(PANEL_X + 266, 164), Vector2(120, 36), _select_tool.bind(2), tool_group)
@@ -364,7 +364,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 556)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Drag clamp: move (outside PC). Click clamp: unclip. 1 vacuum / 2 brush / 3 parts / 4 pick. Wheel or Q/E: rotate."
+        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Drag clamp: move (outside PC). Click clamp: unclip. 1 brush / 2 vacuum / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
             _set_status("Cleanliness target met. %d real dust groups remain; finish vacuuming or continue to paste. New dirty PC starts another practice job." % dust.visible_count(), 1)
         else:
@@ -408,7 +408,8 @@ func _select_tool(new_tool: int) -> void:
     else: _park_tool()
     pick.reset()
     if tool_buttons.size() == 4:
-        (tool_buttons[new_tool] as Button).set_pressed_no_signal(true)
+        for index in range(tool_buttons.size()):
+            (tool_buttons[index] as Button).set_pressed_no_signal(index == new_tool)
     if stage == STAGE_CLEAN and _done_count() < zones.size():
         _set_status(_clean_hint(), 0)
 
@@ -673,7 +674,7 @@ func _input(event: InputEvent) -> void:
                     and hand_state() in [HandState.FREE, HandState.USING_TOOL]:
                 tools.start_spool_retract()
                 _sound("hose.rewind")
-                _set_status("The spool reels the hose in: the vacuum is dragged back to it. Pick the vacuum up (or grab the hose) to stop it.", 0)
+                _set_status("The spool takes up hose and pulls the vacuum back. It stays short until you pull the nozzle or hose out again.", 0)
                 holding = false
                 return
             # The PC's power button, top-right of the case.
@@ -735,9 +736,9 @@ func _input(event: InputEvent) -> void:
         if key.pressed and not key.echo:
             if stage == STAGE_CLEAN:
                 if key.keycode == KEY_1:
-                    _select_tool(DustSim.TOOL_VACUUM)   # a refused switch leaves the highlight alone: _select_tool updates it only when it happens
+                    _select_tool(DustSim.TOOL_BRUSH)   # a refused switch leaves the highlight alone: _select_tool updates it only when it happens
                 elif key.keycode == KEY_2:
-                    _select_tool(DustSim.TOOL_BRUSH)
+                    _select_tool(DustSim.TOOL_VACUUM)
                 elif key.keycode == KEY_3:
                     _select_tool(2)
                 elif key.keycode == KEY_4:

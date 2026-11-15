@@ -1,5 +1,14 @@
 # Handoff - read this first
 
+**Current 0.34.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+15 November 2026, Europe/Bucharest. User authorized publishing/merging room 0.33.0: PR #40 merged
+at f31eaea after CI passed. Earlier local/no-push notes below are historical. New spool/brush/weight
+changes are a separate review branch. Spool now stores deployed length separately from capacity;
+brush starts equipped on key 1, vacuum is key 2; heavy waste can be nudged. No GameState edits.
+User directly requested these narrow hot-file feel changes; no competing bench PR was open.
+Claude cross-reviews the new changes before any merge. See docs/BENCH_FEEL_0_34.md.
+
+
 **Current local delivery 0.33.0 — read before historical notes:** Codex (GPT 6.1 Sol,
 model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest. Based on integrated
 main 0.32.0. PR #39 is already merged; review findings: docs/REVIEW_0_32.md (comment posted).
@@ -16,7 +25,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.33.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.34.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

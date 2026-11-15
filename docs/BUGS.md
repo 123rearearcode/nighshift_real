@@ -35,14 +35,17 @@ fix ships now.
 | B15 | 0.27.0 | 0.32.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
 
 
-| B16 | rack/night PRs #35/#36; still present in main 0.32.0 | 0.33.0 local (not pushed) | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
+| B16 | rack/night PRs #35/#36; still present in main 0.32.0 | 0.33.0 (PR #40 merged) | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
 
 | B17 | pending rack/night integration with main 0.29.0 | 0.32.0 | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); fixed in 0.32.0: the rack reads the canonical `GameState.inventory_components()` projection (test_storage checks the CPU appears) |
 
 | B18 | 0.30.0 | 0.32.0 | Claude integration review | The night workshop diagnosis said only "Damaged: gpu. Replace these parts." - the B12 dead end again, on the screen that replaced the shop | a second surface wrote its own aggregate notes instead of reading the shared part rule (RC-1/RC-2); fixed with the pure `part_states.gd` rule used by every surface |
 
 | B19 | 0.32.0 | open | Codex review of PR #39 | Night-workshop ticket grows over diagnosis report when parts are broken | Parts summary appended to plain Label; measured y=166..511 against report y=425 (RC-2); proposed bounded ticket scroll |
-| B20 | storage PR #35; still present in 0.32.0 | 0.33.0 local (not pushed) | user recording + Codex GUI regression | Add-furniture choices overlap; only last choice is usable | PopupPanel Container repositions direct Button children despite hand-set positions; replaced by Margin/VBox layout |
+| B20 | storage PR #35; still present in 0.32.0 | 0.33.0 (PR #40 merged) | user recording + Codex GUI regression | Add-furniture choices overlap; only last choice is usable | PopupPanel Container repositions direct Button children despite hand-set positions; replaced by Margin/VBox layout |
+
+| B21 | before 0.34.0 | 0.34.0 | user playtest | Spool moves vacuum back but full hose immediately lies on the desk again | One length represented both deployed hose and capacity; reset re-created a full-length chain. Separate capacity from deployed length and pay out only under pulling |
+| B22 | tool selection before 0.34.0; exposed by brush-first test | 0.34.0 | regression test | Hotkey selection can leave two tool buttons highlighted | set_pressed_no_signal on one Button did not clear its group peer; explicitly synchronize every tool highlight after an accepted switch |
 
 ## Root causes (structural)
 

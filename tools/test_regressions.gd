@@ -1237,8 +1237,9 @@ func test_hand_machine(gs: Node) -> void:
     for frame in range(60): bench._physics_process(1.0/60.0)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "the parked hose can be grabbed")
     check(bench.hand_state() == HandState.CARRYING_HOSE, "carrying the hose is its own hand state")
-    bench._select_tool(Dust.TOOL_BRUSH)
-    check(not bench.tools.equipped and bench.active_tool != Dust.TOOL_BRUSH, "keyboard tool switch is refused while carrying the hose")
+    var before_switch: int = bench.active_tool
+    bench._select_tool(Dust.TOOL_VACUUM if before_switch == Dust.TOOL_BRUSH else Dust.TOOL_BRUSH)
+    check(not bench.tools.equipped and bench.active_tool == before_switch, "tool selection is refused while carrying the hose")
     var vacuum_at: Vector2 = bench.tools.motions[Ids.VACUUM].center
     click(bench, MOUSE_BUTTON_LEFT, true, vacuum_at)
     check(not bench.tools.equipped and bench.hand_state() == HandState.CARRYING_HOSE, "a left click on a resting tool is refused while carrying the hose")
@@ -1420,7 +1421,7 @@ func test_promoted_contracts(gs: Node) -> void:
     for frame in range(30): bench.tools.step(1.0 / 60.0, Vector2(300, 300), false)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture holds hose before testing refused selection")
     var key := InputEventKey.new()
-    key.keycode = KEY_2
+    key.keycode = KEY_1   # brush now lives on key 1; still test a refused change from vacuum
     key.pressed = true
     bench._input(key)
     var selection_matches: bool = true
