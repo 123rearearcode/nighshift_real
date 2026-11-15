@@ -165,3 +165,12 @@ input, live-test gates, purchase-once/ownership/FPS, non-paying thermal reports,
 per-PC switches and one-world-pixel cloth edge. Older payment fixtures explicitly switch their
 repaired PC on; no global test override hides the new default. Rendering/feel need manual playtest.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+### Room/workshop / 0.36.0
+`test_room_workshop.gd` is required. Real viewport inputs replay sort/save/add/title selection,
+drop a whole PC into the workshop slot, reject tool/unknown/protected choices, check a bounded
+hub ticket, and click one identically positioned Activities control on each of six night screens.
+Checks preserve per-PC progress, canonical item counts and money; failed checkpoint blocks exit.
+Recording evidence shows v0.32.0. Test the fresh version rather than only replaying its old UI.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

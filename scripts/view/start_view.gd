@@ -21,7 +21,6 @@ func _ready() -> void:
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
     _button("Settings", 458, _on_settings)
-    _button("Storage rack", 516, _on_storage)
     status_label = _label("New game opens your night activities. Choose workshop or salvage from there.", Vector2(424, 578), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
@@ -84,10 +83,6 @@ func _on_load_game() -> void:
     else:
         load_button.disabled = true
         status_label.text = "No readable save was found. Start a new game."
-
-
-func _on_storage() -> void:
-    get_tree().change_scene_to_file("res://scenes/storage.tscn")
 
 
 # Settings (D107): just the sound slider for now. The value applies as it moves and is kept

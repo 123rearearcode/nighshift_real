@@ -21,7 +21,8 @@ func _ready() -> void:
     var marker: Dictionary = GameState.job.get("hardware_trial",{}).get("night_session",{})
     ready_for_work = ready_for_work and str(marker.get("pc","")) != ""
     _label("DIAGNOSTIC MONITOR / %s"%GameState.job["id"],Vector2(32,22),Vector2(850,45),28)
-    _button("Back to workshop",Rect2(980,24,268,48),"res://scenes/night_workshop.tscn")
+    _button("Workshop",Rect2(920,20,168,42),"res://scenes/night_workshop.tscn")
+    Navigation.attach(self,_go.bind(Navigation.ACTIVITIES))
     status_label = _label("",Vector2(64,112),Vector2(810,36),20)
     boot_button = _app("Boot check",Rect2(64,162,185,46),_boot)
     thermal_button = _app("Final / thermal check",Rect2(261,162,240,46),_thermal)

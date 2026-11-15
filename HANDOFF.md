@@ -1,5 +1,13 @@
 # Handoff - read this first
 
+**Current 0.36.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+15 November 2026, Europe/Bucharest. New user assignment: room PC drop slot, remove dropdown/duplicate
+shortcuts, standard top-right Activities. See ROOM_WORKSHOP.md. The uploaded 02:05 recording visibly
+shows v0.32.0, not the fixed room in 0.33+. Replay its native click sequence on this delivery.
+No new hot-file edits; this extends existing PR #41 only. Do not merge automatically. Claude next
+for cross-review. Current hardware bench remains shop stock, not a second customer-PC repair model.
+
+
 **Current 0.35.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User requested cloth inset, PCs off by default, then Wave 2.
 The same bench-feel PR now includes a first diagnostic desktop (boot, thermal, Vapor purchase/FPS).
@@ -34,7 +42,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.35.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.36.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

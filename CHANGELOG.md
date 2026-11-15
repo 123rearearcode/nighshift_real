@@ -39,6 +39,98 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.36.0 - 2026-11-15 - Drag a PC into the workshop and consistent Activities exits
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.35.0 (74f3e5d), extending the same unmerged PR #41
+- Type: minor (physical room selection replaces PC dropdown and duplicate routes)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Fourteen required suites: 1,283 checks, zero failures;
+pending contracts zero checks. Native viewport input is included, not only method calls.
+No graphical/manual playtest or universal crash-freedom claim. Date: 15 November 2026,
+Europe/Bucharest. No hot-file or WORK_PLAN.md edits in this version; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- D125: Activity Workshop enters room. Drop a real customer PC into WORKSHOP SLOT to select/open
+  its canonical ticket. Reject parts/tools, unknown/stale PCs and protected manifests. Preserve
+  each repair and reserved shelf allocation; slot refers to the same PC, never a duplicate.
+- Remove service-hub PC dropdown and duplicate Storage shortcuts on title/activity menus.
+  The active PC's shelf spot is marked ON BENCH; choose another to return the previous to its spot.
+- D126/B25: one named, shared top-right Activities control on room, service hub, repair, hardware,
+  software and salvage. Existing cleanup paths preserve dust/paste, throws/stock and salvage custody.
+  Generic night exits block and show the error if the checkpoint fails.
+- B19: service-hub ticket now has a bounded ScrollContainer above the diagnosis report.
+- B16 follow-up: inspect supplied 8.13s recording; title visibly says v0.32.0 and room has old
+  numbered selectors. Current room replacement came from PR #40/v0.33.0, already merged. There
+  is no per-rack Button/self-free path in this source. Replay sort/save/add/multiple-title clicks
+  with actual GUI input; stable control identities verified. README explains fresh-folder import.
+- Furniture utility actions remain. No new global PC ownership/schema, campaign clock, hardware
+  model integration, changed economics or simulation tuning. Existing hardware bench is shop stock.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `CHANGELOG.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `DEVELOPMENT.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `HANDOFF.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `README.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/BUGS.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/CURRENT_STATE.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/DECISIONS.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/DESIGN.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/NIGHT_WORKSHOP.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/PROJECT_BRIEF.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/ROADMAP.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/ROOM_WORKSHOP.md` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/STORAGE.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/TESTING.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `project.godot` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/activities_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/hardware_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/night_navigation.gd` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/repair_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/salvage_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/software_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/workshop_hub.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/storage/storage_sources.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/storage/storage_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/view/start_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_night_workshop.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_room_workshop.gd` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_start_screen.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_storage.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+
+### Checks performed
+- Godot 4.7.2: data schemas 206, regressions 594, start screen 20, dust flow 43, bench interactions 31,
+  bench feedback 27, audio/vacuum 46, performance 24, salvage 49, salvage physics 44, storage 82,
+  night workshop 53, software 31, room/workshop 33: all zero failures (1,283 total).
+- After the final route guard/shortcut changes, reran start, storage, night workshop, software and
+  room/workshop suites. No script errors. Pending contracts: 0/0.
+- Native events: sort/save/add two types, every furniture title, PC drag to slot and one common
+  Activities exit per work screen. Save-failure exit refusal, canonical counts/cash, per-PC progress
+  and reload checked. Old dropdown-route assertion replaced with absence of that control.
+- Fresh extracted v0.36.0 source imported in Godot 4.7.2 and passed all 33 room/workshop checks,
+  with no script errors (expected forced-save-failure warning only).
+- Project hygiene, diff whitespace and CI scope (9 tests) passed. Full physics diagnostic matrix
+  not repeated: 0.36 changes wrappers/layout/navigation only; underlying bench hot files untouched.
+
+### Decisions proposed (not approved)
+No additional mechanics. Existing eight-room-bay capacity and visual tuning remain provisional.
+
+### Known issues and open items
+- Recording evidence is v0.32.0; an unseen newer-build failure cannot be ruled out by that video.
+  Use a fresh v0.36.0 folder and check the title/room version before further playtests.
+- Active PC retains a rack reservation; there is no separate PC unmount/eject inventory system.
+- Shared installed-PC hardware model and later anti-virus/overclocker slices remain future work.
+
+### Next action
+User playtests v0.36.0; Claude goes next for cross-review of PR #41. Do not merge automatically.
+This version edits none of bench_view.gd, tool_rig.gd or game_state.gd; those hot files remain
+reserved by the earlier changes in this single PR until its review/merge, then free subject to
+Claude's work-plan ownership. WORK_PLAN.md unchanged.
+
 ## 0.35.0 - 2026-11-15 - Cloth edge, off-by-default PCs and first Wave 2 monitor
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

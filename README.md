@@ -1,4 +1,17 @@
-# Nightshift - Godot Foundation Trial (v0.35.0)
+# Nightshift - Godot Foundation Trial (v0.36.0)
+
+New in 0.36.0: **New Game → Activities → Workshop room → drag a customer PC into the right-hand
+workshop slot.** The selected PC opens its workshop. To change PCs, return to the room and drag
+another in. A marked rack reservation remains for the PC on the bench; it is the same PC.
+All six night work screens have Activities in the same top-right position. No rack-list buttons,
+PC dropdown or duplicate Storage shortcut on the title/activity menus.
+
+**Use the new build:** close the old demo, extract the v0.36.0 ZIP into a fresh folder, then in
+Godot Project Manager choose Import and select that folder's project.godot. Confirm **v0.36.0**
+on the title/room screen before testing. The attached 02:05 recording shows v0.32.0 and its old
+self-freeing rack-selector implementation; the direct room fix was introduced in v0.33.0.
+Do not delete your saves or overwrite an old project folder to install this source package.
+See docs/ROOM_WORKSHOP.md for controls and persistence limits.
 
 New in 0.35.0: New Game → Workshop → Diagnostic monitor. PCs start OFF: use Switch PC ON,
 then Boot check, thermal/final report, or Vapor → buy/run Counter Stroke 2. Tests do not complete

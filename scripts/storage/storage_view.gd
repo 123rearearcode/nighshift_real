@@ -6,6 +6,8 @@ const Sources = preload("res://scripts/storage/storage_sources.gd")
 const Store = preload("res://scripts/storage/storage_store.gd")
 const Motion = preload("res://scripts/view/part_motion.gd")
 const Canvas = preload("res://scripts/storage/room_canvas.gd")
+const Navigation = preload("res://scripts/night/night_navigation.gd")
+const WORKSHOP_SLOT := Rect2(1010,150,242,126)
 const ROOM_VIEW := Rect2(24,158,946,414)
 var model := Model.new()
 var store := Store.new()
@@ -20,6 +22,9 @@ var zoom: float = 1.0
 var pan := Vector2.ZERO
 var summary: Label
 var info: Label
+var workshop_label: Label
+var workshop_button: Button
+var workshop_pending: bool = false
 var status: Label
 var room_clip: Control
 var canvas: Node2D
@@ -33,7 +38,7 @@ func _ready() -> void:
     selected_unit = model.units[0]["id"]
     _label("STORAGE / YOUR WORKSHOP",Vector2(24,18),Vector2(940,40),28)
     summary = _label("",Vector2(24,62),Vector2(946,32),16)
-    _button("Activities",Rect2(1100,22,152,42),_leave)
+    Navigation.attach(self,_leave)
     _label("v%s · room storage"%GameState.game_version(),Vector2(1008,72),Vector2(244,24),13)
     edit_buttons.append(_button("+ Add furniture",Rect2(24,108,174,36),_open_add))
     edit_buttons.append(_button("Remove empty",Rect2(210,108,160,36),_remove_unit))
@@ -51,10 +56,13 @@ func _ready() -> void:
     canvas = Canvas.new()
     canvas.view = self
     room_clip.add_child(canvas)
-    _label("DETAILS",Vector2(1010,128),Vector2(242,28),17)
+    _label("WORKSHOP SLOT",Vector2(1010,120),Vector2(242,26),17)
+    workshop_label = _label("",Vector2(1020,160),Vector2(222,106),15)
+    workshop_button = _button("Open workshop",Rect2(1010,286,242,34),_open_workshop)
+    _label("DETAILS",Vector2(1010,326),Vector2(242,24),15)
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(1010,168)
-    scroll.size = Vector2(242,266)
+    scroll.position = Vector2(1010,354)
+    scroll.size = Vector2(242,88)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     add_child(scroll)
     info = Label.new()
@@ -136,7 +144,45 @@ func _sync_ui() -> void:
     summary.text = "%d PC · %d tools · %d parts   |   Room %d / 8 bays   |   %d waiting for space"%[counts.pc,counts.tool,counts.part,model.units.size(),model.overflow().size()]
     status.text = store.status if store.status != "" else "Drag furniture by its title bar · wheel zooms · middle-drag pans · invalid drops return safely · furniture is free for now"
     for button: Button in edit_buttons: button.disabled = store.read_only
+    var active: String = _workshop_uid()
+    workshop_label.text = "Drop a PC here to choose it.\n\n"+("On bench: "+model.items[active]["model"] if active != "" else "No customer PC available")
+    workshop_button.disabled = store.read_only or NightSession.read_only or active == ""
     _redraw()
+
+# A shelf allocation stays reserved while the same physical PC is on the workbench.
+# The slot is a reference to GameState/NightSession, never a copied PC or a second inventory.
+func _workshop_uid() -> String:
+    for uid: String in model.items:
+        if model.items[uid]["category"] == "pc" and model.items[uid]["source_uid"] == str(GameState.job.get("id","")): return uid
+    return ""
+
+func _choose_workshop_pc(uid: String) -> bool:
+    if store.read_only or workshop_pending: return false
+    var canonical: Dictionary = Sources.collect(GameState).get(uid,{})
+    if canonical.get("category","") != "pc":
+        status.text = "The workshop slot accepts a whole customer PC, not a part or tool."
+        return false
+    var ticket_id: String = str(canonical["source_uid"])
+    if not NightSession.ensure(GameState) or not NightSession.switch_pc(GameState,ticket_id):
+        status.text = NightSession.status if NightSession.status != "" else "This PC cannot be selected. Refresh the room and try again."
+        return false
+    if not NightSession.checkpoint(GameState):
+        status.text = NightSession.status
+        return false
+    _refresh()
+    return true
+
+func _open_workshop() -> void:
+    if _choose_workshop_pc(_workshop_uid()): _queue_workshop()
+
+func _queue_workshop() -> void:
+    _cancel()
+    workshop_pending = true
+    set_process_input(false)
+    call_deferred("_enter_workshop")
+
+func _enter_workshop() -> void:
+    if is_inside_tree(): get_tree().change_scene_to_file("res://scenes/night_workshop.tscn")
 
 func _save() -> void:
     store.write(model)
@@ -305,6 +351,12 @@ func _input(event: InputEvent) -> void:
                     if ROOM_VIEW.has_point(pointer) and changed and model.move_unit(held_furniture,destination): _save()
                     held_furniture = ""
                 elif model.held != "":
+                    if WORKSHOP_SLOT.has_point(pointer):
+                        var uid: String = model.held
+                        model.cancel()
+                        if _choose_workshop_pc(uid): _queue_workshop()
+                        _redraw()
+                        return
                     var target := _target(pointer)
                     var committed: bool = not target.is_empty() and model.drop(target["unit"],target["shelf"],target["cell"])
                     model.cancel()
@@ -334,6 +386,10 @@ func _text(text: String,at: Vector2,size: int = 14,color: Color = Color("dce6ec"
     painter.draw_string(ThemeDB.fallback_font,at,text,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
 func _draw_item(uid: String,rect: Rect2,alpha: float = 1.0, painter: CanvasItem = self) -> void:
     var item: Dictionary = model.items[uid]
+    if uid == _workshop_uid() and painter != self:
+        painter.draw_rect(rect.grow(-2),Color("72959e"),false,1)
+        _text("ON BENCH",rect.position+Vector2(4,16),11,Color("72959e"),painter)
+        return
     var color: Color = Data.COLOURS.get(item["kind"],Color("a0adba"))
     color.a = alpha
     painter.draw_rect(rect.grow(-2),color.darkened(0.65))
@@ -400,6 +456,9 @@ func _draw() -> void:
     draw_rect(Rect2(0,0,1280,720),Color("151e27"))
     draw_rect(ROOM_VIEW.grow(2),Color("48606b"))
     draw_rect(Rect2(1000,112,264,474),Color("202f3a"))
+    var valid: bool = model.held != "" and model.items[model.held]["category"] == "pc" and not NightSession.read_only
+    draw_rect(WORKSHOP_SLOT,Color("193c36") if valid else Color("14232d"))
+    draw_rect(WORKSHOP_SLOT,Color("72d9ad") if valid else Color("6c8a98"),false,2)
     for uid: String in model.overflow():
         var rect := item_rect(uid)
         if rect.has_area(): _draw_item(uid,rect,0.3 if uid == model.held else 1.0)

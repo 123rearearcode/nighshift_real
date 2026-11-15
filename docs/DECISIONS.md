@@ -353,3 +353,16 @@ slices. This user assignment authorizes Codex's bounded software work despite th
 One world-pixel reduction, not one paste-grid cell; fabric pickup uses its actual silhouette inset.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+### D125 — Choose the workshop PC in the room (user approved, 0.36.0)
+Activity Workshop enters the storage room; drag a whole customer PC into the right-side slot.
+Select/open the canonical ticket, keep the prior PC's repair state, retain marked rack reservations.
+No PC dropdown, phantom PC for a build order, copied inventory or separate selection save.
+
+### D126 — Activities stays top right (user approved, 0.36.0)
+One shared control/rectangle on all six night work screens, using each screen's cleanup/save path.
+The activity hub itself is the destination. Remove duplicate Storage shortcuts from title/activity
+menus; furniture utility controls remain, numbered rack-selector Buttons do not exist.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

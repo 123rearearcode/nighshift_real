@@ -1,16 +1,23 @@
 # Additive navigation/automatic paste commit only; legacy bench input/physics stays untouched.
 extends "res://scripts/view/bench_view.gd"
+const Navigation = preload("res://scripts/night/night_navigation.gd")
 func _on_back_pressed() -> void:
+    _return_to("res://scenes/night_workshop.tscn")
+func _return_to(path: String) -> void:
     _cancel_unlocked_mount()
     _save_dust()
-    NightSession.checkpoint(GameState)
-    get_tree().change_scene_to_file("res://scenes/night_workshop.tscn")
+    if not NightSession.checkpoint(GameState):
+        _set_status(NightSession.status,2)
+        return
+    get_tree().change_scene_to_file(path)
 func _new_ticket() -> void:
     _on_back_pressed() # never destroy the selected customer's PC from a practice/reset button
 func _build_ui() -> void:
     super._build_ui()
+    title_label.size.x = 1040
+    Navigation.attach(self,_return_to.bind(Navigation.ACTIVITIES))
     for node: Node in get_children():
-        if node is Button and node.text == "Back to shop": node.text = "Switch PC / workshop"
+        if node is Button and node.text == "Back to shop": node.text = "Workshop / room"
         elif node is Button and node.text.contains("dirty PC"): node.text = "Choose another PC"
     complete_button.visible = false
 func _step_paste(delta: float,mouse: Vector2) -> void:

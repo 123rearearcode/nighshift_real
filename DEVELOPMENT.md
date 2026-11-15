@@ -604,3 +604,21 @@ reports; GameState.buy_game is the existing purchase transaction. No new save sh
 scope. Scene reports are ephemeral and cleared on power-down. Future app buttons do not run tests.
 Cloth pickup and drawing share ToolRig.cloth_outline, inset 1px only for pickup; wiping reach is
 35 world px / 8px grid. Existing square-cloth upgrade scoring stays unchanged. CI adds test_software.
+
+
+## Room/workshop route / 0.36.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_navigation.gd` | view | Shared named Activities Button at one top-right rectangle; owner handles save/cleanup |
+| `tools/test_room_workshop.gd` | tooling | Native PC-slot drag, furniture sequence, six common exit routes, state/save preservation |
+| `docs/ROOM_WORKSHOP.md` | docs | Current room-to-workshop behavior, reservations, version evidence and installation |
+
+Storage selection resolves a fresh Sources.collect PC id to its ticket, asks NightSession to switch
+and checkpoint, then defers scene entry until input is released. Invalid drops cancel the transient
+hand without changing shelf allocation. The shelf footprint of the currently worked PC is only a
+reservation, not another PC. No new save field/schema or change to NightSession's authority.
+Navigation.attach uses ActivitiesButton/RECT on six work screens; scene cleanup runs through the
+existing owners (repair dust/paste, hardware settling/stock save, salvage capture/cancel). Generic
+night navigation blocks on failed checkpoints. Existing scene-specific return-to-workshop actions
+remain. No hot files or WORK_PLAN.md modified by 0.36.0.

@@ -275,3 +275,21 @@ Anti-virus and overclocker are labeled upcoming; neither runs a pretend scan nor
 Their exact mechanics, later campaign time and master-PC requirements remain future design work.
 Cloth pickup follows rendered skew/rotation with a one-pixel inset; wiping reach is 35 world
 pixels rather than 36 (not one whole 8px paste cell). See SOFTWARE_WAVE_2.md for limits.
+
+
+## 0.36.0 — Physical room selection and common night exit
+
+User requested room-based workshop selection: Activity Workshop now enters the room. Drag a real
+customer PC into its workshop slot to select/open that PC. The old PC dropdown is removed. The
+active PC's rack footprint is retained as a marked reservation; the slot references the same
+GameState/NightSession record, with no clone or new ownership/save schema. Parts, tools, build
+orders with no PC, stale IDs and protected manifests cannot act as customer PCs. Selection and
+exits preserve repair progress. Existing hardware bench still operates shop stock (not a second
+copy of the selected customer's installed hardware). Shared PC-model integration remains future work.
+
+Activities uses one top-right control on room, service hub, repair, hardware, diagnostic monitor
+and salvage. Duplicate title/activity Storage shortcuts are removed. Ticket details in the service
+hub are now scrolled/bounded. The uploaded recording displays v0.32.0 and the removed rack-list
+implementation; fresh v0.36.0 installation instructions avoid confusing project copies. No universal
+crash-freedom claim: real native input regression tests cover the reported sequence and navigation.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

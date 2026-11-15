@@ -20,6 +20,7 @@ func run_checks() -> void:
     await process_frame
     check(current_scene.load_button.disabled, "Load game is disabled without a readable save")
     var menu: Node = current_scene
+    check(not menu.get_children().any(func(n: Node) -> bool: return n is Button and n.text == "Storage rack"), "title screen has no duplicate storage shortcut; enter via night Workshop")
     # 0.29.0: everything on the card stays inside it (the status text used to cross the border).
     var card: Rect2 = preload("res://scripts/data/layout.gd").START_CARD
     var status_rect := Rect2(menu.status_label.position, menu.status_label.size)

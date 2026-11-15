@@ -1,5 +1,10 @@
 # General storage rack — trials 0.29.0–0.30.0
 
+**Current 0.36.0 override:** PC selection is now a drag-in workshop slot in the room; the old
+service-hub dropdown is removed. Activity Workshop opens the room. All night work screens use
+one top-right Activities exit. See ROOM_WORKSHOP.md; older instructions below are historical.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
 **Current local 0.33.0 override:** see STORAGE_ROOM.md. Furniture is a direct 4×2 room layout with
 zoom/pan, no selector list/pages. Schema 2 migrates old allocations and records room cells. The
 controls/format below describe historical 0.29/0.30 behavior. No code pushed for this local update.
