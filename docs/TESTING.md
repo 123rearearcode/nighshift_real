@@ -147,3 +147,13 @@ root hulls, record caps/IDs), all collectible packing/rotation, fresh-arrival/ca
 container reveals and native heavy/generated-pile cases. Test normal random mode manually: enter,
 inspect, drive home and re-enter; cargo stays while the pile changes. Try lifting a HEAVY item,
 ordinary parts, and opening a crowded box. No target-hardware performance claim; measure feel in Godot.
+
+
+## Room storage — local 0.33.0
+Storage suite now routes mouse events through actual viewport/Button dispatch, including embedded
+popup coordinates. Test sort → save → add → each model, distinct popup rectangles, every furniture
+title, drag to empty/occupied bay, all eight visible at Entire room, remove/re-add, repeated toolbar
+loops, clipping/camera transforms, read-only edits, schema 1→2 migration and extreme coordinate input.
+No rack selection Buttons or UI rebuild/free remain. Existing ownership/packing/save tests stay.
+Manual: launch the 0.33.0 ZIP, verify the version on Storage, zoom and move a populated rack. Review
+B19 separately: workshop ticket still needs a bounded scroll (see REVIEW_0_32.md).

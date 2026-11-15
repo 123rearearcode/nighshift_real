@@ -11,7 +11,7 @@ func read() -> Dictionary:
     status = ""
     if not raw is Dictionary: return {}
     var version: Variant = raw.get("version",0)
-    if typeof(version) in [TYPE_INT,TYPE_FLOAT] and float(version)>1:
+    if typeof(version) in [TYPE_INT,TYPE_FLOAT] and float(version)>2:
         read_only = true
         status = "Newer storage layout found. Editing is disabled to protect it."
     return raw

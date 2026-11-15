@@ -39,6 +39,97 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.33.0 - 2026-11-15 - Direct room furniture and storage crash fixes (local)
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: integrated main 0.32.0 (5479b8e, Claude PR #39 already merged)
+- Type: minor (new physical room layout, schema-2 storage positions and UI lifecycle fixes)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Twelve required suites: 1,203 checks, zero failures;
+pending contracts zero checks and legacy bench smoke passed. Storage's 82 checks include actual
+viewport/Button input, not only method calls. No graphical/manual playtest or universal crash
+freedom is claimed. Code remains LOCAL under the user's prior no-push instruction; no merges.
+Date: 15 November 2026, Europe/Bucharest.
+
+### Added / Changed / Fixed / Removed
+- User D118: remove rack-list Buttons and paged furniture. One clipped room canvas holds all
+  racks, cabinets and tool boards in a 4×2 floor grid (eight equal bays, provisional tuning).
+- Select/drag a furniture title to move its whole contents to a free bay. Zoom at the mouse,
+  middle-pan, Fit furniture/Entire room, plus edge pan when carrying. Parts still grid-pack/rotate.
+- B16: remove the self-freeing signal-emitter path entirely. Toolbar/popup nodes are built once,
+  and updates change text/model state without destroying controls. Every-room selection is data input.
+  Selection alone does not rewrite the layout file; actual moves/edits still autosave.
+- B20: replace direct manually positioned PopupPanel children with Margin/VBox. Three real separate
+  model-choice rectangles and native clicks select the correct model. Bounded scrolling inspector.
+- Layout schema 2 adds room_cell to furniture. Version 1 assigns distinct bays, preserving item
+  identities/shelf/cell/rotation. Invalid/duplicate/extreme positions rehome safely; versions >2 lock edits.
+- Canonical item sources, CPU visibility, ownership reservations, no-free-stock behavior and safe
+  writer remain. Camera is presentation-only. No room economy or purchase capacity hook added.
+- Cross-review Claude PR #39 and post comment. Preserve canonical CPU/PartStates improvements.
+  Reproduce B19 night-ticket overflow, report to Claude, leave outside this storage task.
+- No edits to hot files, GameState/shared saves, shop, night workshop view or WORK_PLAN.md.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed local delivery record |
+| `DEVELOPMENT.md` | M | Version, scope, bug/review evidence or handoff |
+| `HANDOFF.md` | M | Version, scope, bug/review evidence or handoff |
+| `README.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/BUGS.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/CURRENT_STATE.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/DECISIONS.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/DESIGN.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/PROJECT_BRIEF.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/REVIEW_0_32.md` | A | Version, scope, bug/review evidence or handoff |
+| `docs/ROADMAP.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/STORAGE.md` | M | Version, scope, bug/review evidence or handoff |
+| `docs/STORAGE_ROOM.md` | A | Version, scope, bug/review evidence or handoff |
+| `docs/TESTING.md` | M | Version, scope, bug/review evidence or handoff |
+| `project.godot` | M | Version, scope, bug/review evidence or handoff |
+| `scripts/storage/room_canvas.gd` | A | Room geometry, persistence, drawing/input or regression tests |
+| `scripts/storage/storage_data.gd` | M | Room geometry, persistence, drawing/input or regression tests |
+| `scripts/storage/storage_model.gd` | M | Room geometry, persistence, drawing/input or regression tests |
+| `scripts/storage/storage_store.gd` | M | Room geometry, persistence, drawing/input or regression tests |
+| `scripts/storage/storage_view.gd` | M | Room geometry, persistence, drawing/input or regression tests |
+| `tools/test_storage.gd` | M | Room geometry, persistence, drawing/input or regression tests |
+
+### Checks performed
+- Godot 4.7.2: Data schema 206; Regression 594; Start screen 20; Dust flow 43; Bench interaction
+  26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24; Salvage 49;
+  Salvage physics 43; Storage 82; Night workshop 53. Total 1,203 checks, zero failures.
+- Pending contracts: zero checks/failures. Bench --smoke: Playtest finished, no script errors.
+- Baseline 0.32.0 separately reproduced: native signal emits locked-object/free errors; all three
+  popup choice rects equal (4,4,354,54). New storage native-input path has no script/engine errors.
+- Room tests cover actual sort/save/add/model clicks, non-overlapping choices, every title, stable
+  node IDs, valid/blocked moves, all eight headers in one room, remove/re-add, repeated loops,
+  v1 migration retaining third-shelf rotated part, numeric extremes, future read-only and save failures.
+- Review geometry: broken GPU+cooler night ticket rect (32,166,630,345), bottom 511 versus report
+  y=425; B19 open. See docs/REVIEW_0_32.md and PR #39 conversation comment 6886430199.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2; Storage 82 and Night workshop 53 passed with no script/resource errors.
+- Full suite ran before final storage-only bounds/label tweaks; final Storage suite reran and passed.
+  No broader repeat/benchmark claimed. Failure-injection warnings are expected, not runtime crashes.
+
+### Decisions proposed (not approved)
+D118 records the user's direct room/furniture/grid request. Four-by-two room, equal one-bay furniture,
+free expansion and zoom/size tuning are provisional. Future room expansion prices and differently
+sized furniture are not implemented. No approval to push or merge inferred.
+
+### Known issues and open items
+B19 workshop-ticket overlap remains open, reported in review; its fix belongs to a separate scope.
+Old 0.32.0 project copies still contain B16/B20 until updated; this screen shows v0.33.0 to distinguish
+it. Graphical scale/feel need the user's playtest. No target-device performance claim. Other unresolved
+inventory/canonical PC integration boundaries remain as in main; source ownership is unchanged.
+
+### Next action
+User playtests the local 0.33.0 ZIP; Codex publishes only after user instruction. Claude reviews the
+room change and handles B19 separately. No code pushed, no PRs merged. Hot files bench_view.gd,
+tool_rig.gd and game_state.gd are untouched and remain reserved for Claude; none is claimed free.
+WORK_PLAN.md unchanged. Rebase/reconcile metadata against latest main before any future push.
+
 ## 0.32.0 - 2026-11-15 - The broken-GPU dead end, the bug register and the Upgrades tab
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session

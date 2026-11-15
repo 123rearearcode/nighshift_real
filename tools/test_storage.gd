@@ -136,18 +136,18 @@ func run_checks() -> void:
     check(view.model.held == "" and view.model.snapshot() == before,"focus-loss cancellation preserves committed placement")
     view._add_unit("rack")
     check(view.model.units.size() == 2,"view expansion adds real furniture")
+    origin = view.item_rect(uid)
     click(view,MOUSE_BUTTON_LEFT,true,origin.get_center())
     var destination: Vector2 = view.shelf_rect(1,0).position+origin.size/2
     click(view,MOUSE_BUTTON_LEFT,false,destination)
     check(view.model.placements[uid]["unit"] == view.model.units[1]["id"],"scene drag transfers between furniture units")
     check(view.store.read()["placements"][uid]["unit"] == view.model.units[1]["id"],"successful scene drop autosaves")
     view._add_unit("pegboard")
-    view.page = 0
     origin = view.item_rect(uid)
     click(view,MOUSE_BUTTON_LEFT,true,origin.get_center())
-    key.keycode = KEY_TAB
-    view._input(key)
-    check(view.page == 1 and view.model.held == uid,"held item survives furniture page navigation")
+    var old_zoom: float = view.zoom
+    view._zoom_at(view.zoom*1.2,origin.get_center())
+    check(view.zoom != old_zoom and view.model.held == uid,"held item survives room zoom without furniture pages")
     view._cancel()
     check(gs.player_inventory == inventory and gs.job == job and gs.money == cash,"rack interactions never clone, spend or change repair ownership")
     view._refresh()
@@ -155,6 +155,7 @@ func run_checks() -> void:
     view.waiting_page = 99
     view._sync_ui()
     check(view.waiting_page == 0,"refreshing fewer waiting items keeps the visible overflow page in range")
+    await test_room_gui(view)
     _remove_save_files(view.store.path)
     view.queue_free()
     await process_frame
@@ -167,3 +168,124 @@ func run_checks() -> void:
     check(current_scene.scene_file_path == "res://scenes/storage.tscn","start menu opens storage scene")
     restore_save(gs)
     finish("Storage")
+
+
+func native_click(button: Button) -> void:
+    var viewport: Viewport = button.get_viewport()
+    var at: Vector2 = button.get_global_rect().get_center()
+    if viewport is Window and viewport != root and viewport.is_embedded():
+        at += Vector2(viewport.position)
+        viewport = root
+    for pressed: bool in [true,false]:
+        var event := InputEventMouseButton.new()
+        event.button_index = MOUSE_BUTTON_LEFT
+        event.pressed = pressed
+        event.position = at
+        event.global_position = at
+        viewport.push_input(event,true)
+        await process_frame
+    await process_frame
+
+func toolbar(view: Node,label: String) -> Button:
+    for child: Node in view.get_children():
+        if child is Button and child.text == label: return child
+    return null
+
+func test_room_gui(view: Node) -> void:
+    check(not "furniture_buttons" in view and not "page" in view,"room has no per-rack selectors or paged furniture state")
+    var persistent_ids: Array = view.get_children().map(func(n: Node) -> int: return n.get_instance_id())
+    await native_click(toolbar(view,"Arrange shelves"))
+    await native_click(toolbar(view,"Save layout"))
+    await native_click(toolbar(view,"+ Add furniture"))
+    check(view.add_dialog.visible and view.choice_buttons.size() == 3,"real sort/save/add clicks open all three furniture choices")
+    var separated: bool = true
+    for i in range(view.choice_buttons.size()):
+        for j in range(i+1,view.choice_buttons.size()):
+            separated = separated and not view.choice_buttons[i].get_global_rect().intersects(view.choice_buttons[j].get_global_rect())
+    check(separated,"native popup choices have separate clickable rectangles")
+    await native_click(view.choice_buttons[1])
+    check(view.model.units.size() == 4 and view.model.units.back()["model"] == "drawers" and not view.add_dialog.visible,"native popup click adds the requested cabinet rather than an overlapping choice")
+    view._fit_room()
+    var model_before: Dictionary = view.model.snapshot()
+    for index in range(view.model.units.size()):
+        var header: Vector2 = view.header_rect(index).get_center()
+        click(view,MOUSE_BUTTON_LEFT,true,header)
+        click(view,MOUSE_BUTTON_LEFT,false,header)
+        check(view.selected_unit == view.model.units[index]["id"],"direct room title selection works for furniture %d"%index)
+    check(view.model.snapshot() == model_before,"selecting physical furniture keeps allocations and room positions stable")
+    check(view.get_children().map(func(n: Node) -> int: return n.get_instance_id()) == persistent_ids,"repeated selection/sort/save/add never rebuilds or frees UI controls")
+    # Move an empty unit to a free floor bay; contents/UIDs are independent of room position.
+    var moving_id: String = view.model.units.back()["id"]
+    var header: Vector2 = view.header_rect(view.model.units.size()-1).get_center()
+    var destination: Vector2 = view.to_screen(Vector2(3,1)*view.Data.BAY_STRIDE+Vector2(100,24))
+    click(view,MOUSE_BUTTON_LEFT,true,header)
+    click(view,MOUSE_BUTTON_LEFT,false,destination)
+    check(view.model.unit(moving_id)["room_cell"] == Vector2i(3,1),"furniture title drag moves to a free room bay")
+    var saved_room := Model.new()
+    saved_room.setup(view.model.items,view.store.read())
+    check(view.store.read()["version"] == 2 and saved_room.unit(moving_id)["room_cell"] == Vector2i(3,1),"room position autosaves and reloads in version two")
+    var committed: Dictionary = view.model.snapshot()
+    header = view.header_rect(view.model.units.size()-1).get_center()
+    click(view,MOUSE_BUTTON_LEFT,true,header)
+    click(view,MOUSE_BUTTON_LEFT,false,view.header_rect(0).get_center())
+    check(view.model.snapshot() == committed,"occupied floor bay rejects furniture drop without moving its contents")
+    click(view,MOUSE_BUTTON_LEFT,true,header)
+    view._cancel()
+    check(view.model.snapshot() == committed and view.held_furniture == "","focus/escape cancel leaves committed furniture position intact")
+    for i in range(4): view._add_unit("pegboard")
+    view._fit_room()
+    check(view.model.units.size() == 8,"all eight room bays can hold physical furniture")
+    var distinct: Dictionary = {}
+    var in_view: bool = true
+    for i in range(view.model.units.size()):
+        distinct[view.model.units[i]["room_cell"]] = true
+        in_view = in_view and view.ROOM_VIEW.encloses(view.header_rect(i))
+    check(distinct.size() == 8 and in_view,"entire-room view shows all eight distinct furniture headers together")
+    committed = view.model.snapshot()
+    await native_click(toolbar(view,"+ Add furniture"))
+    check(not view.add_dialog.visible and view.model.snapshot() == committed,"full room reports limit without opening a broken popup or losing furniture")
+    var last_header: Vector2 = view.header_rect(view.model.units.size()-1).get_center()
+    click(view,MOUSE_BUTTON_LEFT,true,last_header)
+    click(view,MOUSE_BUTTON_LEFT,false,last_header)
+    await native_click(toolbar(view,"Remove empty"))
+    check(view.model.units.size() == 7,"native remove button removes only the selected empty physical furniture")
+    await native_click(toolbar(view,"+ Add furniture"))
+    await native_click(view.choice_buttons[2])
+    check(view.model.units.size() == 8,"new furniture reuses the free room bay after removal")
+    var control_ids: Array = view.get_children().map(func(n: Node) -> int: return n.get_instance_id())
+    for round_index in range(5):
+        await native_click(toolbar(view,"Arrange shelves"))
+        await native_click(toolbar(view,"Save layout"))
+        await native_click(toolbar(view,"Refresh contents"))
+        for i in range(view.model.units.size()):
+            var at: Vector2 = view.header_rect(i).get_center()
+            click(view,MOUSE_BUTTON_LEFT,true,at)
+            click(view,MOUSE_BUTTON_LEFT,false,at)
+    check(view.get_children().map(func(n: Node) -> int: return n.get_instance_id()) == control_ids,"repeated real toolbar and every-rack selections keep the UI alive without orphan controls")
+    # Corrupted/legacy room coordinates are rehomed, not allowed to delete original allocations.
+    var legacy := {"version":1,"units":[{"id":"a","model":"rack"},{"id":"b","model":"rack"}],"placements":{}}
+    legacy["placements"] = {"legacy_ram":{"unit":"b","shelf":2,"cell":[2,1],"rotation":1}}
+    var restored := Model.new()
+    restored.setup({"legacy_ram":sample("legacy_ram","part",Vector2i(1,4))},legacy)
+    check(restored.units[0]["room_cell"] == Vector2i.ZERO and restored.units[1]["room_cell"] == Vector2i(1,0),"version one furniture migrates to distinct row-first room bays")
+    check(restored.placements["legacy_ram"] == {"unit":"b","shelf":2,"cell":Vector2i(2,1),"rotation":1},"legacy migration preserves the part identity, third shelf, cell and rotation")
+    var bad: Dictionary = restored.snapshot()
+    bad["units"][0]["room_cell"] = [99,-1]
+    bad["units"][1]["room_cell"] = [99,-1]
+    restored.setup({},bad)
+    check(restored.units.size() == 2 and restored.units[0]["room_cell"] != restored.units[1]["room_cell"],"malformed room coordinates rehome both units safely")
+    bad["units"][0]["room_cell"] = [1e300,0]
+    restored.setup({},bad)
+    check(restored.units[0]["room_cell"] == Vector2i.ZERO,"extreme JSON coordinates are rejected before integer conversion")
+    check(not restored.move_unit("a",Vector2i(4,0)) and not restored.move_unit("a",restored.units[1]["room_cell"]),"room rule rejects occupied and out-of-range furniture cells")
+    # Load protection disables editing, while camera actions remain available.
+    view.store.read_only = true
+    committed = view.model.snapshot()
+    view._add_unit("rack")
+    view._arrange()
+    view._remove_unit()
+    view._fit_room()
+    click(view,MOUSE_BUTTON_LEFT,true,view.header_rect(0).get_center())
+    click(view,MOUSE_BUTTON_LEFT,false,destination)
+    check(view.model.snapshot() == committed,"protected layouts reject both toolbar and physical room editing")
+    view.store.read_only = false

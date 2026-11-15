@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.32.0)
+# Nightshift - Godot Foundation Trial (v0.33.0)
+
+**Local 0.33.0 room update:** F5 → Storage rack. Furniture is shown together in a 4×2 floor grid;
+there are no per-rack selector buttons. Add furniture, drag its title bar to an empty bay, and use
+wheel zoom / middle-drag pan or Fit furniture / Entire room. Storage v1 layouts migrate automatically.
+Based on integrated main 0.32.0. Code remains local under the user's no-push instruction; use the
+0.33.0 ZIP to playtest. See docs/STORAGE_ROOM.md and docs/REVIEW_0_32.md.
+
 
 **Salvage variety (0.31.0):** each Salvage arrival is a fresh random pile with fourteen collectible kinds,
 varied containers and heavy obstacles; cargo stays yours. See docs/SALVAGE_VARIETY.md.

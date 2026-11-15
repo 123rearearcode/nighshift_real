@@ -315,3 +315,13 @@ D116 (confirmed): the hardware bench is, for now, explicitly the SHOP'S spare-pa
 D117 (confirmed): all tool upgrades are grouped under an Upgrades tab on the shop's lower card (Final check | Customer | Upgrades); future upgrades land there. The right-hand column keeps only navigation and the final check.
 D108 amendment (from Codex's qualifications, verified): a find released while overlapping the rim barrier keeps its exemption until physically clear (no fling), and a cargo body re-enters the world at the first free staging spot instead of a fixed point (no spawning inside a staged find). Codex's other two points are conceded: the bulldozer bypassed the victim's lift effort, not all time cost, and the paint/pick order contract has no drift.
 D115 amendment (integration, 15 November 2026): the part-state rule lives in the pure `scripts/rules/part_states.gd`; GameState, the shop ticket, the night workshop's diagnosis and workshop ticket all read it. After the night flow replaced the shop screen as the player-facing surface, the same dead end (a broken part with no named path) reappeared in the night diagnosis until it used the shared lines.
+
+
+## Direct room furniture — 15 November 2026, local 0.33.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+D118 (confirmed): eliminate per-rack selector buttons; the room shows the furniture physically,
+with a limit and a grid-like furniture layout. Implemented as eight 4×2 bays, direct title dragging,
+zoom/pan and no furniture pages. Eight bays and equal furniture footprints are provisional tuning,
+not a room-upgrade economy. Code remains local under the previous no-push instruction.
+Storage layout schema 2 adds room coordinates, retaining v1 shelf/owner references. No source-of-truth
+or purchase-capacity change. PR #39 is already merged; review results are in REVIEW_0_32.md.
