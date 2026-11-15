@@ -36,8 +36,9 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
             canvas.draw_line(Vector2(-2,4),Vector2(20,-30),Color("cb9b53"),10)
             canvas.draw_polyline(PackedVector2Array([Vector2(-2,4),tip,tip+Vector2(-6,1)]),Color("dce0df"),3)
         elif id == Ids.CLOTH:
-            var skew: float = rig.brush.bend.x*0.2
-            canvas.draw_colored_polygon(PackedVector2Array([tip+Vector2(-24,-16),tip+Vector2(22,-13),tip+Vector2(25+skew,17),tip+Vector2(-22,14)]),Color("ddd6b6"))
+            var fabric: PackedVector2Array = rig.cloth_outline()
+            for i in range(fabric.size()): fabric[i] += tip
+            canvas.draw_colored_polygon(fabric,Color("ddd6b6"))
             for i in range(4): canvas.draw_line(tip+Vector2(-18+i*11,-11),tip+Vector2(-16+i*11,12),Color("b4ac90"),1)
         else:
             canvas.draw_line(Vector2(-9,11),Vector2(13,-19),Color("b9deea"),13)

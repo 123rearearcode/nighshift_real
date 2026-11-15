@@ -1,5 +1,14 @@
 # Handoff - read this first
 
+**Current 0.35.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+15 November 2026, Europe/Bucharest. User requested cloth inset, PCs off by default, then Wave 2.
+The same bench-feel PR now includes a first diagnostic desktop (boot, thermal, Vapor purchase/FPS).
+Anti-virus/overclocker are explicitly upcoming, not fake tools. New/missing-power PCs default off;
+saved explicit power is respected. No automatic merge. See docs/SOFTWARE_WAVE_2.md.
+Current user assignment supersedes the older Claude software split for this slice only.
+Hot files bench_view/tool_rig/GameState are touched in this ONE existing PR; Claude reviews next.
+
+
 **Current 0.34.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User authorized publishing/merging room 0.33.0: PR #40 merged
 at f31eaea after CI passed. Earlier local/no-push notes below are historical. New spool/brush/weight
@@ -25,7 +34,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.34.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.35.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

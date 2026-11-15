@@ -225,3 +225,22 @@ like existing tool poses; cross-scene tool arrangement persistence is later engi
 No shared save/ownership changes. User-requested narrow edits touch ToolRig spool and BenchView
 initial-tool/keys/labels/highlights; no competing bench PR was open. Hand-state rules are unchanged.
 Claude cross-reviews next; the new feel changes are not automatically merged with the approved room.
+
+
+## 0.35.0 — Wave 2 first playable monitor slice
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+User approved starting Wave 2 after cloth and power fixes. New repair tickets and saves lacking
+an explicit switch begin powered OFF; an explicit saved on/off value remains respected. Repair
+bench initializes fans still when off. Power is per customer PC; live boot/game/thermal tests
+require switching on. Cleaning/repasting do not require power. Legacy final check now also
+respects the power flag, while its historical one-time payment behavior remains unchanged.
+
+Workshop → Diagnostic monitor offers boot, non-paying final/thermal report, Vapor purchase and
+Counter Stroke 2 simulated FPS using existing Wave 1 rules and shop-owned licences. Customer
+complaint, uses and collection request remain visible in a bounded sidebar. Reports clear on
+power-down; no money/trust/pickup/completion side effect except explicit game purchases.
+Anti-virus and overclocker are labeled upcoming; neither runs a pretend scan nor alters hardware.
+Their exact mechanics, later campaign time and master-PC requirements remain future design work.
+Cloth pickup follows rendered skew/rotation with a one-pixel inset; wiping reach is 35 world
+pixels rather than 36 (not one whole 8px paste cell). See SOFTWARE_WAVE_2.md for limits.

@@ -586,3 +586,21 @@ salvage data/material/force values. User directly requested these narrow feel ed
 | File | Layer | Purpose |
 | --- | --- | --- |
 | `docs/BENCH_FEEL_0_34.md` | docs | Requested behavior, tests and review handoff |
+
+
+## Wave 2 first slice / 0.35.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/rules/software_checks.gd` | rules | Shared powered boot gate and ownership/boot-aware FPS report, no side effects |
+| `scripts/night/software_view.gd` | view | Customer monitor, per-PC switch, boot/thermal/Vapor actions, bounded ticket/report panels |
+| `scenes/software.tscn` | scene | Workshop diagnostic desktop |
+| `tools/test_software.gd` | tooling | Native power click, per-PC save state, diagnostic/payment isolation, store/FPS and cloth fringe |
+| `docs/SOFTWARE_WAVE_2.md` | docs | Implemented first slice, controls, coordination and future apps |
+
+PC power missing/default is false; explicit saved values are retained. SoftwareChecks.boot is the
+shared live startup gate for night diagnostics and legacy final check. New screen only reads
+reports; GameState.buy_game is the existing purchase transaction. No new save shape or licence
+scope. Scene reports are ephemeral and cleared on power-down. Future app buttons do not run tests.
+Cloth pickup and drawing share ToolRig.cloth_outline, inset 1px only for pickup; wiping reach is
+35 world px / 8px grid. Existing square-cloth upgrade scoring stays unchanged. CI adds test_software.

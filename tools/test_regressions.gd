@@ -539,7 +539,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
         for frame in range(600): rig.step(1.0/60,Vector2(400,250),true)
         check(rig.bodies[id].impacts > 0 and not rig.bodies[id].active, id + " bounces and settles")
         check(not rig.active, "resting/thrown tool cannot work remotely")
-        check(rig.hit(rig.motions[id].center) != "", "resting tool remains pickable")
+        check(rig.hit(rig.motions[id].center + (ToolRig.TIP if id == Ids.CLOTH else Vector2.ZERO)) != "", "resting tool remains pickable at its visible body")
     var stacked := ToolRig.new()
     stacked.motions["brush"].center = stacked.motions["vacuum"].center
     stacked.selected = "brush"
@@ -988,6 +988,7 @@ func test_bench_clicks(gs: Node) -> void:
 
 # A finished, completed thermal-paste repaste (what the bench's Complete repaste button leaves behind).
 func pasted(gs: Node) -> void:
+    gs.set_pc_powered(true) # live-check fixtures explicitly switch the repaired PC on
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
     gs.job["paste_done"] = true
     gs.job["paste_material"] = "thermal"
@@ -1009,6 +1010,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     var cost: int = int(PasteMaterials.material("thermal")["cost"])
     check(gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost and gs.job["paste_done"] and gs.job["scams"].is_empty(), "completing with thermal paste charges for the paste once")
     check(not gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost, "a completed repaste cannot be completed (or charged) twice")
+    gs.set_pc_powered(true)
     var honest: Dictionary = gs.run_final_check()
     check(honest["passed"] and honest["paid"] == 60, "a completed thermal repaste on a clean PC passes and pays")
     gs.tickets_taken = 0
@@ -1019,6 +1021,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     gs.save_game()
     gs.load_game()
     check(gs.job["paste_material"] == "toothpaste" and gs.job["paste_done"] and gs.job["scams"] == ["toothpaste"], "the toothpaste scam survives save and load")
+    gs.set_pc_powered(true)
     var scam: Dictionary = gs.run_final_check()
     check(scam["passed"] and scam["paid"] == 60 and is_equal_approx(scam["temp"], GameState_base(gs) + float(PasteMaterials.material("toothpaste")["heat_penalty"])), "toothpaste passes today's check, runs hotter, and the customer still pays")
     check(str(scam["notes"]).contains("Toothpaste"), "the final check tells the player what is under the cooler")
@@ -1218,7 +1221,7 @@ func test_hand_machine(gs: Node) -> void:
     bench.holding = false
     bench._on_mount_pressed()
     check(bench.hand_state() == HandState.MOUNTING, "mounting is its own hand state")
-    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center
+    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center+ToolRig.TIP.rotated(bench.tools.motions[Ids.CLOTH].angle)
     click(bench, MOUSE_BUTTON_RIGHT, true, cloth_at)
     check(not bench.tools.carrying and not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, a right-press cannot take or throw a tool")
     click(bench, MOUSE_BUTTON_RIGHT, false, cloth_at)
@@ -1505,11 +1508,11 @@ func test_0_21(gs: Node) -> void:
     # D97 (0.25.0): the boot test replaced the power threshold. Any output passes as long as it boots.
     gs.damage_service_part("gpu")
     var dead: Dictionary = gs.run_final_check()
-    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot test FAILED"), "a broken GPU means the PC does not boot, and the check says so")
+    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot FAILED"), "a broken GPU means the PC does not boot, and the check says so")
     gs.job["removed_parts"].append("gpu")
     check(gs.replace_service_part("gpu", "budget"), "a budget GPU can be fitted from stock")
     var fitted: Dictionary = gs.run_final_check()
-    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot test: the PC starts"), "any working GPU boots and passes; there is no power threshold any more")
+    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot OK"), "any working GPU boots and passes; there is no power threshold any more")
     check(not gs.job.has("required_power"), "the old power requirement is gone from the job")
 
 
@@ -1535,7 +1538,8 @@ func test_0_22(gs: Node) -> void:
     root.add_child(bench)
     bench.set_physics_process(false)
     # PC power button: fans stop while off, and the switch survives save and load.
-    check(bool(gs.job["pc_powered"]), "a new job starts powered on")
+    check(not bool(gs.job["pc_powered"]) and bench.cooler_rpm == 0 and bench.case_rpm == 0, "a new job starts off with stationary fans")
+    gs.set_pc_powered(true)
     for frame in range(30): bench._physics_process(1.0/60.0)
     click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
     click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())

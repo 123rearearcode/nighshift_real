@@ -44,7 +44,7 @@ const DEPOSIT_RATE: float = 60.0       # paste units per second while squeezing
 const PART_LIFT_SECONDS: float = 1.2   # unscrewing a fitted part takes this long (D89: the night is about time)
 const TOOL_COLORS: Array = [Color("5ab0f0"), Color("e0a95a"), Color("72d9ad"), Color("ed8d79")]   # vacuum, brush, move parts, pick
 const KEEP_GRADE_ABOVE: float = 0.95   # a graded CPU keeps its result until wiping takes it below this share of the graded paste
-const WIPE_RADIUS_CELLS: float = 4.5   # reach of the cloth on the paste grid (a square cloth reaches 4.5 cells each way)
+const WIPE_RADIUS_CELLS: float = (36.0 - 1.0) / float(PASTE_CELL) # shrink working edge by one world pixel, not one 8px cell
 const WIPE_STRENGTH: float = 0.12      # share of paste removed per tick at the cloth centre (a blob takes about 1 s)
 const PART_MASS: Dictionary = {Ids.COOLER: 2.0, Ids.GPU: 2.5}   # loose parts on the bench: heavier than tools, so tools bounce off them
 const AUTOSAVE_SECONDS: float = 3.0    # dust progress is saved this often while cleaning
@@ -149,8 +149,8 @@ func _ready() -> void:
     case_fan_zone = DustZones.index_of("case_fan")
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
     _initialize_dust()
-    cooler_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone))
-    case_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone))
+    cooler_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone)) if GameState.job["pc_powered"] else 0.0
+    case_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone)) if GameState.job["pc_powered"] else 0.0
     paste_image = Image.create_empty(PasteSim.GRID, PasteSim.GRID, false, Image.FORMAT_RGBA8)
     paste_image.fill(Color(0, 0, 0, 0))
     paste_texture = ImageTexture.create_from_image(paste_image)
@@ -422,8 +422,8 @@ func _on_reset_dust() -> void:
     GameState.set_dust(fresh)
     _initialize_dust()
     tools.flow.clear()
-    cooler_rpm = FAN_RPM_DUSTY
-    case_rpm = FAN_RPM_DUSTY
+    cooler_rpm = FAN_RPM_DUSTY if GameState.job["pc_powered"] else 0.0
+    case_rpm = FAN_RPM_DUSTY if GameState.job["pc_powered"] else 0.0
     _save_dust()
     _set_status(_clean_hint(), 0)
 
@@ -683,7 +683,7 @@ func _input(event: InputEvent) -> void:
                 GameState.set_pc_powered(not bool(GameState.job["pc_powered"]))
                 _sound("ui.click")
                 _set_status("PC powered ON: the fans spin up again." if bool(GameState.job["pc_powered"])
-                    else "PC powered OFF: the fans wind down. (Nothing reacts to power yet beyond the fans; that comes with the fan-dust mechanic.)", 0)
+                    else "PC powered OFF: fans wind down. Boot, temperature and game tests need power; use the workshop monitor.", 0)
                 holding = false
                 return
             # In explicit parts mode, tools lying on a component must not steal its click.

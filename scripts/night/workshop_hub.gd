@@ -28,8 +28,8 @@ func _ready() -> void:
     ticket = _label("",Vector2(32,166),Vector2(630,235),18)
     work_buttons.append(_button("Repair bench · clean + paste",Rect2(710,94,530,60),"res://scenes/night_bench.tscn"))
     work_buttons.append(_button("Hardware bench · shop stock",Rect2(710,170,530,60),"res://scenes/night_hardware.tscn"))
-    var check_button := _button("Run final check · diagnosis only",Rect2(710,246,530,60),"")
-    check_button.pressed.connect(_check)
+    var check_button := _button("Diagnostic monitor · boot + game tests",Rect2(710,246,530,60),"")
+    check_button.pressed.connect(_go.bind("res://scenes/software.tscn"))
     work_buttons.append(check_button)
     _button("Storage rack",Rect2(710,346,530,50),"res://scenes/storage.tscn")
     _button("Activities",Rect2(710,414,530,50),"res://scenes/activities.tscn")
@@ -70,7 +70,7 @@ func _refresh_ticket() -> void:
     var job: Dictionary = GameState.job
     ticket.text = "TICKET %s / %s\n\n%s\n\nCollection request: %s\nQuote: $%d · paid at pickup, not by this check.\n\nSwitch PCs whenever you want; each keeps its own repair progress."%[job["id"],job["customer"],job["complaint"],str(GameState.customer_view(job["customer_id"]).get("patience","Collection date not set")),job["payout"]]
     ticket.text += "\n\nParts: "+PartStates.summary(job)
-    report.text = "Run a final check to inspect boot, heat, fitted parts and any owned game tests. A pass does not finish this job or pay you. Customer pickup will be a separate daytime action."
+    report.text = "Open the diagnostic monitor. Switch the PC on, then run boot, temperature or owned game tests. A pass does not finish this job or pay you. Customer pickup will be a separate daytime action."
     message.text = NightSession.status
     var marker: Dictionary = job["hardware_trial"].get("night_session",{})
     for button: Button in work_buttons: button.disabled = str(marker.get("pc","")) == "" or NightSession.read_only
@@ -81,4 +81,4 @@ func _switch(index: int) -> void:
         message.text = NightSession.status
 func _check() -> void:
     var result: Dictionary = Diagnostics.evaluate(GameState.job,GameState.owned_games)
-    report.text = "%s · %.1f°C (limit %.0f°C)\n\n%s\n\nReport only. Keep working or switch PCs."%["CHECK PASSED" if result["passed"] else "CHECK NEEDS ATTENTION",result["temp"],GameState.PASS_TEMP,"\n".join(result["notes"])]
+    report.text = "%s\n\n%s\n\nReport only. Keep working or switch PCs."%["CHECK PASSED" if result["passed"] else "CHECK NEEDS ATTENTION","\n".join(result["notes"])]

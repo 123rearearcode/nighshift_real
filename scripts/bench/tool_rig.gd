@@ -107,8 +107,19 @@ func hit(mouse: Vector2, visible: Array = IDS) -> String:
         if id == selected and equipped: continue
         var motion: RefCounted = motions[id]
         var local: Vector2 = (mouse-motion.center).rotated(-motion.angle)
-        if absf(local.x) <= HALF_SIZE.x and absf(local.y) <= HALF_SIZE.y: return id
+        if id == Ids.CLOTH:
+            var shape: PackedVector2Array = cloth_outline(1.0)
+            if Geometry2D.is_point_in_polygon(local-TIP,shape): return id
+        elif absf(local.x) <= HALF_SIZE.x and absf(local.y) <= HALF_SIZE.y: return id
     return ""
+
+# Shared with rendering: cloth picking follows its actual skewed/rotated silhouette.
+# One-pixel inward offset keeps the pickup edge inside the visible fabric.
+func cloth_outline(inset: float = 0.0) -> PackedVector2Array:
+    var shape := PackedVector2Array([Vector2(-24,-16),Vector2(22,-13),Vector2(25+brush.bend.x*0.2,17),Vector2(-22,14)])
+    if inset <= 0: return shape
+    var inner: Array[PackedVector2Array] = Geometry2D.offset_polygon(shape,-inset)
+    return inner[0] if not inner.is_empty() else shape
 
 # The table area a tool's centre may occupy when the tool is turned by `angle`.
 static func keep_inside(center: Vector2, angle: float) -> Vector2:

@@ -157,3 +157,11 @@ loops, clipping/camera transforms, read-only edits, schema 1→2 migration and e
 No rack selection Buttons or UI rebuild/free remain. Existing ownership/packing/save tests stay.
 Manual: launch the 0.33.0 ZIP, verify the version on Storage, zoom and move a populated rack. Review
 B19 separately: workshop ticket still needs a bounded scroll (see REVIEW_0_32.md).
+
+### Wave 2 / 0.35.0
+
+`test_software.gd` is required in CI: powered-off defaults/migration, actual viewport power-button
+input, live-test gates, purchase-once/ownership/FPS, non-paying thermal reports, protected manifest,
+per-PC switches and one-world-pixel cloth edge. Older payment fixtures explicitly switch their
+repaired PC on; no global test override hides the new default. Rendering/feel need manual playtest.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

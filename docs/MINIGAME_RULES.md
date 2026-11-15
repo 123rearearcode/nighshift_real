@@ -197,3 +197,14 @@ Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. Autho
 Session persistence is still memory-only; campaign saves/stock/customer rules are unchanged. Human fun/
 feel validation remains needed. Native physics tests and a separate non-gating stress profiler replace
 0.26.0's fake-pile sleep/occlusion assertions; they do not claim GPU or whole-game FPS measurements.
+
+## 0.35.0 control and power clarification
+
+User-requested: fresh customer PCs start off. Cleaning, parts handling and repasting are possible
+while off; the player must deliberately power on for boot/thermal/game tests. No new shock/damage
+penalty is invented. Existing saved switches survive; an old absent flag means off. Night checks
+are diagnosis only. Brush is the default cleaning tool on 1, Vacuum on 2 (0.34.0).
+Cloth fabric pickup follows its drawn rotated/skewed shape inset one pixel; wiping reach shrinks
+one world pixel, not one 8px paste cell. Square-cloth shape advantage and wipe strength remain.
+Wave 2's desktop has boot, thermal and Vapor/FPS; anti-virus/overclock mechanics remain future slices.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

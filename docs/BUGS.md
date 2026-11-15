@@ -110,3 +110,6 @@ lifetime to the UI test gap. Proposed next structural work (not implemented): co
 signal-driven UI test helper and finish canonical PC/state seams before expanding duplicate models.
 This review is prepared in a PR, not a claim that pending branches were merged. Next regular
 structural checkpoint after integration: 0.40.0.
+
+| B23 | 0.34.0 | 0.35.0 | user playtest | Cloth reacts outside its intended edge | generic whole-tool pickup rectangle ignored fabric silhouette; wipe reach reduced one world pixel |
+| B24 | 0.34.0 | 0.35.0 | user request + Codex review | Fresh PCs spin fans immediately; legacy final check can pay while off | default power true and two boot-rule implementations disagree; shared pure boot rule now gates both paths |

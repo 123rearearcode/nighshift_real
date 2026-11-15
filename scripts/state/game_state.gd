@@ -14,6 +14,7 @@ const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Games = preload("res://scripts/data/games.gd")
 const PartStates = preload("res://scripts/rules/part_states.gd")
+const Software = preload("res://scripts/rules/software_checks.gd")
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
@@ -103,7 +104,7 @@ func _make_job() -> Dictionary:
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
-        "pc_powered": true,       # the case power button (D83): fans stop while off
+        "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
         "paste_material": "thermal",   # what is under the cooler: "thermal" or "toothpaste"
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
         "temp": 0.0,              # last final-check temperature, 0 = not checked
@@ -355,8 +356,6 @@ func run_final_check() -> Dictionary:
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
     # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
-    var removed_parts: Array = job.get("removed_parts", [])
-    var broken: Array = job["broken_parts"]
     notes.append_array(PartStates.problem_lines(job))
     for id: String in job["service_replacements"]:
         var replacement: Dictionary = ServiceParts.option(id, str(job["service_replacements"][id]))
@@ -368,8 +367,9 @@ func run_final_check() -> Dictionary:
     # and every part is functional: nothing broken, nothing left out, enough graphics output.
     # Boot test (D97): any power output is fine as long as the PC starts. It starts when every part is
     # fitted and nothing is broken. Temperature stays the other half of the pass.
-    var boots: bool = removed_parts.is_empty() and broken.is_empty()
-    notes.append("Boot test: the PC starts." if boots else "Boot test FAILED: the PC does not start.")
+    var boot: Dictionary = Software.boot(job)
+    var boots: bool = boot["ok"]
+    notes.append(boot["message"])
     var passed: bool = temp < PASS_TEMP and boots
     var already_done: bool = job["state"] == "done"
     var paid: int = 0
@@ -517,7 +517,7 @@ func load_game() -> bool:
     if Customers.customer(str(job.get("customer_id", ""))).is_empty():
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
-    job["pc_powered"] = bool(job.get("pc_powered", true))
+    job["pc_powered"] = bool(job.get("pc_powered", false))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
     if job["scams"] is Array:

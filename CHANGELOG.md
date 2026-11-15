@@ -39,6 +39,91 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.35.0 - 2026-11-15 - Cloth edge, off-by-default PCs and first Wave 2 monitor
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.34.0 (c1d20b2), extending the same unmerged PR #41; main remains approved room 0.33.0
+- Type: minor (new diagnostic desktop and shared live-boot rule)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Thirteen required suites: 1,250 checks, zero failures;
+pending contracts zero checks. No graphical/manual playtest or target-hardware performance claim.
+Date: 15 November 2026, Europe/Bucharest. New Wave 2 assignment is from the user; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- B23: cloth pickup follows the rendered skewed/rotated fabric with a one-world-pixel inset.
+  Wiping radius is 35 rather than 36 world px, not one whole 8px cell; strength/upgrade shape unchanged.
+- D122/B24: fresh/missing-power PCs default off; explicit saved on/off states survive. Fans initialize
+  still when off. Shared SoftwareChecks.boot gates night diagnostics and legacy payment check;
+  neither can pass an off PC. Legacy payment semantics otherwise remain historical/unchanged.
+- D123: Workshop diagnostic desktop exposes boot, read-only thermal/final report, Vapor purchase
+  and Counter Stroke 2 simulated FPS using existing rules. Case power button stays outside the
+  dark monitor. Reports clear on power-down; broken/unowned/off PCs cannot fake game readings.
+- Customer complaint, uses, collection request and stated game/noise targets stay in a bounded scroll.
+  No completion/payment/trust transaction in the new monitor; only explicit licence purchases spend.
+- Anti-virus/overclocker are explicitly upcoming. They perform no fake scan or tuning; exact mechanics
+  remain future work. No campaign clock, persistent report, PC ownership migration or real OS/game app.
+- Required CI software suite covers native GUI power input, rule/transaction boundaries and cloth edge.
+  Older repaired-PC test fixtures now switch power on explicitly rather than hiding the new default.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Runtime contract, regression coverage or delivery documentation |
+| `CHANGELOG.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `DEVELOPMENT.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `HANDOFF.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `README.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/BUGS.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/CURRENT_STATE.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/CUSTOMER_MODEL_MAP.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/DECISIONS.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/DESIGN.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/MINIGAME_RULES.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/PROJECT_BRIEF.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/ROADMAP.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/SOFTWARE_WAVE_2.md` | A | Runtime contract, regression coverage or delivery documentation |
+| `docs/TESTING.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `project.godot` | M | Runtime contract, regression coverage or delivery documentation |
+| `scenes/software.tscn` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/bench/tool_rig.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/night_diagnostics.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/software_view.gd` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/workshop_hub.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/rules/software_checks.gd` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/state/game_state.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/view/bench_view.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/view/tool_renderer.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `tools/test_regressions.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `tools/test_software.gd` | A | Runtime contract, regression coverage or delivery documentation |
+
+### Checks performed
+- Godot 4.7.2: data schemas 206, regressions 594, start screen 20, dust flow 43, bench interactions 31,
+  bench feedback 27, audio/vacuum 46, performance contracts 24, salvage 49, salvage physics 44,
+  storage 82, night workshop 53, software 31: zero failures (1,250 total). Pending contracts: 0/0.
+- Software suite includes real viewport mouse events on the case power button; no native GUI claim
+  is based only on emitting its signal. Diagnostic and purchase rules are independently checked.
+- Full bench diagnostic state/frame/paste matrix completed without script errors. Off-by-default
+  fan behavior intentionally changes the baseline; this is not a no-behavior-change refactor.
+- Fresh source ZIP imported and passed all 31 software checks without script errors.
+- CI scope: 9 tests passed. Project hygiene and whitespace checks passed.
+
+### Decisions proposed (not approved)
+Anti-virus infection/cure rules, overclock tuning/stability/risks and campaign test timing are not
+implemented; details need design. Existing trial costs, thresholds and balance remain provisional.
+
+### Known issues and open items
+- No manual visual/feel acceptance yet. B19 old workshop ticket overflow remains separate.
+- Cloth uses existing tabletop collision boxes; precise new fabric pickup does not add soft-body physics.
+- Explicit old powered-on saves stay on intentionally; use New Game to observe fresh off defaults.
+- The desktop is customer-PC diagnostics, not a complete master-PC OS or real software execution.
+
+### Next action
+User playtests PR #41 (now 0.35.0) and Claude cross-reviews before merge. Claude goes next; hot files
+bench_view.gd, tool_rig.gd and game_state.gd are free after delivery subject to Claude's current
+work-plan ownership. No competing hot-file PR or WORK_PLAN.md edit. Follow-up Wave 2 app mechanics
+remain future slices.
+
 ## 0.34.0 - 2026-11-15 - Retractable hose, brush-first controls and movable heavy waste
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

@@ -337,3 +337,19 @@ D121 (confirmed): heavy salvage must remain slightly movable. Lower mass/frictio
 allows nudging; it is still grounded and cannot be packed. Numerical tuning remains provisional.
 The user authorized merging room 0.33.0 (PR #40); old no-push notes for that delivery are superseded.
 These new changes get their own review. No new save/PC schema, tool-arrangement persistence or sounds.
+
+
+### D122 — Off by default, explicit live tests (approved user request, 0.35.0)
+Fresh tickets/missing legacy power flags start off; explicit saved switches survive. Power remains
+per PC across switching. No new damage/safety penalty is invented. Boot, thermal and FPS need
+power; powered-off reports cannot pay/complete a repair.
+
+### D123 — Start Wave 2, first monitor slice (approved user request, 0.35.0)
+Implement existing boot/thermal rules and Vapor purchase/FPS as a diagnostic desktop. No night
+completion/payment button. Anti-virus/overclocker remain marked upcoming until their own detailed
+slices. This user assignment authorizes Codex's bounded software work despite the historical split.
+
+### D124 — Cloth edge (approved user fix, 0.35.0)
+One world-pixel reduction, not one paste-grid cell; fabric pickup uses its actual silhouette inset.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

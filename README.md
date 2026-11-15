@@ -1,4 +1,9 @@
-# Nightshift - Godot Foundation Trial (v0.34.0)
+# Nightshift - Godot Foundation Trial (v0.35.0)
+
+New in 0.35.0: New Game → Workshop → Diagnostic monitor. PCs start OFF: use Switch PC ON,
+then Boot check, thermal/final report, or Vapor → buy/run Counter Stroke 2. Tests do not complete
+or pay night jobs. Anti-virus/overclocker are marked upcoming. Cloth pickup/wipe edge tightened.
+See docs/SOFTWARE_WAVE_2.md. Existing explicit saved power state is retained.
 
 **0.34.0 bench feel:** Brush starts equipped (1); Vacuum is 2. The spool really shortens deployed
 hose and keeps it short until the nozzle/hose is pulled out. Heavy salvage can be nudged while
