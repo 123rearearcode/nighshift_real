@@ -383,3 +383,4 @@ Replace separate spool with RETRACT on the bin itself. Preserve actual deployed-
 rules; this button never empties dust. Existing Empty bin action remains separate.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+D130 (confirmed by the user, 15 November 2026): cooler installation has hidden technique. Peeling the cooler's clear film and tightening four corner screws in a cross pattern, two passes, are real steps; getting them wrong is NOT shown by the shop's own check and surfaces only at the customer's pickup (heat, a complaint, a lower pickup score). The bench feels true to the real process; it does not grade or lecture.

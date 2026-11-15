@@ -183,3 +183,8 @@ premium cooling parity, charge once, honest scam state, save/snapshot roundtrip;
 empty dust and the old spool area does not retract. Existing tests replace obsolete button-based
 fixtures with tool selection; physical pickup coverage remains. CI includes the new suite.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+### Install technique / 0.38.0
+Required `test_install_technique.gd`: the pure fault rule, pickup-score effects, proof that the shop's
+final check temperature and notes ignore the faults, save round trip, and real clicks on the film
+button, corner screws and lever. Not tested: how it feels to play.

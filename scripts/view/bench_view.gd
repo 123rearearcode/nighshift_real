@@ -25,6 +25,7 @@ const Backdrop = preload("res://scripts/view/bench_backdrop.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
+const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 const PasteRenderer = preload("res://scripts/view/paste_renderer.gd")
 const CleaningRenderer = preload("res://scripts/view/cleaning_renderer.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
@@ -118,6 +119,8 @@ var vfx_time: float = 0.0
 var title_label: Label
 var status_label: Label
 var mount_button: Button
+var film_button: Button                # D130: the cooler base with its clear plastic film
+var screw_clicks: Array = []           # D130: corner screws turned during this mount, in order (install_faults.gd)
 var clear_button: Button
 const SECURE_LEVER: Rect2 = Layout.BENCH_LEVER   # the cooler's retention lever beside the socket: click it to secure the cooler
 var time_up_told: bool = false
@@ -341,7 +344,9 @@ func _build_ui() -> void:
     menu.about_to_popup.connect(_refresh_material_menu)
     add_child(material_button)
     complete_button = _make_button("Complete repaste",Vector2(PANEL_X+270,210),Vector2(250,40),_on_complete_pressed)
-    paste_controls = [mount_button,clear_button,material_button,complete_button]
+    film_button = _make_button("Cooler base",Vector2(PANEL_X,258),Vector2(250,40),_on_film_pressed)
+    film_button.tooltip_text = "Look at the cooler's contact plate."
+    paste_controls = [mount_button,clear_button,material_button,complete_button,film_button]
 
     var back: Button = _make_button("Back to shop", Vector2(PANEL_X, 645), Vector2(250, 44), _on_back_pressed)
     back.tooltip_text = "Saves work. An unfinished cooler mount is cancelled; only its lever locks it."
@@ -459,9 +464,10 @@ func _on_mount_pressed() -> void:
         return
     _park_tool()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
     mount.start()
+    screw_clicks.clear()
     holding = false
     wiping = false
-    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Then click the lever beside the socket to lock the cooler down.", 0)
+    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Then tighten the four corner screws and click the lever beside the socket to lock the cooler down.", 0)
     time_up_told = false
     _sync_paste_controls()
 
@@ -676,6 +682,13 @@ func _input(event: InputEvent) -> void:
             if stage == STAGE_CLEAN and Layout.BENCH_RETRACT.has_point(mb.position):
                 holding = false # native bin button owns this click, not the tool/bin-empty hit tests
                 return
+            # D130: the four corner screws (only while a cooler is pressed on). The click is theirs, not the press.
+            if mb.pressed and stage == STAGE_PASTE and mount.active:
+                var screw: int = InstallFaults.screw_at(_socket_region(), mb.position)
+                if screw >= 0:
+                    holding = false
+                    _turn_screw(screw)
+                    return
             # The cooler is secured by physically clicking its retention lever (there is no button for it).
             if mb.pressed and stage == STAGE_PASTE and mount.active and SECURE_LEVER.has_point(mb.position):
                 holding = false
@@ -1014,9 +1027,11 @@ func _sync_paste_controls() -> void:
     var done: bool = bool(GameState.job["paste_done"])
     var can_complete: bool = GameState.can_complete_repaste()
     var can_mount: bool = stage == STAGE_PASTE and paste.total_deposited>=1.0 and not mount.active and mount_result.is_empty() and not done
-    var key: int = stage+int(mount.active)*2+int(done)*4+int(can_complete)*8+int(can_mount)*16
+    var key: int = stage+int(mount.active)*2+int(done)*4+int(can_complete)*8+int(can_mount)*16+int(bool(GameState.job["cooler_film_peeled"]))*32
     if key == _paste_ui_key: return
     _paste_ui_key = key
+    film_button.visible = stage == STAGE_PASTE
+    film_button.disabled = bool(GameState.job["cooler_film_peeled"]) or bool(GameState.job["paste_done"])
     mount_button.visible = can_mount
     mount_button.disabled = not can_mount
     clear_button.disabled = mount.active
@@ -1060,9 +1075,38 @@ func _cancel_mount() -> void:
     if not mount.active:
         return
     mount.cancel()
+    screw_clicks.clear()
     holding = false
     time_up_told = false
     _set_status("You lifted the cooler off again without locking it: no result. The paste stays as it was pressed; mount again when ready, and pull the lever to secure.", 2)
+
+
+func _socket_region() -> Rect2:
+    return Rect2(PASTE_ORIGIN, Vector2(PasteSim.GRID * PASTE_CELL, PasteSim.GRID * PASTE_CELL))
+
+
+func _on_film_pressed() -> void:
+    if bool(GameState.job["cooler_film_peeled"]):
+        return
+    GameState.peel_cooler_film()
+    _paste_ui_key = -1
+    _sync_paste_controls()
+    _set_status("You peeled the clear plastic film off the cooler's base. Bare metal now.", 0)
+
+
+# One quarter of the install ritual: a snug turn, then a tight one, on a corner screw. The bench never
+# says whether the pattern was right; the customer finds out at home (D130).
+func _turn_screw(screw: int) -> void:
+    if not InstallFaults.can_turn(screw_clicks, screw):
+        return
+    var first: bool = screw_clicks.is_empty()
+    screw_clicks.append(screw)
+    _sound("ui.click")
+    var turns: int = InstallFaults.turns(screw_clicks, screw)
+    var text: String = "Screw %d %s (%d of %d turns done)." % [screw + 1, "tight" if turns >= InstallFaults.TURNS_NEEDED else "snug", screw_clicks.size(), InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED]
+    if first:
+        text += " Manual: tighten opposite corners in turn, in two passes."
+    _set_status(text, 0)
 
 
 func _finish_mount() -> void:
@@ -1075,6 +1119,9 @@ func _finish_mount() -> void:
     GameState.job["removed_parts"] = access.removed_ids()
     _sync_part_geometry()
     GameState.set_paste(mount_result, paste.total_deposited)
+    # D130: the hidden mistakes of this mount are recorded now and surface only at the customer's pickup.
+    GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), screw_clicks))
+    screw_clicks.clear()
     paste_dirty = true
     var cov: float = mount_result["coverage"]
     var over: float = mount_result["overflow"]
@@ -1211,6 +1258,9 @@ func _draw_clean_cursor() -> void:
 
 func _draw_paste_stage() -> void:
     PasteRenderer.draw_stage(self, paste, paste_texture, PASTE_ORIGIN, PASTE_CELL, mount)
+    PasteRenderer.draw_cooler_base(self, Rect2(PANEL_X + 270, 258, 250, 40), bool(GameState.job["cooler_film_peeled"]))
+    if mount.active:
+        PasteRenderer.draw_screws(self, InstallFaults.screw_centers(_socket_region()), screw_clicks, InstallFaults.TURNS_NEEDED, InstallFaults.SCREW_RADIUS)
     var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
     PasteRenderer.draw_lever(self, SECURE_LEVER, mount.active, locked, SECURE_LEVER.has_point(get_global_mouse_position()), vfx_time)
 
