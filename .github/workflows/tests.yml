@@ -88,7 +88,8 @@ jobs:
           test_software|Software
           test_room_workshop|Room workshop
           test_thermal_service|Thermal service
-          test_install_technique|Install technique"
+          test_install_technique|Install technique
+          test_hardware_ticket_pc|Hardware ticket PC"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

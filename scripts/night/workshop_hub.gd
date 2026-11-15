@@ -5,8 +5,6 @@ const PartStates = preload("res://scripts/rules/part_states.gd")
 var report: Label
 var ticket: Label
 var work_buttons: Array[Button] = []
-var upgrade_buttons: Dictionary = {}
-var cash_label: Label
 func _ready() -> void:
     NightSession.ensure(GameState)
     _label("WORKSHOP / NIGHT SHIFT",Vector2(32,24),Vector2(1000,48),28)
@@ -25,17 +23,10 @@ func _ready() -> void:
     ticket.add_theme_font_size_override("font_size",18)
     ticket_scroll.add_child(ticket)
     work_buttons.append(_button("Repair bench · clean + paste",Rect2(710,94,530,60),"res://scenes/night_bench.tscn"))
-    work_buttons.append(_button("Hardware bench · shop stock",Rect2(710,170,530,60),"res://scenes/night_hardware.tscn"))
+    work_buttons.append(_button("Hardware bench · this ticket's parts",Rect2(710,170,530,60),"res://scenes/night_hardware.tscn"))
     var check_button := _button("Diagnostic monitor · boot + game tests",Rect2(710,246,530,60),"")
     check_button.pressed.connect(_go.bind("res://scenes/software.tscn"))
     work_buttons.append(check_button)
-    var x: float = 710
-    for id: String in ["square_cloth","long_hose"]:
-        var button := _button("",Rect2(x,490,255,46),"")
-        button.pressed.connect(_buy_upgrade.bind(id))
-        upgrade_buttons[id] = button
-        x += 275
-    cash_label = _label("",Vector2(710,564),Vector2(530,40),20)
     var scroll := ScrollContainer.new()
     scroll.position = Vector2(32,425)
     scroll.size = Vector2(630,225)
@@ -49,19 +40,6 @@ func _ready() -> void:
     scroll.add_child(report)
     message = _label("",Vector2(32,669),Vector2(1210,34),14)
     _refresh_ticket()
-    _refresh_upgrades()
-func _refresh_upgrades() -> void:
-    cash_label.text = "Shop cash: $%d"%GameState.money
-    for id: String in upgrade_buttons:
-        var owned: bool = GameState.has_upgrade(id)
-        upgrade_buttons[id].text = ("Square cloth" if id == "square_cloth" else "Longer hose")+(" · owned" if owned else " · $%d"%GameState.UPGRADE_PRICES[id])
-        upgrade_buttons[id].disabled = owned
-func _buy_upgrade(id: String) -> void:
-    var bought: bool = GameState.buy_upgrade(id)
-    if bought: NightSession.checkpoint(GameState)
-    message.text = ("Upgrade bought · cash $%d"%GameState.money) if bought else "Not enough cash for this upgrade."
-    if NightSession.status != "": message.text = NightSession.status
-    _refresh_upgrades()
 func _refresh_ticket() -> void:
     var job: Dictionary = GameState.job
     ticket.text = "TICKET %s / %s\n\n%s\n\nCollection request: %s\nQuote: $%d · paid at pickup, not by this check.\n\nSwitch PCs whenever you want; each keeps its own repair progress."%[job["id"],job["customer"],job["complaint"],str(GameState.customer_view(job["customer_id"]).get("patience","Collection date not set")),job["payout"]]

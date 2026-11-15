@@ -147,12 +147,20 @@ func run_checks() -> void:
     await process_frame
     current_scene._check()
     check(current_scene.report.text.contains("Report only") and gs.job["state"] == "open","workshop final check diagnoses without completing ticket")
+    check(not current_scene.get("upgrade_buttons") and not gs.has_upgrade("square_cloth"),"workshop hub no longer sells upgrades (D131: the Shop does)")
+    current_scene._go("res://scenes/night_shop.tscn")
+    await process_frame
+    await process_frame
+    check(current_scene.scene_file_path == "res://scenes/night_shop.tscn" and current_scene.upgrade_buttons.size() == 2,"Shop lists every tool upgrade")
     money = gs.money
-    current_scene._buy_upgrade("square_cloth")
-    check(gs.has_upgrade("square_cloth") and gs.money == money-gs.UPGRADE_PRICES["square_cloth"],"existing tool upgrades remain purchasable from workshop")
+    current_scene._buy("square_cloth")
+    check(gs.has_upgrade("square_cloth") and gs.money == money-gs.UPGRADE_PRICES["square_cloth"],"tool upgrades are purchasable from the Shop")
     money = gs.money
-    current_scene._buy_upgrade("square_cloth")
-    check(gs.money == money,"owned workshop upgrade cannot be charged twice")
+    current_scene._buy("square_cloth")
+    check(gs.money == money and current_scene.upgrade_buttons["square_cloth"].disabled,"owned shop upgrade cannot be charged twice")
+    current_scene._go("res://scenes/night_workshop.tscn")
+    await process_frame
+    await process_frame
     check(not current_scene.get_children().any(func(n: Node) -> bool: return n is OptionButton),"workshop no longer has a PC dropdown; selection belongs to the room")
     night.switch_pc(gs,night.tickets[1]["id"])
     current_scene._refresh_ticket()
