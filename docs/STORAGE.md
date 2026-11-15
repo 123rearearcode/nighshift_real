@@ -1,5 +1,10 @@
 # General storage rack — trials 0.29.0–0.30.0
 
+**Current local 0.33.0 override:** see STORAGE_ROOM.md. Furniture is a direct 4×2 room layout with
+zoom/pan, no selector list/pages. Schema 2 migrates old allocations and records room cells. The
+controls/format below describe historical 0.29/0.30 behavior. No code pushed for this local update.
+
+
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 14 November 2026, Europe/Bucharest. User-requested gameplay feature (D109).
 

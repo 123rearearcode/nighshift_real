@@ -1,5 +1,10 @@
 # Nightshift — Working Design
 
+Current local delivery: **0.33.0 room storage**, based on integrated main 0.32.0. Prior branch-status
+notes are historical. Room has direct furniture, eight floor bays and zoom/pan; no rack-selector list.
+See STORAGE_ROOM.md and REVIEW_0_32.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
 Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
 heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
 
@@ -256,3 +261,25 @@ bridge stores inactive jobs and references the active GameState.job; it does not
 Main-save active markers and a versioned sidecar allow interrupted-switch recovery; see NIGHT_WORKSHOP.md.
 No edits to Claude's hot files or WORK_PLAN.md. This delivery is stacked on the rack branch; both PRs
 must stay unmerged until reviewed. Claude goes next on shared-state integration review.
+
+
+## Storage room — local trial 0.33.0
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest.
+The user replaces rack-selector buttons with direct room furniture. A 4×2 floor grid holds up to
+eight units. All units coexist on one clipped room canvas; zoom/pan and Fit furniture/Entire room
+replace paging. Drag furniture by its title bar to another free bay; its contents stay with it.
+Parts still pack into each unit's shelves, with rotation, reservations, overflow and safe cancellation.
+
+This removes the signal-emitter deletion path behind B16. The add-furniture popup uses proper
+margin/VBox layout, fixing overlapping choices (B20). Native viewport mouse events now exercise
+sort/save/add/model selection and repeated room selections in tests. No claim of universal crash
+freedom or graphical playtest: the tested flows pass without script/locked-object errors.
+
+Storage layout version 2 stores unit room_cell in addition to unchanged shelf allocations. Version 1
+assigns distinct room bays on load; duplicate/malformed/out-of-range cells are rehomed safely. Item
+ownership remains in the canonical GameState projection. Furniture remains free prototype tuning;
+no room purchase/expansion economy or shared capacity hook introduced. Full controls: STORAGE_ROOM.md.
+
+Main 0.32.0 already integrates the prior PRs. Earlier pending/independent-branch notes below are
+historical. Review of Claude PR #39: canonical CPU/part-state fixes retained; night ticket overflow
+B19 remains open with measured evidence, reported to Claude. Code is local; no pushes or merges.

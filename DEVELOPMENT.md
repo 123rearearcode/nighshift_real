@@ -553,3 +553,22 @@ seed-matrix/layout/identity/packing and real heavy/generated-pile physics cases.
 Existing salvage module file map entries remain valid; no new runtime scripts or suite files.
 No changes to GameState, bench/tool hot files, saves or campaign stock. Independent main-based PR;
 leave pending inventory/night PRs and their local patches unchanged.
+
+
+## Room storage module — local 0.33.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/storage/room_canvas.gd` | view | Draw-only Node2D under a clipped Control; no ownership/input logic |
+| `docs/STORAGE_ROOM.md` | docs | Current controls, schema-2 migration, UI lifecycle boundaries |
+| `docs/REVIEW_0_32.md` | docs | Claude PR #39 review, measured findings and follow-ups |
+
+StorageModel adds can_place_furniture(id,cell), free_room_cell(), move_unit(id,cell), and optional
+cell argument to add_unit. Four-by-two room bays and one-bay furniture limit capacity to eight.
+Schema 2 adds room_cell arrays to units; first reserves valid positions then rehomes invalid/missing
+cells, preserving shelf allocations. Store protects versions above 2. No GameState SAVE_FORMAT change.
+StorageView creates all controls once; a clipped room canvas owns drawing, stable toolbar/popup
+controls handle GUI dispatch. No rack selector Buttons, furniture pages or synchronous frees.
+Tests dispatch native viewport mouse input through toolbar/popup, with embedded popup coordinates,
+and validate choice rectangles, direct room dragging, migration and repeated interaction lifecycles.
+Earlier version-1 storage contract is historical; see STORAGE_ROOM.md for the current format.

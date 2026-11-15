@@ -1,6 +1,9 @@
 # Storage footprints are shelf units, separate from motherboard connector geometry. Trial tuning.
 extends RefCounted
 const CELL: int = 18
+const ROOM_SIZE := Vector2i(4,2)
+const BAY_SIZE := Vector2(280,440)
+const BAY_STRIDE := Vector2(300,460)
 const MAX_UNITS: int = 8
 const MODELS: Dictionary = {
     "rack":{"name":"Steel rack","size":Vector2i(12,6),"shelves":3,"accepts":["pc","tool","part"],"hint":"Deep shelves for whole PCs, tools and parts."},

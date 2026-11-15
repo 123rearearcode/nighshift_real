@@ -1,5 +1,14 @@
 # Handoff - read this first
 
+**Current local delivery 0.33.0 — read before historical notes:** Codex (GPT 6.1 Sol,
+model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest. Based on integrated
+main 0.32.0. PR #39 is already merged; review findings: docs/REVIEW_0_32.md (comment posted).
+Storage now uses direct room furniture, 4×2 bays, zoom/pan and no per-rack buttons; popup has real
+VBox layout. B16/B20 fixed here; B19 night-workshop ticket overflow reported, not changed here.
+Storage sidecar schema 2 migrates v1 without losing allocations. No hot files edited. Code stays
+local per prior no-push instruction; do not publish or merge automatically. Use the 0.33.0 ZIP.
+
+
 **0.31.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. Rebased on main 0.29.0 after Claude's PR #37 landed.
 Fresh piles per arrival, fourteen collectibles, heavy native obstacles; see SALVAGE_VARIETY.md/D113.
@@ -7,7 +16,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.32.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.33.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

@@ -22,8 +22,14 @@ func setup(sources: Dictionary, saved: Dictionary = {}) -> void:
             var uid: String = str(raw.get("id",""))
             var kind: String = str(raw.get("model",""))
             if uid == "" or uid.length()>80 or seen.has(uid) or not Data.MODELS.has(kind): continue
-            units.append({"id":uid,"model":kind})
+            units.append({"id":uid,"model":kind,"room_cell":Vector2i(-1,-1)})
+            var rc: Variant = raw.get("room_cell",null)
+            if rc is Array and rc.size() == 2 and _integer(rc[0]) and _integer(rc[1]):
+                var cell := Vector2i(int(rc[0]),int(rc[1]))
+                if can_place_furniture(uid,cell): units.back()["room_cell"] = cell
             seen[uid] = true
+    for entry: Dictionary in units:
+        if entry["room_cell"] == Vector2i(-1,-1): entry["room_cell"] = free_room_cell()
     if units.is_empty(): add_unit("rack")
     var raw_places: Variant = saved.get("placements",{})
     if raw_places is Dictionary:
@@ -37,22 +43,42 @@ func setup(sources: Dictionary, saved: Dictionary = {}) -> void:
     fill_unplaced()
 
 static func _integer(value: Variant) -> bool:
-    return typeof(value) in [TYPE_INT,TYPE_FLOAT] and is_finite(float(value)) and float(value) == floorf(float(value))
+    return typeof(value) in [TYPE_INT,TYPE_FLOAT] and is_finite(float(value)) and absf(float(value))<=2147483647 and float(value) == floorf(float(value))
 
 func unit(id: String) -> Dictionary:
     for entry: Dictionary in units:
         if entry["id"] == id: return entry
     return {}
 
-func add_unit(kind: String) -> String:
+func add_unit(kind: String, cell: Vector2i = Vector2i(-1,-1)) -> String:
     if not Data.MODELS.has(kind) or units.size() >= Data.MAX_UNITS: return ""
+    if cell == Vector2i(-1,-1): cell = free_room_cell()
+    if not can_place_furniture("",cell): return ""
     var id: String = "storage_%d"%next_unit
     while not unit(id).is_empty():
         next_unit += 1
         id = "storage_%d"%next_unit
-    units.append({"id":id,"model":kind})
+    units.append({"id":id,"model":kind,"room_cell":cell})
     next_unit += 1
     return id
+
+func can_place_furniture(id: String, cell: Vector2i) -> bool:
+    if not Rect2i(Vector2i.ZERO,Data.ROOM_SIZE).has_point(cell): return false
+    for entry: Dictionary in units:
+        if entry["id"] != id and entry.get("room_cell",Vector2i(-1,-1)) == cell: return false
+    return true
+
+func free_room_cell() -> Vector2i:
+    for y in range(Data.ROOM_SIZE.y):
+        for x in range(Data.ROOM_SIZE.x):
+            var cell := Vector2i(x,y)
+            if can_place_furniture("",cell): return cell
+    return Vector2i(-1,-1)
+
+func move_unit(id: String, cell: Vector2i) -> bool:
+    if held != "" or unit(id).is_empty() or not can_place_furniture(id,cell): return false
+    unit(id)["room_cell"] = cell
+    return true
 
 func remove_unit(id: String) -> bool:
     if units.size() <= 1 or held != "": return false
@@ -138,4 +164,8 @@ func snapshot() -> Dictionary:
     for uid: String in placements:
         var p: Dictionary = placements[uid]
         result[uid] = {"unit":p["unit"],"shelf":p["shelf"],"cell":[p["cell"].x,p["cell"].y],"rotation":p["rotation"]}
-    return {"version":1,"units":units.duplicate(true),"placements":result}
+    var room_units: Array = []
+    for entry: Dictionary in units:
+        var cell: Vector2i = entry["room_cell"]
+        room_units.append({"id":entry["id"],"model":entry["model"],"room_cell":[cell.x,cell.y]})
+    return {"version":2,"units":room_units,"placements":result}
