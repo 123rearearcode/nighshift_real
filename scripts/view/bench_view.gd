@@ -656,9 +656,10 @@ func _input(event: InputEvent) -> void:
         # can be picked up for the corner screws; right-click again puts it down. Every other tool stays refused.
         if mb.button_index == MOUSE_BUTTON_RIGHT and stage == STAGE_PASTE and mount.active:
             if mb.pressed:
-                if tools.equipped and tools.selected == Ids.SCREWDRIVER:
+                if tools.equipped:
+                    var was_screwdriver: bool = tools.selected == Ids.SCREWDRIVER
                     _park_tool()
-                    _set_status("Screwdriver put down. Right-click it on the bench to pick it up again.", 0)
+                    if was_screwdriver: _set_status("Screwdriver put down. Right-click it on the bench to pick it up again.", 0)
                 elif not tools.equipped and mount.time_left <= 0.0 and tools.hit(mb.position, Ids.PASTE_TOOLS) == Ids.SCREWDRIVER:
                     tools.select(Ids.SCREWDRIVER, mb.position)
                     _sound("handling.pickup", {"kind": Ids.SCREWDRIVER})
