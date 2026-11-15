@@ -57,7 +57,7 @@ validator dropped the new CPU record (and a migration briefly respawned it on em
 the CPU's drawer position shifted the packing that older tests pin, a salvage test read a
 cargo body before the grab finished, and the menu label was sized before wrapping was set so
 Godot clamped it to 600 px (recorded as the real root of B13).
-Integrated build (this entry, after merging Codex's three PRs): Actions result: pending.
+Integrated build (this entry, after merging Codex's three PRs): Actions result: run 43655899663 succeeded (all 13 suites, 0 failures; the first run 43655748898 had 2 failures - start-menu Storage button outside the card, and a part-order assertion - both fixed).
 
 ### Added
 - `docs/BUGS.md` (D114): the bug register. Every bug found — playtest, CI, review — gets a row
