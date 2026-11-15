@@ -1,5 +1,22 @@
 # Nightshift — Roadmap
 
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
+New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
+non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+
+
+Previous delivery: **0.29.0 general storage rack**, pending review/unmerged. Signed: Codex
+(GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+F5 → Storage rack; PCs/tools/parts share expandable furniture grids. See the final section and
+STORAGE.md for controls, save boundaries and capacity integration still to coordinate with Claude.
+
+Earlier milestone notes follow.
+
+
 Current 0.27.0 physics trial — Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 User requested trying a 2D side-view dumpster with real physics (D103). F5 → Salvage demo now uses
 native gravity, inter-object collisions, supporting stacks/collapse, bounded spring pulling and open
@@ -156,3 +173,58 @@ Written by Claude (Opus 5.5, model id claude-opus-5-5). The project lives in the
 ## Code-health plan and work split (13 November 2026)
 Added by Claude (Opus 5.5, model id claude-opus-5-5). The user approved `docs/WORK_PLAN.md`: Codex owns design and gameplay features, Claude owns engineering and code health (tests/CI, measurement, constants, a hand-state machine for bench input, save gaps, the `bench_view.gd` split, a typed job, later exported-build checks). Gameplay milestones above keep their order; plan steps run alongside them under the plan's hot-file rules.
 
+
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+## General storage rack — trial 0.29.0, 14 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+The user approved a general inventory occupied by PCs, owned tools and parts, shown as a rack
+and expandable with more furniture. The first implementation is `scenes/storage.tscn`, available
+from the start menu's **Storage rack** button. Steel racks, shallow parts cabinets and tool boards
+provide distinct grid capacity. Drag, rotate, move between shelves/furniture and add units; invalid
+drops return safely. A visible waiting area retains everything that cannot fit.
+
+The rack reads current player stock, the included five-tool kit and the one active customer PC.
+It stores only furniture and allocations in `user://nightshift_storage.json`; ownership stays in
+GameState. Installed shop parts retain marked shelf reservations; a whole customer PC includes
+its fitted customer parts. No duplication or ownership transfer occurs by moving a tile.
+
+Prototype choices, not final balance: furniture is free, at most eight units, example shelf sizes
+and storage footprints. Furniture/layout survives New game independently of demo progress.
+This is not the final shared-PC/owned-part model: multiple waiting PCs, owned built PCs and a
+purchasable tool catalogue need canonical source records first. The current old hardware drawer
+and buying/intake capacity checks are unchanged. The rack enforces its own allocation space and
+shows overflow, but does not yet reject purchases, intake or salvage on capacity grounds.
+
+Claude owns current concurrent engineering work. No changes to bench_view.gd, tool_rig.gd,
+game_state.gd, shop_view.gd or WORK_PLAN.md in this delivery. Coordinate capacity hooks after
+review; do not merge automatically. Contract, file map and playtest steps: docs/STORAGE.md.
+
+
+## Night workshop and three-shelf rack — trial 0.30.0
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+14 November 2026, Europe/Bucharest. User-approved follow-up to the unmerged 0.29.0 rack.
+
+New Game → Activities: Workshop, Salvage dump, Storage rack and a disabled future-activity space.
+Salvage moves out of the initial menu. Workshop groups customer-PC selection, repair bench,
+hardware stock sandbox and Final Check. New games have two actual repair tickets using the existing
+customers, with separate dirty PCs and per-PC repair progress. Existing saves migrate only their
+actual current ticket; they do not gain fictional client PCs. Every rack now has a third shelf.
+
+A ticket does not imply a customer PC: the manifest explicitly stores an optional physical PC ID;
+build orders without supplied hardware occupy no PC space. Night checks only diagnose boot/heat/
+parts and owned game tests. They do not pay, complete jobs, advance customer rotation or record a
+pickup. Switch PCs whenever desired. A good paste mount commits through the cooler lever, without
+another completion button; existing thermal-paste costs/scam recording remain. Physical paste fields
+also survive leaving the bench, alongside each PC's dust, removed parts, damage and replacements.
+
+The daytime pickup/shop screen is future work. Hardware bench still manipulates SHOP STOCK, not a
+full customer assembly model. Salvage time/cargo still belongs to its isolated prototype. No shared
+campaign clock, shop economy or full owned-PC/part schema is claimed here. A temporary NightSession
+bridge stores inactive jobs and references the active GameState.job; it does not clone stock or money.
+Main-save active markers and a versioned sidecar allow interrupted-switch recovery; see NIGHT_WORKSHOP.md.
+No edits to Claude's hot files or WORK_PLAN.md. This delivery is stacked on the rack branch; both PRs
+must stay unmerged until reviewed. Claude goes next on shared-state integration review.

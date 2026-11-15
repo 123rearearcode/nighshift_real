@@ -13,6 +13,7 @@ const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Games = preload("res://scripts/data/games.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
@@ -138,20 +139,10 @@ func parts_clean_count() -> int:
 
 
 # Service accidents and replacements are persistent; grades are derived from known tiers.
-# ONE source of truth for the state of a customer's serviceable part (D110): binary per part.
+# ONE source of truth for the state of a customer's serviceable part (D115): binary per part.
 # Everything that talks about parts (ticket, final check, benches) reads this, never its own copy.
 func part_state(part_id: String) -> Dictionary:
-    var fitted: bool = not part_id in job.get("removed_parts", [])
-    var working: bool = not part_id in job.get("broken_parts", [])
-    var tier: String = str(job.get("service_replacements", {}).get(part_id, ""))
-    var text: String
-    if not fitted:
-        text = "MISSING - lying in the repair-bench tray; drag it back or fit a replacement"
-    elif not working:
-        text = "BROKEN - at the repair bench: move it to the tray, then open Replacement stock"
-    else:
-        text = "working" + (" (%s replacement)" % tier if tier != "" else "")
-    return {"fitted": fitted, "working": working, "tier": tier, "text": text}
+    return PartStates.state(job, part_id)
 
 
 func damage_service_part(part_id: String) -> bool:
@@ -362,14 +353,11 @@ func run_final_check() -> Dictionary:
         if not under.is_empty() and float(under["heat_penalty"]) > 0.0:
             temp += float(under["heat_penalty"])
             notes.append("%s under the cooler (+%d C). The customer will not notice today; it dries out. Consequences are not simulated yet." % [under["label"], int(under["heat_penalty"])])
-    # D110: one binary line per serviceable part, with the exact place to fix it. This replaced
+    # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     var removed_parts: Array = job.get("removed_parts", [])
     var broken: Array = job["broken_parts"]
-    for part_id: String in ServiceParts.IDS:
-        var state: Dictionary = part_state(part_id)
-        if not bool(state["fitted"]) or not bool(state["working"]):
-            notes.append("%s: %s." % [part_id.to_upper(), str(state["text"])])
+    notes.append_array(PartStates.problem_lines(job))
     for id: String in job["service_replacements"]:
         var replacement: Dictionary = ServiceParts.option(id, str(job["service_replacements"][id]))
         temp += float(replacement["heat_penalty"])
@@ -444,7 +432,7 @@ func load_game() -> bool:
             if str(record.get("owner","player")) != "player" or str(record.get("condition","working")) != "working": continue
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
-    # Saves from before the CPU existed gain the demo CPU once (D111); later loads keep it.
+    # Saves from before the CPU existed gain the demo CPU once (D116); later loads keep it.
     if raw_stock is Array and not (raw_stock as Array).is_empty() and not seen_stock.has("stock_cpu_demo"):
         player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"})
     var saved_layout: Variant = data.get("inventory_layout",{})

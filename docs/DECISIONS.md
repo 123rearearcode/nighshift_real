@@ -266,11 +266,52 @@ D106 (confirmed, fixes Codex finding 3 on 0.25.0): loaded customer history is re
 D107 (confirmed): the main menu gets a Settings option — for now one sound slider (master volume, applied live, muted at zero). Settings live in their own `user://nightshift_settings.json`, never in the game save, and survive new games.
 D108 (confirmed, user playtest of the salvage demo): the find you HOLD must be lifted over the dumpster rim, but it cannot be used as a bulldozer: a rim barrier (layer 256, rim up to the ceiling) stops every body except the held one, so only the carried find can cross. Pile physics inside the dumpster stay fully interactive.
 
-## The broken-GPU dead end, the bug register and bench coherence — 14 November 2026, trial 0.29.0
+## General inventory — 14 November 2026, trial 0.29.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+D109 (confirmed user request): general inventory contains PCs, owned tools and parts; it is
+visually a rack, expandable with several furniture types. Implement code on a separate branch
+and leave it unmerged while Claude works. First implementation and boundaries: docs/STORAGE.md.
+Free furniture, eight units, shelf sizes and installed-part shelf reservations are provisional
+prototype choices, not approved economy or final storage rules. Current purchases still use
+the old drawer capacity checks until a coordinated shared-capacity hook is approved.
+
+## Night workflow — 14 November 2026, trial 0.30.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+D110 (confirmed): add a third rack shelf and one or two more customer PCs tied to current tickets.
+A ticket does not necessarily bring client hardware: future build orders may have no client PC.
+Implemented: new games seed the two existing customers' actual repair tickets (one extra PC);
+legacy saves retain their actual single job. Optional PC identity controls storage presence.
+D111 (confirmed): at night the player works on and switches PCs freely; no ticket-completion action.
+Final Check diagnoses the current state, without payout or pickup. The good cooler lever mount also
+commits repaste automatically in this night route. Daytime pickup/reputation consequences remain separate.
+D112 (confirmed): after New Game show Activities: Workshop (repair, hardware, final check), Salvage
+and room for future activities (likely shop, not approved/built yet). Remove Salvage from the initial menu.
+Keep previous rack PR unmerged. New work is stacked on it; no automatic merges.
+
+Implementation bridge and limitations, not final shared-PC design: NIGHT_WORKSHOP.md. The hardware
+bench remains the shop-stock sandbox. Claude must cross-review NightSession's active-job/sidecar boundary.
+
+## Salvage variety — 15 November 2026, trial 0.31.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, Europe/Bucharest.
+
+D113 (confirmed user request): randomize dump spawning every time, include more components and
+add very heavy items that cannot be moved much. Implemented as a fresh pile per actual arrival;
+opening containers or reopening the same active visit never rerolls. This supersedes older
+persistent site/few-day refresh behavior for this prototype; normal travel still applies.
+Cargo/shelf remain intact; old unclaimed leftovers are abandoned. Heavy obstacles are dynamic,
+barely draggable waste, not collectible components. Sizes, counts, per-part weights and masses
+are provisional feel tuning. New components are salvage records, not a completed repair catalogue.
+D109–D112 on main belong to Claude’s 0.29.0 decisions. Pending inventory/night PRs need their
+provisional decision numbering reconciled at integration; this branch does not publish their local fixes. No hot-file edits, automatic merges or shared-stock writes.
+
+## The broken-GPU dead end, the bug register and bench coherence — 14 November 2026, trial 0.32.0
 Recorded by Claude (Fable 5, model id claude-fable-5), from the user's playtest and direction.
 
-D109 (confirmed): every bug found — by playtest, CI or review — is recorded in `docs/BUGS.md` with its root cause; every 10 versions (0.30.0, 0.40.0, …) the register gets a structural review pass whose findings go to the user. The register is backfilled with the bugs known so far (B1–B15).
-D110 (confirmed): each serviceable part of the customer's PC has ONE binary state pair — fitted/not fitted, working/broken — read everywhere through `GameState.part_state()`. The ticket, the final check and the benches show it and name the exact repair path. This replaced the aggregate "refit/replace" notes after the user's 0.28.x playtest dead-ended on a broken GPU with no visible way forward (BUGS.md RC-1/RC-2).
-D111 (confirmed): the hardware bench is, for now, explicitly the SHOP'S spare-part bench (banner says so; the shop button says so) and its own loop is coherent: the starter stock includes a demo CPU, the demo board has a cooler mount, and the cooler can only be fitted once the CPU sits in its socket — the user confirmed the real-life order CPU → mount → cooler. Connecting the customer's actual PC to this bench remains the open structural step (D79 note, RC-1).
-D112 (confirmed): all tool upgrades are grouped under an Upgrades tab on the shop's lower card (Final check | Customer | Upgrades); future upgrades land there. The right-hand column keeps only navigation and the final check.
+D114 (confirmed): every bug found — by playtest, CI or review — is recorded in `docs/BUGS.md` with its root cause; every 10 versions (0.30.0, 0.40.0, …) the register gets a structural review pass whose findings go to the user. The register is backfilled with the bugs known so far (B1–B15).
+D115 (confirmed): each serviceable part of the customer's PC has ONE binary state pair — fitted/not fitted, working/broken — read everywhere through `GameState.part_state()`. The ticket, the final check and the benches show it and name the exact repair path. This replaced the aggregate "refit/replace" notes after the user's 0.28.x playtest dead-ended on a broken GPU with no visible way forward (BUGS.md RC-1/RC-2).
+D116 (confirmed): the hardware bench is, for now, explicitly the SHOP'S spare-part bench (banner says so; the shop button says so) and its own loop is coherent: the starter stock includes a demo CPU, the demo board has a cooler mount, and the cooler can only be fitted once the CPU sits in its socket — the user confirmed the real-life order CPU → mount → cooler. Connecting the customer's actual PC to this bench remains the open structural step (D79 note, RC-1).
+D117 (confirmed): all tool upgrades are grouped under an Upgrades tab on the shop's lower card (Final check | Customer | Upgrades); future upgrades land there. The right-hand column keeps only navigation and the final check.
 D108 amendment (from Codex's qualifications, verified): a find released while overlapping the rim barrier keeps its exemption until physically clear (no fling), and a cargo body re-enters the world at the first free staging spot instead of a fixed point (no spawning inside a staged find). Codex's other two points are conceded: the bulldozer bypassed the victim's lift effort, not all time cost, and the paint/pick order contract has no drift.
+D115 amendment (integration, 15 November 2026): the part-state rule lives in the pure `scripts/rules/part_states.gd`; GameState, the shop ticket, the night workshop's diagnosis and workshop ticket all read it. After the night flow replaced the shop screen as the player-facing surface, the same dead end (a broken part with no named path) reappeared in the night diagnosis until it used the shared lines.

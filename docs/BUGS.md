@@ -7,7 +7,7 @@ real bug. Rules for keeping this file are in `AGENTS.md` (rule 6) and `DEVELOPME
 
 **Structural review: every 10 versions** (0.30.0, 0.40.0, …) the integrating AI re-reads this
 whole file, writes a short "Patterns" entry at the top of the Reviews section below, and
-proposes structural work to the user. Next review due: **0.30.0**.
+proposes structural work to the user. The 0.30.0 checkpoint was prepared by Codex and completed by Claude at integration (0.32.0, see Reviews); the next regular review is **0.40.0**.
 
 ## How to file a bug
 
@@ -27,12 +27,19 @@ fix ships now.
 | B7 | 0.25.0 | 0.28.0 | Codex cross-review | Hand-edited/damaged save crashed the shop (invalid cast) | loaded data trusted without per-field validation (see RC-3) |
 | B8 | 0.28.0 | 0.28.0 | CI (new test) | History normaliser crashed on visit records missing keys | `get()` default passed the type test, then direct `[]` access hit the missing key |
 | B9 | 0.26/0.27 | 0.28.0 | user playtest | Held salvage find bulldozed other finds out of the dumpster | zone decided by bare x-position; no ownership gate at the rim (D108) |
-| B10 | 0.28.0 | 0.29.0 | user playtest | **Loop-blocker:** GPU replaced "at the hardware bench" but the final check still failed | two disconnected PCs: the sandbox never writes job state (see RC-1) |
-| B11 | 0.28.0 | 0.29.0 | user playtest | Coolers unmountable at the hardware bench ("needs a mount"); no CPU exists | sandbox board had no COOLER_MOUNT slot and stock had no CPU (see RC-1) |
-| B12 | 0.28.0 | 0.29.0 | user playtest | Broken GPU came as a surprise at the final check | damage feedback was a 3 s status line; ticket/check never showed part states (see RC-2) |
-| B13 | 0.28.0 | 0.29.0 | user playtest | Main-menu status text crossed the card border | buttons were added without growing the card; AND the label was sized before autowrap was set, so Godot clamped it to its one-line width (600 px) and it never shrank back (see RC-2) |
-| B14 | 0.27.0 | 0.29.0 | Codex review of the D108 plan | Releasing a find overlapping the rim barrier could fling it | collider re-enabled inside a body; fixed with a grace exemption until clear |
-| B15 | 0.27.0 | 0.29.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
+| B10 | 0.28.0 | 0.32.0 | user playtest | **Loop-blocker:** GPU replaced "at the hardware bench" but the final check still failed | two disconnected PCs: the sandbox never writes job state (see RC-1) |
+| B11 | 0.28.0 | 0.32.0 | user playtest | Coolers unmountable at the hardware bench ("needs a mount"); no CPU exists | sandbox board had no COOLER_MOUNT slot and stock had no CPU (see RC-1) |
+| B12 | 0.28.0 | 0.32.0 | user playtest | Broken GPU came as a surprise at the final check | damage feedback was a 3 s status line; ticket/check never showed part states (see RC-2) |
+| B13 | 0.28.0 | 0.32.0 | user playtest | Main-menu status text crossed the card border | buttons were added without growing the card; AND the label was sized before autowrap was set, so Godot clamped it to its one-line width (600 px) and it never shrank back (see RC-2) |
+| B14 | 0.27.0 | 0.32.0 | Codex review of the D108 plan | Releasing a find overlapping the rim barrier could fling it | collider re-enabled inside a body; fixed with a grace exemption until clear |
+| B15 | 0.27.0 | 0.32.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
+
+
+| B16 | pending rack/night PRs #35/#36 | local patches only; not in main | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
+
+| B17 | pending rack/night integration with main 0.29.0 | 0.32.0 | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); fixed in 0.32.0: the rack reads the canonical `GameState.inventory_components()` projection (test_storage checks the CPU appears) |
+
+| B18 | 0.30.0 | 0.32.0 | Claude integration review | The night workshop diagnosis said only "Damaged: gpu. Replace these parts." - the B12 dead end again, on the screen that replaced the shop | a second surface wrote its own aggregate notes instead of reading the shared part rule (RC-1/RC-2); fixed with the pure `part_states.gd` rule used by every surface |
 
 ## Root causes (structural)
 
@@ -58,6 +65,40 @@ Save data (and any future imported data) must be rebuilt field by field with def
 clamps, never cast in the UI. B8 showed even the VALIDATOR can make the same mistake — tests
 must feed damaged data on purpose.
 
+### RC-4: destroying an event source while its signal is active (B16)
+Local fixes on the rack/night branches keep selection controls alive and defer structural deletion.
+A native Button-signal regression reproduces the old failure; direct method calls had missed it.
+Those fixes are NOT included/published in this salvage PR, per user instruction. Proposed structural
+answer: UI lifecycle tests should exercise signal dispatch, with stable controls for state-only updates.
+
 ## Reviews (newest first)
 
-*(none yet — first structural review due at 0.30.0)*
+### 0.32.0 - integration review (the 0.30.0 checkpoint, completed)
+
+Claude (Sonnet 5.5, model id claude-sonnet-5-5), 15 November 2026, after merging PRs #35, #36 and #38.
+Patterns confirmed from Codex's preparation: (1) RC-1 recurred immediately: two independently
+built surfaces (shop ticket, night diagnosis) each described part state their own way, and a CPU
+stock record I added broke a third (the rack's per-kind dispatch). Both fixes are now
+STRUCTURAL: one pure rule (`part_states.gd`) and one canonical component projection
+(`inventory_components()`); new surfaces must read them, never re-derive. (2) Parallel branches
+collided on version numbers and decision ids (three branches each claimed 0.29-0.31; D109-D113
+used twice). Proposed process fix, for the user: the integrating AI assigns the next version and
+decision-id block BEFORE a parallel branch starts, and branches record them in their PR body.
+(3) The old shop scene is now partly legacy (the night workshop replaced it as the player-facing
+flow) but still carries the legacy payout path and tests; retiring it deliberately is a later,
+explicit step. (4) RC-4 (UI lifecycle tests that exercise signal dispatch) accepted as proposed by
+Codex; a shared helper is the next structural test work. Next structural checkpoint: 0.40.0.
+
+### 0.31.0 branch — preparation for the 0.30.0 structural checkpoint
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+Patterns: RC-1 still needs one canonical customer-PC/part model; B17 shows derived type lists can
+drift as main gains CPU stock. Pending rack adapter must consume the canonical component projection
+before integration. Inventory and inactive-ticket bridges
+must remain explicit until integrated. RC-2 needs bounded labels plus persistent actionable state;
+new salvage labels use short cargo names and detailed hover text. RC-3 needs per-field save validation
+and identity checks; new random visits must never duplicate packed cargo. RC-4 adds event-source
+lifetime to the UI test gap. Proposed next structural work (not implemented): consolidate a reusable
+signal-driven UI test helper and finish canonical PC/state seams before expanding duplicate models.
+This review is prepared in a PR, not a claim that pending branches were merged. Next regular
+structural checkpoint after integration: 0.40.0.

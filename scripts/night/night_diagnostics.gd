@@ -1,0 +1,47 @@
+# Pure report. No payout, pickup, completion, trust change or save writes.
+extends RefCounted
+const Legacy = preload("res://scripts/state/game_state.gd")
+const Zones = preload("res://scripts/data/dust_zones.gd")
+const Materials = preload("res://scripts/data/paste_materials.gd")
+const Parts = preload("res://scripts/data/service_parts.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
+const Games = preload("res://scripts/data/games.gd")
+const Frames = preload("res://scripts/rules/fps_sim.gd")
+
+static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
+    var temp: float = Legacy.BASE_TEMP
+    var notes: Array = []
+    for zone: Dictionary in Zones.zones(str(job.get("layout","tower"))):
+        var fraction: float = clampf(float(job["dust"].get(zone["id"],0.0)),0,1)
+        var heat: float = float(zone["temp_penalty"])*(1.0-fraction)
+        temp += heat
+        if heat>0.2: notes.append("%s: dust adds %.1f°C."%[zone["label"],heat])
+    var grade: String = str(job.get("paste_grade",""))
+    if grade == "":
+        temp += Legacy.NO_PASTE_PENALTY
+        notes.append("CPU: no graded cooler contact. Apply paste, seat the cooler and lock its lever.")
+    elif not job.get("paste_done",false):
+        temp += Legacy.NO_PASTE_PENALTY
+        notes.append("Cooler contact: %s. Rework the paste and lock the lever; contact is not acceptable."%grade)
+    else:
+        temp += float(Legacy.PASTE_PENALTY.get(grade,Legacy.NO_PASTE_PENALTY))
+        var material: Dictionary = Materials.material(str(job.get("paste_material","thermal")))
+        temp += float(material.get("heat_penalty",0))
+        notes.append("Cooler contact: %s. Material: %s."%[grade,material.get("label","Unknown")])
+    var broken: Array = job.get("broken_parts",[])
+    var removed: Array = job.get("removed_parts",[])
+    notes.append_array(PartStates.problem_lines(job))   # D115: binary per part, with the exact repair path
+    var gpu: float = 100.0
+    for id: String in job.get("service_replacements",{}):
+        var replacement: Dictionary = Parts.option(id,str(job["service_replacements"][id]))
+        temp += float(replacement.get("heat_penalty",0))
+        if id == "gpu": gpu = float(replacement.get("performance",100))
+        if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
+    var powered: bool = bool(job.get("pc_powered",true))
+    var boots: bool = broken.is_empty() and removed.is_empty() and powered
+    notes.push_front("Boot: OK." if boots else "Boot: FAILED." if powered else "Power is off. Turn the PC on before testing.")
+    var specs: Dictionary = job.get("pc_specs",{})
+    for id: String in owned_games:
+        var game: Dictionary = Games.game(id)
+        if not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)),float(specs.get("ram_gb",8)),game,temp)])
+    return {"temp":temp,"boots":boots,"passed":boots and temp<Legacy.PASS_TEMP,"notes":notes}

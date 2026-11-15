@@ -172,6 +172,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
 | `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
 | `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
 | `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
 | `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
 | `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
@@ -191,6 +192,42 @@ Update this table whenever files change. The checker fails if a file is missing 
 Screen flow: shop (`shop.tscn`) opens the cooler bench (`bench.tscn`) and the hardware bench
 (`main.tscn`); both have a button back to the shop. Scene changes use
 `get_tree().change_scene_to_file(...)`.
+
+### Storage rack files (0.29.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scenes/storage.tscn` | scene | General inventory entry |
+| `scripts/storage/storage_data.gd` | data | Furniture specs and storage footprints |
+| `scripts/storage/storage_sources.gd` | adapter | Read-only projection of canonical owned stock, included tools and current customer PC |
+| `scripts/storage/storage_model.gd` | rules | Shelf packing, rotation, transactional moves, overflow and layout snapshot |
+| `scripts/storage/storage_store.gd` | state | Auxiliary layout save via SafeStore; future-version guard |
+| `scripts/storage/storage_view.gd` | view | Rack/drawers/tool board, hover, drag and expansion |
+| `tools/test_storage.gd` | tooling | Source/ownership, packing/save and real scene-input contracts |
+| `docs/STORAGE.md` | docs | Controls, capacity boundaries and Claude handoff |
+
+These files form an isolated feature module: model knows only data, sources only read state,
+store handles layout I/O, view orchestrates them. No dependency from GameState into storage.
+
+### Night workshop files (0.30.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_session.gd` | state bridge | Inactive job manifest, active GameState.job, PC identity, safe switching/recovery |
+| `scripts/night/night_diagnostics.gd` | rules | Pure non-completing temperature/boot/parts/fps report |
+| `scripts/night/paste_snapshot.gd` | sim adapter | Exact float32 paste-field JSON persistence and validation |
+| `scripts/night/activities_view.gd` | view | Workshop/salvage/storage selection and future activity space |
+| `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |
+| `scripts/night/repair_view.gd` | view adapter | Existing bench with workshop return and lever-driven paste commit |
+| `scripts/night/hardware_view.gd` | view adapter | Existing shop-stock sandbox, return to workshop |
+| `scripts/night/salvage_view.gd` | view adapter | Existing dump physics, return to Activities |
+| `scenes/activities.tscn` | scene | New/load-game destination |
+| `scenes/night_workshop.tscn` | scene | PC selection and diagnostics |
+| `scenes/night_bench.tscn` | scene | Night repair route |
+| `scenes/night_hardware.tscn` | scene | Night stock sandbox route |
+| `scenes/night_salvage.tscn` | scene | Dump accessed from Activities |
+| `tools/test_night_workshop.gd` | tooling | Multi-PC progress, save/recovery/ownership and scene contracts |
+| `docs/NIGHT_WORKSHOP.md` | docs | Controls, manifests, coordination and limitations |
 
 ## 6. Data contracts
 
@@ -474,3 +511,45 @@ resume. View departure/return/menu/focus changes coordinate sync/capture and nat
 Ten required suites: pure salvage rules plus native-frame tests. Optional stress profiler times the
 physics_frame→process_frame wall phase, not just view callbacks or the coarse Performance time counter.
 No GPU/whole-frame claim. Same session-only/save/stock/Claude hot-file boundaries as 0.26.0 remain.
+
+
+### Storage save contract (0.29.0)
+
+See docs/STORAGE.md for version-1 furniture/placement-only JSON. No change to SAVE_FORMAT.
+StorageModel.setup(sources,snapshot) reconciles ownership references; begin/rotate/cancel never
+edit committed allocations; drop commits only if can_place succeeds. StorageStore protects
+future-version files. No purchase/intake capacity hook yet; never silently discard overflow.
+The required workflow now also runs test_storage.gd (summary name Storage).
+
+
+### Night queue contract (0.30.0)
+NightSession autoload follows GameState. Marker namespace hardware_trial.night_session binds run,
+ticket and optional physical PC; hardware_trial.night_paste stores the physical field. Inactive tickets
+live in a version-1 `<save_path>.night.json` manifest; main save owns the selected active job.
+Checkpoint/readback precedes a switch; unknown/damaged manifests lock switching and preserve files.
+Shop stock/money remain only in GameState. Read-only sources never seed queue items. New Game seeds
+two existing-customer tickets; legacy migration retains only actual work. No root SAVE_FORMAT change.
+Full recovery/order contract and ownership limitation: docs/NIGHT_WORKSHOP.md. The workflow adds
+required suite test_night_workshop.gd (Night workshop); existing diagnostic rules still serve legacy
+payout tests, while the new pure report never mutates customer history or completes a ticket.
+## Salvage generation/weight contract — 0.31.0
+
+`SalvagePile.generate(site, visit, seed_override = -1, identity_prefix = "")` rolls a fresh RNG
+by default; an explicit seed reproduces a report. Unique session nonce/visit/seed IDs avoid collisions
+with cargo/shelf records. `spawn_seed` is available for debug reports. Root hull placement accounts
+for tilt, skips unsafe overflow and caps root+hidden records at Data.MAX_OBJECTS (64). Opening reveals
+pre-generated IDs, bounds children inside their side of the bin/rim, and never rerolls them.
+`SalvageSession.depart` now generates on EVERY successful arrival; `visit_sequence/visit_counts`
+track entries. `cycles/cycle_for` remain legacy/debug period metadata only, not a refresh gate.
+`SalvageData` owns fourteen collectible shapes/colours, site-specific weighted loot, labels and masses.
+Heavy obstacles are excluded from SHAPES and cargo. Native heavy bodies have high friction/mass and
+bounded weaker grip/torque; no static pins or artificial position locks. Existing scenario tests add
+seed-matrix/layout/identity/packing and real heavy/generated-pile physics cases.
+
+| File | Layer | Update |
+| --- | --- | --- |
+| `docs/SALVAGE_VARIETY.md` | docs | Current controls, new arrival rule, catalogue, weight/generation limits and review handoff |
+
+Existing salvage module file map entries remain valid; no new runtime scripts or suite files.
+No changes to GameState, bench/tool hot files, saves or campaign stock. Independent main-based PR;
+leave pending inventory/night PRs and their local patches unchanged.

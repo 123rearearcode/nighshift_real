@@ -1,0 +1,183 @@
+# Multi-ticket bridge while Claude owns GameState. Active PC stays in GameState.job;
+# this manifest holds the inactive jobs. It never copies shop stock or money.
+extends Node
+const Store = preload("res://scripts/state/save_store.gd")
+const Customers = preload("res://scripts/data/customers.gd")
+var tickets: Array = []
+var run_id: String = ""
+var active_id: String = ""
+var bound_path: String = ""
+var status: String = ""
+var read_only: bool = false
+
+func _marker(gs: Node) -> Dictionary:
+    var trial: Variant = gs.job.get("hardware_trial",{})
+    if not trial is Dictionary: return {}
+    var marker: Variant = trial.get("night_session",{})
+    return marker if marker is Dictionary else {}
+
+func _tag(job: Dictionary,id: String,pc_id: String,kind: String = "repair") -> void:
+    job["hardware_trial"]["night_session"] = {"run":run_id,"ticket":id,"pc":pc_id,"kind":kind}
+
+func _path(gs: Node) -> String:
+    return gs.save_path+".night.json"
+
+func start(gs: Node) -> bool:
+    run_id = Crypto.new().generate_random_bytes(12).hex_encode()
+    bound_path = gs.save_path
+    read_only = false
+    status = ""
+    tickets = []
+    active_id = str(gs.job["id"])
+    _tag(gs.job,active_id,run_id+":pc:1")
+    tickets.append(gs.job.duplicate(true))
+    # One extra real repair ticket, using the other existing customer (no invented persona).
+    var other: Dictionary = gs.job.duplicate(true)
+    var cid: String = Customers.IDS[1] if gs.job["customer_id"] == Customers.IDS[0] else Customers.IDS[0]
+    var who: Dictionary = Customers.customer(cid)
+    other["id"] = "T%03d"%(gs.ticket_sequence+1)
+    other["customer_id"] = cid
+    other["customer"] = who["name"]
+    other["complaint"] = who["complaint"]
+    other["payout"] = who["payout"]
+    other["layout"] = "compact"
+    other["broken_parts"] = ["gpu"] if cid == "t002_relu" else []
+    _tag(other,str(other["id"]),run_id+":pc:2")
+    tickets.append(other)
+    gs.ticket_sequence += 1
+    gs.save_game()
+    if not _main_saved(gs):
+        status = "New night could not be saved. Repair progress is only in memory; retry Save before quitting."
+        return false
+    return _write(gs)
+
+func ensure(gs: Node) -> bool:
+    var marker := _marker(gs)
+    if bound_path == gs.save_path and run_id != "" and marker.get("run","") == run_id and marker.get("ticket","") == active_id:
+        return not read_only
+    tickets.clear()
+    bound_path = gs.save_path
+    read_only = false
+    status = ""
+    run_id = str(marker.get("run",""))
+    active_id = str(marker.get("ticket",gs.job.get("id","")))
+    if run_id == "":
+        # Migrate existing progress as ONE real ticket; extra demo work is created only by New game.
+        run_id = Crypto.new().generate_random_bytes(12).hex_encode()
+        _tag(gs.job,active_id,"" if gs.job.get("state","open") == "done" else run_id+":pc:1")
+        tickets.append(gs.job.duplicate(true))
+        gs.save_game()
+        if not _main_saved(gs):
+            status = "Migrated PC could not be saved. Retry before quitting."
+            return false
+        return _write(gs)
+    var raw: Variant = Store.read(_path(gs))
+    if not raw is Dictionary or raw.get("version",0) != 1 or raw.get("run","") != run_id or not raw.get("tickets",null) is Array:
+        return _protect(gs,"Ticket manifest is missing, damaged or from another run. Active PC recovered; switching is disabled to protect other jobs.")
+    var ids: Dictionary = {}
+    var pcs: Dictionary = {}
+    for entry: Variant in raw["tickets"]:
+        if not _valid(entry) or ids.has(str(entry["id"])):
+            return _protect(gs,"Ticket manifest contains an invalid job. Active PC recovered; switching is disabled.")
+        var tag: Dictionary = entry["hardware_trial"]["night_session"]
+        var pc_id: String = str(tag.get("pc",""))
+        if tag.get("run","") != run_id or tag.get("ticket","") != entry["id"] or (pc_id != "" and pcs.has(pc_id)):
+            return _protect(gs,"Ticket identities overlap. Switching is disabled; the original file is preserved.")
+        ids[str(entry["id"])] = true
+        if pc_id != "": pcs[pc_id] = true
+        tickets.append(entry.duplicate(true))
+    if not ids.has(active_id): return _protect(gs,"Active ticket is absent from the manifest. Switching is disabled.")
+    capture(gs) # main save is authoritative for the active PC, including crash-time progress
+    return true
+
+func _valid(entry: Variant) -> bool:
+    if not entry is Dictionary: return false
+    for key: String in ["id","customer_id","customer","complaint","layout","state","paste_grade","paste_material"]:
+        if not entry.get(key,null) is String: return false
+    if not entry["layout"] in ["tower","compact"] or not entry["state"] in ["open","done"]: return false
+    if Customers.customer(entry["customer_id"]).is_empty(): return false
+    for key: String in ["dust","dust_state","hardware_trial","service_table_positions","service_replacements","service_replacement_ids","pc_specs"]:
+        if not entry.get(key,null) is Dictionary: return false
+    for key: String in ["removed_parts","broken_parts","removed_component_records","scams"]:
+        if not entry.get(key,null) is Array: return false
+    for key: String in ["cleaned","paste_done","pc_powered"]:
+        if not entry.get(key,null) is bool: return false
+    for key: String in ["temp","payout","paste_coverage","paste_overflow","paste_graded_units"]:
+        if not typeof(entry.get(key,null)) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(entry[key])): return false
+    for key: String in ["removed_parts","broken_parts","scams"]:
+        for value: Variant in entry[key]:
+            if not value is String: return false
+    for value: Variant in entry["dust"].values():
+        if not typeof(value) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(value)) or value<0 or value>1: return false
+    for value: Variant in entry["removed_component_records"]:
+        if not value is Dictionary: return false
+    for value: Variant in entry["service_table_positions"].values():
+        if not value is Array or value.size()!=2: return false
+        for coordinate: Variant in value:
+            if not typeof(coordinate) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(coordinate)): return false
+    for key: String in ["cpu_power","ram_gb"]:
+        if not typeof(entry["pc_specs"].get(key,null)) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(entry["pc_specs"][key])): return false
+    for value: Variant in entry["service_replacements"].values():
+        if not value in ["similar","budget"]: return false
+    return entry["hardware_trial"].get("night_session",null) is Dictionary
+
+func _protect(gs: Node,message: String) -> bool:
+    tickets = [gs.job.duplicate(true)]
+    read_only = true
+    status = message
+    return false
+
+func capture(gs: Node) -> void:
+    for i in range(tickets.size()):
+        if tickets[i]["id"] == active_id:
+            tickets[i] = gs.job.duplicate(true)
+            return
+
+func _write(gs: Node) -> bool:
+    if read_only: return false
+    if not Store.write(_path(gs),{"version":1,"run":run_id,"tickets":tickets}):
+        status = "Ticket progress could not be saved. Retry before switching PCs."
+        return false
+    status = ""
+    return true
+
+func checkpoint(gs: Node) -> bool:
+    if not ensure(gs): return false
+    capture(gs)
+    gs.save_game()
+    if not _main_saved(gs):
+        status = "Active repair could not be saved. Retry before switching PCs."
+        return false
+    return _write(gs)
+
+func _main_saved(gs: Node) -> bool:
+    var raw: Variant = Store.read(gs.save_path)
+    if not raw is Dictionary: return false
+    for key: String in ["job","money","player_inventory","inventory_layout","inventory_sequence","ticket_sequence","upgrades","owned_games","customer_state","tickets_taken"]:
+        if raw.get(key,null) != JSON.parse_string(JSON.stringify(gs.get(key))): return false
+    return true
+
+func jobs(gs: Node) -> Array:
+    # Read-only projection must never initialize a campaign or manufacture work.
+    if bound_path != gs.save_path or run_id == "" or _marker(gs).get("run","") != run_id: return [gs.job.duplicate(true)]
+    capture(gs)
+    return tickets.duplicate(true)
+
+func switch_pc(gs: Node,id: String) -> bool:
+    if not ensure(gs) or id == active_id: return id == active_id and not read_only
+    var target: Dictionary = {}
+    for entry: Dictionary in tickets:
+        if entry["id"] == id: target = entry
+    if target.is_empty() or target["hardware_trial"]["night_session"].get("pc","") == "": return false
+    # Write ALL snapshots before switching the main save. If either write fails, keep the old PC.
+    if not checkpoint(gs): return false
+    var previous: Dictionary = gs.job
+    gs.job = target.duplicate(true)
+    gs.save_game()
+    var written: Variant = Store.read(gs.save_path)
+    if not written is Dictionary or written.get("job",{}).get("hardware_trial",{}).get("night_session",{}).get("ticket","") != id:
+        gs.job = previous
+        status = "Active PC could not be saved. The previous PC remains selected."
+        return false
+    active_id = id
+    return true

@@ -20,6 +20,7 @@ func fixture(s: RefCounted, kind: String, uid: String, point: Vector2 = Vector2(
 
 func run() -> void:
     test_grid()
+    test_varied_generation()
     var s := Session.new()
     check(s.depart("mixed"),"round trip starts when affordable")
     var outbound: float = s.travel("mixed")
@@ -74,7 +75,7 @@ func run() -> void:
     check(not s.return_home() and s.remaining == returned,"return replay cannot re-charge")
     s.next_night()
     s.depart("mixed")
-    check(s.pile.objects.has("test-gpu") and box["opened"],"same-cycle revisit retains cleared/revealed state")
+    check(not s.pile.objects.has("test-gpu") and s.visit_counts["mixed"] == 2,"every arrival gets a fresh pile rather than retaining left-behind finds")
     s.return_home()
     test_refresh_and_identity()
     Session.demo = null
@@ -116,7 +117,7 @@ func test_refresh_and_identity() -> void:
     s.return_home()
     for day in range(4): s.next_night()
     s.depart("office")
-    check(s.cycles["office"] == 1 and s.cargo["van"].has("pc-child"),"new dump cycle refreshes site and preserves car cargo")
+    check(s.cargo["van"].has("pc-child") and not s.pile.objects.has("pc-child"),"fresh arrival across nights preserves packed child without returning it to the pile")
     s.return_home()
     s.car = "hatch"
     s.depart("office")
@@ -130,8 +131,72 @@ func test_refresh_and_identity() -> void:
     check(fast < s.travel("office") and s.grids["hatch"].size.x < s.grids["van"].size.x,"fast/small versus slow/roomy vehicle trade-off")
     var a := Pile.new()
     var b := Pile.new()
-    a.generate("mixed",0)
-    b.generate("mixed",0)
-    check(a.objects == b.objects,"site cycle generation is deterministic")
-    b.generate("mixed",1)
-    check(a.objects != b.objects,"refresh cycle changes object identities and contents")
+    a.generate("mixed",0,12345)
+    b.generate("mixed",0,12345)
+    check(a.objects == b.objects,"explicit seed can reproduce a visit for debugging")
+    b.generate("mixed",1,98765)
+    check(a.objects != b.objects,"different visit/seed changes identities and contents")
+
+
+func test_varied_generation() -> void:
+    var kinds: Dictionary = {}
+    var sizes: Dictionary = {}
+    var counts: Dictionary = {}
+    var valid: bool = true
+    var overlaps: bool = false
+    var heavy_seen: bool = false
+    var totals := {"mixed":0,"office":0}
+    for site: String in Data.SITES:
+        for seed_value in range(64):
+            var pile := Pile.new()
+            pile.generate(site,1,seed_value)
+            valid = valid and pile.objects.size()<=Data.MAX_OBJECTS
+            counts[pile.objects.size()] = true
+            var roots: Array[Rect2] = []
+            for item: Dictionary in pile.objects.values():
+                kinds[item["kind"]] = true
+                if Data.SHAPES.has(item["kind"]): totals[site] += 1
+                valid = valid and item["known_condition"] == "untested" and item["owner"] == "unclaimed"
+                if item["zone"] == "hidden":
+                    valid = valid and pile.objects.has(item["parent"]) and item["uid"] in pile.objects[item["parent"]]["children"]
+                    continue
+                if item["kind"] in ["box","bag"]: sizes[str(item["size"])] = true
+                heavy_seen = heavy_seen or Data.is_heavy(item["kind"])
+                var size: Vector2 = item["size"]
+                var angle: float = item["angle"]
+                var bounds := Vector2(absf(cos(angle))*size.x+absf(sin(angle))*size.y,absf(sin(angle))*size.x+absf(cos(angle))*size.y)
+                var rect := Rect2(Vector2(item["center"])-bounds*0.5,bounds)
+                valid = valid and Rect2(52,173.99,560,438.02).encloses(rect)
+                for other: Rect2 in roots: overlaps = overlaps or rect.intersects(other)
+                roots.append(rect)
+    check(valid,"128 seeded piles stay bounded, capped, unclaimed/untested with valid hidden identities")
+    check(not overlaps,"random rotated spawn hulls never initially overlap")
+    check(kinds.size() >= Data.SHAPES.size()+4 and kinds.has("concrete") and kinds.has("appliance"),"generation reaches every collectible plus both heavy obstacle kinds")
+    check(sizes.size()>20 and counts.size()>4,"container dimensions and pile counts vary across visits")
+    check(heavy_seen and totals.office>totals.mixed,"heavy obstacles exist and office waste still yields more hardware")
+    var packable: bool = true
+    for kind: String in Data.SHAPES:
+        var grid := Grid.new()
+        packable = packable and grid.place(kind,kind,Vector2i.ZERO,0) and grid.place(kind,kind,Vector2i.ZERO,1)
+    check(packable,"all fourteen component/PC types support trunk packing and rotation")
+    var s := Session.new()
+    s.depart("mixed")
+    var first_ids: Array = s.pile.objects.keys()
+    var first: RefCounted = s.pile
+    s.return_home()
+    s.depart("mixed")
+    var disjoint: bool = true
+    for id: String in first_ids: disjoint = disjoint and not s.pile.objects.has(id)
+    check(disjoint and s.pile != first and s.visit_sequence == 2,"same-night revisit has fresh visit-scoped identities")
+    var same_visit: RefCounted = s.pile
+    check(not s.depart("mixed") and s.pile == same_visit,"attempting to depart twice cannot reroll the active visit")
+    var child_counts: int = 0
+    for item: Dictionary in s.pile.objects.values():
+        if not item["children"].is_empty():
+            var old: Array = item["children"].duplicate()
+            var count: int = s.pile.objects.size()
+            s.pile.open(item["uid"])
+            child_counts += old.size()
+            valid = valid and s.pile.objects.size() == count
+            for id: String in old: valid = valid and s.pile.objects[id]["parent"] == "" and s.pile.objects[id]["zone"] != "hidden"
+    check(valid and child_counts>0,"opening varied containers reveals pre-generated items without reroll or extra records")

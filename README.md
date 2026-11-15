@@ -1,4 +1,21 @@
-# Nightshift - Godot Foundation Trial (v0.29.0)
+# Nightshift - Godot Foundation Trial (v0.32.0)
+
+**Salvage variety (0.31.0):** each Salvage arrival is a fresh random pile with fourteen collectible kinds,
+varied containers and heavy obstacles; cargo stays yours. See docs/SALVAGE_VARIETY.md.
+
+**Night workshop (0.30.0):** F5 → New game → Activities. Workshop lets you switch between two
+customer repair PCs, clean/repaste them and run a diagnosis without ending the job. Salvage is now
+under Activities. Storage has three-shelf racks. Good cooler mounts commit with the lever.
+Both this branch and the previous rack PR are intentionally unmerged. See
+[night-workshop controls and limits](docs/NIGHT_WORKSHOP.md). Existing saves retain their real ticket;
+start a New Game to try the two-PC setup.
+
+
+**Previous rack feature:** F5 → **Storage rack** (right side of the menu). Arrange real PCs, kit tools
+and stock on shelves; rotate with R/E or Q, expand with racks/cabinets/tool boards. Layout autosaves.
+Furniture is free in this prototype. Capacity integration with buying/intake remains a follow-up;
+see [storage controls and boundaries](docs/STORAGE.md). Branch is intentionally unmerged.
+
 
 
 **Try salvage:** F5 → **Salvage demo**. Pick a car/site; hold left to lift, drag cover into the sorting

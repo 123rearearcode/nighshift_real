@@ -39,16 +39,16 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
-## 0.29.0 - 2026-11-14 - The broken-GPU dead end, the bug register and the Upgrades tab
+## 0.32.0 - 2026-11-15 - The broken-GPU dead end, the bug register and the Upgrades tab
 
 - Author: Claude (Fable 5, model id claude-fable-5), working in a chat session
-- Based on: 0.28.0
+- Based on: 0.28.0 (first shipped alone as main 0.29.0, PR #37; re-based here on top of Codex's merged 0.29.0 storage rack, 0.30.0 night workshop and 0.31.0 salvage variety, with the version and D-number collisions renumbered)
 - Type: minor (new register + rules, UI restructure, sandbox data; saves migrate)
 
 ### Execution status
-Godot was NOT run by me directly. GitHub Actions ran all eleven suites on Godot 4.7.2 headless.
+Godot was NOT run by me directly. GitHub Actions runs the suites on Godot 4.7.2 headless.
 No interactive playtest is claimed.
-Actions result: run 43653162382 on c335f55 succeeded — Data schema 206, Regression 586, Start
+Standalone build (as main 0.29.0, PR #37): run 43653162382 on c335f55 succeeded — Data schema 206, Regression 586, Start
 screen 20, Dust flow 43, Bench interaction 26, Bench feedback 27, Audio and vacuum 36,
 Performance contracts 24, Salvage 40, Salvage physics 38, Pending contracts 0; 1046 checks,
 0 failures, plus the scripted bench playtest. Five earlier pushes failed and were fixed in
@@ -57,23 +57,31 @@ validator dropped the new CPU record (and a migration briefly respawned it on em
 the CPU's drawer position shifted the packing that older tests pin, a salvage test read a
 cargo body before the grab finished, and the menu label was sized before wrapping was set so
 Godot clamped it to 600 px (recorded as the real root of B13).
+Integrated build (this entry, after merging Codex's three PRs): Actions result: run 43655899663 succeeded (all 13 suites, 0 failures; the first run 43655748898 had 2 failures - start-menu Storage button outside the card, and a part-order assertion - both fixed).
 
 ### Added
-- `docs/BUGS.md` (D109): the bug register. Every bug found — playtest, CI, review — gets a row
+- `docs/BUGS.md` (D114): the bug register. Every bug found — playtest, CI, review — gets a row
   when found and a root cause when fixed; backfilled with B1–B15. Every 10 versions (0.30.0,
   0.40.0, …) it gets a structural review pass. AGENTS.md rule 6 and the HANDOFF checklist now
   require it.
-- `GameState.part_state(part_id)` (D110): ONE binary state pair per serviceable part
+- `GameState.part_state(part_id)` (D115): ONE binary state pair per serviceable part
   (fitted/working) with the exact repair path in words. The failed final check now prints
   "GPU: BROKEN - at the repair bench: move it to the tray, then open Replacement stock."
   instead of the old aggregate notes, and the TICKET carries a parts line too — the user's
   0.28.x playtest dead-ended on a broken GPU with no visible way forward (B10/B12, RC-1/RC-2).
-- The spare-part bench is coherent (D111): the starter stock includes a demo CPU, the demo
+- The spare-part bench is coherent (D116): the starter stock includes a demo CPU, the demo
   board gained a cooler mount, and the cooler only fits once the CPU sits in the socket
   (real-life order CPU → mount → cooler, as the user asked). Its banner and the shop button
   now say plainly that it is the SHOP'S stock bench, not the customer's PC (B11).
-- Upgrades tab (D112): the shop's lower card is Final check | Customer | Upgrades; both tool
+- Upgrades tab (D117): the shop's lower card is Final check | Customer | Upgrades; both tool
   upgrades (square cloth, longer hose) moved there, and future ones land there.
+
+- Integration (this version): `scripts/rules/part_states.gd` — the part-state rule is now PURE and
+  shared (D115). `GameState.part_state`, the old final check, the shop ticket AND Codex's night
+  workshop (diagnosis report + workshop ticket) all read it, so the night flow that replaced the
+  shop screen names the broken part and its repair path too (BUGS.md B18). The storage rack now
+  reads the canonical `GameState.inventory_components()` projection and shows the starter CPU as a
+  3x3 CPU instead of silently dropping it (B17, found by Codex's review of my 0.29.0).
 
 ### Changed
 - The ticket is a bounded ScrollContainer like the other cards (its new parts line must not
@@ -97,8 +105,8 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 ### Files changed
 | File | Change | What |
 | --- | --- | --- |
-| `docs/BUGS.md` | A | The bug register (D109), backfilled B1–B15 with root causes RC-1..3 |
-| `scripts/state/game_state.gd` | M | part_state (D110); binary per-part final-check notes; CPU in starter stock |
+| `docs/BUGS.md` | A | The bug register (D114), backfilled B1–B15 with root causes RC-1..3 |
+| `scripts/state/game_state.gd` | M | part_state (D115); binary per-part final-check notes; CPU in starter stock |
 | `scripts/view/shop_view.gd` | M | Upgrades tab; ticket parts line + bounded ticket scroll; bench button renames |
 | `scripts/view/workshop_view.gd` | M | Spare-part-bench banner |
 | `scripts/data/component_data.gd` | M | Demo CPU part; cooler mount connector with "requires": "cpu" |
@@ -112,8 +120,14 @@ Godot clamped it to 600 px (recorded as the real root of B13).
 | `tools/test_data_schemas.gd` | M | Connector schema allows "requires" |
 | `AGENTS.md` | M | Rule 6: the bug register |
 | `DEVELOPMENT.md` | M | File map: docs/BUGS.md |
-| `docs/DECISIONS.md` | M | D109–D112, D108 amendment |
-| `HANDOFF.md` | M | 0.29.0 section; checklist step 10 (bug register); version |
+| `docs/DECISIONS.md` | M | D114–D117, D108 amendment |
+| `scripts/rules/part_states.gd` | A | Pure shared part-state rule (D115) |
+| `scripts/night/night_diagnostics.gd` | M | Uses the shared lines instead of "Damaged: gpu. Replace these parts." |
+| `scripts/night/workshop_hub.gd` | M | Workshop ticket shows the parts line |
+| `scripts/storage/storage_sources.gd` | M | Canonical component projection (CPU no longer dropped, B17) |
+| `scripts/storage/storage_data.gd` | M | CPU colour |
+| `tools/test_storage.gd` | M | Starter CPU appears on the rack |
+| `HANDOFF.md` | M | 0.32.0 section; checklist step 10 (bug register); version |
 | `README.md` | M | Version |
 | `project.godot` | M | config/version 0.29.0 |
 | `CHANGELOG.md` | M | This entry |
@@ -133,15 +147,296 @@ Godot clamped it to 600 px (recorded as the real root of B13).
   everywhere now; if it still reads as "random", the pick's risk/reward needs a design pass.
 
 ### Known issues and open items
+- Integration was done by merging Codex's PRs #35/#36/#38 (archives archive/v0.29.0, archive/v0.30.0,
+  archive/v0.31.0 preserved) and renumbering Claude's release 0.29.0 → 0.32.0, D109-D112 → D114-D117.
 - RC-1 remains structurally open: the customer's PC and the spare-part bench are still two
-  models; D110 surfaces one truth but does not merge them. Proposed next structural wave.
+  models; D115 surfaces one truth but does not merge them. Proposed next structural wave.
 - Wave 2 (software-checks monitor screen) still NOT started, per the user.
-- First structural bug review due at 0.30.0 (D109).
+- First structural bug review due at 0.30.0 (D114).
 
 ### Next action
 User playtest of 0.29.0 (the broken-GPU loop, the Upgrades tab, the menu). Then, on the user's
 word: wave 2 or the RC-1 structural wave.
 
+## 0.31.0 - 2026-11-15 - Fresh random salvage piles, more parts and heavy obstacles
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.29.0 (e6f89e3), rebased after Claude PR #37; inventory/night PRs remain separate
+- Type: minor (new salvage content, per-arrival generation rule and heavy physics)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally: ten required suites, 1,060 checks, zero failures;
+zero pending-contract checks and scripted bench smoke passed. No graphical/user playtest or
+target-hardware performance claim. Date: 15 November 2026, Europe/Bucharest.
+Independent main-based PR; prior local inventory/night fixes remain unpublished and unchanged.
+
+### Added / Changed / Fixed / Removed
+- Fresh random pile on EVERY successful arrival, including same-night return visits. Reopening
+  the active visit/containers does not reroll; normal travel cost still applies. Cargo/shelf stay.
+  Old stable/few-day pile refresh rule is superseded by user-requested D113; UI now explains visits.
+- Fourteen collectible PC/part kinds: previous PC/GPU/RAM/PSU/drive plus CPU, motherboard, cooler,
+  fan, SSD, HDD, Wi-Fi, sound and network cards. All pack/rotate in the trunk and remain untested.
+- Random root counts, size-varied bags/boxes, shuffled mix, weighted per-site component selection,
+  small tilts and random positions replace fixed columns. Contents are real records generated once.
+- Concrete blocks/heavy appliances are massive native dynamic obstructions with high friction and
+  reduced bounded grip/torque. HEAVY markings/hints explain barely nudging/working around them.
+  They can fall with the pile but cannot be packed or opened into lightweight shells.
+- Rotated root hulls start without overlap; no-space roots are skipped. Generation caps all visible
+  and hidden records at 64. Newly exposed contents stay on their own side of the bin rim.
+- Random visit IDs include session nonce/serial/seed to avoid matching cargo. Debug seed override
+  reproduces a report. Cycle metadata remains only for legacy/debug code, no longer a reroll gate.
+- Rebased on Claude’s main 0.29.0 update (PR #37); its GPU/CPU/UI fixes and salvage grace/staging
+  tests are retained. No edits to its hot files.
+- Follow the new bug-register rule: record B16 as local-only and B17 as a pending CPU-adapter compatibility gap, plus
+  structural review preparation. No inventory fix code or branch was published.
+- No shared stock/save/customer/bench changes, new commerce or finished repair-catalogue claim.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed salvage delivery record |
+| `docs/BUGS.md` | M | Record prior pending rack bug and prepare structural checkpoint review; no inventory fix code published |
+| `DEVELOPMENT.md` | M | Version, current scope, decision reconciliation or handoff |
+| `HANDOFF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `README.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/CURRENT_STATE.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DECISIONS.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/DESIGN.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/PROJECT_BRIEF.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/ROADMAP.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | M | Version, current scope, decision reconciliation or handoff |
+| `docs/SALVAGE_VARIETY.md` | A | Version, current scope, decision reconciliation or handoff |
+| `docs/TESTING.md` | M | Version, current scope, decision reconciliation or handoff |
+| `project.godot` | M | Version, current scope, decision reconciliation or handoff |
+| `scripts/salvage/salvage_body.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_data.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_pile.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_session.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `scripts/salvage/salvage_view.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage.gd` | M | Variety/arrival/heavy physics and regression contracts |
+| `tools/test_salvage_physics.gd` | M | Variety/arrival/heavy physics and regression contracts |
+
+### Checks performed
+- Godot 4.7.2: Data schema 206; Regression 586; Start screen 20; Dust flow 43;
+  Bench interaction 26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24;
+  Salvage 49; Salvage physics 43. Total 1,060 checks, zero failures/script errors.
+- Pending contracts: zero checks/failures. Legacy bench --smoke: Playtest finished, no script errors.
+- Salvage tests cover 128 seeded piles, no initial rotated-hull overlap, bounds/caps, catalogue and
+  weighted variety, valid hidden identities, fresh visit IDs, trunk/rotation/cargo and reveal invariants.
+- Native tests verify sustained heavy pull stays below 35 pixels displacement while ordinary parts
+  lift over 100 pixels, plus a generated pile with opened containers stays bounded/finite. No frame-time
+  threshold or performance benchmark inferred from this. All previous native cases still pass.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2; Salvage 49 and Salvage physics 43 passed, no script/resource errors.
+
+### Decisions proposed (not approved)
+D113 records the user's approved new arrival/randomness/content/heavy-item request. Root counts,
+weights, dimensions, 64-record cap, effort and force/mass/friction values are provisional tuning.
+No release catalogue, final balance or repair-stock integration approved by this prototype.
+
+### Known issues and open items
+Independent branch starts from main 0.29.0, so its test entry is the title-menu Salvage demo. The
+pending night activity wrapper will inherit the new session/view behavior when integrated later.
+App exit still discards standalone salvage progress. Left-behind unclaimed/sorting items are cleared
+on next arrival. Heavy bodies can move under gravity/contacts; they are not immovable scenery.
+Graphics/feel and target-device timing require a user playtest. No new owned-part model implemented.
+
+### Next action
+Claude cross-reviews the new separate PR next: arrival semantics, cargo identity, bounds and heavy
+physics; user playtests variety and weight. Do not auto-merge. Prior inventory/night PRs and local
+patches are unchanged; do not publish them with this PR. Hot files bench_view.gd, tool_rig.gd and
+game_state.gd are untouched and remain reserved for Claude; none is claimed free. WORK_PLAN.md is
+unchanged. Reconcile version metadata when combining the pending branches.
+
+## 0.30.0 - 2026-11-14 - Night activities, two customer PCs and diagnostic-only checks
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.29.0 (unmerged feature/storage-rack, 373115e); main remains 0.28.0
+- Type: minor (new activity/workshop screens, multiple ticket-linked PCs and manifest contract)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. All 12 required suites passed in the final applicable runs:
+1,112 checks, zero failures; pending contracts zero checks. Scripted legacy bench smoke passed.
+No graphical/manual playtest is claimed. Date: 14 November 2026, Europe/Bucharest.
+Follow-up is stacked on the unmerged rack branch; neither PR is merged by this delivery.
+
+### Added / Changed / Fixed / Removed
+- New/Load Game enters Activities: Workshop, Salvage dump, Storage and a disabled future-activity
+  space. Removed Salvage from the title menu. The dump now returns to Activities.
+- Existing square-cloth and longer-hose upgrades stay purchasable in Workshop, at unchanged prices.
+- Workshop selects between two real customer repair PCs on New Game (the two existing customers;
+  one extra compact PC). Each has its own dust, damage, removal/replacement, scams and paste work.
+  Existing saves migrate their actual single job; they never gain fabricated extra client PCs.
+- A ticket has an optional physical PC identity. Future build orders with no client hardware do
+  not create rack objects or occupy PC space; build-order intake itself is not implemented.
+- Third shelf on every rack. Smaller drawn cells keep all three levels visible; saved grid-cell
+  placements retain their meaning. Storage reads the restored current ticket manifest.
+- Final Check reports boot/heat/parts/owned-game fps, without completing, paying, recording pickup,
+  advancing customer rotation or changing relationships. Switch PCs at any point from Workshop.
+- In the night repair route a good cooler lever mount commits paste automatically (same existing
+  cost/scam rule), so no extra completion button. Paste float32 field is saved with its PC.
+- Isolated NightSession bridge: active job remains in GameState; inactive jobs use a versioned
+  manifest. Checkpoint/readback precedes switching; missing/damaged/future manifests lock switching
+  and preserve their files. Existing money/stock/customer state are never copied into the manifest.
+- Additive scene wrappers keep Claude's hot files, shop/customer data and WORK_PLAN.md untouched.
+  Hardware bench remains the SHOP STOCK sandbox, not customer assembly. Daytime pickup, global
+  night clock, campaign salvage transfer and final canonical PC/part model remain future work.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed follow-up delivery record |
+| `.github/workflows/tests.yml` | M | Version/autoload or required suite |
+| `DEVELOPMENT.md` | M | Scope, contracts, controls and coordination handoff |
+| `HANDOFF.md` | M | Scope, contracts, controls and coordination handoff |
+| `README.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/CURRENT_STATE.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/DECISIONS.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/DESIGN.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/NIGHT_WORKSHOP.md` | A | Scope, contracts, controls and coordination handoff |
+| `docs/PROJECT_BRIEF.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/ROADMAP.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/STORAGE.md` | M | Scope, contracts, controls and coordination handoff |
+| `docs/TESTING.md` | M | Scope, contracts, controls and coordination handoff |
+| `project.godot` | M | Version/autoload or required suite |
+| `scenes/activities.tscn` | A | Night navigation scene |
+| `scenes/night_bench.tscn` | A | Night navigation scene |
+| `scenes/night_hardware.tscn` | A | Night navigation scene |
+| `scenes/night_salvage.tscn` | A | Night navigation scene |
+| `scenes/night_workshop.tscn` | A | Night navigation scene |
+| `scripts/night/activities_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/hardware_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/night_diagnostics.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/night_session.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/paste_snapshot.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/repair_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/salvage_view.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/night/workshop_hub.gd` | A | New night activity/PC routing, manifest or diagnostics; see file map |
+| `scripts/storage/storage_data.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/storage/storage_sources.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/storage/storage_view.gd` | M | Third shelf and ticket-linked physical PCs |
+| `scripts/view/start_view.gd` | M | New/load activities routing, remove title-screen salvage |
+| `tools/test_night_workshop.gd` | A | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_salvage_physics.gd` | M | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_start_screen.gd` | M | Updated route/capacity contracts and disposable-save verification |
+| `tools/test_storage.gd` | M | Updated route/capacity contracts and disposable-save verification |
+
+### Checks performed
+- Godot 4.7.2: Data schema 198; Regression 564; Start screen 14; Dust flow 43; Bench interaction
+  26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24; Salvage 40;
+  Salvage physics 32; Storage 55; Night workshop 53. Total 1,112 checks, zero failures.
+- Pending contracts: zero checks/failures. Scripted bench --smoke: Playtest finished, no script errors.
+- Night coverage includes real scene navigation/PC picker, physical paste JSON roundtrip/reopening,
+  lever-only commit and no double charge, canonical replacement consumption across switches,
+  legacy migration, interrupted-switch recovery, future manifest protection and failed saves.
+- Initial full run exposed a test fixture assuming the gamer was always second; corrected fixture
+  sets its own rotation counter. Affected start/storage/salvage-physics/night suites rerun and passed.
+  Physics activity-navigation tests now use disposable main/manifest saves rather than default saves.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --cached --check`: clean.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh ZIP extracted/imported on
+  Godot 4.7.2: Night workshop 53 and Storage 55 passed; no script/resource errors.
+
+### Decisions proposed (not approved)
+D110–D112 record user-approved shelf, ticket/PC distinction, night checks/switching and activity hub.
+The temporary inactive-job bridge/marker namespace is an implementation seam for Claude to review,
+not approval of a final shared-PC schema. Two-PC demo layout/fault assignment is provisional tuning.
+
+### Known issues and open items
+The legacy final-check method still pays when called from legacy code; new night navigation never
+calls it or enters that old shop route. Shared thermal evaluation should be extracted when Claude
+integrates the canonical diagnostic/pickup split to avoid formula drift. Missing manifests protect
+the file and recover the active PC but cannot reconstruct absent inactive data. Physical paste is
+saved at bench checkpoints/exit; transient hand/tool poses and an unsecured mount are not resumed.
+No target-hardware performance claim. Graphical readability/feel need the user's playtest.
+Existing rack pricing/capacity hooks and salvage campaign isolation are unchanged.
+
+### Next action
+Claude goes next: cross-review the stacked PR, particularly checkpoint/recovery and the namespaced
+marker bridge; user playtests New Game → Activities → Workshop, switches unfinished PCs, tests paste
+and three-shelf readability. Keep both PRs unmerged. Hot files bench_view.gd, tool_rig.gd and
+game_state.gd remain reserved for Claude's active work and are untouched; none is claimed free here.
+WORK_PLAN.md is unchanged. Reconcile version metadata if Claude's parallel delivery lands first.
+
+## 0.29.0 - 2026-11-14 - General storage rack and furniture expansion
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.28.0 (main 08a11a4)
+- Type: minor (new player-visible inventory scene and auxiliary layout contract)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. All 11 required suites passed (1,059 checks),
+plus the zero-check pending-contract report and scripted bench smoke diagnostics. No graphical
+or user playtest is claimed. All checks use isolated test saves. Date: 14 November 2026,
+Europe/Bucharest. Delivery is an unmerged feature branch; no game-state hot file was edited.
+
+### Added / Changed / Fixed / Removed
+- Start menu → Storage rack. General inventory projects current owned parts, included tools and
+  the active customer PC onto space-limited shelves. Generic names, colours and hover details.
+- Smooth pickup following, rotation around the grab point, valid/invalid placement previews,
+  safe cancellation, cross-shelf/furniture movement, paging and a visible overflow waiting area.
+- Add steel racks, shallow component cabinets or tool boards; remove empty furniture. Furniture
+  is free in this prototype, capped at eight units. No new economy or purchase charging.
+- Layout-only safe save, malformed-save reconciliation, backup recovery, future-version guard,
+  write-failure reporting. Source records remain canonical; no stock duplication or ownership transfer.
+- Separate feature files avoid Claude's hot files and customer/shop screen. One small menu hook.
+- Existing purchase/intake/drawer capacity checks remain unchanged; shared capacity integration
+  is an explicit follow-up. Customer PC includes its fitted parts; installed shop stock keeps a
+  marked reservation. Tool kit ownership and single-PC source remain the current trial's limits.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Signed 0.29.0 delivery record |
+| `.github/workflows/tests.yml` | M | Add required Storage suite |
+| `DEVELOPMENT.md` | M | File map and layout-only save contract |
+| `HANDOFF.md` | M | Version, coordination boundaries and next action |
+| `README.md` | M | Version and entry instructions |
+| `docs/CURRENT_STATE.md` | M | Storage feature scope and prototype limitations |
+| `docs/DECISIONS.md` | M | Storage feature scope and prototype limitations |
+| `docs/DESIGN.md` | M | Storage feature scope and prototype limitations |
+| `docs/PROJECT_BRIEF.md` | M | Storage feature scope and prototype limitations |
+| `docs/ROADMAP.md` | M | Storage feature scope and prototype limitations |
+| `docs/STORAGE.md` | A | Controls, ownership/capacity/save boundaries and review handoff |
+| `docs/TESTING.md` | M | Storage verification and manual playtest steps |
+| `project.godot` | M | Version 0.29.0 |
+| `scenes/storage.tscn` | A | New inventory scene |
+| `scripts/storage/storage_data.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_model.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_sources.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_store.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/storage/storage_view.gd` | A | Isolated storage module; see DEVELOPMENT file map |
+| `scripts/view/start_view.gd` | M | Isolated Storage rack menu button |
+| `tools/test_storage.gd` | A | 55 ownership, packing, persistence and scene-input checks |
+
+### Checks performed
+- Godot 4.7.2 headless: Data schema 198; Regression 564; Start screen 14; Dust flow 43;
+  Bench interaction 26; Bench feedback 27; Audio and vacuum 36; Performance contracts 24;
+  Salvage 40; Salvage physics 32; Storage 55. Total 1,059 checks, zero failures or script errors.
+- Pending contracts: zero checks, zero failures. Bench `--smoke`: Playtest finished, no script errors.
+- `python3 -B tools/test_ci_scope.py`: nine tests passed. `git diff --cached --check`: clean.
+- Storage tests exercise failure/recovery paths intentionally; backup/read and blocked-write warnings
+  are expected. They verify ownership is unchanged by rack operations.
+- `python3 -I tools/check_project.py`: passed, zero problems. Fresh source ZIP extracted: hygiene,
+  Godot 4.7.2 import and Storage suite passed; no missing resource or script errors.
+
+### Decisions proposed (not approved)
+D109 records the user-approved rack and expansion feature. Furniture being free, eight-unit cap,
+sizes, fixed starter tool IDs and reserving shelf space for fitted shop parts are provisional.
+A single capacity API shared by purchases/intake/salvage is the proposed next integration, not built.
+
+### Known issues and open items
+Graphical layout, mouse feel and display scaling need user playtest. No target-hardware performance
+claim. Current trial exposes only one active customer PC and RAM/GPU/cooler stock; future canonical
+PC/tool/catalogue records should extend the adapter, not create parallel owned stock. Furniture
+layout persists across New game; the current source inventory is reconciled on entry. Storage does
+not block buying/intake, and does not replace the old hardware drawer yet. Salvage remains isolated.
+
+### Next action
+Claude goes next: cross-review this unmerged PR and coordinate shared capacity/canonical item hooks;
+user playtests F5 → Storage rack. Do not merge automatically. Codex is finished editing these files.
+Hot files bench_view.gd, tool_rig.gd and game_state.gd were untouched and remain reserved for Claude's
+current engineering work; none is claimed free by this delivery. WORK_PLAN.md is unchanged.
 
 ## 0.28.0 - 2026-11-14 - Cross-review fixes, customer rotation, settings, rim containment
 

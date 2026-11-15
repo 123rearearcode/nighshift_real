@@ -124,3 +124,26 @@ from physics_frame to process_frame and include native physics, sync and scene d
 phase samples, not the coarsely sampled Performance.TIME_PHYSICS_PROCESS counter. Sleep/active/pair
 counts aid interpretation. No GPU/display/FPS claim. Run without other Godot tests competing. Human
 corner-grip feel, sorting readability and container handling must still be playtested.
+
+
+## Storage rack, 0.29.0
+Run `godot --headless --path . --script res://tools/test_storage.gd` (required in CI).
+For the graphical playtest: F5 → Storage rack; drag/rotate each kind, transfer to a new rack,
+try wrong cabinet/tool-board types, fill shelves until overflow appears, reload and check saved
+allocations. Cancel mid-drag/focus loss, navigate pages while holding, remove an empty unit.
+Confirm ownership/repair state and money are unchanged. Read docs/STORAGE.md for boundaries.
+
+
+## Night workshop, 0.30.0
+Required: `godot --headless --path . --script res://tools/test_night_workshop.gd`.
+Manual: New Game → Activities; enter Workshop, partly clean one PC, return, switch to the other,
+then back and confirm the work stays separate. Try a good lever mount without a completion button;
+leave/reopen and inspect paste. Run Final Check repeatedly: no money, pickup or completion. Check
+Salvage returns to Activities, and all three shelves fit on screen. Existing save should retain its
+single actual ticket, while New Game deliberately gives two. Hardware bench is still shop stock.
+## Salvage variety — 0.31.0
+Existing Salvage/Salvage physics suites include 128 seeded layouts (bounded, non-overlapping rotated
+root hulls, record caps/IDs), all collectible packing/rotation, fresh-arrival/cargo invariants, new
+container reveals and native heavy/generated-pile cases. Test normal random mode manually: enter,
+inspect, drive home and re-enter; cargo stays while the pile changes. Try lifting a HEAVY item,
+ordinary parts, and opening a crowded box. No target-hardware performance claim; measure feel in Godot.
