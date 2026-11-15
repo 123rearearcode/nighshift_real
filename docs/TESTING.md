@@ -157,3 +157,34 @@ loops, clipping/camera transforms, read-only edits, schema 1→2 migration and e
 No rack selection Buttons or UI rebuild/free remain. Existing ownership/packing/save tests stay.
 Manual: launch the 0.33.0 ZIP, verify the version on Storage, zoom and move a populated rack. Review
 B19 separately: workshop ticket still needs a bounded scroll (see REVIEW_0_32.md).
+
+### Wave 2 / 0.35.0
+
+`test_software.gd` is required in CI: powered-off defaults/migration, actual viewport power-button
+input, live-test gates, purchase-once/ownership/FPS, non-paying thermal reports, protected manifest,
+per-PC switches and one-world-pixel cloth edge. Older payment fixtures explicitly switch their
+repaired PC on; no global test override hides the new default. Rendering/feel need manual playtest.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+### Room/workshop / 0.36.0
+`test_room_workshop.gd` is required. Real viewport inputs replay sort/save/add/title selection,
+drop a whole PC into the workshop slot, reject tool/unknown/protected choices, check a bounded
+hub ticket, and click one identically positioned Activities control on each of six night screens.
+Checks preserve per-PC progress, canonical item counts and money; failed checkpoint blocks exit.
+Recording evidence shows v0.32.0. Test the fresh version rather than only replaying its old UI.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+### Thermal service / 0.37.0
+Required `test_thermal_service.gd`: actual tab click, native material-menu opening/keyboard choice,
+mount and bin-retract clicks; visibility below socket; obsolete tool toggle absence; no mixed layer;
+premium cooling parity, charge once, honest scam state, save/snapshot roundtrip; retraction cannot
+empty dust and the old spool area does not retract. Existing tests replace obsolete button-based
+fixtures with tool selection; physical pickup coverage remains. CI includes the new suite.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+### Install technique / 0.38.0
+Required `test_install_technique.gd`: the pure fault rule, pickup-score effects, proof that the shop's
+final check temperature and notes ignore the faults, save round trip, and real clicks on the film
+button, corner screws and lever. Not tested: how it feels to play.

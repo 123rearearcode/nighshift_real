@@ -85,3 +85,13 @@ is the next step.
 6. "Second wave overclocker is fine."
 7. Split: Claude handles this entire customer/software part; Codex works at the same time on the
    dumpster/salvage minigame; when both are done, the user will have Claude review Codex's work.
+
+## Update — 0.35.0 first Wave 2 slice
+
+User assigned Codex to start Wave 2 on 15 November 2026, after cloth/default-power fixes.
+Workshop diagnostic desktop now exposes the existing boot/thermal and Vapor purchase/FPS rules.
+Power is explicit and defaults off for fresh/missing-power PCs. Anti-virus/overclocker remain
+upcoming, with no fake tests or parameter changes. No night completion/payment action. This new
+assignment supersedes agreed-answer 7's historical software ownership for this bounded slice;
+Claude cross-reviews. See SOFTWARE_WAVE_2.md for limits and follow-up.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

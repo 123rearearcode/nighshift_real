@@ -132,7 +132,7 @@ func run_checks() -> void:
             if callback.get_object() != bench: continue
             if callback.get_method() == "_on_wipe_toggled": toggles += 1
             if callback.get_method() == "_select_dispense": redundant_dispense += 1
-    check(toggles == 1 and redundant_dispense == 0, "one cloth/syringe toggle without a duplicate dispensing button")
+    check(toggles == 0 and redundant_dispense == 0, "obsolete cloth/syringe toggle and duplicate dispensing button are absent")
     check(bench.dust.remaining_fraction() > 0.99, "actual fresh bench initially dusty")
     bench._select_tool(2)
     var press := InputEventMouseButton.new()
@@ -150,15 +150,13 @@ func run_checks() -> void:
     check("gpu" in bench.access.removed_ids(), "queued mouse events use event positions for reliable drags")
     bench.scripted_pointer = null
     bench._select_stage(1)
-    bench.wipe_button.button_pressed = true
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     check(bench.wiping, "cloth selectable")
     bench._select_stage(1)
-    check(not bench.wiping and not bench.wipe_button.button_pressed, "Apply thermal paste selects syringe")
-    bench.wipe_button.button_pressed = true
-    bench._on_wipe_toggled()
+    check(not bench.wiping and bench.tools.selected == Ids.SYRINGE, "Apply thermal paste selects syringe")
+    bench._select_cloth()
     bench._select_dispense()
-    check(not bench.wiping, "explicit syringe button exits cloth")
+    check(not bench.wiping, "explicit syringe selection exits cloth")
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
     bench.holding = true
     bench._step_paste(1.0 / 60.0, bench.PASTE_ORIGIN + Vector2(25,25) * bench.PASTE_CELL)
@@ -539,7 +537,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
         for frame in range(600): rig.step(1.0/60,Vector2(400,250),true)
         check(rig.bodies[id].impacts > 0 and not rig.bodies[id].active, id + " bounces and settles")
         check(not rig.active, "resting/thrown tool cannot work remotely")
-        check(rig.hit(rig.motions[id].center) != "", "resting tool remains pickable")
+        check(rig.hit(rig.motions[id].center + (ToolRig.TIP if id == Ids.CLOTH else Vector2.ZERO)) != "", "resting tool remains pickable at its visible body")
     var stacked := ToolRig.new()
     stacked.motions["brush"].center = stacked.motions["vacuum"].center
     stacked.selected = "brush"
@@ -988,6 +986,7 @@ func test_bench_clicks(gs: Node) -> void:
 
 # A finished, completed thermal-paste repaste (what the bench's Complete repaste button leaves behind).
 func pasted(gs: Node) -> void:
+    gs.set_pc_powered(true) # live-check fixtures explicitly switch the repaired PC on
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
     gs.job["paste_done"] = true
     gs.job["paste_material"] = "thermal"
@@ -1009,6 +1008,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     var cost: int = int(PasteMaterials.material("thermal")["cost"])
     check(gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost and gs.job["paste_done"] and gs.job["scams"].is_empty(), "completing with thermal paste charges for the paste once")
     check(not gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost, "a completed repaste cannot be completed (or charged) twice")
+    gs.set_pc_powered(true)
     var honest: Dictionary = gs.run_final_check()
     check(honest["passed"] and honest["paid"] == 60, "a completed thermal repaste on a clean PC passes and pays")
     gs.tickets_taken = 0
@@ -1019,6 +1019,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     gs.save_game()
     gs.load_game()
     check(gs.job["paste_material"] == "toothpaste" and gs.job["paste_done"] and gs.job["scams"] == ["toothpaste"], "the toothpaste scam survives save and load")
+    gs.set_pc_powered(true)
     var scam: Dictionary = gs.run_final_check()
     check(scam["passed"] and scam["paid"] == 60 and is_equal_approx(scam["temp"], GameState_base(gs) + float(PasteMaterials.material("toothpaste")["heat_penalty"])), "toothpaste passes today's check, runs hotter, and the customer still pays")
     check(str(scam["notes"]).contains("Toothpaste"), "the final check tells the player what is under the cooler")
@@ -1058,8 +1059,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     bench.holding = true
     for frame in range(120): bench._physics_process(1.0/60.0)
     bench.holding = false
-    bench.material_button.button_pressed = true
-    bench._on_material_toggled()
+    bench._on_material_selected(2)
     check(bench.paste.material == "thermal", "the paste cannot be switched to toothpaste while paste is on the CPU")
     bench._on_mount_pressed()
     bench.scripted_pressing = true
@@ -1218,14 +1218,13 @@ func test_hand_machine(gs: Node) -> void:
     bench.holding = false
     bench._on_mount_pressed()
     check(bench.hand_state() == HandState.MOUNTING, "mounting is its own hand state")
-    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center
+    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center+ToolRig.TIP.rotated(bench.tools.motions[Ids.CLOTH].angle)
     click(bench, MOUSE_BUTTON_RIGHT, true, cloth_at)
     check(not bench.tools.carrying and not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, a right-press cannot take or throw a tool")
     click(bench, MOUSE_BUTTON_RIGHT, false, cloth_at)
     var wiping_before: bool = bench.wiping
-    bench.wipe_button.button_pressed = not wiping_before
-    bench._on_wipe_toggled()
-    check(bench.wiping == wiping_before and not bench.tools.equipped, "mid-mount, the wipe toggle is refused and reverted")
+    bench._select_cloth()
+    check(bench.wiping == wiping_before and not bench.tools.equipped, "mid-mount, the cloth selection is refused")
     bench._select_dispense()
     check(not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, the syringe cannot be taken")
     # Stage navigation must not stand in for a lever. The existing defect is reproduced
@@ -1237,8 +1236,9 @@ func test_hand_machine(gs: Node) -> void:
     for frame in range(60): bench._physics_process(1.0/60.0)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "the parked hose can be grabbed")
     check(bench.hand_state() == HandState.CARRYING_HOSE, "carrying the hose is its own hand state")
-    bench._select_tool(Dust.TOOL_BRUSH)
-    check(not bench.tools.equipped and bench.active_tool != Dust.TOOL_BRUSH, "keyboard tool switch is refused while carrying the hose")
+    var before_switch: int = bench.active_tool
+    bench._select_tool(Dust.TOOL_VACUUM if before_switch == Dust.TOOL_BRUSH else Dust.TOOL_BRUSH)
+    check(not bench.tools.equipped and bench.active_tool == before_switch, "tool selection is refused while carrying the hose")
     var vacuum_at: Vector2 = bench.tools.motions[Ids.VACUUM].center
     click(bench, MOUSE_BUTTON_LEFT, true, vacuum_at)
     check(not bench.tools.equipped and bench.hand_state() == HandState.CARRYING_HOSE, "a left click on a resting tool is refused while carrying the hose")
@@ -1313,8 +1313,7 @@ func test_bench_0_20(gs: Node) -> void:
     check(grade in ["PERFECT", "GOOD ENOUGH"], "the lever secures a good mount (got %s)" % grade)
     var outside: Vector2 = bench.PASTE_ORIGIN + Vector2(3.0, 25.0) * float(bench.PASTE_CELL)   # left of the CPU square
     bench.scripted_pointer = outside   # the cloth equips snapped to the cursor, so it starts here, off the CPU
-    bench.wipe_button.button_pressed = true
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     check(bench.wiping and bench.tools.selected == Ids.CLOTH, "after the lever the cloth can be taken")
     for frame in range(10): bench._physics_process(1.0/60.0)
     bench.holding = true
@@ -1333,23 +1332,21 @@ func test_bench_0_20(gs: Node) -> void:
     bench.scripted_pointer = corner
     for frame in range(240): bench._physics_process(1.0/60.0)
     bench.tools.park()
-    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_SPOOL.get_center())
-    check(bench.tools.spool_retracting and bench.tools.hose_clamp == -1, "clicking the spool starts reeling and unclips")
-    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_SPOOL.get_center())
+    bench._retract_hose()
+    check(bench.tools.spool_retracting and bench.tools.hose_clamp == -1, "the bin retract action starts reeling and unclips")
     var reeled: int = 0
     while bench.tools.spool_retracting and reeled < 300:
         bench._physics_process(1.0/60.0)
         reeled += 1
     check(not bench.tools.spool_retracting and reeled < 300, "the spool finishes reeling (%d frames)" % reeled)
-    check(bench.tools.motions[Ids.VACUUM].center.distance_to(LayoutData.BENCH_SPOOL.get_center()) < 90.0, "the vacuum ends up at the spool")
+    check(bench.tools.motions[Ids.VACUUM].center.distance_to(Bin.hose_anchor()) < 120.0, "the vacuum parks beside the bin")
     for frame in range(30): bench._physics_process(1.0/60.0)
     check(bench.tools.hose.worst_link_error() < 2.0, "the reeled-in hose lies tidily (worst link error %.2f)" % bench.tools.hose.worst_link_error())
     bench._select_tool(0)
     bench.scripted_pointer = Vector2(300, 300)
     for frame in range(5): bench._physics_process(1.0/60.0)
-    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_SPOOL.get_center())
-    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_SPOOL.get_center())
-    check(bench.tools.spool_retracting, "the spool can start with a tool in hand (it is put down first)")
+    bench._retract_hose()
+    check(bench.tools.spool_retracting, "the bin retract action parks a held vacuum first")
     bench._equip_tool(Ids.VACUUM, Vector2(300, 300))
     check(not bench.tools.spool_retracting, "taking the vacuum stops the reel")
     # Loose items: pick up with empty hands, not past the machine, and the trash can eats them.
@@ -1420,7 +1417,7 @@ func test_promoted_contracts(gs: Node) -> void:
     for frame in range(30): bench.tools.step(1.0 / 60.0, Vector2(300, 300), false)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture holds hose before testing refused selection")
     var key := InputEventKey.new()
-    key.keycode = KEY_2
+    key.keycode = KEY_1   # brush now lives on key 1; still test a refused change from vacuum
     key.pressed = true
     bench._input(key)
     var selection_matches: bool = true
@@ -1473,9 +1470,8 @@ func test_0_21(gs: Node) -> void:
     click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
     var graded: float = float(gs.job["paste_graded_units"])
     check(str(bench.mount_result.get("grade", "")) in ["PERFECT", "GOOD ENOUGH"] and graded > 0.0, "grading records the paste on the CPU")
-    bench.wipe_button.button_pressed = true
     bench.scripted_pointer = cpu_center
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     bench.holding = true
     var frames_wiped: int = 0
     while not bench.mount_result.is_empty() and frames_wiped < 600:
@@ -1504,11 +1500,11 @@ func test_0_21(gs: Node) -> void:
     # D97 (0.25.0): the boot test replaced the power threshold. Any output passes as long as it boots.
     gs.damage_service_part("gpu")
     var dead: Dictionary = gs.run_final_check()
-    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot test FAILED"), "a broken GPU means the PC does not boot, and the check says so")
+    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot FAILED"), "a broken GPU means the PC does not boot, and the check says so")
     gs.job["removed_parts"].append("gpu")
     check(gs.replace_service_part("gpu", "budget"), "a budget GPU can be fitted from stock")
     var fitted: Dictionary = gs.run_final_check()
-    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot test: the PC starts"), "any working GPU boots and passes; there is no power threshold any more")
+    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot OK"), "any working GPU boots and passes; there is no power threshold any more")
     check(not gs.job.has("required_power"), "the old power requirement is gone from the job")
 
 
@@ -1534,7 +1530,8 @@ func test_0_22(gs: Node) -> void:
     root.add_child(bench)
     bench.set_physics_process(false)
     # PC power button: fans stop while off, and the switch survives save and load.
-    check(bool(gs.job["pc_powered"]), "a new job starts powered on")
+    check(not bool(gs.job["pc_powered"]) and bench.cooler_rpm == 0 and bench.case_rpm == 0, "a new job starts off with stationary fans")
+    gs.set_pc_powered(true)
     for frame in range(30): bench._physics_process(1.0/60.0)
     click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
     click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())

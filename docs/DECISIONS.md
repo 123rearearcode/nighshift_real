@@ -325,3 +325,62 @@ zoom/pan and no furniture pages. Eight bays and equal furniture footprints are p
 not a room-upgrade economy. Code remains local under the previous no-push instruction.
 Storage layout schema 2 adds room coordinates, retaining v1 shelf/owner references. No source-of-truth
 or purchase-capacity change. PR #39 is already merged; review results are in REVIEW_0_32.md.
+
+
+## Spool / brush / heavy feel — 15 November 2026, 0.34.0
+Recorded by Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+D119 (confirmed): the spool shortens hose until it is pulled back out. Deployed length is separate
+from capacity, remains short when idle and pays out under pulling (nozzle, hose or clipped moving clamp).
+D120 (confirmed): repair bench starts with brush; brush is key 1, vacuum moves to key 2. Simulation
+indices stay unchanged. Tool highlights must agree with actual selection/refused transitions.
+D121 (confirmed): heavy salvage must remain slightly movable. Lower mass/friction plus strong damping
+allows nudging; it is still grounded and cannot be packed. Numerical tuning remains provisional.
+The user authorized merging room 0.33.0 (PR #40); old no-push notes for that delivery are superseded.
+These new changes get their own review. No new save/PC schema, tool-arrangement persistence or sounds.
+
+
+### D122 — Off by default, explicit live tests (approved user request, 0.35.0)
+Fresh tickets/missing legacy power flags start off; explicit saved switches survive. Power remains
+per PC across switching. No new damage/safety penalty is invented. Boot, thermal and FPS need
+power; powered-off reports cannot pay/complete a repair.
+
+### D123 — Start Wave 2, first monitor slice (approved user request, 0.35.0)
+Implement existing boot/thermal rules and Vapor purchase/FPS as a diagnostic desktop. No night
+completion/payment button. Anti-virus/overclocker remain marked upcoming until their own detailed
+slices. This user assignment authorizes Codex's bounded software work despite the historical split.
+
+### D124 — Cloth edge (approved user fix, 0.35.0)
+One world-pixel reduction, not one paste-grid cell; fabric pickup uses its actual silhouette inset.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+### D125 — Choose the workshop PC in the room (user approved, 0.36.0)
+Activity Workshop enters the storage room; drag a whole customer PC into the right-side slot.
+Select/open the canonical ticket, keep the prior PC's repair state, retain marked rack reservations.
+No PC dropdown, phantom PC for a build order, copied inventory or separate selection save.
+
+### D126 — Activities stays top right (user approved, 0.36.0)
+One shared control/rectangle on all six night work screens, using each screen's cleanup/save path.
+The activity hub itself is the destination. Remove duplicate Storage shortcuts from title/activity
+menus; furniture utility controls remain, numbered rack-selector Buttons do not exist.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+### D127 — Thermal interaction cleanup (user approved, 0.37.0)
+Cleaning/thermal tabs have different colors. Remove obsolete cloth/syringe toggle; tools are
+picked up physically. Mount cooler belongs below the socket and appears only after some paste
+is present, before active/already-graded mounting. Lever and bad-result/rework rules remain.
+
+### D128 — Super-paste choice (user approved, 0.37.0)
+Material menu chooses normal, super-paste or toothpaste, with no mixed layers. Super-paste has
+a subtle blue/purple tint and better cooling, is not a scam, and persists like other material IDs.
+$6/−4°C is provisional tuning, not final balance. Same mount grade still controls quality.
+
+### D129 — Bin push-button retract (user approved, 0.37.0)
+Replace separate spool with RETRACT on the bin itself. Preserve actual deployed-length/payout
+rules; this button never empties dust. Existing Empty bin action remains separate.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+D130 (confirmed by the user, 15 November 2026): cooler installation has hidden technique. Peeling the cooler's clear film and tightening four corner screws in a cross pattern, two passes, are real steps; getting them wrong is NOT shown by the shop's own check and surfaces only at the customer's pickup (heat, a complaint, a lower pickup score). The bench feels true to the real process; it does not grade or lecture.

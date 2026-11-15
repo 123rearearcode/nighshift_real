@@ -7,6 +7,7 @@ extends RefCounted
 
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const Games = preload("res://scripts/data/games.gd")
+const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 
 const COOL_TEMP: float = 55.0         # at or under this the temperature part is perfect
 const TEMP_WEIGHT: float = 25.0       # how many points the temperature part is worth
@@ -16,10 +17,18 @@ const HAPPY_FROM: int = 70            # at or above this the customer leaves hap
 
 
 # `customer` from scripts/data/customers.gd; `temp` the final-check temperature; `gpu_power`,
-# `cpu_power`, `ram_gb` the PC as handed back. Returns {score: int, misses: Array of String}.
-static func score(customer: Dictionary, temp: float, gpu_power: float, cpu_power: float, ram_gb: float, pass_limit: float) -> Dictionary:
+# `cpu_power`, `ram_gb` the PC as handed back. `faults` (install_faults.gd ids) are the hidden
+# installation mistakes: invisible to the shop's check, felt by the customer at home (D130): they add
+# heat and cost a flat complaint each. Returns {score: int, misses: Array of String}.
+static func score(customer: Dictionary, shop_temp: float, gpu_power: float, cpu_power: float, ram_gb: float, pass_limit: float, faults: Array = []) -> Dictionary:
     var points: float = 100.0
     var misses: Array = []
+    var temp: float = shop_temp + InstallFaults.heat(faults)
+    points -= InstallFaults.annoyance(faults)
+    for id: Variant in faults:
+        var text: String = InstallFaults.complaint(str(id))
+        if text != "":
+            misses.append(text)
     # Temperature: full marks when cool, scaling off toward the pass limit.
     if temp > COOL_TEMP:
         var over: float = clampf((temp - COOL_TEMP) / maxf(1.0, pass_limit - COOL_TEMP), 0.0, 1.0)

@@ -6,6 +6,7 @@ const Materials = preload("res://scripts/data/paste_materials.gd")
 const Parts = preload("res://scripts/data/service_parts.gd")
 const PartStates = preload("res://scripts/rules/part_states.gd")
 const Games = preload("res://scripts/data/games.gd")
+const Software = preload("res://scripts/rules/software_checks.gd")
 const Frames = preload("res://scripts/rules/fps_sim.gd")
 
 static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
@@ -28,8 +29,6 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
         var material: Dictionary = Materials.material(str(job.get("paste_material","thermal")))
         temp += float(material.get("heat_penalty",0))
         notes.append("Cooler contact: %s. Material: %s."%[grade,material.get("label","Unknown")])
-    var broken: Array = job.get("broken_parts",[])
-    var removed: Array = job.get("removed_parts",[])
     notes.append_array(PartStates.problem_lines(job))   # D115: binary per part, with the exact repair path
     var gpu: float = 100.0
     for id: String in job.get("service_replacements",{}):
@@ -37,11 +36,11 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
         temp += float(replacement.get("heat_penalty",0))
         if id == "gpu": gpu = float(replacement.get("performance",100))
         if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
-    var powered: bool = bool(job.get("pc_powered",true))
-    var boots: bool = broken.is_empty() and removed.is_empty() and powered
-    notes.push_front("Boot: OK." if boots else "Boot: FAILED." if powered else "Power is off. Turn the PC on before testing.")
+    var boot: Dictionary = Software.boot(job)
+    var boots: bool = boot["ok"]
+    notes.push_front(boot["message"])
     var specs: Dictionary = job.get("pc_specs",{})
     for id: String in owned_games:
         var game: Dictionary = Games.game(id)
-        if not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)),float(specs.get("ram_gb",8)),game,temp)])
+        if boots and not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)),float(specs.get("ram_gb",8)),game,temp)])
     return {"temp":temp,"boots":boots,"passed":boots and temp<Legacy.PASS_TEMP,"notes":notes}

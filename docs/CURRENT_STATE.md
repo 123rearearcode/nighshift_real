@@ -1,5 +1,10 @@
 # Nightshift — Current State and Technical Handoff
 
+Current review build: **0.34.0 spool, brush-first controls and movable heavy waste**. Room 0.33.0
+was approved/published/merged in PR #40; its older local-only notes below are historical.
+See BENCH_FEEL_0_34.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
 Current local delivery: **0.33.0 room storage**, based on integrated main 0.32.0. Prior branch-status
 notes are historical. Room has direct furniture, eight floor bays and zoom/pan; no rack-selector list.
 See STORAGE_ROOM.md and REVIEW_0_32.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
@@ -232,3 +237,74 @@ no room purchase/expansion economy or shared capacity hook introduced. Full cont
 Main 0.32.0 already integrates the prior PRs. Earlier pending/independent-branch notes below are
 historical. Review of Claude PR #39: canonical CPU/part-state fixes retained; night ticket overflow
 B19 remains open with measured evidence, reported to Claude. Code is local; no pushes or merges.
+
+
+## Bench feel — trial 0.34.0
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest.
+Room 0.33.0 is published and merged (PR #40, user authorized). This new review branch keeps that
+room and adds requested feel fixes. Spool winds in deployed hose instead of restoring a full coil;
+idle hose stays short, and pulling the nozzle/hose/clipped moving clamp feeds out only needed length,
+up to base/upgrade capacity. Spooling releases a held rope point and removes the clamp constraint.
+
+Repair benches (legacy and night) start with Brush, key 1. Vacuum is key 2; Parts 3 and Pick 4 stay.
+Internal physics slots remain vacuum=0/brush=1. Tool highlights explicitly follow actual selection,
+including hotkeys and refused hand-state transitions. Heavy concrete/appliances retain dynamic mass
+and cannot be packed; lower mass/friction and strong damping allow controlled nudging without flight.
+All weight/force/length tuning is provisional. Deployed hose length remains local to a bench instance,
+like existing tool poses; cross-scene tool arrangement persistence is later engineering work.
+
+No shared save/ownership changes. User-requested narrow edits touch ToolRig spool and BenchView
+initial-tool/keys/labels/highlights; no competing bench PR was open. Hand-state rules are unchanged.
+Claude cross-reviews next; the new feel changes are not automatically merged with the approved room.
+
+
+## 0.35.0 — Wave 2 first playable monitor slice
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+User approved starting Wave 2 after cloth and power fixes. New repair tickets and saves lacking
+an explicit switch begin powered OFF; an explicit saved on/off value remains respected. Repair
+bench initializes fans still when off. Power is per customer PC; live boot/game/thermal tests
+require switching on. Cleaning/repasting do not require power. Legacy final check now also
+respects the power flag, while its historical one-time payment behavior remains unchanged.
+
+Workshop → Diagnostic monitor offers boot, non-paying final/thermal report, Vapor purchase and
+Counter Stroke 2 simulated FPS using existing Wave 1 rules and shop-owned licences. Customer
+complaint, uses and collection request remain visible in a bounded sidebar. Reports clear on
+power-down; no money/trust/pickup/completion side effect except explicit game purchases.
+Anti-virus and overclocker are labeled upcoming; neither runs a pretend scan nor alters hardware.
+Their exact mechanics, later campaign time and master-PC requirements remain future design work.
+Cloth pickup follows rendered skew/rotation with a one-pixel inset; wiping reach is 35 world
+pixels rather than 36 (not one whole 8px paste cell). See SOFTWARE_WAVE_2.md for limits.
+
+
+## 0.36.0 — Physical room selection and common night exit
+
+User requested room-based workshop selection: Activity Workshop now enters the room. Drag a real
+customer PC into its workshop slot to select/open that PC. The old PC dropdown is removed. The
+active PC's rack footprint is retained as a marked reservation; the slot references the same
+GameState/NightSession record, with no clone or new ownership/save schema. Parts, tools, build
+orders with no PC, stale IDs and protected manifests cannot act as customer PCs. Selection and
+exits preserve repair progress. Existing hardware bench still operates shop stock (not a second
+copy of the selected customer's installed hardware). Shared PC-model integration remains future work.
+
+Activities uses one top-right control on room, service hub, repair, hardware, diagnostic monitor
+and salvage. Duplicate title/activity Storage shortcuts are removed. Ticket details in the service
+hub are now scrolled/bounded. The uploaded recording displays v0.32.0 and the removed rack-list
+implementation; fresh v0.36.0 installation instructions avoid confusing project copies. No universal
+crash-freedom claim: real native input regression tests cover the reported sequence and navigation.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+## 0.37.0 — Thermal controls and bin retraction
+
+User approved: distinct teal Cleaning / purple Thermal tabs; remove redundant cloth/syringe
+button in favor of physical tools. Mount cooler moves below the socket, visible only after
+paste is present and before mounting/graded completion. This does not force a good-size blob:
+poor paste work remains possible. The lever still locks/grades; mounting never auto-completes.
+One material menu offers normal thermal paste, super-paste and toothpaste. Wipe/reset a layer
+before changing material. Super-paste is honest, uses normal flow/contact rules with a subtle
+blue-purple tint, and improves cooling at equal grade. Trial numbers: $6 and −4°C versus normal
+$3/0°C and toothpaste free/+14°C. Both thermal reports and saved/per-PC physical fields honor it.
+The reel is inside the vacuum bin: RETRACT on the bin replaces the separate spool. It does not
+empty the bin; hose stays shortened until pulled. No new campaign system or save-shape change.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

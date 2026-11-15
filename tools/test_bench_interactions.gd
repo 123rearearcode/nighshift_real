@@ -19,6 +19,19 @@ func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var original: String = gs.save_path
     gs.save_path = "user://bench_interaction_test_only.json"
+    var fresh: Node = bench_for(gs)
+    check(fresh.active_tool == Dust.TOOL_BRUSH and fresh.tools.selected == "brush" and fresh.tools.equipped,"repair bench starts with the brush equipped")
+    check(fresh.tool_buttons[Dust.TOOL_BRUSH].button_pressed and fresh.tool_buttons[Dust.TOOL_BRUSH].text == "Brush (1)","initial brush highlight and key label agree")
+    var key := InputEventKey.new()
+    key.pressed = true
+    key.keycode = KEY_2
+    fresh._input(key)
+    check(fresh.active_tool == Dust.TOOL_VACUUM and fresh.tools.selected == "vacuum","key two equips the vacuum")
+    check(fresh.tool_buttons[Dust.TOOL_VACUUM].button_pressed and not fresh.tool_buttons[Dust.TOOL_BRUSH].button_pressed,"hotkey switch highlights only the real equipped tool")
+    key.keycode = KEY_1
+    fresh._input(key)
+    check(fresh.active_tool == Dust.TOOL_BRUSH and fresh.tools.selected == "brush","key one returns to the brush")
+    fresh.free()
     for id: int in [0,1]:
         var bench: Node = bench_for(gs)
         var at: Vector2 = bench.dust.b_center[0]

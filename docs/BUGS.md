@@ -35,14 +35,17 @@ fix ships now.
 | B15 | 0.27.0 | 0.32.0 | Codex cross-review | Cargo re-entry at a fixed point could spawn inside a staged find | fixed spawn coordinates; fixed with a free-space probe |
 
 
-| B16 | rack/night PRs #35/#36; still present in main 0.32.0 | 0.33.0 local (not pushed) | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
+| B16 | rack/night PRs #35/#36; still present in main 0.32.0 | 0.33.0 (PR #40 merged) | user screenshots + Codex signal regression | Selecting new rack furniture crashes with locked-object/free errors after sort/save/add | Sidebar rebuilt and synchronously freed the Button emitting its own pressed signal; method-only tests missed lifecycle (RC-4) |
 
 | B17 | pending rack/night integration with main 0.29.0 | 0.32.0 | Codex code review | Rack would omit the new starter CPU after combining branches | Rack adapter dispatches RAM explicitly, everything else through GPU/cooler ServiceParts; main now supplies a cpu record (RC-1); fixed in 0.32.0: the rack reads the canonical `GameState.inventory_components()` projection (test_storage checks the CPU appears) |
 
 | B18 | 0.30.0 | 0.32.0 | Claude integration review | The night workshop diagnosis said only "Damaged: gpu. Replace these parts." - the B12 dead end again, on the screen that replaced the shop | a second surface wrote its own aggregate notes instead of reading the shared part rule (RC-1/RC-2); fixed with the pure `part_states.gd` rule used by every surface |
 
-| B19 | 0.32.0 | open | Codex review of PR #39 | Night-workshop ticket grows over diagnosis report when parts are broken | Parts summary appended to plain Label; measured y=166..511 against report y=425 (RC-2); proposed bounded ticket scroll |
-| B20 | storage PR #35; still present in 0.32.0 | 0.33.0 local (not pushed) | user recording + Codex GUI regression | Add-furniture choices overlap; only last choice is usable | PopupPanel Container repositions direct Button children despite hand-set positions; replaced by Margin/VBox layout |
+| B19 | 0.32.0 | 0.36.0 | Codex review of PR #39 | Night-workshop ticket grows over diagnosis report when parts are broken | Parts summary appended to plain Label; measured y=166..511 against report y=425 (RC-2); bounded ticket ScrollContainer added/tested in 0.36.0 |
+| B20 | storage PR #35; still present in 0.32.0 | 0.33.0 (PR #40 merged) | user recording + Codex GUI regression | Add-furniture choices overlap; only last choice is usable | PopupPanel Container repositions direct Button children despite hand-set positions; replaced by Margin/VBox layout |
+
+| B21 | before 0.34.0 | 0.34.0 | user playtest | Spool moves vacuum back but full hose immediately lies on the desk again | One length represented both deployed hose and capacity; reset re-created a full-length chain. Separate capacity from deployed length and pay out only under pulling |
+| B22 | tool selection before 0.34.0; exposed by brush-first test | 0.34.0 | regression test | Hotkey selection can leave two tool buttons highlighted | set_pressed_no_signal on one Button did not clear its group peer; explicitly synchronize every tool highlight after an accepted switch |
 
 ## Root causes (structural)
 
@@ -107,3 +110,22 @@ lifetime to the UI test gap. Proposed next structural work (not implemented): co
 signal-driven UI test helper and finish canonical PC/state seams before expanding duplicate models.
 This review is prepared in a PR, not a claim that pending branches were merged. Next regular
 structural checkpoint after integration: 0.40.0.
+
+| B23 | 0.34.0 | 0.35.0 | user playtest | Cloth reacts outside its intended edge | generic whole-tool pickup rectangle ignored fabric silhouette; wipe reach reduced one world pixel |
+| B24 | 0.34.0 | 0.35.0 | user request + Codex review | Fresh PCs spin fans immediately; legacy final check can pay while off | default power true and two boot-rule implementations disagree; shared pure boot rule now gates both paths |
+
+| B25 | 0.35.0 | 0.36.0 | user playtest | Activities appears in different positions or is missing on night work screens | per-screen navigation implementations diverged; shared top-right helper and native exit tests |
+
+### 0.36.0 follow-up evidence for B16
+The uploaded Screen Recording 2026-11-15 020515(1).mp4 visibly identifies v0.32.0 at 1s and
+shows the old numbered furniture sidebar at 6s. Main includes its replacement from merged PR #40
+(v0.33.0); current PR has no storage .free() path or per-furniture Button list. Repeat native
+sort/save/add/multiple-title selections and assert persistent control identities in the new build.
+This identifies a build mismatch in this evidence, not a claim that unseen current-build failures
+are impossible. Fresh-folder/version instructions are in README. Signed Codex (GPT 6.1 Sol,
+model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+| B26 | 0.36.0 | 0.37.0 | user screenshot | Mount cooler remains in side panel even after a locked mount | visibility gated only by stage/active flag; shared readiness includes mass, result, completion and stage |
+| B27 | 0.36.0 | 0.37.0 | user screenshot | Obsolete cloth/syringe toggle duplicates physical tool pickup | old toggle widget/state wiring retained; removed widget and updated fixtures |
+| B28 | 0.37.0 development | 0.37.0 | native UI regression | Retract Button's minimum size protrudes outside bin | native theme inflated requested rectangle; bounded font/margins and reset size after overrides |
+| B29 | 0.37.0 extension | 0.37.0 | Codex review | Premium negative heat modifier would be ignored in legacy check | legacy only added positive penalties; signed modifier now applies in both report paths, checked together |

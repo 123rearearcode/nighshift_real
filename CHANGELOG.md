@@ -39,6 +39,399 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.38.0 - 2026-11-15 - Cooler install technique: the film, the screws and delayed discovery
+
+- Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5)
+- Based on: 0.37.0 (9c894f8), Codex's PR #41. STACKED: this branch must merge after #41 (both touch bench_view.gd and game_state.gd)
+- Type: minor (new compatible mechanic; job gains two optional fields, no save-format change)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is
+recorded here: run 43717692734 passed the required suites (all 16, including the new Install technique suite). No interactive playtest is claimed, so how the screws and film FEEL
+is unverified.
+
+### Added / Changed / Fixed / Removed
+- Added (D130): `scripts/rules/install_faults.gd`, a pure rule for hidden installation mistakes.
+  Film left on the cooler base (+30 C at the customer's PC, -30 pickup score), screws tightened
+  round the square instead of opposite corners (+10 C, -12), screws skipped or half-turned
+  (+15 C, -25). One wrong screw pair is forgiven. All numbers are trial proposals.
+- Added: a "Cooler base" button on the Thermal service tab that peels the clear film (drawn as a pale
+  blue sheet, never explained), and four clickable corner screws while a cooler is pressed on
+  (two turns each, shown as snug/tight, never judged). The lever still locks the cooler (D57) and
+  records the mistakes. The first screw shows a manual hint: opposite corners, two passes.
+- Changed: `PickupScore.score` takes optional `faults`; heat and complaints apply to the CUSTOMER's
+  check only. `run_final_check` temperature and notes are unchanged, so the shop's own test still
+  passes and never mentions the mistake. The complaint appears in the pickup misses/history.
+- Changed: `clear_paste` clears the recorded faults; peeled film stays peeled for the ticket.
+- New job fields `cooler_film_peeled`, `install_faults`, validated on load (unknown ids dropped).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/install_faults.gd` | A | Pure rule: faults, screw geometry, heat and annoyance |
+| `scripts/rules/pickup_score.gd` | M | Optional faults: customer-only heat and complaints |
+| `scripts/state/game_state.gd` | M | Two job fields, set/peel functions, fault pass-through to pickup |
+| `scripts/view/bench_view.gd` | M | Film button, screw clicks, faults recorded at the lever |
+| `scripts/view/paste_renderer.gd` | M | Cooler base and screw drawing |
+| `tools/test_install_technique.gd` | A | New suite: rule, pickup, hidden final check, save, real clicks |
+| `.github/workflows/tests.yml` | M | Register the suite |
+| `docs/INSTALL_TECHNIQUE.md` | A | Design and numbers |
+| `project.godot`, `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/TESTING.md` | M | Version and documentation |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passes. Godot not run by me; suite results below once CI finishes.
+
+### Decisions proposed
+D130: install mistakes are hidden from the shop's check and felt by the customer (the user's answer, 15 November 2026: "mistakes dont come to bite you until the customer checks"). The bench is meant to feel true to the real process without being a lesson.
+
+### Known issues and open items
+- Needs a human playtest: whether the film is too easy to miss or notice, and whether clicking screws while pressing feels right (a screw click also counts as pressure).
+- Faults are per mount; nothing yet makes a customer return in person (comeback days exist, the visit does not).
+- Not built, from the idea list: seating the CPU with a bent-pin risk, paste patterns by CPU type, cooler variety, the tech notebook.
+
+### Next action
+Claude or the user: playtest, then tune the numbers. Hot files bench_view.gd and game_state.gd stay with PR #41 until it merges; then this branch rebases onto main.
+
+## 0.37.0 - 2026-11-15 - Thermal controls, super-paste and retract on the vacuum bin
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.36.0 (5c3866f), continuing the same unmerged PR #41
+- Type: minor (new compatible material choice and revised bench interaction)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Fifteen required suites: final applicable total 1,312
+checks, zero failures; pending contracts zero checks. Includes native UI input. No manual
+visual/feel acceptance or target-hardware performance claim. Date: 15 November 2026,
+Europe/Bucharest. User directly requested these narrow hot-file changes; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- D127/B26: teal Cleaning and purple Thermal service tabs, with labeled/selected borders. Mount
+  cooler moves below socket/legend and is visible only with paste before active/graded completion.
+  Lever and bad-result/rework rules stay; mount readiness does not demand a perfect-size blob.
+- B27: remove obsolete cloth/syringe toggle widget and its state wiring. Physical tool pickup
+  remains; instructions say so. Retain logical selection helpers for input/regression coverage.
+- D128: canonical three-choice MenuButton: normal, super-paste, toothpaste. Dirty/locked layers
+  cannot be relabeled/mixed; menu and guarded handler explain wipe/reset first.
+- Super-paste: subtle blue-purple rendering/legend, normal flow, honest material. Trial cost $6,
+  signed heat effect −4°C at equal completed grade. Normal $3/0°C, toothpaste free/+14°C unchanged.
+  Apply signed effects in night and legacy reports, with no scam warning for premium. Main save and
+  physical per-PC snapshots recognize canonical IDs without an incompatible save-shape change.
+- D129: RETRACT is a native push-button on the vacuum bin. Remove external spool drawing/click
+  rectangle; reel remains inside bin. Same shortening/capacity/pull-out rules, parked beside bin.
+  Raw input delegates this rectangle to the button, never bin-empty/tool use. Separate Empty bin stays.
+- B28: explicitly bound button font/style margins/size inside bin; native theme minimum had grown it.
+- Required thermal-service suite and revised obsolete-control fixtures; native input covers menu
+  open + choice, service tab, mount and retract. No extra part catalogue/clock/save ownership system.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `CHANGELOG.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `DEVELOPMENT.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `HANDOFF.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `README.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/BUGS.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/CURRENT_STATE.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/DECISIONS.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/DESIGN.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/MINIGAME_RULES.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/PROJECT_BRIEF.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/ROADMAP.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/TESTING.md` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `docs/THERMAL_SERVICE.md` | A | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `project.godot` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/bench/paste_sim.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/bench/tool_rig.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/data/layout.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/data/paste_materials.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/night/paste_snapshot.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/night/repair_view.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/state/game_state.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/bench_view.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/cleaning_renderer.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `scripts/view/paste_renderer.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_audio_and_vacuum.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_regressions.gd` | M | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+| `tools/test_thermal_service.gd` | A | Thermal/material/bin implementation, regression coverage or signed delivery documentation |
+
+### Checks performed
+- Godot 4.7.2: schemas 209, regressions 594, start 20, dust 43, bench interactions 31, feedback 27,
+  audio/vacuum 46, performance 24, salvage 49, salvage physics 44, storage 82, night workshop 53,
+  software 31, room/workshop 33, thermal service 26: zero failures (1,312 final applicable total).
+- Full suites initially used thermal-service 25; reran its final 26 checks after adding the
+  insufficient-funds case and final silent UI-event/menu-refresh changes. No duplicate-run inflation.
+- Native material choice uses the actual embedded-menu input path, not a fabricated signal.
+  Same-grade premium cooling parity, charge once/insufficient funds, honest scam state, main-save
+  and physical snapshot roundtrip checked. Bin click does not empty dust; old spool area is inactive.
+- Full bench state/frame/paste diagnostic matrix completed without script errors. It began before
+  the last menu/audio-status-only tweaks; final thermal-service checks exercise those changes.
+- Fresh extracted source imported in Godot 4.7.2 and passed all 26 thermal-service checks,
+  without script errors.
+- CI scope: 9 tests passed. Project hygiene and diff whitespace checks passed.
+
+### Decisions proposed (not approved)
+Super-paste $6 and −4°C are provisional balance values. The three choices, better cooling/tint,
+conditional Mount, removed toggle and bin button are user-approved behavior (D127–D129).
+
+### Known issues and open items
+- No manual graphical acceptance yet. Existing trial heat estimate is not a physical CPU simulator.
+- Internal reel state/method names retain 'spool' for compatibility; no external spool object remains.
+- Existing master-PC/owned-parts integration and later Wave 2 apps remain separate work.
+
+### Next action
+User playtests v0.37.0; Claude goes next for cross-review of PR #41 before merging. Do not
+merge automatically. bench_view.gd, tool_rig.gd and game_state.gd remain owned by this ONE open
+PR for review; after merge they are free subject to Claude's work-plan ownership. No competing
+hot-file PR or WORK_PLAN.md edit.
+
+## 0.36.0 - 2026-11-15 - Drag a PC into the workshop and consistent Activities exits
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.35.0 (74f3e5d), extending the same unmerged PR #41
+- Type: minor (physical room selection replaces PC dropdown and duplicate routes)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Fourteen required suites: 1,283 checks, zero failures;
+pending contracts zero checks. Native viewport input is included, not only method calls.
+No graphical/manual playtest or universal crash-freedom claim. Date: 15 November 2026,
+Europe/Bucharest. No hot-file or WORK_PLAN.md edits in this version; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- D125: Activity Workshop enters room. Drop a real customer PC into WORKSHOP SLOT to select/open
+  its canonical ticket. Reject parts/tools, unknown/stale PCs and protected manifests. Preserve
+  each repair and reserved shelf allocation; slot refers to the same PC, never a duplicate.
+- Remove service-hub PC dropdown and duplicate Storage shortcuts on title/activity menus.
+  The active PC's shelf spot is marked ON BENCH; choose another to return the previous to its spot.
+- D126/B25: one named, shared top-right Activities control on room, service hub, repair, hardware,
+  software and salvage. Existing cleanup paths preserve dust/paste, throws/stock and salvage custody.
+  Generic night exits block and show the error if the checkpoint fails.
+- B19: service-hub ticket now has a bounded ScrollContainer above the diagnosis report.
+- B16 follow-up: inspect supplied 8.13s recording; title visibly says v0.32.0 and room has old
+  numbered selectors. Current room replacement came from PR #40/v0.33.0, already merged. There
+  is no per-rack Button/self-free path in this source. Replay sort/save/add/multiple-title clicks
+  with actual GUI input; stable control identities verified. README explains fresh-folder import.
+- Furniture utility actions remain. No new global PC ownership/schema, campaign clock, hardware
+  model integration, changed economics or simulation tuning. Existing hardware bench is shop stock.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `CHANGELOG.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `DEVELOPMENT.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `HANDOFF.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `README.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/BUGS.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/CURRENT_STATE.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/DECISIONS.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/DESIGN.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/NIGHT_WORKSHOP.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/PROJECT_BRIEF.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/ROADMAP.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/ROOM_WORKSHOP.md` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/STORAGE.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `docs/TESTING.md` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `project.godot` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/activities_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/hardware_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/night_navigation.gd` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/repair_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/salvage_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/software_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/night/workshop_hub.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/storage/storage_sources.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/storage/storage_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `scripts/view/start_view.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_night_workshop.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_room_workshop.gd` | A | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_start_screen.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+| `tools/test_storage.gd` | M | Room selection, common night navigation, regression coverage or signed scope documentation |
+
+### Checks performed
+- Godot 4.7.2: data schemas 206, regressions 594, start screen 20, dust flow 43, bench interactions 31,
+  bench feedback 27, audio/vacuum 46, performance 24, salvage 49, salvage physics 44, storage 82,
+  night workshop 53, software 31, room/workshop 33: all zero failures (1,283 total).
+- After the final route guard/shortcut changes, reran start, storage, night workshop, software and
+  room/workshop suites. No script errors. Pending contracts: 0/0.
+- Native events: sort/save/add two types, every furniture title, PC drag to slot and one common
+  Activities exit per work screen. Save-failure exit refusal, canonical counts/cash, per-PC progress
+  and reload checked. Old dropdown-route assertion replaced with absence of that control.
+- Fresh extracted v0.36.0 source imported in Godot 4.7.2 and passed all 33 room/workshop checks,
+  with no script errors (expected forced-save-failure warning only).
+- Project hygiene, diff whitespace and CI scope (9 tests) passed. Full physics diagnostic matrix
+  not repeated: 0.36 changes wrappers/layout/navigation only; underlying bench hot files untouched.
+
+### Decisions proposed (not approved)
+No additional mechanics. Existing eight-room-bay capacity and visual tuning remain provisional.
+
+### Known issues and open items
+- Recording evidence is v0.32.0; an unseen newer-build failure cannot be ruled out by that video.
+  Use a fresh v0.36.0 folder and check the title/room version before further playtests.
+- Active PC retains a rack reservation; there is no separate PC unmount/eject inventory system.
+- Shared installed-PC hardware model and later anti-virus/overclocker slices remain future work.
+
+### Next action
+User playtests v0.36.0; Claude goes next for cross-review of PR #41. Do not merge automatically.
+This version edits none of bench_view.gd, tool_rig.gd or game_state.gd; those hot files remain
+reserved by the earlier changes in this single PR until its review/merge, then free subject to
+Claude's work-plan ownership. WORK_PLAN.md unchanged.
+
+## 0.35.0 - 2026-11-15 - Cloth edge, off-by-default PCs and first Wave 2 monitor
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: 0.34.0 (c1d20b2), extending the same unmerged PR #41; main remains approved room 0.33.0
+- Type: minor (new diagnostic desktop and shared live-boot rule)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally. Thirteen required suites: 1,250 checks, zero failures;
+pending contracts zero checks. No graphical/manual playtest or target-hardware performance claim.
+Date: 15 November 2026, Europe/Bucharest. New Wave 2 assignment is from the user; no automatic merge.
+
+### Added / Changed / Fixed / Removed
+- B23: cloth pickup follows the rendered skewed/rotated fabric with a one-world-pixel inset.
+  Wiping radius is 35 rather than 36 world px, not one whole 8px cell; strength/upgrade shape unchanged.
+- D122/B24: fresh/missing-power PCs default off; explicit saved on/off states survive. Fans initialize
+  still when off. Shared SoftwareChecks.boot gates night diagnostics and legacy payment check;
+  neither can pass an off PC. Legacy payment semantics otherwise remain historical/unchanged.
+- D123: Workshop diagnostic desktop exposes boot, read-only thermal/final report, Vapor purchase
+  and Counter Stroke 2 simulated FPS using existing rules. Case power button stays outside the
+  dark monitor. Reports clear on power-down; broken/unowned/off PCs cannot fake game readings.
+- Customer complaint, uses, collection request and stated game/noise targets stay in a bounded scroll.
+  No completion/payment/trust transaction in the new monitor; only explicit licence purchases spend.
+- Anti-virus/overclocker are explicitly upcoming. They perform no fake scan or tuning; exact mechanics
+  remain future work. No campaign clock, persistent report, PC ownership migration or real OS/game app.
+- Required CI software suite covers native GUI power input, rule/transaction boundaries and cloth edge.
+  Older repaired-PC test fixtures now switch power on explicitly rather than hiding the new default.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Runtime contract, regression coverage or delivery documentation |
+| `CHANGELOG.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `DEVELOPMENT.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `HANDOFF.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `README.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/BUGS.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/CURRENT_STATE.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/CUSTOMER_MODEL_MAP.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/DECISIONS.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/DESIGN.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/MINIGAME_RULES.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/PROJECT_BRIEF.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/ROADMAP.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `docs/SOFTWARE_WAVE_2.md` | A | Runtime contract, regression coverage or delivery documentation |
+| `docs/TESTING.md` | M | Runtime contract, regression coverage or delivery documentation |
+| `project.godot` | M | Runtime contract, regression coverage or delivery documentation |
+| `scenes/software.tscn` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/bench/tool_rig.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/night_diagnostics.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/software_view.gd` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/night/workshop_hub.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/rules/software_checks.gd` | A | Runtime contract, regression coverage or delivery documentation |
+| `scripts/state/game_state.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/view/bench_view.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `scripts/view/tool_renderer.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `tools/test_regressions.gd` | M | Runtime contract, regression coverage or delivery documentation |
+| `tools/test_software.gd` | A | Runtime contract, regression coverage or delivery documentation |
+
+### Checks performed
+- Godot 4.7.2: data schemas 206, regressions 594, start screen 20, dust flow 43, bench interactions 31,
+  bench feedback 27, audio/vacuum 46, performance contracts 24, salvage 49, salvage physics 44,
+  storage 82, night workshop 53, software 31: zero failures (1,250 total). Pending contracts: 0/0.
+- Software suite includes real viewport mouse events on the case power button; no native GUI claim
+  is based only on emitting its signal. Diagnostic and purchase rules are independently checked.
+- Full bench diagnostic state/frame/paste matrix completed without script errors. Off-by-default
+  fan behavior intentionally changes the baseline; this is not a no-behavior-change refactor.
+- Fresh source ZIP imported and passed all 31 software checks without script errors.
+- CI scope: 9 tests passed. Project hygiene and whitespace checks passed.
+
+### Decisions proposed (not approved)
+Anti-virus infection/cure rules, overclock tuning/stability/risks and campaign test timing are not
+implemented; details need design. Existing trial costs, thresholds and balance remain provisional.
+
+### Known issues and open items
+- No manual visual/feel acceptance yet. B19 old workshop ticket overflow remains separate.
+- Cloth uses existing tabletop collision boxes; precise new fabric pickup does not add soft-body physics.
+- Explicit old powered-on saves stay on intentionally; use New Game to observe fresh off defaults.
+- The desktop is customer-PC diagnostics, not a complete master-PC OS or real software execution.
+
+### Next action
+User playtests PR #41 (now 0.35.0) and Claude cross-reviews before merge. Claude goes next; hot files
+bench_view.gd, tool_rig.gd and game_state.gd are free after delivery subject to Claude's current
+work-plan ownership. No competing hot-file PR or WORK_PLAN.md edit. Follow-up Wave 2 app mechanics
+remain future slices.
+
+## 0.34.0 - 2026-11-15 - Retractable hose, brush-first controls and movable heavy waste
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.33.0, room PR #40 merged at f31eaea after CI passed
+- Type: minor (deployed hose length/payout behavior and user-requested feel changes)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally, including the full bench diagnostic matrix.
+Final applicable suite results total 1,219 checks, zero failures; pending contracts zero checks.
+No graphical/manual playtest or target-hardware performance claim. Date: 15 November 2026,
+Europe/Bucharest. Approved room delivery is merged; this follow-up awaits cross-review/playtest.
+
+### Added / Changed / Fixed / Removed
+- Spool actually reduces deployed hose to 140 world pixels. It stays short at rest; pulling the
+  vacuum, rope or clipped clamp pays out up to the owned capacity. Passive motion cannot unspool it.
+  Reel releases carried rope pins; upgrades preserve already coiled hose. Length is bench-session state.
+- Repair bench starts with Brush: key 1 Brush, key 2 Vacuum. Internal simulation ids stay unchanged.
+  Fix mutually exclusive button highlights on hotkey changes, preserving refused-switch behavior.
+- Heavy concrete/appliances remain uncollectable obstacles but can be nudged/tipped. Lower mass and
+  friction, stronger damping, grip still below weight; normal parts remain much easier to lift.
+- Publish/archive approved 0.33.0 room and merge PR #40. Preserve canonical stock and existing room.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `DEVELOPMENT.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `HANDOFF.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `README.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/BENCH_FEEL_0_34.md` | A | Gameplay, regression coverage or signed scope documentation |
+| `docs/BUGS.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/CURRENT_STATE.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/DECISIONS.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/DESIGN.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/PROJECT_BRIEF.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `docs/ROADMAP.md` | M | Gameplay, regression coverage or signed scope documentation |
+| `project.godot` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/bench/tool_rig.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/data/ids.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/salvage/salvage_body.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/salvage/salvage_data.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `scripts/view/bench_view.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_audio_and_vacuum.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_bench_interactions.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_regressions.gd` | M | Gameplay, regression coverage or signed scope documentation |
+| `tools/test_salvage_physics.gd` | M | Gameplay, regression coverage or signed scope documentation |
+
+### Checks performed
+- Full required suites: data schemas 206, regressions 594, start screen 20, dust flow 43,
+  bench interactions 31, bench feedback 27, audio/vacuum 45, performance 24, salvage 49,
+  salvage physics 44, storage 82, night workshop 53: zero failures.
+- After the final passive-payout guard, reran audio/vacuum (46 checks) and regressions (594):
+  zero failures. Final applicable total is 1,219; no duplicate-run inflation.
+- Full playtest_bench diagnostic state/frame matrix completed without script errors. It preceded
+  the final passive-payout guard; targeted spool tests cover that change. Frame figures are local
+  headless observations, not a target-hardware benchmark.
+- CI scope tests: 9 passed. Project hygiene and diff whitespace checks passed.
+
+### Decisions proposed (not approved)
+Numeric force/length tuning remains provisional. User approved behavior is D119–D121.
+
+### Known issues and open items
+- Deployed hose length resets with a new bench instance, like tool positions; no save schema change.
+- B19 workshop ticket overflow remains open. User should playtest feel and graphical layout.
+
+### Next action
+User playtests the separate 0.34.0 PR; do not automatically merge it. Claude goes next for
+cross-review. Hot files bench_view.gd and tool_rig.gd are free after this delivery; game_state.gd
+was untouched and is free subject to Claude's current work-plan ownership. WORK_PLAN.md unchanged.
+
 ## 0.33.0 - 2026-11-15 - Direct room furniture and storage crash fixes (local)
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

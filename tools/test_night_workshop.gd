@@ -153,8 +153,9 @@ func run_checks() -> void:
     money = gs.money
     current_scene._buy_upgrade("square_cloth")
     check(gs.money == money,"owned workshop upgrade cannot be charged twice")
-    current_scene._switch(1)
-    check(gs.job["id"] == night.tickets[1]["id"],"real picker changes the active customer PC")
+    check(not current_scene.get_children().any(func(n: Node) -> bool: return n is OptionButton),"workshop no longer has a PC dropdown; selection belongs to the room")
+    night.switch_pc(gs,night.tickets[1]["id"])
+    current_scene._refresh_ticket()
     current_scene._go("res://scenes/night_bench.tscn")
     await process_frame
     await process_frame

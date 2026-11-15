@@ -1,4 +1,43 @@
-# Nightshift - Godot Foundation Trial (v0.33.0)
+# Nightshift - Godot Foundation Trial (v0.38.0)
+
+New in 0.38.0: **installing the cooler now has technique.** On the Thermal service tab the "Cooler base"
+button peels the clear plastic film off the cooler's contact plate (people forget it). While the
+cooler is pressed down, click the four corner screws: tighten opposite corners in turn, two passes
+each, then click the lever. The bench never tells you if you did it right. Mistakes are invisible to
+your own final check and only show when the customer uses the PC (their pickup score and complaint).
+See docs/INSTALL_TECHNIQUE.md. This is stacked on Codex's unmerged PR #41 (0.37.0).
+
+New in 0.37.0: Cleaning is teal and Thermal service purple. Pick up the syringe/cloth physically;
+the redundant tool-toggle button is gone. Choose Normal thermal paste, Super-paste or Toothpaste
+from the Paste menu (wipe/reset before changing a layer). Super-paste has a subtle blue-purple hue
+and improves cooling; trial cost $6 / benefit −4°C at equal contact, versus normal $3.
+Mount cooler appears below the socket only when there is paste and the cooler is not already
+being mounted/graded. The vacuum bin now has a RETRACT push-button; the separate spool is gone.
+Extract/import the fresh v0.37.0 folder and confirm that title version. See docs/THERMAL_SERVICE.md.
+
+New in 0.36.0: **New Game → Activities → Workshop room → drag a customer PC into the right-hand
+workshop slot.** The selected PC opens its workshop. To change PCs, return to the room and drag
+another in. A marked rack reservation remains for the PC on the bench; it is the same PC.
+All six night work screens have Activities in the same top-right position. No rack-list buttons,
+PC dropdown or duplicate Storage shortcut on the title/activity menus.
+
+**Use the new build:** close the old demo, extract the v0.37.0 ZIP into a fresh folder, then in
+Godot Project Manager choose Import and select that folder's project.godot. Confirm **v0.37.0**
+on the title/room screen before testing. The attached 02:05 recording shows v0.32.0 and its old
+self-freeing rack-selector implementation; the direct room fix was introduced in v0.33.0.
+Do not delete your saves or overwrite an old project folder to install this source package.
+See docs/ROOM_WORKSHOP.md for controls and persistence limits.
+
+New in 0.35.0: New Game → Workshop → Diagnostic monitor. PCs start OFF: use Switch PC ON,
+then Boot check, thermal/final report, or Vapor → buy/run Counter Stroke 2. Tests do not complete
+or pay night jobs. Anti-virus/overclocker are marked upcoming. Cloth pickup/wipe edge tightened.
+See docs/SOFTWARE_WAVE_2.md. Existing explicit saved power state is retained.
+
+**0.34.0 bench feel:** Brush starts equipped (1); Vacuum is 2. The spool really shortens deployed
+hose and keeps it short until the nozzle/hose is pulled out. Heavy salvage can be nudged while
+remaining too heavy to lift casually. Room update 0.33.0 was approved and merged as PR #40.
+See docs/BENCH_FEEL_0_34.md for details and limits.
+
 
 **Local 0.33.0 room update:** F5 → Storage rack. Furniture is shown together in a 4×2 floor grid;
 there are no per-rack selector buttons. Add furniture, drag its title bar to an empty bay, and use

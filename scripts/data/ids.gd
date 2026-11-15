@@ -15,6 +15,7 @@ const CLEAN_TOOLS: Array = [VACUUM, BRUSH, PICK]      # tools on the bench in th
 const PASTE_TOOLS: Array = [CLOTH, SYRINGE]           # tools on the bench in the paste stage
 # The cleaning stage's tool slots (bench_view.active_tool, same numbers as DustSim.TOOL_*): 0 vacuum,
 # 1 brush, 2 parts mode (no tool in hand; the vacuum stays the selected tool), 3 pick.
+# Keyboard order is Brush 1 / Vacuum 2; these simulation indices remain unchanged.
 const SLOT_TOOL: Array = [VACUUM, BRUSH, VACUUM, PICK]
 const TOOL_SLOT: Dictionary = {VACUUM: 0, BRUSH: 1, PICK: 3}
 const SLOT_PARTS: int = 2

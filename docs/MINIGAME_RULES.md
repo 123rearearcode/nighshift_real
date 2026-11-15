@@ -197,3 +197,27 @@ Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. Autho
 Session persistence is still memory-only; campaign saves/stock/customer rules are unchanged. Human fun/
 feel validation remains needed. Native physics tests and a separate non-gating stress profiler replace
 0.26.0's fake-pile sleep/occlusion assertions; they do not claim GPU or whole-game FPS measurements.
+
+## 0.35.0 control and power clarification
+
+User-requested: fresh customer PCs start off. Cleaning, parts handling and repasting are possible
+while off; the player must deliberately power on for boot/thermal/game tests. No new shock/damage
+penalty is invented. Existing saved switches survive; an old absent flag means off. Night checks
+are diagnosis only. Brush is the default cleaning tool on 1, Vacuum on 2 (0.34.0).
+Cloth fabric pickup follows its drawn rotated/skewed shape inset one pixel; wiping reach shrinks
+one world pixel, not one 8px paste cell. Square-cloth shape advantage and wipe strength remain.
+Wave 2's desktop has boot, thermal and Vapor/FPS; anti-virus/overclock mechanics remain future slices.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+## 0.37.0 thermal/paste/bin update (current)
+Distinct Cleaning/thermal tabs remain textual as well as colored. Tools are chosen by physical
+pickup, without the redundant toggle. Mount appears below the socket only when some paste exists
+and no mount/result is active; it does not enforce the green gauge, so poor work is still allowed.
+Use the retention lever to lock/grade. Material choice never changes an existing layer's identity:
+wipe/reset first. Super-paste is honest, same flow/contact, better cooling and slightly blue-purple;
+trial $6/−4°C. Normal $3/0°C and toothpaste free/+14°C remain. Honest premium work pays its actual
+material cost once on successful completion, automatic at the lever in the night route.
+RETRACT is now on the vacuum bin, distinct from emptying it. The old external spool is removed;
+shortened deployed hose and deliberate pull-out behavior stay. See THERMAL_SERVICE.md.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.

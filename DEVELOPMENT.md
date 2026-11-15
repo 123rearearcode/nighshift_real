@@ -172,6 +172,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
 | `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
 | `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/install_faults.gd` | rules | Hidden cooler-install mistakes (film, screw pattern), their heat and complaint, screw geometry (D130) |
 | `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
 | `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
 | `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
@@ -572,3 +573,74 @@ controls handle GUI dispatch. No rack selector Buttons, furniture pages or synch
 Tests dispatch native viewport mouse input through toolbar/popup, with embedded popup coordinates,
 and validate choice rectangles, direct room dragging, migration and repeated interaction lifecycles.
 Earlier version-1 storage contract is historical; see STORAGE_ROOM.md for the current format.
+
+
+## Tool/hose feel contract — 0.34.0
+ToolRig.hose_capacity is total available hose; hose.length() is deployed length. start_spool_retract
+releases hose/clamp pins, parks a held vacuum and reduces deployed length while returning it. The
+remaining chain stays short; _pay_out_hose feeds to capacity only under nozzle/rope/active clamp pulling. Passive/throw motion is constrained to the currently deployed length; it cannot feed the reel itself. Upgrading capacity preserves a coiled chain. Existing spool cancellation,
+rope solver, clamp and hand-state rules remain. Bench instance only; no save-format change.
+Brush key 1 / vacuum key 2 are input mappings, NOT renamed physics indices. Tool-buttons array stays
+indexed by DustSim ids; all highlights are synchronized on accepted switch. Heavy tuning changes only
+salvage data/material/force values. User directly requested these narrow feel edits; no concurrent hot PR.
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `docs/BENCH_FEEL_0_34.md` | docs | Requested behavior, tests and review handoff |
+
+
+## Wave 2 first slice / 0.35.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/rules/software_checks.gd` | rules | Shared powered boot gate and ownership/boot-aware FPS report, no side effects |
+| `scripts/night/software_view.gd` | view | Customer monitor, per-PC switch, boot/thermal/Vapor actions, bounded ticket/report panels |
+| `scenes/software.tscn` | scene | Workshop diagnostic desktop |
+| `tools/test_software.gd` | tooling | Native power click, per-PC save state, diagnostic/payment isolation, store/FPS and cloth fringe |
+| `docs/SOFTWARE_WAVE_2.md` | docs | Implemented first slice, controls, coordination and future apps |
+
+PC power missing/default is false; explicit saved values are retained. SoftwareChecks.boot is the
+shared live startup gate for night diagnostics and legacy final check. New screen only reads
+reports; GameState.buy_game is the existing purchase transaction. No new save shape or licence
+scope. Scene reports are ephemeral and cleared on power-down. Future app buttons do not run tests.
+Cloth pickup and drawing share ToolRig.cloth_outline, inset 1px only for pickup; wiping reach is
+35 world px / 8px grid. Existing square-cloth upgrade scoring stays unchanged. CI adds test_software.
+
+
+## Room/workshop route / 0.36.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_navigation.gd` | view | Shared named Activities Button at one top-right rectangle; owner handles save/cleanup |
+| `tools/test_room_workshop.gd` | tooling | Native PC-slot drag, furniture sequence, six common exit routes, state/save preservation |
+| `docs/ROOM_WORKSHOP.md` | docs | Current room-to-workshop behavior, reservations, version evidence and installation |
+
+Storage selection resolves a fresh Sources.collect PC id to its ticket, asks NightSession to switch
+and checkpoint, then defers scene entry until input is released. Invalid drops cancel the transient
+hand without changing shelf allocation. The shelf footprint of the currently worked PC is only a
+reservation, not another PC. No new save field/schema or change to NightSession's authority.
+Navigation.attach uses ActivitiesButton/RECT on six work screens; scene cleanup runs through the
+existing owners (repair dust/paste, hardware settling/stock save, salvage capture/cancel). Generic
+night navigation blocks on failed checkpoints. Existing scene-specific return-to-workshop actions
+remain. No hot files or WORK_PLAN.md modified by 0.36.0.
+
+
+## Thermal/paste/bin contract / 0.37.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `tools/test_install_technique.gd` | tooling | Film and screw faults: pure rule, pickup score, hidden from the final check, save, real clicks |
+| `tools/test_thermal_service.gd` | tooling | Native tab/menu/mount/retract input, obsolete UI absence, premium cooling/charge/persistence |
+| `docs/INSTALL_TECHNIQUE.md` | docs | Cooler install technique: the film, the screws, hidden faults and where they surface (D130) |
+| `docs/THERMAL_SERVICE.md` | docs | Current controls, trial material tuning and bin-reel behavior |
+
+PasteMaterials.IDS is canonical for menus, main-save validation and physical PasteSnapshot loading.
+`super` is a new compatible string value, not a new save shape. Signed heat_penalty values apply
+in both night/legacy thermal reports. Renderer color uses material ID, including the legend/cache.
+Tool selection has no wipe_button; cloth/syringe are physical tools. Shared paste UI sync includes
+stage and mount readiness, so mass/result changes cannot leave a stale Mount action. Menu state
+refreshes only on open/selection, never per physics tick. Material edits refuse deposited layers.
+BENCH_RETRACT lies inside BENCH_BIN; no BENCH_SPOOL or draw_spool remains. Raw bench input delegates
+that rectangle to the native button so it cannot also vacuum, pick an item, or empty dust. Button
+minimum size/theme margins are explicitly bounded to the physical bin. Internal reel state/method
+names remain for compatibility; no separate spool entity. Same PR owns all hot-file changes.

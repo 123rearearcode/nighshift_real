@@ -12,6 +12,7 @@ func run_checks() -> void:
     audio = root.get_node("AudioFeedback")
     test_contract()
     test_hose()
+    test_spool_length()
     var gs: Node = root.get_node("GameState")
     var original: String = gs.save_path
     gs.save_path="user://audio_vacuum_test_only.json"
@@ -58,7 +59,7 @@ func run_checks() -> void:
     check(not overlap,"cleaning controls are separate non-overlapping groups")
     bench._select_stage(1)
     check(not has_loop(bench,"pc.fan"),"stage change releases the previous scene's machine loops")
-    check(bench.material_button.position.y<bench.mount_button.position.y and bench.complete_button.position.y==bench.mount_button.position.y,"paste controls follow material/tool then mount/complete order")
+    check(bench.mount_button.position.y>bench.PASTE_ORIGIN.y+51*bench.PASTE_CELL and bench.complete_button.position.x>=bench.PANEL_X,"mount action is below socket; legacy completion stays in the side panel")
     var cpu: Vector2=bench.PASTE_ORIGIN+Vector2(25,25)*bench.PASTE_CELL
     bench.scripted_pointer=cpu
     bench._select_dispense()
@@ -68,8 +69,7 @@ func run_checks() -> void:
     bench.holding=false
     bench._physics_process(1.0/60.0)
     check(not has_loop(bench,"paste.squeeze"),"syringe release ends dispensing loop")
-    bench.wipe_button.set_pressed_no_signal(true)
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     bench.holding=true
     bench._physics_process(1.0/60.0)
     check(has_loop(bench,"cloth.wipe"),"wiping has its own audio hook")
@@ -143,3 +143,35 @@ func test_hose() -> void:
         rig.step(1.0/60.0,path[(frame/60)%path.size()],false)
         pinned_worst=maxi(pinned_worst,rig.hose.self_crossings())
     check(pinned_worst==0,"clamped hose also recovers without self-crossing loops")
+
+
+func test_spool_length() -> void:
+    var rig := Rig.new()
+    rig.select("vacuum",Vector2(220,240))
+    rig.park()
+    rig.start_spool_retract()
+    for frame in range(240): rig.step(1.0/60.0,Vector2(220,240),false)
+    var short: float = rig.hose.length()
+    check(not rig.spool_retracting and short<=Rig.MIN_DEPLOYED+0.01,"spool takes hose onto the reel, shortening deployed length")
+    for frame in range(180): rig.step(1.0/60.0,Vector2(220,240),false)
+    check(is_equal_approx(rig.hose.length(),short),"resting hose stays short instead of respawning a full coil")
+    rig.bodies["vacuum"].center = rig.motions["vacuum"].center
+    rig.bodies["vacuum"].velocity = Vector2(40,0)
+    rig.bodies["vacuum"].active = true
+    for frame in range(60): rig.step(1.0/60.0,Vector2(220,240),false)
+    check(is_equal_approx(rig.hose.length(),short),"passive vacuum motion cannot make a stowed reel feed itself")
+    check(is_equal_approx(rig.hose_capacity,560.0),"spooling preserves total hose capacity")
+    rig.set_long_hose(true)
+    check(is_equal_approx(rig.hose.length(),short) and rig.hose_capacity>560,"upgrade adds capacity without dumping stowed hose onto the desk")
+    rig.select("vacuum",Vector2(220,240))
+    for frame in range(120): rig.step(1.0/60.0,Vector2(220,240),false)
+    check(rig.hose.length()>short+100 and rig.hose.length()<=rig.hose_capacity,"pulling the vacuum pays out hose up to its actual capacity")
+    rig.park()
+    rig.start_spool_retract()
+    for frame in range(240): rig.step(1.0/60.0,Vector2(220,240),false)
+    check(rig.hose.length()<=Rig.MIN_DEPLOYED+0.01 and not rig.spool_retracting,"a second spool cycle retracts the paid-out hose too")
+    check(rig.grab_hose(rig.hose.pos[8]),"short hose can still be picked up directly")
+    for frame in range(120): rig.step(1.0/60.0,Vector2(400,340),false)
+    check(rig.hose.length()>short+100 and rig.hose.length()<=rig.hose_capacity,"pulling a hose section also pays out without exceeding capacity")
+    rig.start_spool_retract()
+    check(rig.hose_grab == -1 and rig.spool_retracting,"starting spool releases a held rope point instead of fighting it")
