@@ -34,6 +34,7 @@ func prepare_pickup(gs: Node, faults: Array) -> Dictionary:
     var fractions: Dictionary = {}
     for z: Dictionary in DustZones.zones(): fractions[z["id"]] = 1.0
     gs.set_dust(fractions)
+    gs.set_pc_powered(true)   # PCs now start switched off; the live check needs it on
     gs.job["paste_grade"] = "PERFECT"
     gs.job["paste_done"] = true
     gs.job["install_faults"] = faults
@@ -70,7 +71,9 @@ func run_checks() -> void:
     var faulty_run: Dictionary = prepare_pickup(gs, [Faults.FILM, Faults.LOOSE])
     check(bool(faulty_run["passed"]) and is_equal_approx(float(faulty_run["temp"]), float(clean_run["temp"])), "the shop's final check temperature ignores install faults")
     check(not str(faulty_run["notes"]).contains("film") and not str(faulty_run["notes"]).contains("screw"), "the final check notes never mention the hidden faults")
-    check(int(faulty_run["pickup"]["score"]) < int(clean_run["pickup"]["score"]) and str(faulty_run["pickup"]["misses"]).contains("film"), "the customer's pickup reports the mistake")
+    var clean_pick: Dictionary = clean_run.get("pickup", {})
+    var faulty_pick: Dictionary = faulty_run.get("pickup", {})
+    check(not clean_pick.is_empty() and not faulty_pick.is_empty() and int(faulty_pick["score"]) < int(clean_pick["score"]) and str(faulty_pick["misses"]).contains("film"), "the customer's pickup reports the mistake")
 
     # Save round trip.
     gs.job["install_faults"] = [Faults.FILM]
