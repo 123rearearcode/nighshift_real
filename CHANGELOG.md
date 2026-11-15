@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new tool, new activity, hardware bench rebuilt on the job record; job gains optional `gpu_screws`)
 
 ### Execution status
-Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is recorded in the PR. No interactive playtest is claimed, so how the screwdriver and the hardware bench FEEL is unverified.
+Godot was NOT run by me. GitHub Actions run 43726318789 passed all required suites (17, incl. new Hardware ticket PC) on Godot 4.7.2 headless. No interactive playtest is claimed, so how the screwdriver and the hardware bench FEEL is unverified.
 
 ### Added / Changed / Fixed / Removed
 - Changed (D131): the hardware bench is a projection of the ticket's PC (`customer_pc.gd`): CPU, RAM, GPU, cooler. Removed or broken parts are in the drawer; every move writes back to the job. CPU/RAM are fixed for now; shop stock can only replace a broken, removed GPU or cooler.
@@ -62,7 +62,7 @@ Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless;
 | `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/INSTALL_TECHNIQUE.md` | M | Docs and version |
 
 ### Checks performed
-`python3 -I tools/check_project.py` (result below in the PR). CI results are recorded on the PR.
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI run 43726318789: all required suites green.
 
 ### Decisions proposed (not approved)
 D131 was requested by the user; its numbers (none new) need no approval.
