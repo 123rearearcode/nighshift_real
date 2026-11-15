@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (two new apps; the job gains optional `infection` and `overclock`; old saves load clean)
 
 ### Execution status
-Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; the result is recorded below once it ran. No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; run 43734168810 passed all required suites (18, incl. the new Malware and overclock suite). No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Added (D132): `malware.gd` (adware, hidden miner, scan, pickup faults) and `overclock.gd` (multiplier, voltage, heat, stability, stress tests, pickup faults). Numbers are trial proposals.
@@ -63,7 +63,7 @@ Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless;
 | `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/BUGS.md`, `docs/SOFTWARE_WAVE_2.md` | M | Docs, version, 0.40.0 structural checkpoint |
 
 ### Checks performed
-`python3 -I tools/check_project.py` (see PR). CI result recorded on the PR.
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI run 43734168810: all required suites green.
 
 ### Decisions proposed (not approved)
 All D132 numbers: strain penalties, +6% power per step, +4 C per step, +3 C per voltage step, hot threshold 80 C, $2 long test.
