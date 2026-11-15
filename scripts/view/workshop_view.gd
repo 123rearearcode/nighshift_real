@@ -57,12 +57,21 @@ func _exit_tree() -> void:
     _settle_all_throws()
     if not inventory.items.is_empty(): _save_inventory()
 
+# Hooks the night hardware bench overrides to show the ticket's own PC (D131). The defaults keep the
+# original free-standing spare-part sandbox exactly as it was.
+func _components() -> Array: return GameState.inventory_components()
+func _saved_layout() -> Dictionary: return GameState.inventory_layout
+func _title_text() -> String:
+    return "NIGHTSHIFT / SPARE-PART BENCH - the shop's own stock, NOT the customer's PC\nThe customer's PC is repaired at the repair bench (Replacement stock). Drag to arrange; flick to throw; Shift-drop places precisely. R turns. Esc puts back."
+func _intro_text() -> String:
+    return "Your spare-parts bench: the shop's own stock, not the customer's PC. Replace a customer's broken part from the repair bench (Replacement stock). Arrange parts anywhere that fits in the drawer; slots matter only when installing."
+
 func _build_ui() -> void:
     var title := Label.new()
     title.position = Vector2(40,16)
     title.size = Vector2(1200,70)
     title.add_theme_font_size_override("font_size",20)
-    title.text = "NIGHTSHIFT / SPARE-PART BENCH - the shop's own stock, NOT the customer's PC\nThe customer's PC is repaired at the repair bench (Replacement stock). Drag to arrange; flick to throw; Shift-drop places precisely. R turns. Esc puts back."
+    title.text = _title_text()
     add_child(title)
     status_label = Label.new()
     status_label.position = STATUS_RECT.position + Vector2(12,12)
@@ -93,9 +102,9 @@ func _configure_layout() -> void:
     geometry = PCLayout.display(pc, Layout.WORKSHOP_PC)
     CELL = geometry["cell"]
     BOARD_ORIGIN = PCLayout.board_rect(pc,geometry).position
-    inventory.setup(board, int(pc["depth"]), GameState.inventory_layout, GameState.inventory_components())
+    inventory.setup(board, int(pc["depth"]), _saved_layout(), _components())
     _reset_motion()
-    _set_status("Your spare-parts bench: the shop's own stock, not the customer's PC. Replace a customer's broken part from the repair bench (Replacement stock). Arrange parts anywhere that fits in the drawer; slots matter only when installing.")
+    _set_status(_intro_text())
 
 func _change_profile(id: String) -> void:
     _settle_all_throws()
@@ -105,7 +114,7 @@ func _change_profile(id: String) -> void:
     _configure_layout()
 
 func _reset_state() -> void:
-    inventory.setup(board, int(pc["depth"]), {}, GameState.inventory_components())
+    inventory.setup(board, int(pc["depth"]), {}, _components())
     _reset_motion()
     _save_inventory()
     _set_status("Stock rearranged. Owned parts only; consumed parts stay consumed.")
@@ -362,6 +371,10 @@ func _draw_part(i: int) -> void:
         for j in range(3): draw_rect(Rect2(rect.position+Vector2(5,10+j*28),Vector2(maxf(8,size.x-10),18)),Color("464947"))
         _text(rect.position+Vector2(3,size.y-5),"RAM",10,Color.BLACK)
         draw_line(rect.position+Vector2(2,3),rect.position+Vector2(2,size.y-3),Color("ffe2a0"),2)
+    elif item["part"]["category"] == "CPU":
+        draw_rect(rect.grow(-5),Color("c9ced4"))
+        draw_rect(rect.grow(-14),Color("8e949c"))
+        _text(Vector2(-12,5),"CPU",12,Color.BLACK)
     elif item["part"]["category"] == "GPU":
         for j in range(2):
             var center := Vector2(-size.x*0.25 if j == 0 else size.x*0.25,0)

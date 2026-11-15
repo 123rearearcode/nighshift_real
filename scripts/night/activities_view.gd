@@ -7,8 +7,7 @@ func _ready() -> void:
     _label("Choose your next activity. Your PCs stay where you left them.",Vector2(60,140),Vector2(1160,40),20)
     _button("WORKSHOP ROOM\nDrag a PC into the workshop slot",Rect2(60,235,550,150),"res://scenes/storage.tscn")
     _button("SALVAGE DUMP\nDrive out and search the pile",Rect2(670,235,550,150),"res://scenes/night_salvage.tscn")
-    var future := _button("MORE TO COME\nSpace reserved for future activities",Rect2(60,430,550,140),"")
-    future.disabled = true
+    _button("SHOP\nBuy tool upgrades",Rect2(60,430,550,140),"res://scenes/night_shop.tscn")
     _button("Main menu",Rect2(670,510,550,60),"res://scenes/start.tscn")
     message = _label(NightSession.status,Vector2(60,620),Vector2(1160,65),17)
 

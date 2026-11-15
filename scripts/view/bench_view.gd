@@ -397,10 +397,10 @@ func _select_stage(new_stage: int) -> void:
     else:
         status_label.position = Vector2(PANEL_X, 540)
         status_label.size = Vector2(520, 95)
-        title_label.text = "NIGHTSHIFT - repair bench (step 2: thermal paste)\nPick up the syringe or cloth from the bench. Hold on the CPU to use it; mount below the socket when ready."
+        title_label.text = "NIGHTSHIFT - repair bench (step 2: thermal paste)\nPick up the syringe or cloth from the bench. Hold on the CPU to use it; mount below the socket when ready. Installing: film, paste, mount + press, screws (screwdriver), lever."
         var saved_grade: String = str(GameState.job["paste_grade"])
         if mount.active:
-            _set_status("Mounting: hold the mouse over the socket (or Space) to press. Release once CPU covered passes the line.", 0)
+            _set_status("Mounting: hold the mouse over the socket (or Space) to press. Release once CPU covered passes the line. Screws come after, with the screwdriver, then the lever.", 0)
         elif bool(GameState.job["paste_done"]) and mount_result.is_empty():
             _set_status("Repaste complete (%s, %s). (The paste picture is not saved.) Press Clear all paste to redo it." % [saved_grade, PasteMaterials.material(str(GameState.job["paste_material"]))["label"].to_lower()], 1)
         elif saved_grade != "" and mount_result.is_empty():
@@ -467,7 +467,7 @@ func _on_mount_pressed() -> void:
     screw_clicks.clear()
     holding = false
     wiping = false
-    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Then tighten the four corner screws and click the lever beside the socket to lock the cooler down.", 0)
+    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Once the time is up: right-click the screwdriver on the bench, tighten the four corner screws, then click the lever beside the socket to lock the cooler.", 0)
     time_up_told = false
     _sync_paste_controls()
 
@@ -652,6 +652,20 @@ func _input(event: InputEvent) -> void:
                 _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
             holding = false
             return
+        # D131: mid-mount the hands are busy with the cooler. Once the paste has set, the SCREWDRIVER (and only it)
+        # can be picked up for the corner screws; right-click again puts it down. Every other tool stays refused.
+        if mb.button_index == MOUSE_BUTTON_RIGHT and stage == STAGE_PASTE and mount.active:
+            if mb.pressed:
+                if tools.equipped:
+                    var was_screwdriver: bool = tools.selected == Ids.SCREWDRIVER
+                    _park_tool()
+                    if was_screwdriver: _set_status("Screwdriver put down. Right-click it on the bench to pick it up again.", 0)
+                elif not tools.equipped and mount.time_left <= 0.0 and tools.hit(mb.position, Ids.PASTE_TOOLS) == Ids.SCREWDRIVER:
+                    tools.select(Ids.SCREWDRIVER, mb.position)
+                    _sound("handling.pickup", {"kind": Ids.SCREWDRIVER})
+                    _set_status("Screwdriver in hand. Click the four corner screws: opposite corners in turn, two passes. Then click the lever.", 0)
+            holding = false
+            return
         if mb.button_index == MOUSE_BUTTON_RIGHT and (stage == STAGE_PASTE or active_tool != 2 or mb.shift_pressed):
             if mb.pressed:
                 var candidate: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
@@ -687,7 +701,7 @@ func _input(event: InputEvent) -> void:
                 var screw: int = InstallFaults.screw_at(_socket_region(), mb.position)
                 if screw >= 0:
                     holding = false
-                    _turn_screw(screw)
+                    _screw_click(screw)
                     return
             # The cooler is secured by physically clicking its retention lever (there is no button for it).
             if mb.pressed and stage == STAGE_PASTE and mount.active and SECURE_LEVER.has_point(mb.position):
@@ -1009,7 +1023,7 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
                 live_stats = {"coverage": 0.0, "overflow": 0.0}
                 GameState.clear_paste()
                 _set_status("Grade cleared because the paste on the CPU is being wiped off. Keep wiping, or squeeze fresh paste once the CPU is clean.", 0)
-    elif holding and tools.equipped and not tools.carrying and mount_result.is_empty():
+    elif holding and tools.equipped and tools.selected == Ids.SYRINGE and not tools.carrying and mount_result.is_empty():
         var cell: Vector2 = (mouse - PASTE_ORIGIN) / float(PASTE_CELL)
         if cell.x >= 0.0 and cell.y >= 0.0 and cell.x < PasteSim.GRID and cell.y < PasteSim.GRID:
             if str(GameState.job["paste_grade"]) != "":
@@ -1067,7 +1081,7 @@ func _step_mount(delta: float, mouse: Vector2) -> void:
     paste_dirty = true
     if expired and not time_up_told:
         time_up_told = true
-        _set_status("Time is up: the paste has set. Click the lever beside the socket to lock the cooler down.", 2)
+        _set_status("Time is up: the paste has set. Now right-click the screwdriver on the bench and tighten the four corner screws (opposite corners, two passes). Then click the lever to lock the cooler.", 2)
 
 # Lift the cooler back off without grading (D57: nothing but the lever secures it). The paste keeps
 # whatever shape the pressing gave it; mounting can simply be started again.
@@ -1076,9 +1090,22 @@ func _cancel_mount() -> void:
         return
     mount.cancel()
     screw_clicks.clear()
+    if tools.equipped and tools.selected == Ids.SCREWDRIVER: _park_tool()
     holding = false
     time_up_told = false
     _set_status("You lifted the cooler off again without locking it: no result. The paste stays as it was pressed; mount again when ready, and pull the lever to secure.", 2)
+
+
+# D131: which of InstallFaults.STEPS the player is on (0-based; STEPS.size() = all done).
+func _install_step() -> int:
+    var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
+    if locked: return InstallFaults.STEPS.size()
+    if mount.active:
+        if mount.time_left > 0.0: return 2
+        return 4 if screw_clicks.size() >= InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED else 3
+    if paste.total_deposited >= 1.0: return 2
+    if bool(GameState.job["cooler_film_peeled"]): return 1
+    return 0
 
 
 func _socket_region() -> Rect2:
@@ -1096,6 +1123,16 @@ func _on_film_pressed() -> void:
 
 # One quarter of the install ritual: a snug turn, then a tight one, on a corner screw. The bench never
 # says whether the pattern was right; the customer finds out at home (D130).
+func _screw_click(screw: int) -> void:
+    if not (tools.equipped and tools.selected == Ids.SCREWDRIVER):
+        if mount.time_left > 0.0:
+            _set_status("The paste has not set yet. Keep pressing; screws come after the press, with the screwdriver.", 2)
+        else:
+            _set_status("You need the screwdriver for the screws. Right-click it on the bench to pick it up.", 2)
+        return
+    _turn_screw(screw)
+
+
 func _turn_screw(screw: int) -> void:
     if not InstallFaults.can_turn(screw_clicks, screw):
         return
@@ -1122,6 +1159,7 @@ func _finish_mount() -> void:
     # D130: the hidden mistakes of this mount are recorded now and surface only at the customer's pickup.
     GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), screw_clicks))
     screw_clicks.clear()
+    if tools.equipped and tools.selected == Ids.SCREWDRIVER: _park_tool()
     paste_dirty = true
     var cov: float = mount_result["coverage"]
     var over: float = mount_result["overflow"]
@@ -1259,6 +1297,7 @@ func _draw_clean_cursor() -> void:
 func _draw_paste_stage() -> void:
     PasteRenderer.draw_stage(self, paste, paste_texture, PASTE_ORIGIN, PASTE_CELL, mount)
     PasteRenderer.draw_cooler_base(self, Rect2(PANEL_X + 270, 258, 250, 40), bool(GameState.job["cooler_film_peeled"]))
+    PasteRenderer.draw_install_steps(self, Vector2(PANEL_X, 520), _install_step(), InstallFaults.STEPS)
     if mount.active:
         PasteRenderer.draw_screws(self, InstallFaults.screw_centers(_socket_region()), screw_clicks, InstallFaults.TURNS_NEEDED, InstallFaults.SCREW_RADIUS)
     var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))

@@ -10,9 +10,10 @@ const BRUSH: String = "brush"
 const PICK: String = "pick"
 const CLOTH: String = "cloth"
 const SYRINGE: String = "syringe"
-const ALL_TOOLS: Array = [VACUUM, BRUSH, PICK, CLOTH, SYRINGE]
+const SCREWDRIVER: String = "screwdriver"   # D131: turns the cooler (and GPU) screws; a physical tool like the others
+const ALL_TOOLS: Array = [VACUUM, BRUSH, PICK, CLOTH, SYRINGE, SCREWDRIVER]
 const CLEAN_TOOLS: Array = [VACUUM, BRUSH, PICK]      # tools on the bench in the cleaning stage
-const PASTE_TOOLS: Array = [CLOTH, SYRINGE]           # tools on the bench in the paste stage
+const PASTE_TOOLS: Array = [CLOTH, SYRINGE, SCREWDRIVER]         # tools on the bench in the paste stage
 # The cleaning stage's tool slots (bench_view.active_tool, same numbers as DustSim.TOOL_*): 0 vacuum,
 # 1 brush, 2 parts mode (no tool in hand; the vacuum stays the selected tool), 3 pick.
 # Keyboard order is Brush 1 / Vacuum 2; these simulation indices remain unchanged.

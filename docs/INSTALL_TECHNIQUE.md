@@ -29,3 +29,14 @@ customer history. `run_final_check` (the shop's own test) never includes it, by 
 ## Not built
 Seating the CPU (bent pins), paste patterns by CPU type, cooler variety (tower, all-in-one), a
 "tech notebook" that fills in as the player learns, prior-repairer mistakes on arriving PCs.
+
+## Order and the screwdriver (0.39.0, D131)
+Repair bench, cooler: **Film -> Paste -> Mount + press -> Screws -> Lever.** The screws come after the
+press has finished and before the lever. They need the screwdriver: once the press is done, right-click
+the screwdriver on the bench, click the four corner screws (opposite corners, two passes), then click the lever.
+The bench shows these steps as a line (done / current / next).
+
+Hardware bench, GPU: two bracket screws, tightened with the screwdriver from the tray. Taking the GPU out
+unscrews it. A fitted GPU with loose screws is the hidden pickup fault `gpu_loose` (annoyance only).
+Scope limits: refitting a GPU from the repair bench does not need screws (it only leaves them loose);
+cooler screws exist only at the repair bench.

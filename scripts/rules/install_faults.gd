@@ -8,7 +8,13 @@ extends RefCounted
 const FILM := "film_left"          # plastic film still on the cooler base: the classic overheating mistake
 const UNEVEN := "uneven_mount"     # screws tightened round the square: tilted cooler, poor contact
 const LOOSE := "loose_screws"      # screws skipped or left half-turned: the cooler rattles and contact is poor
-const IDS: Array = [FILM, UNEVEN, LOOSE]
+const GPU_LOOSE := "gpu_loose"     # D131: a GPU that was removed or replaced and never screwed back in
+const IDS: Array = [FILM, UNEVEN, LOOSE, GPU_LOOSE]
+
+# D131: the install ritual, in order. The screwdriver is a real tool; the screws come AFTER the press
+# (the paste has set), and BEFORE the lever that locks the cooler.
+const STEPS: Array = ["Film", "Paste", "Mount+press", "Screws (screwdriver)", "Lever"]
+const GPU_SCREW_COUNT: int = 2     # the card's bracket screws; both need one tight turn each
 
 const SCREW_COUNT: int = 4         # corners: 0 top-left, 1 top-right, 2 bottom-left, 3 bottom-right
 const TURNS_NEEDED: int = 2        # a snug pass, then a tight pass
@@ -19,12 +25,13 @@ const SCREW_RADIUS: float = 15.0
 
 # Trial numbers. HEAT is extra temperature the customer's own PC shows (added only at pickup);
 # ANNOYANCE is the flat pickup-score cost of a problem the customer has to notice and report.
-const HEAT: Dictionary = {FILM: 30.0, UNEVEN: 10.0, LOOSE: 15.0}
-const ANNOYANCE: Dictionary = {FILM: 30.0, UNEVEN: 12.0, LOOSE: 25.0}
+const HEAT: Dictionary = {FILM: 30.0, UNEVEN: 10.0, LOOSE: 15.0, GPU_LOOSE: 0.0}
+const ANNOYANCE: Dictionary = {FILM: 30.0, UNEVEN: 12.0, LOOSE: 25.0, GPU_LOOSE: 20.0}
 const COMPLAINT: Dictionary = {
     FILM: "ran hot at home: the clear plastic film was still on the cooler base",
     UNEVEN: "cooler sits crooked: the screws were not tightened evenly",
     LOOSE: "cooler rattles: the mounting screws were left loose",
+    GPU_LOOSE: "the graphics card sags and the picture glitches: its bracket screws were never tightened",
 }
 
 
@@ -88,6 +95,35 @@ static func annoyance(faults: Array) -> float:
 
 static func complaint(id: String) -> String:
     return str(COMPLAINT.get(id, ""))
+
+
+# D131: faults the customer finds at pickup = the recorded cooler-mount faults, plus a GPU that was
+# touched (removed or replaced) and left unscrewed. `gpu_turns` is the job's gpu_screws (2 = tight).
+static func pickup_faults(recorded: Array, gpu_fitted: bool, gpu_turns: int) -> Array:
+    var faults: Array = sanitize(recorded)
+    faults.erase(GPU_LOOSE)
+    if gpu_fitted and gpu_turns < GPU_SCREW_COUNT:
+        faults.append(GPU_LOOSE)
+    return faults
+
+
+# The GPU's two bracket screws, drawn big enough to click, on the board row just below its slot.
+static func gpu_screw_centers(slot: Rect2, cell: float) -> Array:
+    var y: float = slot.end.y + cell * 0.55
+    return [Vector2(slot.position.x + cell * 1.0, y), Vector2(slot.position.x + cell * 2.6, y)]
+
+
+static func gpu_screw_radius(cell: float) -> float:
+    return minf(SCREW_RADIUS, cell * 0.42)
+
+
+# Index (0 or 1) of the GPU screw under `point`, or -1.
+static func gpu_screw_at(slot: Rect2, cell: float, point: Vector2) -> int:
+    var centers: Array = gpu_screw_centers(slot, cell)
+    for i in range(centers.size()):
+        if (centers[i] as Vector2).distance_to(point) <= gpu_screw_radius(cell) + 3.0:
+            return i
+    return -1
 
 
 # Screw centres for a socket area `region`: its four corners, pulled in by SCREW_INSET.

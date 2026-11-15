@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.39.0 - 2026-11-15 - Hardware bench shows the ticket's PC, screwdriver, Shop
+
+- Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5) in a chat session
+- Based on: 0.38.0
+- Type: minor (new tool, new activity, hardware bench rebuilt on the job record; job gains optional `gpu_screws`)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 43726318789 passed all required suites (17, incl. new Hardware ticket PC) on Godot 4.7.2 headless. No interactive playtest is claimed, so how the screwdriver and the hardware bench FEEL is unverified.
+
+### Added / Changed / Fixed / Removed
+- Changed (D131): the hardware bench is a projection of the ticket's PC (`customer_pc.gd`): CPU, RAM, GPU, cooler. Removed or broken parts are in the drawer; every move writes back to the job. CPU/RAM are fixed for now; shop stock can only replace a broken, removed GPU or cooler.
+- Added: a screwdriver tool. Cooler screws now come after the press and before the lever, with a steps line; GPU bracket screws are tightened at the hardware bench; loose GPU screws are a hidden pickup fault (`gpu_loose`).
+- Added: the Shop, the third Activities button; all tool upgrades moved there from the workshop hub.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/customer_pc.gd`, `scripts/data/upgrades.gd`, `scripts/night/shop_activity_view.gd`, `scenes/night_shop.tscn`, `tools/test_hardware_ticket_pc.gd` | A | New |
+| `scripts/night/hardware_view.gd`, `scripts/view/workshop_view.gd`, `scripts/view/bench_view.gd`, `scripts/view/tool_renderer.gd`, `scripts/view/paste_renderer.gd`, `scripts/bench/tool_rig.gd`, `scripts/data/ids.gd`, `scripts/rules/install_faults.gd`, `scripts/state/game_state.gd`, `scripts/night/activities_view.gd`, `scripts/night/workshop_hub.gd` | M | See above |
+| `tools/test_install_technique.gd`, `tools/test_night_workshop.gd`, `.github/workflows/tests.yml` | M | Screwdriver flow, shop, suite registration |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/INSTALL_TECHNIQUE.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI run 43726318789: all required suites green.
+
+### Decisions proposed (not approved)
+D131 was requested by the user; its numbers (none new) need no approval.
+
+### Known issues and open items
+CPU/RAM locked in the hardware bench; repair-bench GPU refit needs no screws; cooler screws only at the repair bench; not playtested.
+
+### Next action
+Playtest, then user feedback.
+
 ## 0.38.0 - 2026-11-15 - Cooler install technique: the film, the screws and delayed discovery
 
 - Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5)

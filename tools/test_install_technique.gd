@@ -1,6 +1,7 @@
 extends "res://tools/test_support.gd"
 # D130: the cooler install technique. Film and screw mistakes are recorded at the lever, stay
 # invisible to the shop's own final check, and cost the customer's pickup score.
+const Ids = preload("res://scripts/data/ids.gd")
 const Faults = preload("res://scripts/rules/install_faults.gd")
 const Pickup = preload("res://scripts/rules/pickup_score.gd")
 const Customers = preload("res://scripts/data/customers.gd")
@@ -8,7 +9,16 @@ const DustZones = preload("res://scripts/data/dust_zones.gd")
 
 func _initialize() -> void: call_deferred("run_checks")
 
+func take_screwdriver(bench: Node) -> void:
+    # D131: the press must finish first, then the screwdriver is right-clicked on the bench.
+    bench.mount.time_left = 0.0
+    if bench.tools.equipped: bench._park_tool()
+    var at: Vector2 = bench.tools.motions[Ids.SCREWDRIVER].center
+    click(bench, MOUSE_BUTTON_RIGHT, true, at)
+    click(bench, MOUSE_BUTTON_RIGHT, false, at)
+
 func lock_with(bench: Node, order: Array) -> void:
+    take_screwdriver(bench)
     var centers: Array = Faults.screw_centers(bench._socket_region())
     for screw: int in order:
         click(bench, MOUSE_BUTTON_LEFT, true, centers[screw])
@@ -84,6 +94,10 @@ func run_checks() -> void:
     # Bench flow, with real clicks.
     var bench: Node = mounted_bench(gs, true)
     check(bool(gs.job["cooler_film_peeled"]) and bench.film_button.disabled, "peeling the film is recorded once")
+    var early: Vector2 = Faults.screw_centers(bench._socket_region())[0]
+    click(bench, MOUSE_BUTTON_LEFT, true, early)
+    click(bench, MOUSE_BUTTON_LEFT, false, early)
+    check(gs.job["install_faults"].is_empty() and not bench.tools.equipped, "screws cannot be touched without the screwdriver in hand")
     lock_with(bench, good)
     check(gs.job["install_faults"].is_empty() and str(gs.job["paste_grade"]) != "", "film off and cross-pattern screws lock with no fault")
     bench.queue_free()

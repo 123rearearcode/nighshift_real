@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.38.0)
+# Nightshift - Godot Foundation Trial (v0.39.0)
+
+New in 0.39.0: **the hardware bench now shows the PC of the ticket you are working on** (its CPU, RAM, GPU
+and cooler; anything you removed or broke at the repair bench is in the drawer, and what you move there
+is what the repair bench sees). A new **screwdriver** is needed for every screw: at the repair bench
+the four cooler screws come AFTER the press has finished and BEFORE the lever; at the hardware bench the
+GPU's two bracket screws are tightened with the screwdriver from the tray. Skipped GPU screws are a hidden
+pickup fault. The third Activities button is now the **Shop**, where all tool upgrades are sold.
 
 New in 0.38.0: **installing the cooler now has technique.** On the Thermal service tab the "Cooler base"
 button peels the clear plastic film off the cooler's contact plate (people forget it). While the
