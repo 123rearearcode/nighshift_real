@@ -25,7 +25,14 @@ Cloth picking now follows its actual skewed, rotated fabric inset one world pixe
 reach is 35 rather than 36 world pixels (4.375 instead of 4.5 paste cells); square cloth behavior
 and wipe strength are unchanged. Cloth art is not redesigned.
 
-## What remains
+## 0.40.0 - anti-virus and overclocker (D132)
+The two "later" buttons are now apps. Anti-virus: Scan / Remove threat (`malware.gd`); the second demo PC
+arrives with adware, hinted in the complaint. Overclocker: multiplier and voltage steps, Quick stress and
+Long stress ($2) (`overclock.gd`). Heat from the overclock is visible in every check; instability is not.
+Both feed hidden pickup faults. All numbers are trial proposals awaiting the user's playtest.
+Still not built: customer-specific infection generation beyond the demo ticket; overclocking the GPU.
+
+## What remains (historical, 0.35.0)
 
 Anti-virus and overclocker are visible, clearly marked upcoming. Clicking them explains that no
 scan/tuning has run. Their exact infection, cure, stability/heat and risk rules need a separate

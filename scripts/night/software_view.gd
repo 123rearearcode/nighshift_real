@@ -4,11 +4,23 @@ const Checks = preload("res://scripts/rules/software_checks.gd")
 const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
 const Games = preload("res://scripts/data/games.gd")
 const Parts = preload("res://scripts/rules/part_states.gd")
+const Malware = preload("res://scripts/rules/malware.gd")
+const Overclock = preload("res://scripts/rules/overclock.gd")
 var power_button: Button
 var boot_button: Button
 var thermal_button: Button
 var buy_button: Button
 var run_button: Button
+var scan_button: Button
+var remove_button: Button
+var mult_down: Button
+var mult_up: Button
+var volt_down: Button
+var volt_up: Button
+var quick_button: Button
+var long_button: Button
+var oc_label: Label
+var threat_found: bool = false
 var output: Label
 var status_label: Label
 var cash_label: Label
@@ -24,15 +36,23 @@ func _ready() -> void:
     _button("Workshop",Rect2(920,20,168,42),"res://scenes/night_workshop.tscn")
     Navigation.attach(self,_go.bind(Navigation.ACTIVITIES))
     status_label = _label("",Vector2(64,112),Vector2(810,36),20)
-    boot_button = _app("Boot check",Rect2(64,162,185,46),_boot)
-    thermal_button = _app("Final / thermal check",Rect2(261,162,240,46),_thermal)
-    _app("Anti-virus · later",Rect2(513,162,175,46),_future.bind("Anti-virus"))
-    _app("Overclocker · later",Rect2(700,162,178,46),_future.bind("Overclocker"))
+    boot_button = _app("Boot check",Rect2(64,162,150,46),_boot)
+    thermal_button = _app("Final / thermal check",Rect2(226,162,200,46),_thermal)
+    scan_button = _app("Anti-virus · scan",Rect2(438,162,210,46),_scan)
+    remove_button = _app("Remove threat",Rect2(660,162,218,46),_remove)
     buy_button = _app("",Rect2(64,225,390,46),_buy)
     run_button = _app("Run Counter Stroke 2",Rect2(466,225,412,46),_game)
+    # D132: the overclocker. Heat is visible in every check; instability only shows in a stress test (or at pickup).
+    mult_down = _app("Multiplier −",Rect2(64,285,130,40),_oc_step.bind(-1,0))
+    mult_up = _app("Multiplier +",Rect2(202,285,130,40),_oc_step.bind(1,0))
+    volt_down = _app("Voltage −",Rect2(340,285,110,40),_oc_step.bind(0,-1))
+    volt_up = _app("Voltage +",Rect2(458,285,110,40),_oc_step.bind(0,1))
+    quick_button = _app("Quick stress",Rect2(578,285,130,40),_stress.bind(false))
+    long_button = _app("Long stress · $%d"%Overclock.LONG_TEST_COST,Rect2(716,285,162,40),_stress.bind(true))
+    oc_label = _label("",Vector2(64,332),Vector2(814,30),18)
     report_scroll = ScrollContainer.new()
-    report_scroll.position = Vector2(64,298)
-    report_scroll.size = Vector2(814,292)
+    report_scroll.position = Vector2(64,368)
+    report_scroll.size = Vector2(814,222)
     report_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     add_child(report_scroll)
     output = Label.new()
@@ -90,6 +110,10 @@ func _refresh() -> void:
     buy_button.disabled = not ready_for_work or not _powered() or owned or GameState.money < int(game["price"])
     run_button.disabled = not ready_for_work or not _powered() or not owned
     cash_label.text = "Shop cash: $%d"%GameState.money
+    var oc: Dictionary = Overclock.settings(GameState.job)
+    oc_label.text = "Overclocker · CPU multiplier +%d / %d · voltage %d / %d · +%.0f°C · CPU power x%.2f"%[oc["mult"],Overclock.MAX_MULT,oc["volt"],Overclock.MAX_VOLT,Overclock.heat(GameState.job),Overclock.cpu_factor(GameState.job)]
+    remove_button.disabled = remove_button.disabled or not threat_found or not Malware.infected(GameState.job)
+    long_button.disabled = long_button.disabled or GameState.money < Overclock.LONG_TEST_COST
     queue_redraw()
 
 func _show(text: String) -> void:
@@ -135,8 +159,44 @@ func _game() -> void:
     var result: Dictionary = Checks.game_test(GameState.job,GameState.owned_games,"counter_stroke_2",report["temp"])
     _show(result["message"])
 
-func _future(app: String) -> void:
-    if _guard(): _show(app+" is a later Wave 2 slice. No scan or tuning has run; this button does not change the PC.")
+# D132: anti-virus. Scanning is always accurate; the remove button only exists after a scan found something.
+func _scan() -> void:
+    if not _guard(): return
+    var report: Dictionary = Checks.antivirus(GameState.job)
+    threat_found = bool(report.get("found",false))
+    _refresh()
+    _show(str(report["message"]))
+
+func _remove() -> void:
+    if not _guard() or not threat_found: return
+    var removed: bool = GameState.clean_infection()
+    threat_found = false
+    var saved: bool = NightSession.checkpoint(GameState) if removed else true
+    _refresh()
+    _show(("Threat removed. Run the scan again to confirm." if removed else "Nothing to remove.")+("\n"+NightSession.status if not saved else ""))
+
+# D132: overclocker settings. Changing them re-saves the job; the PC is not rebooted by the monitor.
+func _oc_step(mult_delta: int,volt_delta: int) -> void:
+    if not _guard(): return
+    var current: Dictionary = Overclock.settings(GameState.job)
+    GameState.set_overclock(int(current["mult"])+mult_delta,int(current["volt"])+volt_delta)
+    var saved: bool = NightSession.checkpoint(GameState)
+    _refresh()
+    _show("Settings changed. Run a stress test, then check the heat. A quick test cannot prove stability."+("\n"+NightSession.status if not saved else ""))
+
+func _stress(long_test: bool) -> void:
+    if not _guard(): return
+    var report: Dictionary = Diagnostics.evaluate(GameState.job,GameState.owned_games)
+    var charged: bool = false
+    if long_test and int(Overclock.settings(GameState.job)["mult"]) > 0 and Checks.boot(GameState.job)["ok"]:
+        if not GameState.charge_long_stress():
+            _show("Not enough shop cash for the long test ($%d)."%Overclock.LONG_TEST_COST)
+            return
+        charged = true
+    var result: Dictionary = Checks.stress(GameState.job,report["temp"],long_test)
+    if charged: NightSession.checkpoint(GameState)
+    _refresh()
+    _show(str(result["message"])+("\nElectricity: $%d."%Overclock.LONG_TEST_COST if charged else ""))
 
 func _draw() -> void:
     super._draw()

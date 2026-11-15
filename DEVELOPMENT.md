@@ -177,6 +177,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
 | `scenes/night_shop.tscn` | scene | Shop activity scene |
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
+| `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
+| `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |
 | `scripts/rules/install_faults.gd` | rules | Hidden cooler-install mistakes (film, screw pattern), their heat and complaint, screw geometry (D130) |
 | `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
 | `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |

@@ -18,6 +18,8 @@ const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 const Software = preload("res://scripts/rules/software_checks.gd")
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
+const Malware = preload("res://scripts/rules/malware.gd")
+const Overclock = preload("res://scripts/rules/overclock.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -108,6 +110,8 @@ func _make_job() -> Dictionary:
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
+        "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
+        "overclock": {"mult": 0, "volt": 0},   # D132: CPU overclock steps (overclock.gd); heat is visible, instability is felt at pickup
         "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
         "paste_material": "thermal",   # what is under the cooler: canonical PasteMaterials ID
         "scams": [],              # what the customer was cheated on in this job (e.g. "toothpaste"); consequences not simulated yet
@@ -324,8 +328,37 @@ func set_service_part_fitted(part_id: String, fitted: bool) -> bool:
 
 
 # D131: what the customer finds at pickup: recorded cooler-mount faults plus an unscrewed GPU.
-func pickup_faults() -> Array:
-    return InstallFaults.pickup_faults(job.get("install_faults", []), not Ids.GPU in job["removed_parts"], int(job.get("gpu_screws", 2)))
+func pickup_faults(temp: float = -1.0) -> Array:
+    var at: float = float(job.get("temp", 0.0)) if temp < 0.0 else temp
+    var faults: Array = InstallFaults.pickup_faults(job.get("install_faults", []), not Ids.GPU in job["removed_parts"], int(job.get("gpu_screws", 2)))
+    faults.append_array(Malware.pickup_faults(job))      # D132
+    faults.append_array(Overclock.pickup_faults(job, at))
+    return faults
+
+
+# D132: remove the infection the anti-virus found. Returns false when there is nothing to remove.
+func clean_infection() -> bool:
+    if job["state"] == "done" or not Malware.infected(job):
+        return false
+    job["infection"] = ""
+    save_game()
+    return true
+
+
+# D132: the overclocker's two settings, clamped to their ranges.
+func set_overclock(mult: int, volt: int) -> bool:
+    if job["state"] == "done": return false
+    job["overclock"] = Overclock.sanitize({"mult": mult, "volt": volt})
+    save_game()
+    return true
+
+
+# D132: the long stress test costs a little shop cash (electricity).
+func charge_long_stress() -> bool:
+    if money < Overclock.LONG_TEST_COST: return false
+    money -= Overclock.LONG_TEST_COST
+    save_game()
+    return true
 
 
 func peel_cooler_film() -> void:
@@ -409,6 +442,10 @@ func run_final_check() -> Dictionary:
     # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     notes.append_array(PartStates.problem_lines(job))
+    var oc_heat: float = Overclock.heat(job)   # D132: overclock heat is visible to the shop's own check
+    if oc_heat > 0.0:
+        temp += oc_heat
+        notes.append("Overclock adds %d C." % roundi(oc_heat))
     for id: String in job["service_replacements"]:
         var replacement: Dictionary = ServiceParts.option(id, str(job["service_replacements"][id]))
         temp += float(replacement["heat_penalty"])
@@ -573,6 +610,8 @@ func load_game() -> bool:
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
     job["pc_powered"] = bool(job.get("pc_powered", false))
+    job["infection"] = Malware.sanitize(job.get("infection", ""))
+    job["overclock"] = Overclock.sanitize(job.get("overclock", {}))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
     if job["scams"] is Array:
@@ -675,7 +714,7 @@ func _record_pickup(temp: float) -> Dictionary:
     var who: Dictionary = customer_view(str(job.get("customer_id", "")))
     if who.is_empty(): return {}
     var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
-    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]), float(specs["ram_gb"]), PASS_TEMP, pickup_faults())
+    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]) * Overclock.cpu_factor(job), float(specs["ram_gb"]), PASS_TEMP, pickup_faults(temp))
     var days: int = PickupScore.comeback_days(int(result["score"]))
     var trust: int = clampi(int(who["trust"]) + trust_step(int(result["score"])), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)

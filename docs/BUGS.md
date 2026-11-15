@@ -81,6 +81,17 @@ answer: UI lifecycle tests should exercise signal dispatch, with stable controls
 
 ## Reviews (newest first)
 
+### 0.40.0 - structural checkpoint (short, by Claude)
+Read at the checkpoint, not a full audit. RC-1 (two PC models) is structurally closed from 0.39.0: the
+hardware bench and the repair bench both read the ticket's job record (`customer_pc.gd`). New hidden-fault
+sources (install faults, infection, overclock) all follow one pattern: a pure rule with heat / annoyance /
+complaint tables, summed by `pickup_score.gd` and composed in `GameState.pickup_faults`. Risks I see:
+(1) `bench_view.gd` is now about 1500 lines: the cooler-install ritual, tool hand-state and mounting all
+live in it; splitting the install ritual into its own helper is the next structural step before more rituals
+(RAM, CPU) are added. (2) The pickup-fault composition is a growing list in `game_state.gd`; a fourth source
+should move it into one rule script. (3) Nothing from 0.38-0.40 has been playtested by the user. No new
+bug-register entries; B-ids unchanged.
+
 ### 0.32.0 - integration review (the 0.30.0 checkpoint, completed)
 
 Claude (Sonnet 5.5, model id claude-sonnet-5-5), 15 November 2026, after merging PRs #35, #36 and #38.

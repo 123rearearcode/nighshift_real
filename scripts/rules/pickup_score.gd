@@ -8,6 +8,8 @@ extends RefCounted
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const Games = preload("res://scripts/data/games.gd")
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
+const Malware = preload("res://scripts/rules/malware.gd")
+const Overclock = preload("res://scripts/rules/overclock.gd")
 
 const COOL_TEMP: float = 55.0         # at or under this the temperature part is perfect
 const TEMP_WEIGHT: float = 25.0       # how many points the temperature part is worth
@@ -23,10 +25,10 @@ const HAPPY_FROM: int = 70            # at or above this the customer leaves hap
 static func score(customer: Dictionary, shop_temp: float, gpu_power: float, cpu_power: float, ram_gb: float, pass_limit: float, faults: Array = []) -> Dictionary:
     var points: float = 100.0
     var misses: Array = []
-    var temp: float = shop_temp + InstallFaults.heat(faults)
-    points -= InstallFaults.annoyance(faults)
+    var temp: float = shop_temp + InstallFaults.heat(faults) + Malware.heat(faults)
+    points -= InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults)
     for id: Variant in faults:
-        var text: String = InstallFaults.complaint(str(id))
+        var text: String = InstallFaults.complaint(str(id)) + Malware.complaint(str(id)) + Overclock.complaint(str(id))
         if text != "":
             misses.append(text)
     # Temperature: full marks when cool, scaling off toward the pass limit.

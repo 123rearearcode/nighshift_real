@@ -8,6 +8,8 @@ const PartStates = preload("res://scripts/rules/part_states.gd")
 const Games = preload("res://scripts/data/games.gd")
 const Software = preload("res://scripts/rules/software_checks.gd")
 const Frames = preload("res://scripts/rules/fps_sim.gd")
+const Malware = preload("res://scripts/rules/malware.gd")
+const Overclock = preload("res://scripts/rules/overclock.gd")
 
 static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     var temp: float = Legacy.BASE_TEMP
@@ -36,11 +38,18 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
         temp += float(replacement.get("heat_penalty",0))
         if id == "gpu": gpu = float(replacement.get("performance",100))
         if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
+    var oc_heat: float = Overclock.heat(job)
+    if oc_heat > 0.0:
+        temp += oc_heat
+        notes.append("Overclock: +%.0f°C from the CPU settings." % oc_heat)
+    if Malware.live_heat(job) > 0.0:
+        temp += Malware.live_heat(job)
+        notes.append("The CPU is busy even though nothing should be running.")
     var boot: Dictionary = Software.boot(job)
     var boots: bool = boot["ok"]
     notes.push_front(boot["message"])
     var specs: Dictionary = job.get("pc_specs",{})
     for id: String in owned_games:
         var game: Dictionary = Games.game(id)
-        if boots and not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)),float(specs.get("ram_gb",8)),game,temp)])
+        if boots and not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)) * Overclock.cpu_factor(job) * Malware.cpu_share(job),float(specs.get("ram_gb",8)),game,temp)])
     return {"temp":temp,"boots":boots,"passed":boots and temp<Legacy.PASS_TEMP,"notes":notes}
