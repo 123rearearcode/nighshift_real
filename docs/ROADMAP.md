@@ -331,3 +331,16 @@ $3/0°C and toothpaste free/+14°C. Both thermal reports and saved/per-PC physic
 The reel is inside the vacuum bin: RETRACT on the bin replaces the separate spool. It does not
 empty the bin; hose stays shortened until pulled. No new campaign system or save-shape change.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+## After 0.41.0 — closing the repair loop (design recorded, not built)
+
+Agreed direction with the user on 16 November 2026 (D134 to D139, docs/REPAIR_LOOP_DESIGN.md):
+1. Pickup: right-click a PC to mark it ready (sticker) or call the customer, who collects next morning.
+2. The night ends; a morning report shows collections, pay, trust and the state of the PCs.
+3. Tickets become generated objects (repair and build requests) with events applied for variety.
+4. Diagnosis: symptoms instead of stated faults, observations logged on the ticket, puzzles that are always
+   solvable with graded difficulty.
+Still to discuss before coding: build requests, the ticket object list, what surfaces at pickup versus
+later, upgrades. The user said no coding yet.
+Signed: Claude (Fable 5.2, model id claude-fable-5-2), 16 November 2026.
+
