@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new player actions; job gains optional `ticket`; old saves load as open)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions run 43958975963: all 21 required suites green, including the new Tickets and pickup suite (30 checks, with native right-clicks in the room and on the ticket). Two earlier runs caught a crash in the ticket rule (B34). No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Added (D134/D135): `ticket.gd`, a ticket as one record derived from the job (request, customer, machine, symptoms, requirements, terms, status), with the pickup flags stored in `job["ticket"]`.
