@@ -14,6 +14,11 @@ var store := Store.new()
 var motion := Motion.new()
 var waiting_page: int = 0
 var pointer := Vector2.ZERO
+var arranging: bool = false
+var arrange_toggle: Button
+var retry_save: Button
+var saved_label: Label
+var layout_saved: bool = false
 var selected_unit: String = ""
 var grab := Vector2(0.5,0.5)
 var held_furniture: String = ""
@@ -36,16 +41,17 @@ func _ready() -> void:
     if not GameState.job.get("hardware_trial",{}).get("night_session",{}).is_empty(): NightSession.ensure(GameState)
     model.setup(Sources.collect(GameState),store.read())
     selected_unit = model.units[0]["id"]
-    _label("STORAGE / YOUR WORKSHOP",Vector2(24,18),Vector2(940,40),28)
+    _label("WORKSHOP ROOM",Vector2(172,24),Vector2(800,36),26)
+    Navigation.back(self,"Activities",Navigation.ACTIVITIES)
     summary = _label("",Vector2(24,62),Vector2(946,32),16)
     Navigation.attach(self,_leave)
     _label("v%s · room storage"%GameState.game_version(),Vector2(1008,72),Vector2(244,24),13)
-    edit_buttons.append(_button("+ Add furniture",Rect2(24,108,174,36),_open_add))
-    edit_buttons.append(_button("Remove empty",Rect2(210,108,160,36),_remove_unit))
-    _button("Fit furniture",Rect2(382,108,150,36),_fit_used)
-    _button("Entire room",Rect2(544,108,144,36),_fit_room)
-    _button("−",Rect2(700,108,44,36),func() -> void: _zoom_at(zoom/1.25,ROOM_VIEW.get_center()))
-    _button("+",Rect2(756,108,44,36),func() -> void: _zoom_at(zoom*1.25,ROOM_VIEW.get_center()))
+    arrange_toggle = _button("Arrange room",Rect2(24,108,174,36),func() -> void: _set_arranging(not arranging))
+    arrange_toggle.toggle_mode = true
+    _button("Fit furniture",Rect2(210,108,150,36),_fit_used)
+    _button("Entire room",Rect2(372,108,144,36),_fit_room)
+    _button("−",Rect2(528,108,44,36),func() -> void: _zoom_at(zoom/1.25,ROOM_VIEW.get_center()))
+    _button("+",Rect2(584,108,44,36),func() -> void: _zoom_at(zoom*1.25,ROOM_VIEW.get_center()))
     _label("ROOM · 4 × 2 bays",Vector2(812,112),Vector2(158,28),14)
     room_clip = Control.new()
     room_clip.position = ROOM_VIEW.position
@@ -58,7 +64,7 @@ func _ready() -> void:
     room_clip.add_child(canvas)
     _label("WORKSHOP SLOT",Vector2(1010,120),Vector2(242,26),17)
     workshop_label = _label("",Vector2(1020,160),Vector2(222,106),15)
-    workshop_button = _button("Open workshop",Rect2(1010,286,242,34),_open_workshop)
+    workshop_button = _button("Resume work",Rect2(1010,286,242,34),_open_workshop)
     _label("DETAILS",Vector2(1010,326),Vector2(242,24),15)
     var scroll := ScrollContainer.new()
     scroll.position = Vector2(1010,354)
@@ -70,11 +76,13 @@ func _ready() -> void:
     info.custom_minimum_size = Vector2(220,0)
     info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     info.add_theme_font_size_override("font_size",15)
-    info.text = "Drag parts to shelves. R / E rotates, Q turns back.\n\nWheel zooms; middle-drag pans. Drag a furniture title bar to an empty bay.\n\nFit furniture shows every owned unit; Entire room shows all eight bays."
+    info.text = "Drag parts to shelves. R / E rotates, Q turns back.\n\nWheel zooms; middle-drag pans. Choose Arrange room to move furniture titles into empty bays.\n\nFit furniture shows every owned unit; Entire room shows all eight bays."
     scroll.add_child(info)
-    edit_buttons.append(_button("Arrange shelves",Rect2(1010,450,242,38),_arrange))
-    _button("Refresh contents",Rect2(1010,496,242,38),_refresh)
-    edit_buttons.append(_button("Save layout",Rect2(1010,542,242,38),_save))
+    edit_buttons.append(_button("+ Add furniture",Rect2(1010,450,242,38),_open_add))
+    edit_buttons.append(_button("Remove empty",Rect2(1010,496,242,38),_remove_unit))
+    edit_buttons.append(_button("Auto-pack shelves",Rect2(1010,542,242,38),_arrange))
+    saved_label = _label("Changes save automatically",Vector2(1010,450),Vector2(242,66),15)
+    retry_save = _button("Retry saving layout",Rect2(1010,542,242,38),_save)
     _label("WAITING FOR SPACE",Vector2(24,592),Vector2(400,26),15)
     _button("‹",Rect2(1150,588,45,30),func() -> void: _waiting_turn(-1))
     _button("›",Rect2(1203,588,45,30),func() -> void: _waiting_turn(1))
@@ -128,7 +136,7 @@ func _make_add_dialog() -> void:
         choice_buttons.append(button)
 
 func _open_add() -> void:
-    if store.read_only: return
+    if store.read_only or not arranging: return
     _cancel()
     var full: bool = model.free_room_cell() == Vector2i(-1,-1)
     for button: Button in choice_buttons: button.disabled = full
@@ -142,11 +150,20 @@ func _sync_ui() -> void:
     var counts := {"pc":0,"tool":0,"part":0}
     for item: Dictionary in model.items.values(): counts[item["category"]] += 1
     summary.text = "%d PC · %d tools · %d parts   |   Room %d / 8 bays   |   %d waiting for space"%[counts.pc,counts.tool,counts.part,model.units.size(),model.overflow().size()]
-    status.text = store.status if store.status != "" else "Drag furniture by its title bar · wheel zooms · middle-drag pans · invalid drops return safely · furniture is free for now"
-    for button: Button in edit_buttons: button.disabled = store.read_only
+    status.text = store.status if store.status != "" else ("Arrange room: drag titles into empty bays; furniture is free in this trial." if arranging else "Drag a PC into the workshop slot, or arrange your inventory. Wheel zooms; middle-drag pans.")
+    var failed: bool = store.status.contains("not saved") and not store.read_only
+    for button: Button in edit_buttons:
+        button.disabled = store.read_only
+        button.visible = arranging and not (failed and button.text == "Auto-pack shelves")
+    arrange_toggle.disabled = store.read_only
+    arrange_toggle.set_pressed_no_signal(arranging)
+    arrange_toggle.text = "Done arranging" if arranging else "Arrange room"
+    retry_save.visible = failed
+    saved_label.visible = not arranging
+    saved_label.text = "Layout saved" if layout_saved else "Changes save automatically"
     var active: String = _workshop_uid()
     workshop_label.text = "Drop a PC here to choose it.\n\n"+("On bench: "+model.items[active]["model"] if active != "" else "No customer PC available")
-    workshop_button.disabled = store.read_only or NightSession.read_only or active == ""
+    workshop_button.disabled = arranging or store.read_only or NightSession.read_only or active == ""
     _redraw()
 
 # A shelf allocation stays reserved while the same physical PC is on the workbench.
@@ -157,7 +174,10 @@ func _workshop_uid() -> String:
     return ""
 
 func _choose_workshop_pc(uid: String) -> bool:
-    if store.read_only or workshop_pending: return false
+    if store.read_only or workshop_pending or arranging: return false
+    if store.status.contains("not saved"):
+        status.text = "Layout not saved. Retry saving layout before leaving the room."
+        return false
     var canonical: Dictionary = Sources.collect(GameState).get(uid,{})
     if canonical.get("category","") != "pc":
         status.text = "The workshop slot accepts a whole customer PC, not a part or tool."
@@ -182,10 +202,16 @@ func _queue_workshop() -> void:
     call_deferred("_enter_workshop")
 
 func _enter_workshop() -> void:
-    if is_inside_tree(): get_tree().change_scene_to_file("res://scenes/night_workshop.tscn")
+    if is_inside_tree(): Navigation.commit(self,Navigation.Memory.workbench_path(GameState))
+
+func _set_arranging(enabled: bool) -> void:
+    _cancel()
+    add_dialog.hide()
+    arranging = enabled and not store.read_only
+    _sync_ui()
 
 func _save() -> void:
-    store.write(model)
+    layout_saved = store.write(model)
     _sync_ui()
 func _refresh() -> void:
     _cancel()
@@ -193,7 +219,7 @@ func _refresh() -> void:
     if model.unit(selected_unit).is_empty(): selected_unit = model.units[0]["id"]
     _sync_ui()
 func _add_unit(kind: String) -> void:
-    if store.read_only: return
+    if store.read_only or not arranging: return
     _cancel()
     var id: String = model.add_unit(kind)
     add_dialog.hide()
@@ -205,7 +231,7 @@ func _add_unit(kind: String) -> void:
     _fit_used()
     _save()
 func _remove_unit() -> void:
-    if store.read_only: return
+    if store.read_only or not arranging: return
     _cancel()
     if model.remove_unit(selected_unit):
         selected_unit = model.units[0]["id"]
@@ -213,13 +239,21 @@ func _remove_unit() -> void:
         _save()
     else: status.text = "Click an empty furniture title bar first. Occupied units and the last unit cannot be removed."
 func _arrange() -> void:
-    if store.read_only: return
+    if store.read_only or not arranging: return
     _cancel()
     model.arrange()
     _save()
 func _leave() -> void:
+    _navigate(Navigation.ACTIVITIES)
+func _navigate(path: String) -> bool:
     _cancel()
-    get_tree().change_scene_to_file("res://scenes/activities.tscn")
+    if store.status.contains("not saved") and not store.read_only:
+        status.text = "Layout not saved. Retry saving layout before leaving the room."
+        return false
+    if not NightSession.checkpoint(GameState):
+        status.text = NightSession.status
+        return false
+    return Navigation.commit(self,path)
 func _cancel() -> void:
     model.cancel()
     held_furniture = ""
@@ -329,7 +363,7 @@ func _input(event: InputEvent) -> void:
             _zoom_at(zoom*(1.15 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1/1.15),pointer)
         elif event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed and not store.read_only:
-                if ROOM_VIEW.has_point(pointer) and model.held == "":
+                if arranging and ROOM_VIEW.has_point(pointer) and model.held == "":
                     for i in range(model.units.size()):
                         if header_rect(i).has_point(pointer):
                             selected_unit = model.units[i]["id"]

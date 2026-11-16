@@ -409,3 +409,25 @@ D140 (user, design only, 16 November 2026): build requests. Customers bring a bu
 
 D141 (user approved, 16 November 2026): Wave 3 plan of coding sessions 3.0 to 3.8 (3.0 shipped as 0.41.2; 3.1 to 3.8 are 0.43.0 to 0.50.0; 0.42.0 belongs to the parallel menu-navigation PR #46), one playtestable release each, in docs/WORK_PLAN.md. 3.0 is a code clean-up with no visible change.
 
+D142 to D144 below were written as D134 to D136 in PR #46 (Codex, menu navigation) in parallel with the repair-loop D134 to D141 already on main; renumbered at integration by Claude (Opus 5.5, model id claude-opus-5-5), 16 November 2026.
+
+### D142 — Menu roles and direct workbench (user approved, 16 November 2026 / 0.42.0)
+The user approved the menu-path proposal: title starts/resumes; Activities chooses tonight's activity;
+room manages inventory and chooses a PC. Slot opens workbench directly, with Repair/Hardware/Monitor
+views of the same PC and Cleaning/Thermal secondary tabs. No intermediate service chooser. Named
+parent at top-left, PC identity central, Activities top-right. Since D131 now connects hardware,
+Hardware is a real customer-PC tab; only an actual sandbox would need a shop-stock label.
+
+### D143 — Room editing mode and autosave (same approval / 0.42.0)
+Normal handling versus Arrange room. Add/remove/move furniture and packing controls live in Arrange;
+camera remains available. Replace routine save/refresh controls with automatic reconciliation,
+autosave status and a failure-only retry. Do not silently leave unsaved layouts behind.
+
+### D144 — Pause and Continue (same approval / 0.42.0)
+Title uses Continue for the existing single save. Resume last valid activity/selected PC/view; new
+runs ignore old UI preferences. Title exit belongs in Pause with Resume/Settings; it is distinct
+from Activities. F10 toggles Pause without stealing existing Escape hand cancellation; Escape closes
+pause/settings. SceneTree/timed tests really pause. Guard work/custody/save boundaries on every route.
+The implementation uses a separate, validated run-bound UI preference file, not a second PC save.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 16 November 2026.

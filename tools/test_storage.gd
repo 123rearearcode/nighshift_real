@@ -134,6 +134,7 @@ func run_checks() -> void:
     click(view,MOUSE_BUTTON_LEFT,true,origin.get_center())
     view._cancel()
     check(view.model.held == "" and view.model.snapshot() == before,"focus-loss cancellation preserves committed placement")
+    view._set_arranging(true)
     view._add_unit("rack")
     check(view.model.units.size() == 2,"view expansion adds real furniture")
     origin = view.item_rect(uid)
@@ -194,8 +195,7 @@ func toolbar(view: Node,label: String) -> Button:
 func test_room_gui(view: Node) -> void:
     check(not "furniture_buttons" in view and not "page" in view,"room has no per-rack selectors or paged furniture state")
     var persistent_ids: Array = view.get_children().map(func(n: Node) -> int: return n.get_instance_id())
-    await native_click(toolbar(view,"Arrange shelves"))
-    await native_click(toolbar(view,"Save layout"))
+    await native_click(toolbar(view,"Auto-pack shelves"))
     await native_click(toolbar(view,"+ Add furniture"))
     check(view.add_dialog.visible and view.choice_buttons.size() == 3,"real sort/save/add clicks open all three furniture choices")
     var separated: bool = true
@@ -254,9 +254,7 @@ func test_room_gui(view: Node) -> void:
     check(view.model.units.size() == 8,"new furniture reuses the free room bay after removal")
     var control_ids: Array = view.get_children().map(func(n: Node) -> int: return n.get_instance_id())
     for round_index in range(5):
-        await native_click(toolbar(view,"Arrange shelves"))
-        await native_click(toolbar(view,"Save layout"))
-        await native_click(toolbar(view,"Refresh contents"))
+        await native_click(toolbar(view,"Auto-pack shelves"))
         for i in range(view.model.units.size()):
             var at: Vector2 = view.header_rect(i).get_center()
             click(view,MOUSE_BUTTON_LEFT,true,at)

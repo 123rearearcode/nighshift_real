@@ -45,9 +45,7 @@ func _ready() -> void:
     ready_for_work = NightSession.ensure(GameState) and not NightSession.read_only
     var marker: Dictionary = GameState.job.get("hardware_trial",{}).get("night_session",{})
     ready_for_work = ready_for_work and str(marker.get("pc","")) != ""
-    _label("DIAGNOSTIC MONITOR / %s"%GameState.job["id"],Vector2(32,22),Vector2(850,45),28)
-    _button("Workshop",Rect2(920,20,168,42),"res://scenes/night_workshop.tscn")
-    Navigation.attach(self,_go.bind(Navigation.ACTIVITIES))
+    Navigation.workbench(self,"monitor",_go.bind(Navigation.ACTIVITIES))
     status_label = _label("",Vector2(64,112),Vector2(810,36),20)
     boot_button = _app("Boot check",Rect2(64,162,150,46),_boot)
     hardware_button = _app("Hardware check",Rect2(226,162,200,46),_hardware)
@@ -108,6 +106,12 @@ func _ready() -> void:
     _refresh()
     _show("PC is off. Turn it on using the case button on the right, then run Boot check." if not _powered() else "PC is on. Start with Boot check and Hardware check, then test the customer's games.")
     if not ready_for_work: _show("No writable customer PC is selected. Return to the workshop.\n"+NightSession.status)
+
+func _navigate(path: String) -> bool:
+    if busy_left > 0.0:
+        message.text = "A test is running. Finish it, or use the PC power button to cancel it before changing views."
+        return false
+    return super._navigate(path)
 
 func _app(text: String,rect: Rect2,action: Callable) -> Button:
     var button := _button(text,rect,"")

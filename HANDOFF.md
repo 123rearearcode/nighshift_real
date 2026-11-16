@@ -1,5 +1,17 @@
 # Handoff - read this first
 
+**Current source 0.42.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+16 November 2026, Europe/Bucharest. Based on merged main 0.41.0 (1a46912), not the old PR #41
+branch. PR #41 and Claude's 0.38–0.41 additions are already merged. New feature/menu-navigation
+branch implements the user's approved UX path. Read docs/MENU_NAVIGATION.md before future menus.
+PC slot now opens the bench directly; common Repair/Hardware/Monitor header, normal/Arrange room,
+Pause/Settings/Title, and Continue to last activity/view. Hardware is the actual customer PC now.
+All current monitor/timing/install/malware/overclock/Shop behavior is preserved; busy monitor tests
+block navigation until completed/cancelled. No bench_view/tool_rig/GameState hot-file edits or
+WORK_PLAN.md changes. New UI-only navigation preferences are run-bound; canonical saves unchanged.
+Push requested; open new review PR and unique archive/v0.42.0, do not merge automatically.
+Claude goes next for cross-review. Older branch/current-version notes below are historical.
+
 **Current 0.37.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User-approved thermal UI/paste/bin changes: see THERMAL_SERVICE.md.
 Three-choice material MenuButton, real super-paste cooling/tint/persistence, no tool toggle,
@@ -50,7 +62,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.41.2.**
+small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.42.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.

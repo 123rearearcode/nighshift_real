@@ -140,3 +140,7 @@ model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
 | B27 | 0.36.0 | 0.37.0 | user screenshot | Obsolete cloth/syringe toggle duplicates physical tool pickup | old toggle widget/state wiring retained; removed widget and updated fixtures |
 | B28 | 0.37.0 development | 0.37.0 | native UI regression | Retract Button's minimum size protrudes outside bin | native theme inflated requested rectangle; bounded font/margins and reset size after overrides |
 | B29 | 0.37.0 extension | 0.37.0 | Codex review | Premium negative heat modifier would be ignored in legacy check | legacy only added positive penalties; signed modifier now applies in both report paths, checked together |
+
+| B30 | 0.42.0 development | 0.42.0 | Codex review | Missing navigation preference version could fail future-format guard | guard used get() then indexed absent key; same optional-key rule as RC-3, now get() consistently and regression-covered |
+| B31 | storage before 0.42.0 | 0.42.0 | UX implementation review | Leaving room after failed layout save can lose new layout | main checkpoint did not guard separate layout writer; visible Retry and route refusal now protect it |
+| B32 | monitor 0.41.0 | 0.42.0 | UX implementation review | Changing screen mid-test discards pending measurement | navigation did not check busy state; wait/cancel with existing power action before changing view |
