@@ -31,9 +31,61 @@ func _on_mount_pressed() -> void:
     bv.screw_clicks.clear()
     bv.holding = false
     bv.wiping = false
-    bv._set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Once the time is up: right-click the screwdriver on the bench, tighten the four corner screws, then click the lever beside the socket to lock the cooler.", 0)
+    bv._set_status("Press now: hold Space (or the left mouse button over the socket). Release once CPU covered passes the line; too long and paste squeezes out. While you hold Space, right-click the screwdriver and tighten the four corner screws. Then click the lever.", 0)
     bv.time_up_told = false
+    bv.wipe_told = false
     _sync_paste_controls()
+
+
+# 0.44.1: the thermal guide. One list the player can always read: where they are and what to do now.
+# Display only; the install rules stay in install_faults.gd and the grade in paste_sim.gd.
+const GUIDE: Array = ["Film", "Paste", "Press + screws", "Lever", "Wipe extra", "Done"]
+const OVERFLOW_CLEAN: float = 0.02   # squeezed-out share that counts as wiped clean
+
+
+func _locked() -> bool:
+    return not bv.mount.active and (not bv.mount_result.is_empty() or bool(GameState.job["paste_done"]))
+
+
+func guide_step() -> int:
+    if _locked():
+        if not bv.mount_result.is_empty() and float(bv.live_stats.get("overflow", 0.0)) > OVERFLOW_CLEAN: return 4
+        return 5
+    if bv.mount.active:
+        return 3 if bv.screw_clicks.size() >= InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED else 2
+    if not bool(GameState.job["cooler_film_peeled"]): return 0
+    if bv.paste.total_deposited < 1.0: return 1
+    return 2
+
+
+func _done_text() -> String:
+    var grade: String = str(GameState.job["paste_grade"]) if str(GameState.job["paste_grade"]) != "" else str(bv.mount_result.get("grade", ""))
+    if bool(GameState.job["paste_done"]): return "Thermal service DONE (%s). Next: Diagnostic monitor > Hardware check." % grade
+    if GameState.can_complete_repaste(): return "%s result: press Complete repaste." % grade
+    return "%s is not good enough: Clear all paste and do it again." % grade
+
+
+# The one instruction for right now.
+func guide_text() -> String:
+    match guide_step():
+        0: return "NOW: peel the clear film off the cooler plate (button beside the plate)."
+        1: return "NOW: right-click the syringe, hold left mouse on the CPU: a pea, in the green zone."
+        2:
+            if not bv.mount.active: return "NOW: click Mount cooler, then HOLD SPACE to press it down."
+            if bv.tools.equipped and bv.tools.selected == Ids.SCREWDRIVER:
+                return "NOW: keep holding Space; click the corner screws, opposite corners, two passes (%d of %d)." % [bv.screw_clicks.size(), InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED]
+            return "NOW: hold Space to press, and right-click the screwdriver to tighten the 4 corner screws."
+        3: return "NOW: screws tight. Click the lever beside the socket to lock the cooler."
+        4: return "NOW: right-click the cloth and wipe the orange paste around the CPU (not the CPU)."
+    return _done_text()
+
+
+# Verdict shown after the lever: grade and whether the repaste counts.
+func verdict() -> Dictionary:
+    if not _locked(): return {}
+    var grade: String = str(GameState.job["paste_grade"]) if str(GameState.job["paste_grade"]) != "" else str(bv.mount_result.get("grade", ""))
+    var good: bool = bool(GameState.job["paste_done"]) or GameState.can_complete_repaste()
+    return {"text": ("LOCKED \u2713  %s" % grade) + (" · repaste complete" if bool(GameState.job["paste_done"]) else (" · good result" if good else " · not good enough, redo it")), "tone": 1 if good else 3}
 
 
 # Material cannot change inside a deposited/locked layer. There is never a mixed-material field.
@@ -140,6 +192,12 @@ func _step_paste(delta: float, mouse: Vector2) -> void:
         bv._audio_loop("cloth.wipe",bv._work_rect().has_point(mouse),{"speed":bv.tools.speed.length(),"removed":removed})
         if removed > 0.0:
             bv.paste_dirty = true
+            # 0.44.1: after the lever, the squeezed-out figure follows the wiping, and the bench says when it is clean.
+            if not bv.mount_result.is_empty():
+                bv.live_stats = bv.paste.measure()
+                if float(bv.live_stats["overflow"]) <= OVERFLOW_CLEAN and not bv.wipe_told:
+                    bv.wipe_told = true
+                    bv._set_status("Clean: the squeezed-out paste is gone. %s" % _done_text(), 1)
             # Tidying the paste that squeezed out BESIDE the CPU never costs the result; only wiping
             # the CPU itself does (0.20.0 fix: the user cleaned the overflow after pulling the lever
             # and lost the grade, so Complete repaste went dark).
@@ -184,7 +242,9 @@ func _sync_paste_controls() -> void:
 
 
 func _step_mount(delta: float, mouse: Vector2) -> void:
-    var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and bv._work_rect().has_point(mouse))
+    # 0.44.1: with the screwdriver in hand the mouse turns screws; only Space presses then.
+    var screwing: bool = bv.tools.equipped and bv.tools.selected == Ids.SCREWDRIVER
+    var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (not screwing and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and bv._work_rect().has_point(mouse))
     if bv.scripted_pressing is bool: pressing = bv.scripted_pressing   # automated playtest only
     var expired: bool = bv.mount.step(delta, pressing, bv.paste)
     bv._audio_loop("cooler.press",pressing and not expired,{"pressure":bv.mount.pressure})
@@ -192,7 +252,7 @@ func _step_mount(delta: float, mouse: Vector2) -> void:
     bv.paste_dirty = true
     if expired and not bv.time_up_told:
         bv.time_up_told = true
-        bv._set_status("Time is up: the paste has set. Now right-click the screwdriver on the bench and tighten the four corner screws (opposite corners, two passes). Then click the lever to lock the cooler.", 2)
+        bv._set_status("The paste has set: pressing longer changes nothing now. Finish the four corner screws with the screwdriver if you have not, then click the lever to lock the cooler.", 2)
 
 
 # Lift the cooler back off without grading (D57: nothing but the lever secures it). The paste keeps
@@ -237,10 +297,7 @@ func _on_film_pressed() -> void:
 # says whether the pattern was right; the customer finds out at home (D130).
 func _screw_click(screw: int) -> void:
     if not (bv.tools.equipped and bv.tools.selected == Ids.SCREWDRIVER):
-        if bv.mount.time_left > 0.0:
-            bv._set_status("The paste has not set yet. Keep pressing; screws come after the press, with the screwdriver.", 2)
-        else:
-            bv._set_status("You need the screwdriver for the screws. Right-click it on the bench to pick it up.", 2)
+        bv._set_status("You need the screwdriver for the screws. Right-click it on the bench (you can keep holding Space while you do).", 2)
         return
     _turn_screw(screw)
 
@@ -270,12 +327,14 @@ func _finish_mount() -> void:
     GameState.set_paste(bv.mount_result, bv.paste.total_deposited)
     # D130: the hidden mistakes of this mount are recorded now and surface only at the customer's pickup.
     GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), bv.screw_clicks))
+    bv.locked_screw_clicks = bv.screw_clicks.duplicate()   # 0.44.1: the screws stay visible on the locked cooler
     bv.screw_clicks.clear()
+    bv.wipe_told = false
     if bv.tools.equipped and bv.tools.selected == Ids.SCREWDRIVER: bv._park_tool()
     bv.paste_dirty = true
     var cov: float = bv.mount_result["coverage"]
     var over: float = bv.mount_result["overflow"]
-    var text: String = "%s\n%s\nCoverage %d%%, squeezed out %d%%. Cooler lifted so you can inspect: red = bare CPU, orange = squeezed out." % [bv.mount_result["grade"], bv.mount_result["message"], roundi(cov * 100.0), roundi(over * 100.0)]
+    var text: String = "Cooler LOCKED. %s: %s\nCoverage %d%%, squeezed out %d%%. You now see the paste through the cooler: red = bare CPU, orange = squeezed out.%s" % [bv.mount_result["grade"], bv.mount_result["message"], roundi(cov * 100.0), roundi(over * 100.0), " Wipe the orange away with the cloth." if over > OVERFLOW_CLEAN else ""]
     bv._set_status(text, bv.mount_result["tone"])
 
 

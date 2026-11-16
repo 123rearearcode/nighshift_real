@@ -30,7 +30,14 @@ customer history. `run_final_check` (the shop's own test) never includes it, by 
 Seating the CPU (bent pins), paste patterns by CPU type, cooler variety (tower, all-in-one), a
 "tech notebook" that fills in as the player learns, prior-repairer mistakes on arriving PCs.
 
-## Order and the screwdriver (0.39.0, D131)
+## Order changed in 0.44.1 (user playtest): screws DURING the press
+Film > Paste > Press + screws > Lever > Wipe extra > Done. Hold Space to press; the screwdriver can be
+picked up at any time during the press (right-click it) and the screws turned while Space keeps pressing.
+With the screwdriver in hand the mouse only turns screws; Space alone presses. After the lever the cooler
+frame and its screws stay drawn; the paste is shown through it. The guide line below the paste panel shows
+the current step and one instruction; wiping the squeezed-out paste is confirmed ("Clean") below 2%.
+
+## Order and the screwdriver (0.39.0, D131; superseded by 0.44.1 above)
 Repair bench, cooler: **Film -> Paste -> Mount + press -> Screws -> Lever.** The screws come after the
 press has finished and before the lever. They need the screwdriver: once the press is done, right-click
 the screwdriver on the bench, click the four corner screws (opposite corners, two passes), then click the lever.

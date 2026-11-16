@@ -185,3 +185,19 @@ static func draw_install_steps(canvas: CanvasItem, at: Vector2, current: int, st
         var color: Color = Color(0.45, 0.85, 0.6) if done else (Color(1.0, 0.85, 0.45) if i == current else Color(0.62, 0.66, 0.72))
         UiStyle.label(canvas, Vector2(x, at.y), text, 12, color)
         x += font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+
+
+# 0.44.1: the thermal guide: the steps on one line (done ticked, current amber) and the one thing to do now.
+static func draw_guide(canvas: CanvasItem, at: Vector2, current: int, steps: Array, now: String) -> void:
+    draw_install_steps(canvas, at, current, steps)
+    UiStyle.label(canvas, at + Vector2(0, 22), now, 14, Color(0.45, 0.85, 0.6) if current >= steps.size() - 1 else Color(1.0, 0.85, 0.45))
+
+
+# 0.44.1: after the lever the cooler is still there. Its frame is drawn over the paste, which is shown
+# through it ("inspection view"), so the player never sees the cooler simply vanish.
+static func draw_locked_cooler(canvas: CanvasItem, socket: Rect2) -> void:
+    var frame: Rect2 = socket.grow(6.0)
+    canvas.draw_rect(frame, Color(0.78, 0.82, 0.88, 0.95), false, 3.0)
+    canvas.draw_rect(Rect2(frame.position - Vector2(0, 22), Vector2(frame.size.x, 20)), Color(0.12, 0.15, 0.19, 0.9))
+    UiStyle.label(canvas, frame.position + Vector2(6, -6), "COOLER LOCKED · seen through", 13, Color(0.78, 0.82, 0.88))
+
