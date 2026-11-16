@@ -32,7 +32,7 @@ func run_checks() -> void:
     _remove_save_files(layout)
 
     # Pure rule.
-    check(Ticket.sanitize(null) == {"request": "repair", "ready": false, "called": false} and Ticket.sanitize({"request": "x", "ready": "yes", "called": true})["called"] and Ticket.sanitize({"request": "x"})["request"] == "repair", "ticket flags are sanitized")
+    check(Ticket.sanitize(null) == {"request": "repair", "ready": false, "called": false, "nights": 0} and Ticket.sanitize({"request": "x", "ready": "yes", "called": true})["called"] and Ticket.sanitize({"request": "x"})["request"] == "repair", "ticket flags are sanitized")
     var j: Dictionary = {"id": "T9", "customer": "Ana", "state": "open", "complaint": "Loud fans.", "payout": 40, "layout": "tower"}
     check(Ticket.status(j) == Ticket.OPEN and Ticket.badge(j) == "", "a new ticket is open with no sticker")
     var r: Dictionary = Ticket.apply(j, Ticket.TOGGLE_READY)
@@ -72,7 +72,7 @@ func run_checks() -> void:
     var data: Dictionary = load("res://scripts/state/save_store.gd").read(gs.save_path)
     data["job"].erase("ticket")
     load("res://scripts/state/save_store.gd").write(gs.save_path, data)
-    check(gs.load_game() and gs.job["ticket"] == {"request": "repair", "ready": false, "called": false}, "old saves without a ticket load as open")
+    check(gs.load_game() and gs.job["ticket"] == {"request": "repair", "ready": false, "called": false, "nights": 0}, "old saves without a ticket load as open")
     night.bound_path = ""
     night.ensure(gs)
     night.checkpoint(gs)

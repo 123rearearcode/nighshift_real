@@ -63,14 +63,15 @@ CALLED tag; both undo. Stored in job["ticket"] {request, ready, called}; the rec
   stay pay-on-collection.
 - OPEN: everything about builds beyond the half-and-half payment.
 
-## 4. Night end and morning report (D136)
+## 4. Night end and morning report (D136) — BUILT in 0.44.0 (choices in D146)
 
 - DECIDED: the night ends (at 06:00) and a **morning report** follows.
 - DECIDED: the morning report includes the state of the player's PCs; hovering a PC for its details
   would be nice.
 - PROPOSED: one card per PC. Collected: the customer's reaction in their words, pay, trust change. Not
   called: days waiting against the deadline.
-- OPEN: which hidden faults surface at pickup and which come back days later.
+- DECIDED (user, 16 November 2026): film left on, pop-ups and loud fans show at pickup; loose GPU screws and
+  an unstable overclock come back after a few days (built: two mornings later).
 
 ## 5. Diagnosis (D137)
 

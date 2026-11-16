@@ -39,6 +39,41 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.44.0 - 2026-11-16 - Wave 3 session 3.2: night end and morning report
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.43.0
+- Type: minor (new screen and night cycle; save gains optional `night_number`, `comebacks`; ticket flags gain `nights`)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 43963132597: all 22 required suites green, including the new Morning report suite (27 checks). The first run caught a parse error (B36). No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D136/D146): End the night on Activities (confirmation names who collects; at 06:00 the only choice). `NightSession.end_night`: earlier comebacks arrive, called customers collect, others wait a night, collected PCs leave, new customers bring theirs, the clock resets, the night number goes up.
+- Added: `morning.gd`: which hidden faults are felt now (film, uneven/loose cooler, malware) and which come back two mornings later (loose GPU screws, unstable/crashing overclock); pay only if the PC starts; reactions; comeback countdown.
+- Added: the morning report screen, one card per PC, hover for the PC's state, Start the next night.
+- Changed: `GameState.assess()` is the shop's own check without paying (the final check uses it unchanged); `collect_active()`, `advance_comebacks()`, `make_ticket_job()`, `start_next_night()`.
+- Changed: the monitor refuses game tests and the long stress test after 06:00.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/morning.gd`, `scripts/night/morning_view.gd`, `scenes/morning.tscn`, `tools/test_morning.gd` | A | Rule, screen, suite |
+| `scripts/state/game_state.gd`, `scripts/night/night_session.gd`, `scripts/night/activities_view.gd`, `scripts/night/software_view.gd`, `scripts/rules/ticket.gd`, `tools/test_tickets_pickup.gd`, `.github/workflows/tests.yml` | M | Collection, night cycle, End the night, 06:00 limit, nights counter |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `docs/MENU_NAVIGATION.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+D146's implementation choices: pay only if it starts, -10 trust for a dead PC, two mornings for comebacks, no penalty for waiting yet.
+
+### Known issues and open items
+Only two customers exist, so new tickets are the same two people (variety is session 3.5). The report is not kept after quitting. Waiting PCs cost nothing yet.
+
+### Next action
+Playtest gate (the loop now closes). Then session 3.3 after a short talk: the part list and stat numbers.
+
 ## 0.43.0 - 2026-11-16 - Wave 3 session 3.1: tickets and pickup
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session

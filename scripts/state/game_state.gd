@@ -22,6 +22,7 @@ const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
 const WorkReport = preload("res://scripts/rules/work_report.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
+const Morning = preload("res://scripts/rules/morning.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -47,7 +48,9 @@ var player_inventory: Array = []
 var inventory_layout: Dictionary = {}
 var inventory_sequence: int = 10
 var ticket_sequence: int = 1
-var night_minutes: int = 0     # D133: night minutes spent on timed monitor tests (night_clock.gd); no end-of-night rule yet
+var night_minutes: int = 0     # D133: night minutes spent on timed monitor tests (night_clock.gd); reset each morning (0.44.0)
+var night_number: int = 1      # D136 (0.44.0): which night this is; +1 every morning
+var comebacks: Array = []      # D136 (0.44.0): delayed hidden faults waiting to bring a customer back (morning.gd)
 var money: int = START_MONEY
 var job: Dictionary = {}
 var upgrades: Dictionary = {}   # upgrade id -> true once bought
@@ -72,6 +75,8 @@ func new_game(persist: bool = true) -> void:
     money = START_MONEY
     ticket_sequence = 1
     night_minutes = 0
+    night_number = 1
+    comebacks = []
     job = _make_job()
     player_inventory = _starter_inventory()
     inventory_layout = {}
@@ -114,7 +119,7 @@ func _make_job() -> Dictionary:
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
-        "ticket": {"request": "repair", "ready": false, "called": false},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
+        "ticket": {"request": "repair", "ready": false, "called": false, "nights": 0},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
         "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
         "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
         "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
@@ -435,7 +440,9 @@ func complete_repaste(material: String) -> Dictionary:
 
 # Estimated CPU temperature from the work done. Pays out once, the first time it passes.
 # Returns: temp, passed, notes (Array of String), paid (int), already_done (bool)
-func run_final_check() -> Dictionary:
+# The PC as the shop's own check sees it: temperature, notes and whether it starts. Changes nothing
+# but the derived "cleaned" flag. Used by the final check and by the morning collection (0.44.0).
+func assess() -> Dictionary:
     var temp: float = BASE_TEMP
     var notes: Array = []
     _refresh_cleaned()
@@ -486,6 +493,14 @@ func run_final_check() -> Dictionary:
     var boot: Dictionary = Software.boot(job)
     var boots: bool = boot["ok"]
     notes.append(boot["message"])
+    return {"temp": temp, "notes": notes, "boots": boots}
+
+
+func run_final_check() -> Dictionary:
+    var check: Dictionary = assess()
+    var temp: float = check["temp"]
+    var notes: Array = check["notes"]
+    var boots: bool = check["boots"]
     var passed: bool = temp < PASS_TEMP and boots
     var already_done: bool = job["state"] == "done"
     var paid: int = 0
@@ -519,6 +534,8 @@ func save_game() -> void:
         "customer_state": customer_state,
         "tickets_taken": tickets_taken,
         "night_minutes": night_minutes,
+        "night_number": night_number,
+        "comebacks": comebacks,
         "job": job,
     }
     SaveStore.write(save_path, data)
@@ -597,6 +614,8 @@ func load_game() -> bool:
                 "history": past}
     tickets_taken = maxi(0, int(data.get("tickets_taken", 0)))
     night_minutes = maxi(0, int(data.get("night_minutes", 0))) if typeof(data.get("night_minutes", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
+    night_number = maxi(1, int(data.get("night_number", 1))) if typeof(data.get("night_number", 1)) in [TYPE_INT, TYPE_FLOAT] else 1
+    comebacks = Morning.sanitize_pending(data.get("comebacks", []))
     job = _make_job()
     var saved: Variant = data.get("job", {})
     if typeof(saved) == TYPE_DICTIONARY:
@@ -742,13 +761,17 @@ func _load_settings() -> void:
 
 
 # Called once, when the ticket first passes: score the pickup (D95) and write trust and history.
-func _record_pickup(temp: float) -> Dictionary:
+func _record_pickup(temp: float, faults: Variant = null, boots: bool = true) -> Dictionary:
     var who: Dictionary = customer_view(str(job.get("customer_id", "")))
     if who.is_empty(): return {}
     var specs: Dictionary = job.get("pc_specs", {"cpu_power": 100, "ram_gb": 8})
-    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]) * Overclock.cpu_factor(job), float(specs["ram_gb"]), PASS_TEMP, pickup_faults(temp))
+    var felt: Array = pickup_faults(temp) if faults == null else faults
+    var result: Dictionary = PickupScore.score(who, temp, float(current_gpu_power()), float(specs["cpu_power"]) * Overclock.cpu_factor(job), float(specs["ram_gb"]), PASS_TEMP, felt)
+    if not boots:
+        result["score"] = 0   # 0.44.0: a PC handed back that does not start
+        (result["misses"] as Array).push_front("the PC does not start")
     var days: int = PickupScore.comeback_days(int(result["score"]))
-    var trust: int = clampi(int(who["trust"]) + trust_step(int(result["score"])), 0, 100)
+    var trust: int = clampi(int(who["trust"]) + (Morning.NO_BOOT_TRUST if not boots else trust_step(int(result["score"]))), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)
     var entry: Dictionary = {"ticket": str(job["id"]), "score": int(result["score"]), "misses": result["misses"],
         "comeback_days": days, "scams": (job["scams"] as Array).duplicate()}
@@ -758,4 +781,69 @@ func _record_pickup(temp: float) -> Dictionary:
     while (state["history"] as Array).size() > HISTORY_KEEP:
         (state["history"] as Array).pop_front()
     customer_state[str(who["id"])] = state
-    return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust}
+    return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust, "trust_before": int(who["trust"])}
+
+
+# ----- the morning (D136, Wave 3 session 3.2) -----
+
+# The customer of the ACTIVE job collects it: the shop's own assessment, the hidden faults they notice
+# now (the rest are queued to come back later), pay if it starts, trust and history. Marks the job done.
+func collect_active() -> Dictionary:
+    if job["state"] == "done": return {}
+    job["pc_powered"] = true   # the customer switches it on at home, whatever state the shop left it in
+    var check: Dictionary = assess()
+    var temp: float = check["temp"]
+    var boots: bool = check["boots"]
+    var faults: Dictionary = Morning.split(pickup_faults(temp))
+    var pickup: Dictionary = _record_pickup(temp, faults["now"], boots)
+    var paid: int = Morning.pay(int(job["payout"]), boots)
+    money += paid
+    job["state"] = "done"
+    job["temp"] = temp
+    if not (faults["later"] as Array).is_empty():
+        comebacks.append({"customer_id": str(job["customer_id"]), "customer": str(job["customer"]), "ticket": str(job["id"]),
+            "faults": faults["later"], "nights_left": Morning.COMEBACK_NIGHTS})
+    save_game()
+    var score: int = int(pickup.get("score", 0))
+    return {"kind": "collected", "ticket": str(job["id"]), "customer": str(job["customer"]), "customer_id": str(job["customer_id"]),
+        "paid": paid, "boots": boots, "score": score, "reaction": Morning.reaction(score, boots), "misses": pickup.get("misses", []),
+        "trust": int(pickup.get("trust", 0)), "trust_change": int(pickup.get("trust", 0)) - int(pickup.get("trust_before", 0)),
+        "temp": temp, "job": job.duplicate(true)}
+
+
+# One morning passes for every queued comeback. Due ones cost trust and become report cards.
+func advance_comebacks() -> Array:
+    var ticked: Dictionary = Morning.tick(comebacks)
+    comebacks = ticked["pending"]
+    var cards: Array = []
+    for entry: Dictionary in ticked["due"]:
+        var who: Dictionary = customer_view(str(entry["customer_id"]))
+        if who.is_empty(): continue
+        var change: int = Morning.comeback_trust(entry["faults"])
+        var state: Dictionary = customer_state.get(str(who["id"]), {"trust": int(who["trust"]), "history": []})
+        state["trust"] = clampi(int(who["trust"]) + change, 0, 100)
+        customer_state[str(who["id"])] = state
+        cards.append({"kind": "comeback", "ticket": str(entry["ticket"]), "customer": str(entry["customer"]), "customer_id": str(entry["customer_id"]),
+            "misses": Morning.complaints(entry["faults"]), "trust": int(state["trust"]), "trust_change": change,
+            "reaction": "Came back about the repair of ticket %s." % entry["ticket"]})
+    save_game()
+    return cards
+
+
+# A fresh repair job for one customer, with the next ticket number (does not replace the active job).
+func make_ticket_job(customer_id: String) -> Dictionary:
+    ticket_sequence += 1
+    var fresh: Dictionary = _make_job()
+    var who: Dictionary = Customers.customer(customer_id)
+    if who.is_empty(): return fresh
+    fresh["customer_id"] = customer_id
+    fresh["customer"] = str(who["name"])
+    fresh["complaint"] = str(who["complaint"])
+    fresh["payout"] = int(who["payout"])
+    return fresh
+
+
+func start_next_night() -> void:
+    night_number += 1
+    night_minutes = 0
+    save_game()

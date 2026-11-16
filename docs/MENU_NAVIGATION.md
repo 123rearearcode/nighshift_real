@@ -15,6 +15,7 @@ These rules supersede older MENU/PATH instructions only; other approved game dec
 | Repair | Hands-on service | Cleaning / Thermal service secondary tabs |
 | Salvage | Locations, searching, car storage | Existing outing/Drive home actions, Activities exit |
 | Shop | Existing tool upgrades | Activities exit |
+| Morning report (0.44.0, D146) | After End the night on Activities | Start the next night → Activities |
 
 No extra service-selection menu between PC selection and work. `night_workshop.tscn` is only a
 compatibility redirect for old links. New visible links must target room or a workbench view.
@@ -73,6 +74,10 @@ Pause warns that Continue may fall back. The existing main save and ticket manif
 Salvage remains session-only: resuming its activity after app restart opens the salvage view with
 its existing session rules, not a newly implemented persistent dumpster save. Drive home still
 costs its existing time; it is an outing action, not a free navigation shortcut.
+
+## Ending the night (0.44.0, D146)
+Activities has a fourth button, End the night, with a confirmation that names who collects. At 06:00 the
+other activities are disabled. The morning report is a between-nights screen with one forward action.
 
 ## Ticket identity (0.43.0, D145)
 The centre identity is also the ticket: click opens the ticket window, right-click the pickup menu
