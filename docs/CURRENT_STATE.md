@@ -1,5 +1,22 @@
 # Nightshift — Current State and Technical Handoff
 
+**Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
+Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
+measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules
+are superseded; other confirmed design remains. Canonical menu rules: MENU_NAVIGATION.md.
+
+Activities chooses Workshop room / Salvage / Shop. Drop a customer PC into the room slot to open
+work directly. Persistent Repair / Hardware / Monitor tabs view that same PC; Repair has Cleaning
+and Thermal secondary tabs. Named parent at top-left, selected PC identity centrally, Activities
+and Pause at top-right. No intermediate service chooser, duplicate navigation actions or direct
+Title button in an activity. Title's Continue resumes the last valid activity, PC and subview.
+Pause actually pauses; it contains Resume, existing Settings and Title screen. Room furniture
+edits belong to Arrange room mode; ordinary inventory/PC handling stays uncluttered, with autosave
+status and an error-only retry. Safe exits preserve owned work and reject failed saves/running tests.
+Navigation preferences are separate/run-bound and never own PC state. Salvage remains session-only.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 16 November 2026.
+
 Current review build: **0.34.0 spool, brush-first controls and movable heavy waste**. Room 0.33.0
 was approved/published/merged in PR #40; its older local-only notes below are historical.
 See BENCH_FEEL_0_34.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.

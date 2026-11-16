@@ -90,7 +90,8 @@ jobs:
           test_thermal_service|Thermal service
           test_install_technique|Install technique
           test_hardware_ticket_pc|Hardware ticket PC
-          test_malware_overclock|Malware and overclock"
+          test_malware_overclock|Malware and overclock
+          test_menu_navigation|Menu navigation"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

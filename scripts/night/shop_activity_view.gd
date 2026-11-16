@@ -6,9 +6,10 @@ var cash_label: Label
 var upgrade_buttons: Dictionary = {}
 func _ready() -> void:
     NightSession.ensure(GameState)
-    _label("SHOP / TOOL UPGRADES",Vector2(32,24),Vector2(900,48),28)
+    _label("SHOP / TOOL UPGRADES",Vector2(172,24),Vector2(800,38),28)
     _label("All tool upgrades are sold here. Spare parts are bought at the repair bench (Replacement stock).",Vector2(32,84),Vector2(1100,40),18)
     Navigation.attach(self,_go.bind(Navigation.ACTIVITIES))
+    Navigation.back(self,"Activities",Navigation.ACTIVITIES)
     cash_label = _label("",Vector2(32,136),Vector2(600,40),24)
     var y: float = 200
     for upgrade: Dictionary in Upgrades.LIST:

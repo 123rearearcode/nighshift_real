@@ -3,7 +3,7 @@
 Read, in this order: `HANDOFF.md`, `DEVELOPMENT.md`, the newest entry of `CHANGELOG.md`, then the
 scripts you will touch. Do not start from this file alone.
 
-Five rules that matter most:
+Project rules:
 1. Log every change in `CHANGELOG.md` with a new version number (steps in `HANDOFF.md`, section 4).
 2. Never say code works unless it was actually run in Godot 4.7.2 (the user's real version). Say exactly what you did run.
 3. Do not build anything listed in `docs/DESIGN_PROPOSALS.md` unless the user has asked for it.
@@ -17,3 +17,7 @@ Five rules that matter most:
    integrating AI runs the structural review described at the top of that file.
 
 Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADMAP.md, docs/DECISIONS.md and docs/CURRENT_STATE.md. Read STABILISATION.md for the current milestone. Latest explicit user decisions and the reconciled core docs take precedence over stale OPEN labels in local proposal notes.
+
+8. For every menu, layout or navigation change, read `docs/MENU_NAVIGATION.md`. Its approved screen
+   roles/header/mode/Continue rules override older path notes. Reuse shared navigation and run its
+   native-input tests. Do not reintroduce a service-menu detour or move Main menu into activity UI.

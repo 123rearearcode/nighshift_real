@@ -188,3 +188,12 @@ Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
 Required `test_install_technique.gd`: the pure fault rule, pickup-score effects, proof that the shop's
 final check temperature and notes ignore the faults, save round trip, and real clicks on the film
 button, corner screws and lever. Not tested: how it feels to play.
+
+
+### Approved menu paths / 0.42.0
+`test_menu_navigation.gd` is required in CI. Native clicks cover normal/Arrange mode, Retry,
+Resume work, workbench tabs, Pause and Continue. Check canonical PC identity/physical paste across
+views, real timed-test pause, busy/save refusal, sound settings, new-run reset and unknown/future
+UI preferences. Existing scene tests replace obsolete hub/Save/Refresh assertions, retaining their
+storage/ownership/repair coverage. See MENU_NAVIGATION.md before adding any future menu.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.

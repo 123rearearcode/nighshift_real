@@ -15,22 +15,24 @@ var screwdriver_held: bool = false
 func _ready() -> void:
     super._ready()
     for node: Node in get_children():
-        if node is Label and node.position.y < 32:
-            node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-            node.add_theme_font_size_override("font_size",18)
-            node.size.x = 1040
-    Navigation.attach(self,_activities)
+        if node is Label and node.position.y < 32: node.hide()
+    Navigation.workbench(self,"hardware",_activities)
 
 func _activities() -> void:
+    _navigate(Navigation.ACTIVITIES)
+func _navigate(path: String) -> bool:
+    if screwdriver_held: _put_down_screwdriver()
     inventory.cancel()
     _settle_all_throws()
     _save_inventory()
-    if NightSession.checkpoint(GameState): get_tree().change_scene_to_file(Navigation.ACTIVITIES)
-    else: status_label.text = NightSession.status
+    if not NightSession.checkpoint(GameState):
+        status_label.text = NightSession.status
+        return false
+    return Navigation.commit(self,path)
 
 func _button(text: String,pos: Vector2,size: Vector2,callback: Callable) -> void:
     if text == "Back to shop":
-        super._button("Workshop / room",pos,size,func() -> void: get_tree().change_scene_to_file("res://scenes/night_workshop.tscn"))
+        return # shared header owns navigation
     elif text == "Tower + L board" or text == "Compact + stepped board": return   # the ticket decides the case
     elif text == "Reset sandbox": super._button("Rearrange drawer",pos,size,callback)
     else: super._button(text,pos,size,callback)

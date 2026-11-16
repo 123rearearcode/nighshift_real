@@ -5,6 +5,14 @@ For any AI or human contributor. Read this, then the newest entry in `CHANGELOG.
 (PROJECT_BRIEF.md, DESIGN.md, DECISIONS.md, CURRENT_STATE.md, ROADMAP.md); this project is the small
 Godot foundation trial authorised under them. It is not an approved engine migration and it preserves D01–D32 and records later workflow/design updates in docs/DECISIONS.md. Numbers in this project are demo values, not approved balance.
 
+## Approved menu-path contract
+
+Before changing menu paths/layout, read `docs/MENU_NAVIGATION.md` (D134–D136). New night screens
+reuse the shared header/guarded navigation. No service chooser between room and workbench; no
+routine Save/Refresh furniture controls or activity-body Title link. Menu changes require native
+route/pause/Continue/mode regressions and updated path docs. Canonical PC state stays in existing
+GameState/NightSession; the UI sidecar cannot become another hardware/ownership model.
+
 ## 1. Version numbering
 
 Format: `MAJOR.MINOR.PATCH`, for example `0.5.1`.
@@ -654,3 +662,26 @@ BENCH_RETRACT lies inside BENCH_BIN; no BENCH_SPOOL or draw_spool remains. Raw b
 that rectangle to the native button so it cannot also vacuum, pick an item, or empty dust. Button
 minimum size/theme margins are explicitly bounded to the physical bin. Internal reel state/method
 names remain for compatibility; no separate spool entity. Same PR owns all hot-file changes.
+
+
+## Menu navigation / 0.42.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `docs/MENU_NAVIGATION.md` | docs | Approved mandatory screen roles, header, modes, safe routes, Pause/Continue and future workflow |
+| `scripts/night/navigation_state.gd` | UI state | Run-bound UI preferences only: whitelisted scene, per-ticket view/subview; future-version protection |
+| `scripts/night/pause_menu.gd` | view | Real pause/Resume, existing sound Settings, guarded Title exit; F10/Escape layer handling |
+| `tools/test_menu_navigation.gd` | tooling | Native mode/route/tab/pause/Continue and preference/save safety regressions |
+
+`night_navigation.gd` owns header controls/rectangles. Views implement `_navigate(path)->bool`;
+only a successful scene-specific cancel/save/checkpoint enters the destination. Commit redirects
+legacy night_workshop links to Repair; the old service chooser is no longer a playable menu.
+Hardware/repair wrappers save their own work, monitor refuses busy exit, salvage captures/cancels
+custody and preserves its local pause state. No hot-file/source model/clock modifications here.
+
+`<GameState.save_path>.navigation.json`: version 1, run id matching job.hardware_trial.night_session,
+whitelisted `scene`, bounded `workbench_views` and `repair_stages` dictionaries keyed by ticket.
+Unknown/corrupt/missing files fall back; newer numeric versions cannot be overwritten. Entering a
+real night scene records its UI path; returning to Title retains the last activity. No per-frame
+preference writes. Existing game save/manifest remain authoritative. A failed UI preference write
+warns in Pause that Continue may fall back. A failed actual layout/game checkpoint blocks exit.

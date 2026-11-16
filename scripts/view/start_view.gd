@@ -2,6 +2,7 @@
 extends Node2D
 const Layout = preload("res://scripts/data/layout.gd")
 
+const NavigationState = preload("res://scripts/night/navigation_state.gd")
 const DEMO: String = "res://scenes/activities.tscn"
 var load_button: Button
 var status_label: Label
@@ -15,8 +16,8 @@ var volume_label: Label
 func _ready() -> void:
     _label("NIGHTSHIFT", Vector2(440, 140), Vector2(400, 65), 48)
     _label("PC REPAIR / FOUNDATION DEMO", Vector2(440, 208), Vector2(400, 36), 17)
-    var first: Button = _button("New game", 284, _on_new_game)
-    load_button = _button("Load game", 342, _on_load_game)
+    load_button = _button("Continue",284,_on_load_game)
+    var first: Button = _button("New game",342,_on_new_game)
     load_button.disabled = not GameState.has_saved_game()
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
@@ -34,7 +35,8 @@ func _ready() -> void:
     achievements_dialog.dialog_text = "Achievements are not available in this demo yet."
     add_child(achievements_dialog)
     _build_settings_dialog()
-    first.grab_focus()
+    if not load_button.disabled: load_button.grab_focus()
+    else: first.grab_focus()
 
 
 func _label(text: String, at: Vector2, area: Vector2, font_size: int) -> Label:
@@ -79,7 +81,7 @@ func _start_new_game() -> void:
 func _on_load_game() -> void:
     if GameState.load_game():
         NightSession.ensure(GameState)
-        get_tree().change_scene_to_file(DEMO)
+        get_tree().change_scene_to_file(NavigationState.resume_path(GameState))
     else:
         load_button.disabled = true
         status_label.text = "No readable save was found. Start a new game."

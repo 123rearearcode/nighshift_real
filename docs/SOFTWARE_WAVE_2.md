@@ -1,5 +1,11 @@
 # Wave 2 — first diagnostic desktop, 0.35.0
 
+**Current menu rules: MENU_NAVIGATION.md (0.42.0, user approved).** Slot → workbench directly,
+common Repair/Hardware/Monitor tabs, named Room back, Activities/Pause, Arrange room mode and
+Continue. Older menu, sandbox and service-hub instructions below are historical; current hardware
+is connected (D131). This supersedes paths only, preserving current game/app mechanics.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 16 November 2026.
+
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User requested: fix cloth, PCs off by default, start Wave 2.
 This is the first slice of CUSTOMER_MODEL_MAP section 7, not the complete software system.

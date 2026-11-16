@@ -70,8 +70,8 @@ func run_checks() -> void:
     room.store.read_only = false
     check(not room._choose_workshop_pc("pc:unknown") and night.active_id == first,"stale/fabricated PC is rejected")
     # Repeat the video's sort/save/add/title-selection sequence using native control events.
-    await press(button(room,"Arrange shelves"))
-    await press(button(room,"Save layout"))
+    await press(room.arrange_toggle)
+    await press(button(room,"Auto-pack shelves"))
     await press(button(room,"+ Add furniture"))
     await press(room.choice_buttons[0])
     await press(button(room,"+ Add furniture"))
@@ -84,6 +84,7 @@ func run_checks() -> void:
         await mouse(at,false)
     check(room.get_children().map(func(n: Node) -> int: return n.get_instance_id()) == ids,"real furniture header clicks preserve every control; no self-freeing signal emitter")
     check(room.model.units.size() == 3,"multiple additions remain physical room furniture")
+    room._set_arranging(false)
     room._fit_used()
     var origin: Rect2 = room.item_rect(uid)
     before = room.model.snapshot()
@@ -92,17 +93,17 @@ func run_checks() -> void:
     await mouse(room.WORKSHOP_SLOT.get_center(),false)
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/night_workshop.tscn" and night.active_id == other and gs.job["id"] == other,"native drag into slot opens workshop with correct ticket")
+    check(current_scene.scene_file_path == "res://scenes/night_bench.tscn" and night.active_id == other and gs.job["id"] == other,"native drag into slot opens workshop with correct ticket")
     check(gs.money == cash and gs.player_inventory == stock and Sources.collect(gs).values().filter(func(item: Dictionary) -> bool: return item["category"] == "pc").size() == 2,"selection neither duplicates PCs nor consumes stock or money")
     check(not current_scene.get_children().any(func(n: Node) -> bool: return n is OptionButton),"service hub has no alternate PC-selection dropdown")
-    check(current_scene.ticket.get_parent() is ScrollContainer and current_scene.ticket.get_parent().size.y <= 243,"ticket details are bounded above the report instead of overflowing it")
+    check(current_scene.get_node("PCIdentity").text.contains(other),"workbench header identifies the active ticket")
     var hub: Node = current_scene
     DirAccess.make_dir_absolute(manifest+".tmp")
     await press(hub.get_node("ActivitiesButton"))
-    check(current_scene == hub and hub.message.text.contains("could not be saved"),"failed checkpoint keeps player on current screen with a visible error")
+    check(current_scene == hub and hub.status_label.text.contains("could not be saved"),"failed checkpoint keeps player on current screen with a visible error")
     DirAccess.remove_absolute(manifest+".tmp")
     # Same top-right position and actual return route on every playable night screen.
-    for path: String in ["res://scenes/night_workshop.tscn","res://scenes/night_bench.tscn","res://scenes/night_hardware.tscn","res://scenes/software.tscn","res://scenes/night_salvage.tscn","res://scenes/storage.tscn"]:
+    for path: String in ["res://scenes/night_bench.tscn","res://scenes/night_hardware.tscn","res://scenes/software.tscn","res://scenes/night_salvage.tscn","res://scenes/storage.tscn"]:
         await scene(path)
         var exit: Button = current_scene.get_node_or_null("ActivitiesButton")
         check(exit != null and exit.get_global_rect() == Nav.RECT,"Activities has common top-right rectangle in "+path)
