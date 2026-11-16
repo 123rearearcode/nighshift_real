@@ -26,8 +26,10 @@ static func sanitize(raw: Variant) -> Dictionary:
     var out: Dictionary = {"request": REPAIR, "ready": false, "called": false}
     if raw is Dictionary:
         if str(raw.get("request", REPAIR)) in REQUESTS: out["request"] = str(raw["request"])
-        if raw.get("ready", false) is bool: out["ready"] = raw["ready"]
-        if raw.get("called", false) is bool: out["called"] = raw["called"]
+        var ready: Variant = raw.get("ready", false)
+        var called: Variant = raw.get("called", false)
+        if ready is bool: out["ready"] = ready
+        if called is bool: out["called"] = called
     return out
 
 
