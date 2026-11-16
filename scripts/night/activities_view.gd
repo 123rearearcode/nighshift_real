@@ -1,8 +1,8 @@
 extends Node2D
 const Navigation = preload("res://scripts/night/night_navigation.gd")
-const Clock = preload("res://scripts/rules/night_clock.gd")
-const Ticket = preload("res://scripts/rules/ticket.gd")
-const MORNING := "res://scenes/morning.tscn"
+const NightClock = preload("res://scripts/rules/night_clock.gd")
+const TicketRule = preload("res://scripts/rules/ticket.gd")
+const MORNING_SCENE := "res://scenes/morning.tscn"
 var message: Label
 var end_button: Button
 var activity_buttons: Array[Button] = []
@@ -28,13 +28,13 @@ func _ready() -> void:
     _refresh_end()
 
 func _called() -> Array:
-    return NightSession.jobs(GameState).filter(func(job: Dictionary) -> bool: return job.get("state","open") != "done" and Ticket.status(job) == Ticket.CALLED)
+    return NightSession.jobs(GameState).filter(func(job: Dictionary) -> bool: return job.get("state","open") != "done" and TicketRule.status(job) == TicketRule.CALLED)
 
 func _refresh_end() -> void:
-    var over: bool = Clock.over(GameState.night_minutes)
+    var over: bool = NightClock.over(GameState.night_minutes)
     var called: int = _called().size()
     var who: String = "%d customer%s called"%[called,"" if called == 1 else "s"]
-    end_button.text = ("06:00 · THE NIGHT IS OVER\nSee the morning (%s)" if over else "END THE NIGHT · %s\nNight %d · %s · called customers collect")%([who] if over else [Clock.label(GameState.night_minutes),GameState.night_number,who])
+    end_button.text = ("06:00 · THE NIGHT IS OVER\nSee the morning (%s)" if over else "END THE NIGHT · %s\nNight %d · %s · called customers collect")%([who] if over else [NightClock.label(GameState.night_minutes),GameState.night_number,who])
     for button: Button in activity_buttons: button.disabled = over
 
 func _ask_end_night() -> void:
@@ -47,7 +47,7 @@ func _end_night() -> void:
     if not bool(report.get("ok",false)):
         message.text = str(report.get("message","The night could not end. Nothing was changed."))
         return
-    Navigation.commit(self,MORNING)
+    Navigation.commit(self,MORNING_SCENE)
 
 func _label(text: String,at: Vector2,area: Vector2,size: int) -> Label:
     var label := Label.new()
