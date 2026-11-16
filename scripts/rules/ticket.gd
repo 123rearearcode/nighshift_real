@@ -3,7 +3,8 @@
 # build request is designed (D140) but not built. The record is DERIVED from the job each time, so it can
 # never disagree with the PC; only the pickup flags are stored, in job["ticket"].
 #   ready  = the player's own "ready for pickup" sticker. A note: it changes no rule.
-#   called = the customer was called and collects NEXT MORNING (the morning itself is session 3.2).
+#   called = the customer was called and collects NEXT MORNING (night_session.gd end_night, 0.44.0).
+#   nights = how many mornings the PC has waited in the shop.
 extends RefCounted
 
 const PartStates = preload("res://scripts/rules/part_states.gd")
@@ -23,7 +24,7 @@ const TOGGLE_CALL := "toggle_call"
 
 
 static func sanitize(raw: Variant) -> Dictionary:
-    var out: Dictionary = {"request": REPAIR, "ready": false, "called": false}
+    var out: Dictionary = {"request": REPAIR, "ready": false, "called": false, "nights": 0}
     if raw is Dictionary:
         var request: String = str(raw.get("request", REPAIR))
         if request in REQUESTS: out["request"] = request
@@ -31,6 +32,8 @@ static func sanitize(raw: Variant) -> Dictionary:
         var called: Variant = raw.get("called", false)
         if ready is bool: out["ready"] = ready
         if called is bool: out["called"] = called
+        var nights: Variant = raw.get("nights", 0)   # 0.44.0: mornings this PC has waited in the shop
+        if typeof(nights) in [TYPE_INT, TYPE_FLOAT] and is_finite(float(nights)): out["nights"] = clampi(int(nights), 0, 999)
     return out
 
 

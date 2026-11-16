@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.43.0)
+# Nightshift - Godot Foundation Trial (v0.44.0)
+
+New in 0.44.0: **the night ends and the morning comes.** On Activities, **End the night** (at 06:00
+it is the only choice left; the monitor's timed tests stop). Every customer you called collects their
+PC exactly as it is: they pay if it starts, react to what they notice (film left on, pop-ups, loud fans),
+and trust moves. Loose GPU screws and an unstable overclock are not noticed at pickup: they bring the
+customer back two mornings later. The **morning report** has one card per PC (collected, came back,
+still waiting, new ticket); hover a card to see the PC's state. Each collected PC makes room for a new
+customer. Then start the next night.
 
 New in 0.43.0: **tickets and pickup.** Right-click a customer PC in the workshop room, or right-click
 the ticket (the customer and ticket name at the top of the workbench), to **Mark ready for pickup** (a

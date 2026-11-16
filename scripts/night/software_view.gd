@@ -208,8 +208,14 @@ func _buy() -> void:
     _refresh()
     _show(("Counter Stroke 2 purchased for the shop. Its licence can test any customer's PC." if bought else "Purchase unavailable: already owned or not enough shop cash.")+("\n"+NightSession.status if not saved else ""))
 
+# D136 (0.44.0): at 06:00 the night is over; timed tests no longer fit in it.
+func _night_over() -> bool:
+    if not Clock.over(GameState.night_minutes): return false
+    _show("It is 06:00: the night is over. Go to Activities and end the night; called customers collect now.")
+    return true
+
 func _game() -> void:
-    if not _guard(): return
+    if not _guard() or _night_over(): return
     var report: Dictionary = Diagnostics.evaluate(GameState.job,GameState.owned_games)
     var result: Dictionary = Checks.game_test(GameState.job,GameState.owned_games,"counter_stroke_2",report["temp"])
     if not result["ok"]:
@@ -251,7 +257,7 @@ func _oc_step(mult_delta: int,volt_delta: int) -> void:
     _show("Settings changed. Run a stress test, then check the heat. A quick test cannot prove stability."+("\n"+NightSession.status if not saved else ""))
 
 func _stress(long_test: bool) -> void:
-    if not _guard(): return
+    if not _guard() or (long_test and _night_over()): return
     if not Checks.boot(GameState.job)["ok"]:
         _show(Checks.boot(GameState.job)["message"])
         return

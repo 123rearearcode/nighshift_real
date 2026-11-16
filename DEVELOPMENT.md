@@ -185,6 +185,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
 | `scenes/night_shop.tscn` | scene | Shop activity scene |
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
+| `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
+| `scenes/morning.tscn` | scene | Morning report scene |
+| `tools/test_morning.gd` | tooling | Ending the night, collection, comebacks, waiting PCs, new tickets, report screen, 06:00 limit (D136) |
 | `scripts/rules/ticket.gd` | rules | A ticket as one derived record (request, customer, machine, symptoms, requirements, terms, status) and its pickup flags: ready sticker, called (D134/D135) |
 | `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
 | `tools/test_tickets_pickup.gd` | tooling | Ticket rule, pickup flags on active and stored PCs, saves, native right-clicks in the room and on the ticket (D134) |

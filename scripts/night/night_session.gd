@@ -11,6 +11,7 @@ var active_id: String = ""
 var bound_path: String = ""
 var status: String = ""
 var read_only: bool = false
+var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; shown by morning.tscn
 
 func _marker(gs: Node) -> Dictionary:
     var trial: Variant = gs.job.get("hardware_trial",{})
@@ -215,3 +216,62 @@ func ticket_action(gs: Node,id: String,action: String) -> Dictionary:
     else:
         gs.save_game()
     return result
+
+# ----- the morning (D136, Wave 3 session 3.2) -----
+
+# One of tonight's tickets is a PC still in the shop (open, with a physical PC).
+func _open_tickets() -> Array:
+    return tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" and str(entry["hardware_trial"]["night_session"].get("pc","")) != "")
+
+# Per-customer flavour of a new demo ticket until the generator exists (session 3.5).
+func _flavour(job: Dictionary) -> void:
+    if job["customer_id"] == "t002_relu":
+        job["layout"] = "compact"
+        job["broken_parts"] = ["gpu"]
+    if int(str(job["id"]).trim_prefix("T")) % 2 == 0: Malware.infect(job, Malware.ADWARE)
+
+# Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
+# night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
+func end_night(gs: Node) -> Dictionary:
+    if not ensure(gs): return {"ok":false,"message":status}
+    if not checkpoint(gs): return {"ok":false,"message":status}
+    var night: int = int(gs.night_number)
+    var cards: Array = gs.advance_comebacks()
+    var collected: Array = []
+    for entry: Dictionary in _open_tickets():
+        if bool(Ticket.flags(entry)["called"]): collected.append(str(entry["id"]))
+    for id: String in collected:
+        if not switch_pc(gs,id): return {"ok":false,"message":status if status != "" else "Could not bring out ticket %s for collection."%id}
+        var card: Dictionary = gs.collect_active()
+        if not card.is_empty(): cards.append(card)
+        if not checkpoint(gs): return {"ok":false,"message":status}
+    for entry: Dictionary in _open_tickets():
+        var f: Dictionary = Ticket.flags(entry)
+        f["nights"] = int(f.get("nights",0)) + 1
+        entry["ticket"] = f
+        if str(entry["id"]) == str(gs.job["id"]): gs.job["ticket"] = f
+        cards.append({"kind":"waiting","ticket":str(entry["id"]),"customer":str(entry["customer"]),"customer_id":str(entry["customer_id"]),
+            "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"],
+            "job":entry.duplicate(true)})
+    # Every customer whose PC left brings a new one, if they have no other PC here (two customers exist today).
+    var present: Array = _open_tickets().map(func(entry: Dictionary) -> String: return str(entry["customer_id"]))
+    for cid: String in Customers.IDS:
+        if cid in present: continue
+        var fresh: Dictionary = gs.make_ticket_job(cid)
+        _flavour(fresh)
+        _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))
+        tickets.append(fresh)
+        cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":cid,
+            "reaction":"New ticket: %s"%str(fresh["complaint"]),"job":fresh.duplicate(true)})
+        present.append(cid)
+    # The active PC must be one still in the shop.
+    if gs.job.get("state","open") == "done":
+        var next_id: String = str(_open_tickets()[0]["id"])
+        if not switch_pc(gs,next_id): return {"ok":false,"message":status}
+    tickets = tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" or str(entry["id"]) == active_id)
+    gs.start_next_night()
+    if not checkpoint(gs): return {"ok":false,"message":status}
+    var earned: int = 0
+    for card: Dictionary in cards: earned += int(card.get("paid",0))
+    last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money)}
+    return last_report
