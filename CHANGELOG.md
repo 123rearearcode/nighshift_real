@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.42.0 - 2026-11-16 - Wave 3 session 3.0: repair bench split (no visible change)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.41.1
+- Type: minor (code structure only; no gameplay, save or scene change)
+
+### Execution status
+Godot was NOT run by me. CI_RESULT_PLACEHOLDER No playtest is claimed: the bench is meant to behave exactly as in 0.41.
+
+### Added / Changed / Fixed / Removed
+- Changed: `bench_view.gd` (1482 lines) is split into five helpers: `bench_thermal.gd`, `bench_cleaning.gd`, `bench_parts.gd`, `bench_ui.gd`, `bench_input.gd`. The bench keeps all its state and a one-line wrapper per moved method with the old name, so tests, signals and the night repair bench's overrides are unchanged. bench_view.gd is now about 610 lines.
+- Method: the move was done by a script that copies each function body unchanged and prefixes every bench member it touches with `bv.`; calls to methods the night repair bench overrides always go through `bv.` so the override is kept.
+- Changed: `tools/ci_scope.py` treats the helpers like bench_view.gd (full test run).
+- Added (docs): the Wave 3 plan (D141, WORK_PLAN.md) and the build-request design (D140, REPAIR_LOOP_DESIGN.md 7a).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/view/bench_thermal.gd`, `bench_cleaning.gd`, `bench_parts.gd`, `bench_ui.gd`, `bench_input.gd` | A | Helpers |
+| `scripts/view/bench_view.gd`, `tools/ci_scope.py` | M | Wrappers, helper instances, CI scope |
+| `docs/WORK_PLAN.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/DECISIONS.md`, `docs/BUGS.md`, `DEVELOPMENT.md`, `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `project.godot` | M | Plan, design, file map, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+None new in code. The uses table in REPAIR_LOOP_DESIGN.md 7a is a proposal.
+
+### Known issues and open items
+Bench state still lives on the bench; helpers reach it dynamically (no static type checks across the seam).
+
+### Next action
+Session 3.1 (0.43.0): tickets as records and the right-click pickup menu.
+
 ## 0.41.1 - 2026-11-16 - Design record: closing the repair loop (documents only)
 
 - Author: Claude (Fable 5.2, model id claude-fable-5-2) in a chat session

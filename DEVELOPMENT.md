@@ -191,7 +191,12 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/dust_sim.gd` | sim | Dust bundle physics: vacuum suction, brush loosening, per-part progress |
 | `scripts/bench/paste_sim.gd` | sim | Paste spreading physics and grading |
 | `scripts/view/shop_view.gd` | view | Shop screen: ticket checklist, cash, buttons, version label |
-| `scripts/view/bench_view.gd` | view | Repair bench coordinator: input, tools, stage switching, service parts, replacements; delegates drawing to the renderers and mounting to `mount_session.gd` |
+| `scripts/view/bench_view.gd` | view | Repair bench coordinator: all bench state, setup, stage and tool selection, hand state, the frame loop and drawing calls; behaviour is delegated to the five `bench_*.gd` helpers below through one-line wrappers that keep the old method names (0.42.0) |
+| `scripts/view/bench_thermal.gd` | view | Bench helper: paste material, syringe and cloth, the timed mount and the cooler install ritual (0.42.0) |
+| `scripts/view/bench_cleaning.gd` | view | Bench helper: dust steps, pick, vacuum bin, tool and part collisions, fan speeds, dust saving (0.42.0) |
+| `scripts/view/bench_parts.gd` | view | Bench helper: movable cooler/GPU geometry, unscrewing, dragging, saved positions, Replacement stock panel (0.42.0) |
+| `scripts/view/bench_ui.gd` | view | Bench helper: builds the bench's buttons, labels and panels (0.42.0) |
+| `scripts/view/bench_input.gd` | view | Bench helper: mouse and keyboard input through the hand state (0.42.0) |
 | `scripts/view/ui_style.gd` | view | Shared colours, text and progress-bar drawing helpers |
 | `scripts/view/paste_renderer.gd` | view | Draws the paste stage, paste picture and paste side panel (presentation only) |
 | `scripts/view/cleaning_renderer.gd` | view | Draws dust bundles and the cleaning side panel (presentation only) |
@@ -379,7 +384,7 @@ Job adds service_table_positions(id->{center:[x,y],angle}),removed_component_rec
 `UiStyle`: `label`, `bar`, `COLOR_TEXT`, `TONE_COLORS`. `SaveStore`: `write(path, data) -> bool`, `read(path) -> Variant` (null if missing).
 `bench_view.gd` keeps the member names the regression suite uses (`dust`, `access`, `tools`, `holding`, `wiping`, `PASTE_ORIGIN`, `PASTE_CELL`, ...). Do not rename them without updating `tools/test_regressions.gd`.
 Renderers are static and take the canvas as an argument, like `pc_renderer.gd`; they must not read input or change state.
-Still inside `bench_view.gd` on purpose: the replacement panel (the suite touches its members directly), service-part drag and the input handling. Extract them one at a time, with the regression suite run after each.
+Since 0.42.0 the replacement panel, service-part drag, input handling, interface building, cleaning and thermal behaviour live in the `bench_*.gd` helpers. Their state still lives on the bench, so the suite reaches the same members. **How the helpers work:** each holds `bv`, the bench node, and reaches every bench member through it (`bv.paste`, `bv._set_status(...)`). The bench keeps a one-line wrapper per moved method with the old name, so tests, signal connections and the night `repair_view.gd` overrides (`_finish_mount`, `_step_paste`, `_save_dust`, `_new_ticket`, `_material_charge_note`) still work; inside a helper, calls to those overridable methods go through `bv.` so the override is honoured.
 
 ## 0.11.2 save safety
 `SaveStore.write(path, data)` writes `<path>.tmp`, reads it back, keeps the previous save as `<path>.bak`, then moves the new file into place. `SaveStore.read(path)` returns the first of `path`, `path.bak`, `path.tmp` that parses to a Dictionary, else null. Save format is unchanged. Field-by-field validation of what is inside a save is still `GameState.load_game()`'s job and is not complete.
@@ -390,7 +395,7 @@ Still inside `bench_view.gd` on purpose: the replacement panel (the suite touche
 
 When you add a new kind of data, or a new key to existing data, add it to the schema tables at the top of `tools/test_data_schemas.gd` in the same change. An unexpected key is reported as a problem on purpose: it catches typos.
 
-Queued (not done): the `bench_view.gd` split continues with the replacement panel, then part dragging, then input handling, then one script per tool and a separate UI builder. Do one extraction per patch and let the automated tests run after each.
+Done in 0.42.0: the split into five helpers (bench_view.gd 1482 -> about 610 lines). Still queued: one controller script per tool, and moving bench state into the helpers that own it.
 
 
 ## 0.16.0 contracts — start menu and hose
