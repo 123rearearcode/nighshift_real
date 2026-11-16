@@ -108,7 +108,14 @@ func run_checks() -> void:
     await process_frame
     var ticket: Button = current_scene.get_node_or_null("TicketButton")
     var identity: Label = current_scene.get_node_or_null("PCIdentity")
-    check(ticket != null and identity != null and identity.text.contains(first) and identity.text.contains("[READY]"), "the workbench identity shows the ticket and its sticker")
+    check(ticket != null and identity != null and identity.text.contains(first) and not identity.text.contains("["), "the workbench identity shows the ticket (no sticker: the old-save step reset it)")
+    night.ticket_action(gs, first, Ticket.TOGGLE_READY)
+    change_scene_to_file("res://scenes/software.tscn")
+    await process_frame
+    await process_frame
+    ticket = current_scene.get_node_or_null("TicketButton")
+    identity = current_scene.get_node_or_null("PCIdentity")
+    check(identity.text.contains("[READY]"), "the workbench identity shows the ready sticker")
     await right_click(ticket.get_global_rect().get_center())
     menu = find_menu(current_scene)
     check(menu != null and menu.get_item_text(1).contains("Call"), "right-clicking the ticket opens the pickup menu")
