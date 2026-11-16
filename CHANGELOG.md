@@ -39,6 +39,115 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.42.0 - 2026-11-16 - Direct workbench tabs, room modes, Pause and Continue
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Integrated by: Claude (Opus 5.5, model id claude-opus-5-5), 16 November 2026, on top of main 0.41.2 (repair-bench split). The user had playtested it. Its decisions D134–D136 were renumbered D142–D144 (main already had D134–D141). CI_RESULT_PLACEHOLDER
+- Based on: merged main 0.41.0 (1a46912), including Claude's 0.38–0.41 work; new feature/menu-navigation branch
+- Type: minor (approved menu roles/paths, real Pause and compatible UI-only resume preferences)
+
+### Execution status
+Codex ran Godot 4.7.2 headless locally: nineteen required suites, final applicable total 1,427
+checks, zero failures; pending contracts 0/0. Native viewport input covers transitions. No manual
+visual playtest or target-hardware benchmark claim. Date: 16 November 2026, Europe/Bucharest.
+User approved implementing the proposal, documenting future rules and pushing; no merge requested.
+
+### Added / Changed / Fixed / Removed
+- D142: room PC slot opens work directly; remove service chooser. Keep old night_workshop scene
+  only as a compatibility redirect. Shared Repair/Hardware/Monitor tabs use the SAME selected PC;
+  parent ← Room, PC identity centrally, Activities top-right, Pause beside it. Repair retains its
+  Cleaning/Thermal tabs. Hide obsolete footer navigation/practice entries on the night repair route.
+- Build from actual 0.41 main: Hardware already projects the customer's PC (D131). Preserve its
+  screwdriver/install/stock rules and all current monitor apps, timed tests/work reports and Shop.
+- D143: normal room hides furniture controls, titles cannot move furniture accidentally. Arrange
+  room reveals add/remove/packing and allows title dragging. Done cancels temporary hands. Camera
+  stays available. Slot selection is gated during arranging. No routine Save layout/Refresh button:
+  edits autosave; status reports success, a real failure reveals Retry and blocks losing that layout.
+- D144: Continue loads regular save/ticket first, then last valid activity/view. Remember last
+  workbench view and Repair subview per ticket. Run-bound UI preference sidecar owns no game data;
+  whitelist paths, tolerate old/missing/corrupt data, protect newer format, cap maps. No per-frame IO.
+- Real Pause stops physics/monitor waits; Resume, existing sound Settings and guarded Title exit.
+  F10 toggles; Escape closes pause/settings, preserving existing activity Escape controls otherwise.
+  Repair releases active use/audio; salvage retains its prior local pause/custody rules. Main menu
+  is removed from activity body. Busy monitor tests must finish/cancel with existing power action
+  before navigating; saves/custody use scene-specific exits. UI-only preference failure cannot
+  overwrite repairs; Pause warns Continue may fall back.
+- Mandatory MENU_NAVIGATION.md linked from AGENTS/DEVELOPMENT/core docs and new CI suite. Older
+  path/status/sandbox notes are explicitly historical. No hot files or WORK_PLAN.md edits.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `AGENTS.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `CHANGELOG.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `DEVELOPMENT.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `HANDOFF.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `README.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/BUGS.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/CURRENT_STATE.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/DECISIONS.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/DESIGN.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/MENU_NAVIGATION.md` | A | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/NIGHT_WORKSHOP.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/PROJECT_BRIEF.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/ROADMAP.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/ROOM_WORKSHOP.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/SOFTWARE_WAVE_2.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/STORAGE.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `docs/TESTING.md` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `project.godot` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/activities_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/hardware_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/navigation_state.gd` | A | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/night_navigation.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/pause_menu.gd` | A | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/repair_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/salvage_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/shop_activity_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/software_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/night/workshop_hub.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/storage/storage_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `scripts/view/start_view.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `tools/test_menu_navigation.gd` | A | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `tools/test_night_workshop.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `tools/test_room_workshop.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+| `tools/test_storage.gd` | M | Approved navigation/mode/Continue behavior, native regression coverage or permanent documentation |
+
+### Checks performed
+- Godot 4.7.2: schemas 209; regressions 599; start 20; dust 43; bench interactions 31; feedback 27;
+  audio/vacuum 46; performance 24; salvage 49; salvage physics 44; storage 82; night workshop 55;
+  software 36; room/workshop 30; thermal 26; install technique 24; hardware ticket PC 15;
+  malware/overclock 34; menu navigation 33. All zero failures (1,427 final applicable checks).
+- Native clicks validate normal/Arrange, retry, direct Resume, same-PC tabs/paste, monitor-busy exit
+  refusal, actual Pause, paused Title exit and Continue. Settings, future/unknown/missing/new-run UI
+  preferences and no money/stock/repair mutation covered. Final menu suite rerun after last header/
+  practice-visibility changes. Expected forced-save-failure warnings are deliberate test fixtures.
+- Existing storage/night/workshop tests replace obsolete hub/Save/Refresh assertions; ownership and
+  native room-crash coverage retained. Three old extra-hub exit cases become shared-tab route coverage.
+- Fresh extracted source imported in Godot 4.7.2 and passed all 33 menu-navigation checks without
+  script errors; the deliberate failed-layout-write case emits its expected warning.
+- Project hygiene, whitespace and CI scope (9 tests) passed. Full bench physics matrix not repeated:
+  no core bench/tool/state or simulation changes; this is menus/wrappers and affected scene suites.
+
+### Decisions proposed (not approved)
+No new gameplay mechanics. F10 is the implemented pause shortcut to avoid stealing current Escape
+hand cancellation. Ordinary hidden install faults, outing costs, test durations and pickups remain.
+
+### Known issues and open items
+- UI preference file cannot restore persistent salvage contents: salvage remains session-only under
+  its existing prototype rules. Continue restores its screen, not a newly implemented salvage save.
+- Main and UI preference files are separate; invalid/mismatched preferences fall back to Activities.
+  Layout/game save failures block exit, preference-only failure warns without replacing repair data.
+- No manual visual/feel acceptance yet. Current source is 0.42; older top-of-file status notes were
+  superseded explicitly rather than deleting contributor history.
+
+### Next action
+User playtests the new review PR; Claude goes next for cross-review of route/save/pause boundaries.
+Push requested; keep PR unmerged. bench_view.gd, tool_rig.gd and game_state.gd are untouched and
+free subject to Claude's work-plan ownership; WORK_PLAN.md unchanged. Preserve archive/v0.41.0,
+create unique archive/v0.42.0 and source ZIP. Future menu work MUST read MENU_NAVIGATION.md.
+
 ## 0.41.2 - 2026-11-16 - Wave 3 session 3.0: repair bench split (no visible change)
 
 - Renumbered (Claude, Opus 5.5, model id claude-opus-5-5): this release was first merged as 0.42.0 (PR #48), but

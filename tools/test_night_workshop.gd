@@ -142,12 +142,12 @@ func run_checks() -> void:
     current_scene._leave()
     await process_frame
     await process_frame
-    current_scene._go("res://scenes/night_workshop.tscn")
+    current_scene._go("res://scenes/software.tscn")
     await process_frame
     await process_frame
-    current_scene._check()
-    check(current_scene.report.text.contains("Report only") and gs.job["state"] == "open","workshop final check diagnoses without completing ticket")
-    check(not current_scene.get("upgrade_buttons") and not gs.has_upgrade("square_cloth"),"workshop hub no longer sells upgrades (D131: the Shop does)")
+    current_scene._hardware()
+    check(current_scene.output.text != "" and gs.job["state"] == "open","monitor hardware check never completes the ticket")
+    check(not current_scene.get("upgrade_buttons") and not gs.has_upgrade("square_cloth"),"workbench does not sell upgrades (the Shop does)")
     current_scene._go("res://scenes/night_shop.tscn")
     await process_frame
     await process_frame
@@ -158,15 +158,11 @@ func run_checks() -> void:
     money = gs.money
     current_scene._buy("square_cloth")
     check(gs.money == money and current_scene.upgrade_buttons["square_cloth"].disabled,"owned shop upgrade cannot be charged twice")
-    current_scene._go("res://scenes/night_workshop.tscn")
-    await process_frame
-    await process_frame
-    check(not current_scene.get_children().any(func(n: Node) -> bool: return n is OptionButton),"workshop no longer has a PC dropdown; selection belongs to the room")
     night.switch_pc(gs,night.tickets[1]["id"])
-    current_scene._refresh_ticket()
     current_scene._go("res://scenes/night_bench.tscn")
     await process_frame
     await process_frame
+    check(not current_scene.get_children().any(func(n: Node) -> bool: return n is OptionButton),"PC choice is in the room, never a workbench dropdown")
     var bench: Node = current_scene
     bench.set_physics_process(false)
     bench._select_stage(bench.STAGE_PASTE)
@@ -190,15 +186,15 @@ func run_checks() -> void:
     bench._on_back_pressed()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/night_workshop.tscn","repair bench returns to PC selection")
-    current_scene._go("res://scenes/night_bench.tscn")
+    check(current_scene.scene_file_path == "res://scenes/storage.tscn","repair bench returns to PC selection")
+    current_scene._open_workshop()
     await process_frame
     await process_frame
     check(current_scene.paste.h == field and gs.job["paste_done"],"returning to repair bench restores that PC's physical paste and committed mount")
     current_scene._on_back_pressed()
     await process_frame
     await process_frame
-    current_scene._go("res://scenes/night_hardware.tscn")
+    current_scene._navigate("res://scenes/night_hardware.tscn")
     await process_frame
     await process_frame
     check(current_scene.scene_file_path == "res://scenes/night_hardware.tscn","workshop hardware bench route loads")

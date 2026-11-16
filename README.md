@@ -1,4 +1,13 @@
-# Nightshift - Godot Foundation Trial (v0.41.2)
+# Nightshift - Godot Foundation Trial (v0.42.0)
+
+New in 0.42.0: **Activities → Workshop room → PC slot → workbench**, with no extra service menu.
+Use Repair / Hardware / Diagnostic monitor tabs for the SAME customer's PC. ← Room returns directly
+to storage; Activities stays top-right. Arrange room reveals furniture editing; normal mode stays
+focused on parts and PCs. Layouts autosave; Retry appears only after a failed write.
+Continue resumes your last activity/PC/view. Pause offers Resume, sound Settings and Title screen;
+F10 toggles Pause, Escape closes it. Finish/cancel running monitor tests before changing views.
+All 0.38–0.41 hardware, installation, malware, overclock, Shop and monitor features are retained.
+Rules for future menu work: docs/MENU_NAVIGATION.md. Use a fresh v0.42.0 source folder to playtest.
 
 New in 0.41.2: nothing to see. The repair bench's code was split into smaller pieces so the next
 releases (tickets, pickup, the morning report) can be built safely. The bench should behave exactly as before.

@@ -1,5 +1,11 @@
 # Room → workshop, 0.36.0
 
+**Current menu rules: MENU_NAVIGATION.md (0.42.0, user approved).** Slot → workbench directly,
+common Repair/Hardware/Monitor tabs, named Room back, Activities/Pause, Arrange room mode and
+Continue. Older menu, sandbox and service-hub instructions below are historical; current hardware
+is connected (D131). This supersedes paths only, preserving current game/app mechanics.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 16 November 2026.
+
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. Implements user requests D125–D126.
 
