@@ -20,6 +20,7 @@ const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
+const WorkReport = preload("res://scripts/rules/work_report.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -45,6 +46,7 @@ var player_inventory: Array = []
 var inventory_layout: Dictionary = {}
 var inventory_sequence: int = 10
 var ticket_sequence: int = 1
+var night_minutes: int = 0     # D133: night minutes spent on timed monitor tests (night_clock.gd); no end-of-night rule yet
 var money: int = START_MONEY
 var job: Dictionary = {}
 var upgrades: Dictionary = {}   # upgrade id -> true once bought
@@ -68,6 +70,7 @@ func has_saved_game() -> bool:
 func new_game(persist: bool = true) -> void:
     money = START_MONEY
     ticket_sequence = 1
+    night_minutes = 0
     job = _make_job()
     player_inventory = _starter_inventory()
     inventory_layout = {}
@@ -110,6 +113,8 @@ func _make_job() -> Dictionary:
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
+        "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
+        "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
         "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
         "overclock": {"mult": 0, "volt": 0},   # D132: CPU overclock steps (overclock.gd); heat is visible, instability is felt at pickup
         "pc_powered": false,      # delivered switched off; live tests require deliberate power-on
@@ -340,9 +345,29 @@ func pickup_faults(temp: float = -1.0) -> Array:
 func clean_infection() -> bool:
     if job["state"] == "done" or not Malware.infected(job):
         return false
+    job["cured"] = Malware.strain(job)
     job["infection"] = ""
     save_game()
     return true
+
+
+# D133: store a monitor measurement on the ticket, stamped with the PC's current fingerprint.
+# kind: "hardware" {ok}, "temp" {value}, or "games" {fps, temp} with a game id.
+func record_test(kind: String, data: Dictionary, game_id: String = "") -> void:
+    if job["state"] == "done": return
+    var tests: Dictionary = WorkReport.sanitize_tests(job.get("tests", {}))
+    var entry: Dictionary = data.duplicate()
+    entry["sig"] = WorkReport.signature(job)
+    if kind == "games": tests["games"][game_id] = entry
+    else: tests[kind] = entry
+    job["tests"] = WorkReport.sanitize_tests(tests)
+    save_game()
+
+
+# D133: timed monitor tests spend night minutes.
+func advance_night(minutes: int) -> void:
+    night_minutes += maxi(0, minutes)
+    save_game()
 
 
 # D132: the overclocker's two settings, clamped to their ranges.
@@ -491,6 +516,7 @@ func save_game() -> void:
         "owned_games": owned_games,
         "customer_state": customer_state,
         "tickets_taken": tickets_taken,
+        "night_minutes": night_minutes,
         "job": job,
     }
     SaveStore.write(save_path, data)
@@ -568,6 +594,7 @@ func load_game() -> bool:
             customer_state[str(cid)] = {"trust": clampi(int((entry as Dictionary).get("trust", int(record.get("trust_start", 50)))), 0, 100),
                 "history": past}
     tickets_taken = maxi(0, int(data.get("tickets_taken", 0)))
+    night_minutes = maxi(0, int(data.get("night_minutes", 0))) if typeof(data.get("night_minutes", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
     job = _make_job()
     var saved: Variant = data.get("job", {})
     if typeof(saved) == TYPE_DICTIONARY:
@@ -611,6 +638,8 @@ func load_game() -> bool:
         job["customer"] = Customers.customer("t001_mara")["name"]
     job["pc_powered"] = bool(job.get("pc_powered", false))
     job["infection"] = Malware.sanitize(job.get("infection", ""))
+    job["cured"] = Malware.sanitize(job.get("cured", ""))
+    job["tests"] = WorkReport.sanitize_tests(job.get("tests", {}))
     job["overclock"] = Overclock.sanitize(job.get("overclock", {}))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []

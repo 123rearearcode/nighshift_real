@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.40.0)
+# Nightshift - Godot Foundation Trial (v0.41.0)
+
+New in 0.41.0: **the monitor measures, and measuring takes time.** Running a game now takes 30 minutes of
+the night (a few real seconds, with a progress bar); the long stress test takes 20. A night clock shows
+the time (there is no end-of-night rule yet). "Final / thermal check" is now **Hardware check**: it only
+says whether every part is in place, working and the cooler locked. Beside the monitor there are two tabs:
+**Work + match** (the main one: what you have done to this PC, and how what you have MEASURED matches the
+customer's request) and **Client**. Temperatures now come from game and stress tests.
 
 New in 0.40.0: **the diagnostic monitor's last two apps work.** Anti-virus: some PCs arrive infected
 (the customer only hints: pop-ups, fans spinning up). Scan, then Remove threat; if you never scan, the

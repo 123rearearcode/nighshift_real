@@ -177,6 +177,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
 | `scenes/night_shop.tscn` | scene | Shop activity scene |
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/rules/work_report.gd` | rules | Hardware check, work-done lines and the measured match to the customer's request (D133) |
+| `scripts/rules/night_clock.gd` | rules | Night clock label and how many night minutes timed tests take (D133) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
 | `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |
