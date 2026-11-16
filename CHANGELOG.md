@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.43.0 - 2026-11-16 - Wave 3 session 3.1: tickets and pickup
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.42.0 (Codex's menu navigation, integrated by Claude on top of 0.41.2)
+- Type: minor (new player actions; job gains optional `ticket`; old saves load as open)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 43958975963: all 21 required suites green, including the new Tickets and pickup suite (30 checks, with native right-clicks in the room and on the ticket). Two earlier runs caught a crash in the ticket rule (B34). No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D134/D135): `ticket.gd`, a ticket as one record derived from the job (request, customer, machine, symptoms, requirements, terms, status), with the pickup flags stored in `job["ticket"]`.
+- Added: right-click a customer PC in the workshop room, or the ticket at the top of the workbench, for **Mark ready for pickup** (READY sticker, a note only) and **Call the customer** (CALLED tag: collects next morning). Both undo. Clicking the ticket opens the full ticket with the same two buttons.
+- Added: `NightSession.ticket_action` changes any of tonight's tickets, active or stored, and saves both files; refused on a protected manifest or a collected ticket.
+- Changed: the room's PC details show the ticket status.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/ticket.gd`, `scripts/night/ticket_menu.gd`, `tools/test_tickets_pickup.gd` | A | Rule, shared menu and window, suite |
+| `scripts/state/game_state.gd`, `scripts/night/night_session.gd`, `scripts/night/night_navigation.gd`, `scripts/storage/storage_view.gd`, `.github/workflows/tests.yml` | M | Field, session API, header ticket, room right-click and stickers, suite registration |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `docs/MENU_NAVIGATION.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+D145 (the header identity is the ticket); sticker colours.
+
+### Known issues and open items
+Calling has no effect yet: the morning (collection, pay, report) is session 3.2. The ticket has only repair requests.
+
+### Next action
+Session 3.2 (0.44.0) after a short talk: which hidden faults show at pickup and which come back later.
+
 ## 0.42.0 - 2026-11-16 - Direct workbench tabs, room modes, Pause and Continue
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work

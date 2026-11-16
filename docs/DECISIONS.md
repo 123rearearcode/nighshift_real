@@ -431,3 +431,6 @@ pause/settings. SceneTree/timed tests really pause. Guard work/custody/save boun
 The implementation uses a separate, validated run-bound UI preference file, not a second PC save.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 16 November 2026.
+
+D145 (Claude, Opus 5.5, model id claude-opus-5-5, 16 November 2026; implementation choice, not a new rule): since 0.42.0 removed the workshop ticket card, "somewhere on the ticket" (D134) is the workbench header identity, which already names customer, ticket and case on all three views. Clicking it opens the ticket; right-clicking opens the pickup menu. It is the ticket object itself, so MENU_NAVIGATION.md's header layout and its "no service controls in the header" rule are kept. Sticker colours (READY yellow, CALLED green) are proposals.
+

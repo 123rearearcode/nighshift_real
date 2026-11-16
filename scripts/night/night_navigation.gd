@@ -2,6 +2,7 @@
 extends RefCounted
 const Memory = preload("res://scripts/night/navigation_state.gd")
 const Pause = preload("res://scripts/night/pause_menu.gd")
+const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const ACTIVITIES := "res://scenes/activities.tscn"
 const ROOM := "res://scenes/storage.tscn"
 const REPAIR := "res://scenes/night_bench.tscn"
@@ -45,10 +46,28 @@ static func workbench(owner: Node,selected: String,activities_action: Callable) 
     identity.name = "PCIdentity"
     identity.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
     identity.add_theme_font_size_override("font_size",19)
-    identity.text = "%s · %s · %s PC"%[gs.job["customer"],gs.job["id"],str(gs.job.get("layout","tower")).capitalize()]
+    identity.text = TicketMenu.identity_text(gs.job)
     identity.position = Vector2(172,22)
     identity.size = Vector2(806,34)
     owner.add_child(identity)
+    # D134/D135 (0.43.0): the identity IS the ticket. Click opens the ticket; right-click is the pickup menu.
+    # It is the ticket's own object, not a navigation or service control, so the header layout is unchanged.
+    var ticket := Button.new()
+    ticket.name = "TicketButton"
+    ticket.flat = true
+    ticket.focus_mode = Control.FOCUS_NONE
+    ticket.position = identity.position
+    ticket.size = Vector2(minf(identity.size.x,ThemeDB.fallback_font.get_string_size(identity.text,HORIZONTAL_ALIGNMENT_LEFT,-1,19).x+16.0),identity.size.y)
+    ticket.tooltip_text = "This PC's ticket. Click to open it; right-click to mark it ready for pickup or call the customer."
+    owner.add_child(ticket)
+    var id: String = str(gs.job["id"])
+    var after := func(result: Dictionary) -> void:
+        identity.text = TicketMenu.identity_text(gs.job)
+        if owner.has_method("_ticket_changed"): owner.call("_ticket_changed",result)
+    ticket.pressed.connect(func() -> void: TicketMenu.window(owner,id,after))
+    ticket.gui_input.connect(func(event: InputEvent) -> void:
+        if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            TicketMenu.popup(owner,id,owner.get_viewport().get_mouse_position(),after))
     var entries: Array = [["repair","Repair",REPAIR],["hardware","Hardware",HARDWARE],["monitor","Diagnostic monitor",MONITOR]]
     for i in range(entries.size()):
         var entry: Array = entries[i]

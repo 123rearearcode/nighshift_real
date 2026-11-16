@@ -16,7 +16,12 @@ hand-back, no payment and no next customer in the night flow, nothing ends the n
 the fault outright, and there are only two fixed customers. The pickup score, hidden faults and trust exist
 in the rules but are never reached from the night flow.
 
-## 2. Pickup: right-click a PC (D134)
+## 2. Pickup: right-click a PC (D134) — BUILT in 0.43.0
+
+Built: the room's right-click on a PC and the workbench ticket (the header identity: click opens the
+ticket, right-click the menu) share one menu. Ready = yellow READY sticker, a note only. Called = green
+CALLED tag; both undo. Stored in job["ticket"] {request, ready, called}; the record is derived
+(`scripts/rules/ticket.gd`). Nothing happens in the morning yet (session 3.2).
 
 - DECIDED: PCs can be right-clicked, both in the storage room and somewhere on the ticket.
 - DECIDED: one option labels the PC as **ready for pickup**. It is an internal note for the player and

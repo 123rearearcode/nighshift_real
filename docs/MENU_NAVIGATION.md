@@ -74,6 +74,10 @@ Salvage remains session-only: resuming its activity after app restart opens the 
 its existing session rules, not a newly implemented persistent dumpster save. Drive home still
 costs its existing time; it is an outing action, not a free navigation shortcut.
 
+## Ticket identity (0.43.0, D145)
+The centre identity is also the ticket: click opens the ticket window, right-click the pickup menu
+(ready sticker, call the customer). It stays the identity label; no new navigation layer or button row.
+
 ## Requirements for future contributors
 
 1. Read this file before any menu/path change. These approved rules are mandatory unless the user
