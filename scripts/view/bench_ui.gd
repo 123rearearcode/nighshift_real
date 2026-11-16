@@ -49,7 +49,7 @@ func _build_ui() -> void:
     var stage_group := ButtonGroup.new()
     var b1: Button = _make_button("Cleaning", Vector2(bv.PANEL_X, 100), Vector2(250, 40), bv._select_stage.bind(bv.STAGE_CLEAN), stage_group)
     var b2: Button = _make_button("Thermal service", Vector2(bv.PANEL_X + 270, 100), Vector2(250, 40), bv._select_stage.bind(bv.STAGE_PASTE), stage_group)
-    bv.stage_buttons = [b1,b2]
+    bv.stage_buttons.assign([b1,b2])   # typed Array[Button] on the bench: assign, not replace
     _style_stage_button(b1,Color("65c7b1"))
     _style_stage_button(b2,Color("b7a3ef"))
     b1.button_pressed = true
