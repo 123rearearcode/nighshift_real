@@ -42,7 +42,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 ## 0.42.0 - 2026-11-16 - Direct workbench tabs, room modes, Pause and Continue
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
-- Integrated by: Claude (Opus 5.5, model id claude-opus-5-5), 16 November 2026, on top of main 0.41.2 (repair-bench split). The user had playtested it. Its decisions D134–D136 were renumbered D142–D144 (main already had D134–D141). CI_RESULT_PLACEHOLDER
+- Integrated by: Claude (Opus 5.5, model id claude-opus-5-5), 16 November 2026, on top of main 0.41.2 (repair-bench split). The user had playtested it. Its decisions D134–D136 were renumbered D142–D144 (main already had D134–D141). Integrated tree: GitHub Actions run 43952711926, all required suites green.
 - Based on: merged main 0.41.0 (1a46912), including Claude's 0.38–0.41 work; new feature/menu-navigation branch
 - Type: minor (approved menu roles/paths, real Pause and compatible UI-only resume preferences)
 
