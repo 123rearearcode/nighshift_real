@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: patch (bench feedback and one order change; no save change)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions run 43966771126: all required suites green (install technique 33 checks, including the three playtest fixes) and the full scripted bench diagnostics. No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Fixed (B37): the screws could not be done while holding Space: the screwdriver was refused until the 10-second press ended. It can now be taken at any time during the press; with it in hand the mouse turns screws and Space alone presses (D147).
