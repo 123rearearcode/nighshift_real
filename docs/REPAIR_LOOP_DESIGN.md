@@ -113,6 +113,40 @@ in the rules but are never reached from the night flow.
 - DECIDED: tickets are randomly generated, and variety comes from **events applied to tickets** (a pool
   of faults, infections and requests, including the customer whose stated need is wrong).
 
+## 7a. Build requests in detail (D140, 16 November 2026)
+
+- DECIDED: customers come with a **budget** and **needs**: play certain games, light / medium / heavy office
+  work, video editing, crypto mining, maybe more later. Some customers also need more storage or RAM.
+- DECIDED: every PC has six stats: **processing score, graphics score, RAM available, storage available,
+  PSU, cooler**. Each use has a minimum for each stat that such a customer normally needs.
+- DECIDED: **needs versus wants**: needs are hard minimums, wants are soft extras that move the reaction.
+- DECIDED: **budget pressure** (some budgets too tight for new parts). Customer **personas** will affect it,
+  with lore woven in: designed later.
+- DECIDED: PSU and cooler are **support** stats (they must cover what the other parts draw and produce),
+  but customers **can also ask for quietness**.
+- DECIDED: parts are named **like real hardware** (names and brands the player learns).
+- DECIDED: builds get an **elegance score** that ties into the **shop level** and gives good **online
+  reviews**.
+- DECIDED: salvaged parts need a **testing bay** to learn their real condition.
+- DECIDED: **mining customers** will be a persona.
+- LATER (user): the upsell temptation; the wrong self-diagnosis (may be added later); new uses (not yet).
+- PROPOSED uses table (numbers to tune, not confirmed):
+
+| Use | Processing | Graphics | RAM GB | Storage GB |
+| --- | --- | --- | --- | --- |
+| Light office | 60 | 0 | 8 | 250 |
+| Medium office | 90 | 0 | 16 | 500 |
+| Heavy office | 130 | 20 | 32 | 1000 |
+| Gaming | set by the game | set by the game | set by the game | the game's size |
+| Video editing | 150 | 80 | 32 | 2000 |
+| Crypto mining | 40 | 200 | 8 | 250 |
+| Streaming | game + 50 | game | game + 16 | game + 500 |
+| Music production | 120 | 0 | 32 | 1000 |
+| School / kid's PC | 70 | 30 | 8 | 500 |
+
+## 7b. The Wave 3 plan (D141)
+The user approved a plan of coding sessions 3.0 to 3.8 (one release each). It lives in docs/WORK_PLAN.md.
+
 ## 7. Money and upgrades (D139)
 
 - DECIDED: upgrades are discussed later. The only fixed point so far is in section 5: an upgrade can

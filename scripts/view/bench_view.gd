@@ -32,6 +32,11 @@ const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const PieceCollision = preload("res://scripts/bench/piece_collision.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
+const BenchThermal = preload("res://scripts/view/bench_thermal.gd")
+const BenchCleaning = preload("res://scripts/view/bench_cleaning.gd")
+const BenchParts = preload("res://scripts/view/bench_parts.gd")
+const BenchUi = preload("res://scripts/view/bench_ui.gd")
+const BenchInput = preload("res://scripts/view/bench_input.gd")
 
 const STAGE_CLEAN: int = Ids.STAGE_CLEAN
 const STAGE_PASTE: int = Ids.STAGE_PASTE
@@ -142,6 +147,13 @@ var backdrop: Node2D
 var _vacuum_ui_key := Vector3i(-1,-1,-1)
 var _paste_ui_key: int = -1
 var vacuum_ui_updates: int = 0
+# 0.42.0: the bench's behaviour lives in five helpers (one-line wrappers below keep the old names).
+# They keep no state of their own; every bench variable stays here.
+var thermal := BenchThermal.new(self)    # paste, mount, install ritual (bench_thermal.gd)
+var cleaning := BenchCleaning.new(self)  # dust, pick, bin, collisions, fans (bench_cleaning.gd)
+var parts := BenchParts.new(self)        # movable parts and Replacement stock (bench_parts.gd)
+var ui_builder := BenchUi.new(self)      # buttons, labels and panels (bench_ui.gd)
+var input_router := BenchInput.new(self) # mouse and keyboard, through the hand state (bench_input.gd)
 
 
 func _ready() -> void:
@@ -165,22 +177,7 @@ func _ready() -> void:
     _select_stage(STAGE_CLEAN)
 
 
-# Fresh, reopened and New dirty PC use the same geometry + restoration sequence.
-func _initialize_dust() -> void:
-    dust.setup(zones, PC_ORIGIN, DUST_SEED)
-    access.setup(zones, PC_ORIGIN, GameState.job.get("removed_parts", []))
-    part_motions.clear()
-    part_bodies.clear()
-    _init_part_motion()
-    previous_poses.clear()
-    blocker_key = ""
-    _sync_part_geometry()
-    var restored: bool = DustSnapshot.restore(dust, GameState.job.get("dust_state", {}))
-    if not restored:
-        for i in range(zones.size()): dust.apply_progress(i,GameState.dust_fraction(str(zones[i]["id"])))
-    zone_done.clear()
-    for i in range(zones.size()): zone_done.append(dust.removed_fraction(i) >= DustZones.CLEAN_AT)
-    tools.clamp_pc = dust.case_bounds
+func _initialize_dust() -> void: cleaning._initialize_dust()
 
 
 func _sound(id: String, context: Dictionary = {}) -> void:
@@ -230,129 +227,21 @@ func _exit_tree() -> void:
 
 # ---------- saving dust progress ----------
 
-func _dust_fractions() -> Dictionary:
-    var out: Dictionary = {}
-    for i in range(zones.size()):
-        var z: Dictionary = zones[i]
-        out[str(z["id"])] = dust.removed_fraction(i)
-    return out
+func _dust_fractions() -> Dictionary: return cleaning._dust_fractions()
 
 
-func _save_dust() -> void:
-    if zones.is_empty() or loaded_job_id != str(GameState.job["id"]):
-        return
-    _save_service_positions()
-    GameState.set_dust(_dust_fractions(),DustSnapshot.capture(dust))
-    dust_dirty = false
-    save_timer = 0.0
+func _save_dust() -> void: cleaning._save_dust()
 
 
-func _done_count() -> int:
-    var n: int = 0
-    for d in zone_done:
-        if bool(d):
-            n += 1
-    return n
+func _done_count() -> int: return cleaning._done_count()
 
 
 # ---------- UI ----------
 
-func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable, group: ButtonGroup = null) -> Button:
-    var b := Button.new()
-    b.text = text
-    b.position = pos
-    b.size = size
-    b.focus_mode = Control.FOCUS_NONE
-    if group != null:
-        b.toggle_mode = true
-        b.button_group = group
-    b.pressed.connect(callback)
-    b.pressed.connect(func() -> void: _sound("ui.click"))
-    add_child(b)
-    return b
+func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable, group: ButtonGroup = null) -> Button: return ui_builder._make_button(text, pos, size, callback, group)
 
 
-func _build_ui() -> void:
-    title_label = Label.new()
-    title_label.position = Vector2(40, 16)
-    title_label.size = Vector2(1200, 70)
-    title_label.add_theme_font_size_override("font_size", 18)
-    title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    add_child(title_label)
-
-    status_label = Label.new()
-    status_label.position = Vector2(PANEL_X, 556)
-    status_label.size = Vector2(520, 85)
-    status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    status_label.add_theme_font_size_override("font_size", 16)
-    add_child(status_label)
-
-    var stage_group := ButtonGroup.new()
-    var b1: Button = _make_button("Cleaning", Vector2(PANEL_X, 100), Vector2(250, 40), _select_stage.bind(STAGE_CLEAN), stage_group)
-    var b2: Button = _make_button("Thermal service", Vector2(PANEL_X + 270, 100), Vector2(250, 40), _select_stage.bind(STAGE_PASTE), stage_group)
-    stage_buttons = [b1,b2]
-    _style_stage_button(b1,Color("65c7b1"))
-    _style_stage_button(b2,Color("b7a3ef"))
-    b1.button_pressed = true
-
-    var tool_group := ButtonGroup.new()
-    var vac: Button = _make_button("Vacuum (2)", Vector2(PANEL_X + 133, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_VACUUM), tool_group)
-    var brush: Button = _make_button("Brush (1)", Vector2(PANEL_X, 164), Vector2(120, 36), _select_tool.bind(DustSim.TOOL_BRUSH), tool_group)
-    brush.button_pressed = true
-    tool_buttons = [vac, brush]
-    var reset_dust: Button = _make_button("Practice: new dirty PC", Vector2(PANEL_X + 270, 645), Vector2(250, 40), _new_ticket)
-    move_button = _make_button("Move parts (3)", Vector2(PANEL_X + 266, 164), Vector2(120, 36), _select_tool.bind(2), tool_group)
-    tool_buttons.append(move_button)
-    var pick_button: Button = _make_button("Pick (4) / risky", Vector2(PANEL_X + 399, 164), Vector2(120, 36), _select_tool.bind(3), tool_group)
-    tool_buttons.append(pick_button)
-    for b: Button in [vac,brush,move_button,pick_button]: b.add_theme_font_size_override("font_size",14)
-    # Colour-coded tools (D90): the button's text carries its tool's colour in every state.
-    for slot in range(tool_buttons.size()):
-        for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color","font_hover_pressed_color"]:
-            (tool_buttons[slot] as Button).add_theme_color_override(state, TOOL_COLORS[slot])
-    empty_bin_button = _make_button("Empty bin",Vector2(PANEL_X,220),Vector2(250,32),_empty_bin)
-    stock_button = _make_button("Replacement stock",Vector2(PANEL_X+270,220),Vector2(250,32),_open_replacements)
-    vacuum_status = Label.new()
-    vacuum_status.position = Vector2(PANEL_X,260)
-    vacuum_status.size = Vector2(520,24)
-    vacuum_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    vacuum_status.add_theme_font_size_override("font_size",16)
-    add_child(vacuum_status)
-    retract_button = _make_button("RETRACT",Layout.BENCH_RETRACT.position,Layout.BENCH_RETRACT.size,_retract_hose)
-    retract_button.add_theme_font_size_override("font_size",9)
-    for state: String in ["normal","hover","pressed","hover_pressed"]:
-        var face := StyleBoxFlat.new()
-        face.bg_color = Color("365368") if state == "normal" else Color("557f97")
-        face.set_content_margin_all(1)
-        retract_button.add_theme_stylebox_override(state,face)
-    retract_button.size = Layout.BENCH_RETRACT.size
-    retract_button.tooltip_text = "Retract hose into the vacuum bin. Pull the vacuum or hose to feed it out again."
-    clean_controls = [retract_button,vac,brush,reset_dust,move_button,pick_button,empty_bin_button,stock_button,vacuum_status]
-    _refresh_vacuum_status()
-
-    mount_button = _make_button("Mount cooler",Vector2(PASTE_ORIGIN.x,628),Vector2(PasteSim.GRID*PASTE_CELL,44),_on_mount_pressed)
-    clear_button = _make_button("Reset paste (practice)",Vector2(PANEL_X,210),Vector2(250,40),_on_clear_pressed)
-    material_button = MenuButton.new()
-    material_button.position = Vector2(PANEL_X,160)
-    material_button.size = Vector2(520,40)
-    material_button.focus_mode = Control.FOCUS_NONE
-    var menu: PopupMenu = material_button.get_popup()
-    for i in range(PasteMaterials.IDS.size()):
-        var kind: Dictionary = PasteMaterials.material(PasteMaterials.IDS[i])
-        menu.add_radio_check_item("%s · %s"%[kind["label"],"free (scam)" if kind["scam"] else "$%d"%kind["cost"]],i)
-    menu.id_pressed.connect(_on_material_selected)
-    menu.about_to_popup.connect(_refresh_material_menu)
-    add_child(material_button)
-    complete_button = _make_button("Complete repaste",Vector2(PANEL_X+270,210),Vector2(250,40),_on_complete_pressed)
-    film_button = _make_button("Cooler base",Vector2(PANEL_X,258),Vector2(250,40),_on_film_pressed)
-    film_button.tooltip_text = "Look at the cooler's contact plate."
-    paste_controls = [mount_button,clear_button,material_button,complete_button,film_button]
-
-    var back: Button = _make_button("Back to shop", Vector2(PANEL_X, 645), Vector2(250, 44), _on_back_pressed)
-    back.tooltip_text = "Saves work. An unfinished cooler mount is cancelled; only its lever locks it."
-    paste.material = str(GameState.job["paste_material"]) if str(GameState.job["paste_material"]) in PasteMaterials.IDS else "thermal"
-    _refresh_material_button()
-    _build_replacements()
+func _build_ui() -> void: ui_builder._build_ui()
 
 
 func _set_status(text: String, tone: int) -> void:
@@ -411,14 +300,7 @@ func _select_stage(new_stage: int) -> void:
     queue_redraw()
 
 
-func _clean_hint() -> String:
-    if active_tool == 3:
-        return "Pick: hover cooler/GPU to inspect trapped dust; hold to extract (0.8s, 12% damage risk per attempt). Safe alternative: remove the part. Broken? Move it to tray, then choose Replacements."
-    if active_tool == 2:
-        return "Move parts: drag cooler or GPU onto the tray. Clean their surfaces there, then clean the exposed board. Drag each back to its mount before final check."
-    if active_tool == DustSim.TOOL_VACUUM:
-        return "Vacuum: hold over dirt. Tails hanging from under parts can be pulled very slowly with precise suction; remove the part for easier access. Short hose: rotate/re-route to reach the far-left corner."
-    return "Brush: sweep the bristles over dust to loosen it (it turns lighter). Fast strokes scatter it through the case; watch for trapped dust and clogged filter. The brush removes nothing by itself; vacuum the loosened bundle afterwards, which is faster."
+func _clean_hint() -> String: return cleaning._clean_hint()
 
 
 func _select_tool(new_tool: int) -> void:
@@ -440,125 +322,37 @@ func _select_tool(new_tool: int) -> void:
         _set_status(_clean_hint(), 0)
 
 
-func _on_reset_dust() -> void:
-    holding = false
-    var fresh: Dictionary = {}
-    for z: Dictionary in zones: fresh[str(z["id"])] = 1.0 if z["id"] == "case_interior" else 0.0
-    _save_service_positions()
-    GameState.set_dust(fresh)
-    _initialize_dust()
-    tools.flow.clear()
-    cooler_rpm = FAN_RPM_DUSTY if GameState.job["pc_powered"] else 0.0
-    case_rpm = FAN_RPM_DUSTY if GameState.job["pc_powered"] else 0.0
-    _save_dust()
-    _set_status(_clean_hint(), 0)
+func _on_reset_dust() -> void: cleaning._on_reset_dust()
 
 
-func _on_mount_pressed() -> void:
-    if mount.active or not mount_result.is_empty():
-        return
-    if paste.total_deposited < 1.0:
-        _set_status("Squeeze some paste onto the CPU first: hold the left mouse button over it.", 2)
-        return
-    if not _may_enter(HandState.MOUNTING):
-        return
-    _park_tool()   # pressing the cooler uses free hands; a syringe must not stay stuck to the cursor
-    mount.start()
-    screw_clicks.clear()
-    holding = false
-    wiping = false
-    _set_status("Press now! Hold the left mouse button over the socket (or Space). Pressure builds slowly and eases off when you let go. Release once CPU covered passes the line; stop too late and paste squeezes out. Once the time is up: right-click the screwdriver on the bench, tighten the four corner screws, then click the lever beside the socket to lock the cooler.", 0)
-    time_up_told = false
-    _sync_paste_controls()
+func _on_mount_pressed() -> void: thermal._on_mount_pressed()
 
 
-# Material cannot change inside a deposited/locked layer. There is never a mixed-material field.
-func _can_change_material() -> bool:
-    return paste.total_deposited <= 0.0 and not mount.active and mount_result.is_empty() and not bool(GameState.job["paste_done"])
+func _can_change_material() -> bool: return thermal._can_change_material()
 
-func _refresh_material_menu(announce: bool = true) -> void:
-    var menu: PopupMenu = material_button.get_popup()
-    for i in range(PasteMaterials.IDS.size()):
-        menu.set_item_checked(i,paste.material == PasteMaterials.IDS[i])
-        menu.set_item_disabled(i,not _can_change_material())
-    if announce and not _can_change_material(): _set_status("Wipe/reset the paste first before choosing another material.",2)
+func _refresh_material_menu(announce: bool = true) -> void: thermal._refresh_material_menu(announce)
 
-func _on_material_selected(index: int) -> void:
-    if index<0 or index>=PasteMaterials.IDS.size(): return
-    if not _can_change_material():
-        _set_status("Wipe/reset the paste first before choosing another material.",2)
-        return
-    paste.material = PasteMaterials.IDS[index]
-    _sound("ui.click")
-    _refresh_material_button()
-    paste_dirty = true
-    var kind: Dictionary = PasteMaterials.material(paste.material)
-    if bool(kind["scam"]):
-        _set_status("Toothpaste: free, stiffer, worse cooling. Billing this as a real repaste is a scam.",2)
-    else:
-        _set_status("%s ($%d%s).%s"%[kind["label"],kind["cost"],_material_charge_note()," Better cooling (trial: 4°C lower)." if paste.material == "super" else ""],0)
+func _on_material_selected(index: int) -> void: thermal._on_material_selected(index)
 
-func _material_charge_note() -> String:
-    return ", charged when repaste is completed"
+func _material_charge_note() -> String: return thermal._material_charge_note()
 
-func _refresh_material_button() -> void:
-    var kind: Dictionary = PasteMaterials.material(paste.material)
-    material_button.text = "Paste: %s%s"%[kind["label"]," (scam / free)" if kind["scam"] else " ($%d)"%kind["cost"]]
-    material_button.tooltip_text = "Choose normal paste, super-paste (better cooling), or toothpaste (scam). Wipe/reset before changing a layer."
-    _refresh_material_menu(false)
+func _refresh_material_button() -> void: thermal._refresh_material_button()
 
-# Complete repaste: only a PERFECT or GOOD ENOUGH mount can be completed.
-func _on_complete_pressed() -> void:
-    if mount.active or mount_result.is_empty():
-        return
-    var result: Dictionary = GameState.complete_repaste(paste.material)
-    if not result["ok"]:
-        _set_status(str(result["message"]) + " Wipe the paste off (cloth or Clear all paste) and try again.", 3)
-        return
-    _sound("cooler.complete",{"material":paste.material,"grade":str(GameState.job["paste_grade"])})
-    if paste.material == "toothpaste":
-        _set_status("Repaste \"complete\": toothpaste under the cooler. The customer will pay for thermal paste. It will pass today's check but run hotter and dry out.", 2)
-    else:
-        _set_status("Repaste complete: %s with %s ($%d). Run the final check in the shop." % [str(GameState.job["paste_grade"]),PasteMaterials.material(paste.material)["label"],int(result["cost"])], 1)
+func _on_complete_pressed() -> void: thermal._on_complete_pressed()
 
 
-func _on_clear_pressed() -> void:
-    if mount.active:
-        return
-    paste.clear()
-    mount_result = {}
-    live_stats = {"coverage": 0.0, "overflow": 0.0}
-    paste_dirty = true
-    GameState.clear_paste()
-    _set_status("All paste cleared. Squeeze a new blob onto the CPU.", 0)
-    _sync_paste_controls()
+func _on_clear_pressed() -> void: thermal._on_clear_pressed()
 
 
-func _cloth_is_square() -> bool:
-    return GameState.has_upgrade("square_cloth")
+func _cloth_is_square() -> bool: return thermal._cloth_is_square()
 
 
-func _select_dispense() -> void:
-    if not _equip_tool(Ids.SYRINGE,_pointer()):
-        return
-    wiping = false
-    holding = false
-    _set_status("Syringe selected. Hold on the CPU to apply paste; select cloth to wipe.", 0)
-    queue_redraw()
+func _select_dispense() -> void: thermal._select_dispense()
 
 
-func _select_cloth() -> void:
-    if not _equip_tool(Ids.CLOTH,_pointer()): return
-    wiping = true
-    holding = false
-    _set_status("Cloth selected. Pick up the syringe from the bench to dispense again.",0)
+func _select_cloth() -> void: thermal._select_cloth()
 
-func _cancel_unlocked_mount() -> void:
-    if not mount.active: return
-    mount.finish()
-    mount_result = {}
-    GameState.clear_paste()
-    _sound("cooler.cancel")
+func _cancel_unlocked_mount() -> void: thermal._cancel_unlocked_mount()
 
 
 func _on_back_pressed() -> void:
@@ -602,194 +396,7 @@ func _work_rect() -> Rect2:
     return Rect2(PASTE_ORIGIN, Vector2(side, side))
 
 
-func _input(event: InputEvent) -> void:
-    if is_instance_valid(replacement_panel) and replacement_panel.visible: return
-    if event is InputEventMouseMotion and turning_with_mouse:
-        turn_travel += (event as InputEventMouseMotion).relative.x
-        var steps: int = int(turn_travel / TURN_DRAG_PIXELS)
-        if steps != 0:
-            turn_travel -= float(steps) * TURN_DRAG_PIXELS
-            tools.rotate_steps(steps)
-    if event is InputEventMouseMotion:
-        var now: int = Time.get_ticks_msec()
-        if pointer_tick > 0:
-            event_velocity = event_velocity.lerp(((event.position-pointer_event)/maxf(0.008,float(now-pointer_tick)/1000.0)).limit_length(2200),0.6)
-        pointer_tick = now
-        pointer_event = event.position
-    if event is InputEventMouseButton:
-        var mb: InputEventMouseButton = event
-        if stage == STAGE_CLEAN and mb.button_index in [MOUSE_BUTTON_LEFT,MOUSE_BUTTON_RIGHT]:
-            if not mb.pressed and clamp_button == mb.button_index:
-                tools.move_clamp(mb.position)
-                var clicked: bool = clamp_press.distance_to(mb.position) < 5.0
-                tools.end_clamp_drag()
-                if clicked and clamp_button == MOUSE_BUTTON_LEFT:
-                    tools.unclamp_hose()
-                    _sound("clamp.release")
-                clamp_button = 0
-                holding = false
-                return
-            if mb.pressed and tools.hose_grab < 0 and _may_enter(HandState.DRAGGING_CLAMP) and tools.begin_clamp_drag(mb.position):
-                clamp_button = mb.button_index
-                clamp_press = mb.position
-                holding = false
-                return
-        # Middle mouse turns the held tool: spin the wheel, or hold the middle button and drag sideways.
-        if mb.button_index == MOUSE_BUTTON_MIDDLE:
-            turning_with_mouse = mb.pressed
-            turn_travel = 0.0
-            return
-        if mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
-            tools.rotate_held(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
-            return
-        # The clamp never steals a held-tool click. Empty hands can unclip it.
-        if mb.button_index == MOUSE_BUTTON_RIGHT and not mb.pressed and tools.hose_grab >= 0:
-            tools.release_hose(mb.position)
-            if tools.hose_clamp > 0:
-                _sound("clamp.lock")
-                _set_status("Hose parked in the clamp. Pick up a tool to keep working; click the clamp with empty hands to release.", 1)
-            elif tools.clamp_hit(mb.position):
-                _set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
-            holding = false
-            return
-        # D131: mid-mount the hands are busy with the cooler. Once the paste has set, the SCREWDRIVER (and only it)
-        # can be picked up for the corner screws; right-click again puts it down. Every other tool stays refused.
-        if mb.button_index == MOUSE_BUTTON_RIGHT and stage == STAGE_PASTE and mount.active:
-            if mb.pressed:
-                if tools.equipped:
-                    var was_screwdriver: bool = tools.selected == Ids.SCREWDRIVER
-                    _park_tool()
-                    if was_screwdriver: _set_status("Screwdriver put down. Right-click it on the bench to pick it up again.", 0)
-                elif not tools.equipped and mount.time_left <= 0.0 and tools.hit(mb.position, Ids.PASTE_TOOLS) == Ids.SCREWDRIVER:
-                    tools.select(Ids.SCREWDRIVER, mb.position)
-                    _sound("handling.pickup", {"kind": Ids.SCREWDRIVER})
-                    _set_status("Screwdriver in hand. Click the four corner screws: opposite corners in turn, two passes. Then click the lever.", 0)
-            holding = false
-            return
-        if mb.button_index == MOUSE_BUTTON_RIGHT and (stage == STAGE_PASTE or active_tool != 2 or mb.shift_pressed):
-            if mb.pressed:
-                var candidate: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
-                var was_equipped: bool = tools.equipped
-                if (candidate == "" or mb.shift_pressed) and stage == STAGE_CLEAN and (not tools.equipped or mb.shift_pressed) and _may_enter(HandState.CARRYING_HOSE) and tools.grab_hose(mb.position):
-                    if was_equipped: _sound("handling.putdown",{"kind":tools.selected})
-                    _sound("hose.grab")
-                    holding = false
-                    return
-                if stage == STAGE_CLEAN and candidate in Ids.CLEAN_TOOLS:
-                    _select_tool(Ids.TOOL_SLOT[candidate])
-                elif stage == STAGE_PASTE and candidate in Ids.PASTE_TOOLS:
-                    if _equip_tool(candidate,mb.position):
-                        wiping = candidate == Ids.CLOTH
-                if tools.equipped and _may_enter(HandState.THROWING):
-                    tools.begin_throw(mb.position)
-                elif tools.equipped:
-                    # Letting go is always allowed: where a throw is forbidden (mid-mount), the same
-                    # right-click sets the tool down gently instead of winding up (_park_tool plays the sound).
-                    _park_tool()
-            else:
-                var was_carrying: bool = tools.carrying
-                tools.release_throw(event_velocity if Time.get_ticks_msec()-pointer_tick < 140 else Vector2.ZERO)
-                if was_carrying: _sound("handling.putdown",{"kind":tools.selected,"speed":event_velocity.length()})
-                holding = false
-            return
-        if mb.button_index == MOUSE_BUTTON_LEFT:
-            if stage == STAGE_CLEAN and Layout.BENCH_RETRACT.has_point(mb.position):
-                holding = false # native bin button owns this click, not the tool/bin-empty hit tests
-                return
-            # D130: the four corner screws (only while a cooler is pressed on). The click is theirs, not the press.
-            if mb.pressed and stage == STAGE_PASTE and mount.active:
-                var screw: int = InstallFaults.screw_at(_socket_region(), mb.position)
-                if screw >= 0:
-                    holding = false
-                    _screw_click(screw)
-                    return
-            # The cooler is secured by physically clicking its retention lever (there is no button for it).
-            if mb.pressed and stage == STAGE_PASTE and mount.active and SECURE_LEVER.has_point(mb.position):
-                holding = false
-                _sound("cooler.lever")
-                _finish_mount()
-                return
-            # Loose items: empty hands pick one up; releasing drops it (on the trash can it is binned).
-            if stage == STAGE_CLEAN and not mb.pressed and items.carried >= 0:
-                var dropped: Dictionary = items.drop(mb.position, ToolRig.TABLE)
-                if bool(dropped.get("trashed", false)):
-                    _sound("item.trash",{"kind":dropped.get("kind","")})
-                    _set_status("Threw the %s away." % str(dropped.get("kind","item")), 0)
-                else:
-                    _sound("handling.putdown",{"kind":dropped.get("kind",""),"item":"loose"})
-                holding = false
-                return
-            if mb.pressed and stage == STAGE_CLEAN and _may_enter(HandState.CARRYING_ITEM) and items.pick(mb.position):
-                _sound("handling.pickup",{"kind":items.kinds[items.carried],"item":"loose"})
-                holding = false
-                return
-            # The PC's power button, top-right of the case.
-            if mb.pressed and stage == STAGE_CLEAN and Layout.BENCH_POWER.has_point(mb.position) \
-                    and hand_state() in [HandState.FREE, HandState.USING_TOOL]:
-                GameState.set_pc_powered(not bool(GameState.job["pc_powered"]))
-                _sound("ui.click")
-                _set_status("PC powered ON: the fans spin up again." if bool(GameState.job["pc_powered"])
-                    else "PC powered OFF: fans wind down. Boot, temperature and game tests need power; use the workshop monitor.", 0)
-                holding = false
-                return
-            # In explicit parts mode, tools lying on a component must not steal its click.
-            if stage == STAGE_CLEAN and active_tool == 2:
-                if mb.pressed:
-                    var under: String = _part_under(mb.position)
-                    if under != "" and not under in access.removed_ids() and _may_enter(HandState.DRAGGING_PART):
-                        # Unscrewing a fitted part takes time (D89): hold on it; the drag starts when it frees.
-                        lift_id = under
-                        lift_progress = 0.0
-                    elif under != "":
-                        _begin_part_drag(mb.position)   # a part lying in the tray lifts instantly
-                else:
-                    if lift_id != "":
-                        lift_id = ""
-                        _set_status("Let go before it was unscrewed: the part stays fitted.", 0)
-                    _finish_part_drag(mb.position)
-                holding = false
-                return
-            if mb.pressed:
-                # With a tool in hand a left click always uses it (it never swaps to a tool lying next to it).
-                var resting: String = "" if tools.equipped else tools.hit(mb.position,Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS)
-                if resting != "" and ToolRig.TABLE.has_point(mb.position) and resting in (Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS):
-                    if stage == STAGE_CLEAN and resting in Ids.CLEAN_TOOLS:
-                        _select_tool(Ids.TOOL_SLOT[resting])
-                    elif stage == STAGE_PASTE and resting in Ids.PASTE_TOOLS:
-                        if _equip_tool(resting,mb.position):
-                            wiping = resting == Ids.CLOTH
-                    # The pickup press is also the beginning of this tool stroke. Waiting for
-                    # a second click made every freshly picked-up tool look broken.
-                    holding = not mount.active
-                    return
-            if mb.pressed and stage == STAGE_CLEAN and DustBin.RECT.has_point(mb.position):
-                _empty_bin()
-                holding = false
-                return
-            if mb.pressed:
-                holding = _work_rect().has_point(mb.position) and not mount.active
-                if holding and stage == STAGE_PASTE and not wiping and not mount_result.is_empty():
-                    _set_status("The cooler is already mounted. Wipe the paste off with the cloth, or press Clear all paste, before squeezing more.", 2)
-            else:
-                holding = false
-    elif event is InputEventKey:
-        var key: InputEventKey = event
-        if key.pressed and key.keycode == KEY_Q:
-            tools.rotate_held(-1)   # holding the key repeats, so the tool keeps turning
-        elif key.pressed and key.keycode == KEY_E:
-            tools.rotate_held(1)
-        if key.pressed and not key.echo:
-            if stage == STAGE_CLEAN:
-                if key.keycode == KEY_1:
-                    _select_tool(DustSim.TOOL_BRUSH)   # a refused switch leaves the highlight alone: _select_tool updates it only when it happens
-                elif key.keycode == KEY_2:
-                    _select_tool(DustSim.TOOL_VACUUM)
-                elif key.keycode == KEY_3:
-                    _select_tool(2)
-                elif key.keycode == KEY_4:
-                    _select_tool(3)
-            elif key.keycode == KEY_3:
-                _select_dispense()
+func _input(event: InputEvent) -> void: input_router._input(event)
 
 
 # ---------- simulation tick (fixed 60 Hz) ----------
@@ -820,356 +427,64 @@ func _physics_process(delta: float) -> void:
     _sync_audio()
 
 
-func _step_clean(delta: float, mouse: Vector2) -> void:
-    # Unscrewing (D89): holding on a fitted part frees it after PART_LIFT_SECONDS; slipping off cancels.
-    if lift_id != "":
-        if active_tool != 2 or lift_id in access.removed_ids():
-            lift_id = ""
-        else:
-            var rects: Dictionary = _part_rects()
-            if not (rects[lift_id] as Rect2).grow(24.0).has_point(mouse):
-                lift_id = ""
-                _set_status("Unscrewing cancelled: keep the cursor on the part.", 2)
-            else:
-                lift_progress += delta
-                if lift_progress >= PART_LIFT_SECONDS:
-                    var freed: String = lift_id
-                    lift_id = ""
-                    _start_part_drag(freed, mouse)
-    access.move(mouse)
-    _step_part_motion(delta)
-    _sync_part_geometry()
-    var modal_open: bool = is_instance_valid(replacement_panel) and replacement_panel.visible
-    dust.brush_contacts = PackedVector2Array()
-    if active_tool == 1:
-        var angle: float = tools.motions[Ids.BRUSH].angle
-        for point: Vector2 in tools.brush.tips(): dust.brush_contacts.append(mouse+point.rotated(angle))
-    var working: bool = holding and not modal_open and tools.equipped and not tools.carrying and not tools.clamp_dragging
-    var vacuum_ok: bool = not (active_tool == DustSim.TOOL_VACUUM and bin.is_full())   # a full bin stops the suction
-    dust.step(delta, active_tool, mouse, tools.speed, working and vacuum_ok)
-    _audio_loop("vacuum.motor",working and vacuum_ok and active_tool == 0,{"ramp":dust.vac_ramp,"bin_fill":bin.fraction()})
-    _audio_loop("brush.contact",working and active_tool == 1 and dust.last_brush_contacts > 0,{"speed":tools.speed.length(),"contacts":dust.last_brush_contacts})
-    _after_dust_step(delta, mouse)
-    var target: String = _pick_target(mouse)
-    var eligible: bool = active_tool == 3 and working and target != "" and not target in GameState.job["broken_parts"] and GameState.job["state"] != "done" and dust.trapped_count(target) > 0
-    _audio_loop("pick.scrape",eligible,{"part":target})
-    var stroke: Dictionary = pick.step(delta, target, eligible)
-    if not stroke.is_empty():
-        if stroke["damaged"]:
-            GameState.damage_service_part(target)
-            _sound("part.damage",{"kind":target})
-            holding = false
-            _set_status("SNAP! %s damaged. Move it to the tray, then open Replacements. Equivalent parts cost more; budget parts lower the specification." % target.to_upper(), 3)
-        else:
-            dust.pick_extract(target)
-            _sound("pick.extract",{"kind":target})
-            _set_status("Extracted a clump from under %s. %d remain. Another attempt risks damage again." % [target, dust.trapped_count(target)], 2)
-        _save_dust()
-    if holding or dust.motion_changed:
-        dust_dirty = true
-    for i in range(zones.size()):
-        var now_clean: bool = dust.removed_fraction(i) >= DustZones.CLEAN_AT
-        if bool(zone_done[i]) != now_clean:
-            zone_done[i] = now_clean
-            dust_dirty = true
-            if now_clean and not dust.motion_changed: _announce_zone(i)
-    if dust_dirty:
-        save_timer += delta
-        if save_timer >= AUTOSAVE_SECONDS:
-            _save_dust()
-    # Fan speeds follow how clean their own part is; angle advances by exactly RPM * 360 / 60 per second.
-    var target_cooler: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone))
-    var target_case: float = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone))
-    if Ids.COOLER in GameState.job["broken_parts"]: target_cooler = 0.0
-    if not bool(GameState.job["pc_powered"]):
-        target_cooler = 0.0
-        target_case = 0.0
-    cooler_rpm = lerpf(cooler_rpm, target_cooler, 1.0 - exp(-3.0 * delta))
-    case_rpm = lerpf(case_rpm, target_case, 1.0 - exp(-3.0 * delta))
-    cooler_angle += cooler_rpm * TAU / 60.0 * delta   # RPM to radians per second
-    case_angle += case_rpm * TAU / 60.0 * delta
+func _step_clean(delta: float, mouse: Vector2) -> void: cleaning._step_clean(delta, mouse)
 
 
-# Tools and loose parts lying on the bench collide as rotated boxes. Held things push others away and are
-# never pushed. The solid pieces also become obstacles the vacuum hose has to lie around.
-func _step_pieces() -> void:
-    var visible_tools: Array = Ids.CLEAN_TOOLS if stage == STAGE_CLEAN else Ids.PASTE_TOOLS
-    var pieces: Array = tools.collision_pieces(visible_tools)
-    if stage == STAGE_CLEAN and not (is_instance_valid(replacement_panel) and replacement_panel.visible):
-        pieces.append_array(_part_pieces())
-    PieceCollision.resolve(pieces)
-    tools.apply_collisions(pieces)
-    _apply_part_collisions(pieces)
-    var fitted: Array = []
-    if stage == STAGE_CLEAN:
-        for id: String in ServiceAccess.MOVABLE:
-            if id in access.removed_ids() or access.dragging == id: continue
-            var home: Rect2 = access.homes[id]
-            fitted.append({"id": id, "center": home.get_center(), "angle": 0.0, "half": home.size * 0.5})
-    tools.set_hose_obstacles(pieces, fitted)
+func _step_pieces() -> void: cleaning._step_pieces()
 
 
 
-func _part_pieces() -> Array:
-    var out: Array = []
-    for id: String in ServiceAccess.MOVABLE:
-        var dragging: bool = access.dragging == id
-        if not dragging and not id in access.removed_ids(): continue
-        var motion: RefCounted = part_motions[id]
-        var body: RefCounted = part_bodies.get(id)
-        out.append({"id": id, "kind": "part", "center": motion.center, "angle": motion.angle,
-            "half": access.homes[id].size * 0.5,
-            "velocity": motion.velocity if dragging else (Vector2.ZERO if body == null else body.velocity),
-            "spin": 0.0 if (dragging or body == null) else body.angular_velocity,
-            "inv_mass": 0.0 if dragging else 1.0 / float(PART_MASS[id]),
-            "solid": dragging or body == null or not body.active or body.height < ToolRig.SOLID_HEIGHT,
-            "touched": false})
-    return out
+func _part_pieces() -> Array: return cleaning._part_pieces()
 
 
-func _apply_part_collisions(pieces: Array) -> void:
-    for piece: Dictionary in pieces:
-        if piece["kind"] != "part" or not bool(piece["touched"]): continue
-        var id: String = piece["id"]
-        if access.dragging == id: continue
-        var body: RefCounted = part_bodies.get(id)
-        if body == null:
-            body = TableBody.new()
-            part_bodies[id] = body
-        var was_active: bool = body.active
-        body.half_size = access.homes[id].size * 0.5
-        body.center = (piece["center"] as Vector2).clamp(ToolRig.TABLE.position + body.half_size, ToolRig.TABLE.end - body.half_size)
-        body.angle = piece["angle"]
-        body.velocity = piece["velocity"]
-        body.angular_velocity = piece["spin"]
-        if not was_active:
-            body.height = 0.0
-            body.vertical_velocity = 0.0
-            body.active = true
-        part_motions[id].center = body.center
-        part_motions[id].angle = body.angle
+func _apply_part_collisions(pieces: Array) -> void: cleaning._apply_part_collisions(pieces)
 
 
-# Things that follow from one dust step: the bin fills, kicked dust sends up motes, motes float.
-func _after_dust_step(delta: float, nozzle: Vector2) -> void:
-    var swallowed: float = dust.take_swallowed()
-    tools.flow.add(swallowed)   # swallowed dust rides the hose; it fills the bin when it arrives
-    var suction_now: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
-    var arrived: float = tools.flow.step(delta, suction_now, DustBin.CAPACITY - bin.fill)
-    if arrived > 0.0:
-        bin.add(arrived)
-        if bin.is_full() and not bin_notified:
-            bin_notified = true
-            _sound("bin.full")
-            _set_status("The dust bin is full! Click the bin (bottom right of the bench) to empty it, then keep vacuuming.", 2)
-    _audio_loop("vacuum.dust",active_tool == 0 and holding and tools.equipped and not bin.is_full() and (swallowed > 0.0 or tools.flow.count() > 0),{"units":swallowed,"carried":tools.flow.carried()})
-    _refresh_vacuum_status()
-    for point: Vector2 in dust.kicked:
-        motes.spawn(point, tools.speed.limit_length(200.0) * 0.15, 3, 45.0)
-    var suction: float = dust.vac_ramp if active_tool == DustSim.TOOL_VACUUM else 0.0
-    motes.step(delta, dust, nozzle, suction)
+func _after_dust_step(delta: float, nozzle: Vector2) -> void: cleaning._after_dust_step(delta, nozzle)
 
 
-# A blocked vacuum is a persistent state, independent of transient tool hints.
-func _refresh_vacuum_status() -> void:
-    if not is_instance_valid(vacuum_status): return
-    var full: bool = bin.is_full()
-    var key := Vector3i(roundi(bin.fraction()*100.0),int(full),int(bin.fill<=0.0))
-    if key == _vacuum_ui_key: return
-    _vacuum_ui_key = key
-    vacuum_ui_updates += 1
-    vacuum_status.text = "BIN FULL — suction paused. Empty bin to continue." if full else "Vacuum ready  /  bin %d%%" % roundi(bin.fraction()*100.0)
-    vacuum_status.add_theme_color_override("font_color",TONE_COLORS[2] if full else TONE_COLORS[0])
-    empty_bin_button.text = "Empty bin (%d%%)" % roundi(bin.fraction()*100.0)
-    empty_bin_button.disabled = bin.fill <= 0.0
-    empty_bin_button.add_theme_color_override("font_color",TONE_COLORS[2] if full else TONE_COLORS[0])
+func _refresh_vacuum_status() -> void: cleaning._refresh_vacuum_status()
 
 
-func _empty_bin() -> void:
-    var had: float = bin.empty()
-    if had > 0.0: _sound("bin.empty",{"units":had})
-    bin_notified = false
-    _refresh_vacuum_status()
-    if had <= 0.0:
-        _set_status("The dust bin is already empty.", 0)
-    else:
-        _set_status("Emptied the dust bin (%d units of dust). The vacuum is ready again." % roundi(had), 1)
+func _empty_bin() -> void: cleaning._empty_bin()
 
 
-func _announce_zone(i: int) -> void:
-    var z: Dictionary = zones[i]
-    if _done_count() == zones.size():
-        _set_status("%s is clean. That was the last part: the whole PC is clean! Move on to step 2: apply thermal paste." % z["label"], 1)
-    else:
-        _set_status("%s is clean (%d of %d parts). Keep going: the other parts still count." % [z["label"], _done_count(), zones.size()], 1)
+func _announce_zone(i: int) -> void: cleaning._announce_zone(i)
 
 
-func _step_paste(delta: float, mouse: Vector2) -> void:
-    if mount.active:
-        _step_mount(delta, mouse)
-    elif holding and tools.equipped and not tools.carrying and wiping:
-        var wcell: Vector2 = (mouse - PASTE_ORIGIN) / float(PASTE_CELL)
-        var removed: float = paste.wipe(wcell.x, wcell.y, WIPE_RADIUS_CELLS, WIPE_STRENGTH, _cloth_is_square())
-        _audio_loop("cloth.wipe",_work_rect().has_point(mouse),{"speed":tools.speed.length(),"removed":removed})
-        if removed > 0.0:
-            paste_dirty = true
-            # Tidying the paste that squeezed out BESIDE the CPU never costs the result; only wiping
-            # the CPU itself does (0.20.0 fix: the user cleaned the overflow after pulling the lever
-            # and lost the grade, so Complete repaste went dark).
-            var graded_units: float = float(GameState.job.get("paste_graded_units", 0.0))
-            if paste.last_wipe_on_cpu > 0.0 and graded_units > 0.0 and paste.total_deposited < graded_units * KEEP_GRADE_ABOVE \
-                    and (not mount_result.is_empty() or str(GameState.job["paste_grade"]) != ""):
-                mount_result = {}
-                live_stats = {"coverage": 0.0, "overflow": 0.0}
-                GameState.clear_paste()
-                _set_status("Grade cleared because the paste on the CPU is being wiped off. Keep wiping, or squeeze fresh paste once the CPU is clean.", 0)
-    elif holding and tools.equipped and tools.selected == Ids.SYRINGE and not tools.carrying and mount_result.is_empty():
-        var cell: Vector2 = (mouse - PASTE_ORIGIN) / float(PASTE_CELL)
-        if cell.x >= 0.0 and cell.y >= 0.0 and cell.x < PasteSim.GRID and cell.y < PasteSim.GRID:
-            if str(GameState.job["paste_grade"]) != "":
-                GameState.clear_paste()
-            paste.deposit(cell.x, cell.y, DEPOSIT_RATE * delta)
-            _audio_loop("paste.squeeze",true,{"material":paste.material,"rate":DEPOSIT_RATE})
-            paste_dirty = true
-    _sync_paste_controls()
-    if paste_dirty:
-        _refresh_paste_image()
-        paste_dirty = false
+func _step_paste(delta: float, mouse: Vector2) -> void: thermal._step_paste(delta, mouse)
 
 
-func _sync_paste_controls() -> void:
-    var done: bool = bool(GameState.job["paste_done"])
-    var can_complete: bool = GameState.can_complete_repaste()
-    var can_mount: bool = stage == STAGE_PASTE and paste.total_deposited>=1.0 and not mount.active and mount_result.is_empty() and not done
-    var key: int = stage+int(mount.active)*2+int(done)*4+int(can_complete)*8+int(can_mount)*16+int(bool(GameState.job["cooler_film_peeled"]))*32
-    if key == _paste_ui_key: return
-    _paste_ui_key = key
-    film_button.visible = stage == STAGE_PASTE
-    film_button.disabled = bool(GameState.job["cooler_film_peeled"]) or bool(GameState.job["paste_done"])
-    mount_button.visible = can_mount
-    mount_button.disabled = not can_mount
-    clear_button.disabled = mount.active
-    material_button.disabled = mount.active
-    complete_button.visible = stage == STAGE_PASTE
-    complete_button.disabled = mount.active or done or not can_complete
-    complete_button.text = "Repaste complete" if done else "Complete repaste"
-    complete_button.tooltip_text = "Lock the cooler lever and obtain a good result before completing."
+func _sync_paste_controls() -> void: thermal._sync_paste_controls()
 
-func _retract_hose() -> void:
-    if stage != STAGE_CLEAN or not hand_state() in [HandState.FREE,HandState.USING_TOOL]: return
-    tools.start_spool_retract()
-    _sound("hose.rewind")
-    _set_status("Bin retract button: hose reels in and stays short until you pull it back out.",0)
-    holding = false
+func _retract_hose() -> void: cleaning._retract_hose()
 
-func _style_stage_button(button: Button,tint: Color) -> void:
-    for state: String in ["normal","hover","pressed","hover_pressed","focus"]:
-        var box := StyleBoxFlat.new()
-        box.bg_color = tint.darkened(0.65 if state == "normal" else 0.45)
-        box.border_color = tint
-        box.set_border_width_all(3 if state in ["pressed","hover_pressed"] else 1)
-        button.add_theme_stylebox_override(state,box)
-    for state: String in ["font_color","font_hover_color","font_pressed_color","font_hover_pressed_color"]:
-        button.add_theme_color_override(state,tint.lightened(0.2))
+func _style_stage_button(button: Button,tint: Color) -> void: ui_builder._style_stage_button(button, tint)
 
-func _step_mount(delta: float, mouse: Vector2) -> void:
-    var pressing: bool = Input.is_key_pressed(KEY_SPACE) or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _work_rect().has_point(mouse))
-    if scripted_pressing is bool: pressing = scripted_pressing   # automated playtest only
-    var expired: bool = mount.step(delta, pressing, paste)
-    _audio_loop("cooler.press",pressing and not expired,{"pressure":mount.pressure})
-    live_stats = paste.measure()
-    paste_dirty = true
-    if expired and not time_up_told:
-        time_up_told = true
-        _set_status("Time is up: the paste has set. Now right-click the screwdriver on the bench and tighten the four corner screws (opposite corners, two passes). Then click the lever to lock the cooler.", 2)
+func _step_mount(delta: float, mouse: Vector2) -> void: thermal._step_mount(delta, mouse)
 
-# Lift the cooler back off without grading (D57: nothing but the lever secures it). The paste keeps
-# whatever shape the pressing gave it; mounting can simply be started again.
-func _cancel_mount() -> void:
-    if not mount.active:
-        return
-    mount.cancel()
-    screw_clicks.clear()
-    if tools.equipped and tools.selected == Ids.SCREWDRIVER: _park_tool()
-    holding = false
-    time_up_told = false
-    _set_status("You lifted the cooler off again without locking it: no result. The paste stays as it was pressed; mount again when ready, and pull the lever to secure.", 2)
+func _cancel_mount() -> void: thermal._cancel_mount()
 
 
-# D131: which of InstallFaults.STEPS the player is on (0-based; STEPS.size() = all done).
-func _install_step() -> int:
-    var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
-    if locked: return InstallFaults.STEPS.size()
-    if mount.active:
-        if mount.time_left > 0.0: return 2
-        return 4 if screw_clicks.size() >= InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED else 3
-    if paste.total_deposited >= 1.0: return 2
-    if bool(GameState.job["cooler_film_peeled"]): return 1
-    return 0
+func _install_step() -> int: return thermal._install_step()
 
 
-func _socket_region() -> Rect2:
-    return Rect2(PASTE_ORIGIN, Vector2(PasteSim.GRID * PASTE_CELL, PasteSim.GRID * PASTE_CELL))
+func _socket_region() -> Rect2: return thermal._socket_region()
 
 
-func _on_film_pressed() -> void:
-    if bool(GameState.job["cooler_film_peeled"]):
-        return
-    GameState.peel_cooler_film()
-    _paste_ui_key = -1
-    _sync_paste_controls()
-    _set_status("You peeled the clear plastic film off the cooler's base. Bare metal now.", 0)
+func _on_film_pressed() -> void: thermal._on_film_pressed()
 
 
-# One quarter of the install ritual: a snug turn, then a tight one, on a corner screw. The bench never
-# says whether the pattern was right; the customer finds out at home (D130).
-func _screw_click(screw: int) -> void:
-    if not (tools.equipped and tools.selected == Ids.SCREWDRIVER):
-        if mount.time_left > 0.0:
-            _set_status("The paste has not set yet. Keep pressing; screws come after the press, with the screwdriver.", 2)
-        else:
-            _set_status("You need the screwdriver for the screws. Right-click it on the bench to pick it up.", 2)
-        return
-    _turn_screw(screw)
+func _screw_click(screw: int) -> void: thermal._screw_click(screw)
 
 
-func _turn_screw(screw: int) -> void:
-    if not InstallFaults.can_turn(screw_clicks, screw):
-        return
-    var first: bool = screw_clicks.is_empty()
-    screw_clicks.append(screw)
-    _sound("ui.click")
-    var turns: int = InstallFaults.turns(screw_clicks, screw)
-    var text: String = "Screw %d %s (%d of %d turns done)." % [screw + 1, "tight" if turns >= InstallFaults.TURNS_NEEDED else "snug", screw_clicks.size(), InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED]
-    if first:
-        text += " Manual: tighten opposite corners in turn, in two passes."
-    _set_status(text, 0)
+func _turn_screw(screw: int) -> void: thermal._turn_screw(screw)
 
 
-func _finish_mount() -> void:
-    if not mount.active:
-        return
-    mount.finish()
-    mount_result = paste.evaluate()
-    live_stats = {"coverage": mount_result["coverage"], "overflow": mount_result["overflow"]}
-    access.set_removed(Ids.COOLER, false)
-    GameState.job["removed_parts"] = access.removed_ids()
-    _sync_part_geometry()
-    GameState.set_paste(mount_result, paste.total_deposited)
-    # D130: the hidden mistakes of this mount are recorded now and surface only at the customer's pickup.
-    GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), screw_clicks))
-    screw_clicks.clear()
-    if tools.equipped and tools.selected == Ids.SCREWDRIVER: _park_tool()
-    paste_dirty = true
-    var cov: float = mount_result["coverage"]
-    var over: float = mount_result["overflow"]
-    var text: String = "%s\n%s\nCoverage %d%%, squeezed out %d%%. Cooler lifted so you can inspect: red = bare CPU, orange = squeezed out." % [mount_result["grade"], mount_result["message"], roundi(cov * 100.0), roundi(over * 100.0)]
-    _set_status(text, mount_result["tone"])
+func _finish_mount() -> void: thermal._finish_mount()
 
 
-func _refresh_paste_image() -> void:
-    var show_result: bool = not mount_result.is_empty()
-    PasteRenderer.refresh_image(paste, paste_image, paste_texture, show_result, show_result or mount.active)
+func _refresh_paste_image() -> void: thermal._refresh_paste_image()
 
 # ---------- drawing ----------
 
@@ -1210,63 +525,16 @@ func _draw_scene() -> void:
         _draw_paste_cursor()
 
 
-func _zone_rect(i: int) -> Rect2:
-    var z: Dictionary = zones[i]
-    var r: Rect2 = z["rect"]
-    r.position += PC_ORIGIN
-    return r
+func _zone_rect(i: int) -> Rect2: return parts._zone_rect(i)
 
 
-func _part_rects() -> Dictionary:
-    var out: Dictionary = {}
-    for id: String in ServiceAccess.MOVABLE:
-        var center: Vector2 = part_motions[id].center
-        if part_bodies.has(id): center.y -= part_bodies[id].height
-        var size: Vector2 = (access.homes[id] as Rect2).size
-        out[id] = Rect2(center-size*0.5,size)
-    return out
+func _part_rects() -> Dictionary: return parts._part_rects()
 
-func _part_poses() -> Dictionary:
-    var out: Dictionary = {}
-    var rects: Dictionary = _part_rects()
-    for id: String in ServiceAccess.MOVABLE:
-        out[id] = {"center":rects[id].get_center(),"angle":part_motions[id].angle,"shadow":part_motions[id].center+Vector2(3,5)}
-    return out
+func _part_poses() -> Dictionary: return parts._part_poses()
 
-func _sync_part_geometry() -> void:
-    if part_motions.is_empty(): return
-    var poses: Dictionary = _part_poses()
-    for id: String in ServiceAccess.MOVABLE:
-        var index: int = DustZones.index_of(id)
-        var old: Dictionary = previous_poses.get(id,{"center":access.homes[id].get_center(),"angle":0.0})
-        dust.transform_zone(index,old["center"],poses[id]["center"],poses[id]["angle"]-old["angle"])
-    previous_poses = poses
-    var key: String = str(access.removed_ids())
-    if key != blocker_key:
-        dust.set_blockers(access.blockers())
-        blocker_key = key
+func _sync_part_geometry() -> void: parts._sync_part_geometry()
 
-func _finish_part_drag(point: Vector2) -> void:
-    var id: String = access.dragging
-    var flick: bool = id != "" and event_velocity.length() > 450 and Time.get_ticks_msec()-pointer_tick < 140 and ToolRig.TABLE.has_point(point) and not access.homes[id].grow(12).has_point(point)
-    var result: Dictionary = access.finish(ServiceAccess.TRAY.get_center() if flick else point)
-    if id != "":
-        _sound("handling.install" if result.get("changed",false) and not id in access.removed_ids() else "handling.putdown",{"kind":id,"item":"component"})
-        if flick:
-            var body := TableBody.new()
-            body.launch(part_motions[id].center,event_velocity*0.8,access.homes[id].size*0.5,part_motions[id].angle)
-            part_bodies[id] = body
-        else: part_bodies.erase(id)
-    _sync_part_geometry()
-    if result.get("changed", false):
-        GameState.job["removed_parts"] = access.removed_ids()
-        if result["id"] == Ids.COOLER and Ids.COOLER in access.removed_ids():
-            GameState.clear_paste()
-            paste.clear()
-            mount_result = {}
-            paste_dirty = true
-        _save_dust()
-    if result.get("message", "") != "": _set_status(result["message"], 0)
+func _finish_part_drag(point: Vector2) -> void: parts._finish_part_drag(point)
 
 func _draw_pc() -> void:
     PCRenderer.draw_pc(self, str(GameState.job.get("layout", "tower")), Rect2(PC_ORIGIN, DustZones.AREA_SIZE), zones, case_angle, cooler_angle, _part_rects(), _part_poses(), false)
@@ -1309,173 +577,33 @@ func _draw_paste_panel() -> void:
 func _draw_paste_cursor() -> void:
     ToolRenderer.draw_tools(self,tools,Ids.PASTE_TOOLS)
 
-func _pick_target(point: Vector2) -> String:
-    for id: String in ServiceAccess.MOVABLE:
-        if not id in access.removed_ids() and access.current_rect(id).has_point(point): return id
-    return ""
+func _pick_target(point: Vector2) -> String: return parts._pick_target(point)
 
-func _build_replacements() -> void:
-    replacement_panel = Panel.new()
-    replacement_panel.position = Vector2(680, 250)
-    replacement_panel.size = Vector2(570, 385)
-    replacement_panel.z_index = 20
-    var background := StyleBoxFlat.new()
-    background.bg_color = Color("202b38")
-    background.border_color = Color("8eafc3")
-    background.set_border_width_all(2)
-    replacement_panel.add_theme_stylebox_override("panel", background)
-    add_child(replacement_panel)
-    replacement_summary = Label.new()
-    replacement_summary.position = Vector2(16, 12)
-    replacement_summary.size = Vector2(538, 140)
-    replacement_summary.add_theme_font_size_override("font_size", 14)
-    replacement_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    replacement_panel.add_child(replacement_summary)
-    for id: String in ServiceParts.IDS:
-        for tier: String in ["similar", "budget"]:
-            var choice: Dictionary = ServiceParts.option(id, tier)
-            var i: int = replacement_buttons.size()
-            var button := Button.new()
-            button.position = Vector2(16, 156 + i * 41)
-            button.size = Vector2(350, 36)
-            button.add_theme_font_size_override("font_size", 14)
-            var disabled_style := StyleBoxFlat.new()
-            disabled_style.bg_color = Color("29333f")
-            button.add_theme_stylebox_override("disabled", disabled_style)
-            button.text = "%s / $%d / %d%% of original%s" % [choice["label"], choice["cost"], choice["performance"], " / +8 C" if id == Ids.COOLER and tier == "budget" else ""]
-            button.pressed.connect(_replace_part.bind(id, tier))
-            replacement_panel.add_child(button)
-            var buy := Button.new()
-            buy.position = Vector2(374,156+i*41)
-            buy.size = Vector2(178,36)
-            buy.text = "Buy +1 / $%d" % choice["cost"]
-            buy.pressed.connect(_buy_stock.bind(id,tier))
-            replacement_panel.add_child(buy)
-            replacement_buttons.append({"button":button,"buy":buy,"id":id,"tier":tier})
-    var close := Button.new()
-    close.position = Vector2(16, 332)
-    close.size = Vector2(250, 36)
-    close.text = "Close / return to bench"
-    close.pressed.connect(func() -> void: replacement_panel.hide())
-    replacement_panel.add_child(close)
-    var inventory_button := Button.new()
-    inventory_button.position = Vector2(282,332)
-    inventory_button.size = Vector2(270,36)
-    inventory_button.text = "Open player inventory"
-    inventory_button.pressed.connect(func() -> void:
-        _save_dust()
-        get_tree().change_scene_to_file("res://scenes/main.tscn"))
-    replacement_panel.add_child(inventory_button)
-    replacement_panel.hide()
+func _build_replacements() -> void: parts._build_replacements()
 
-func _open_replacements() -> void:
-    if not _may_enter(HandState.PANEL_OPEN):
-        return
-    holding = false
-    access.dragging = ""
-    _sync_part_geometry()
-    pick.reset()
-    replacement_panel.show()
-    _refresh_replacements()
+func _open_replacements() -> void: parts._open_replacements()
 
-func _refresh_replacements() -> void:
-    replacement_summary.text = "PLAYER INVENTORY / cash $%d\nFit consumes one owned part. Buy adds to the same drawer shown in Hardware bench. Remove damaged part first.\nBudget = 65%% specification. Cooler downgrade: +8 C.\nDamaged: %s\nCustomer-owned broken parts are retained separately." % [GameState.money,str(GameState.job["broken_parts"])]
-    for item: Dictionary in replacement_buttons:
-        var id: String = item["id"]
-        var choice: Dictionary = ServiceParts.option(id,item["tier"])
-        var count: int = GameState.stock_count(id,item["tier"])
-        item["button"].text = "Fit %s / owned %d" % [choice["label"],count]
-        item["button"].disabled = count == 0 or not id in GameState.job["broken_parts"] or not id in GameState.job["removed_parts"] or GameState.job["state"] == "done"
-        item["buy"].disabled = GameState.money < int(choice["cost"])
+func _refresh_replacements() -> void: parts._refresh_replacements()
 
 
-func _replace_part(id: String, tier: String) -> void:
-    if not GameState.replace_service_part(id, tier): return
-    access.set_removed(id, false)
-    _sync_part_geometry()
-    if id == Ids.COOLER:
-        paste.clear()
-        mount_result = {}
-        paste_dirty = true
-    _refresh_replacements()
-    _set_status("Replacement fitted. %s" % ("Budget part: 65% of the original specification." if tier == "budget" else "Original specification restored."), 2 if tier == "budget" else 1)
+func _replace_part(id: String, tier: String) -> void: parts._replace_part(id, tier)
 
 
-func _buy_stock(id: String, tier: String) -> void:
-    if not GameState.buy_service_stock(id,tier):
-        _set_status("Purchase needs enough cash and empty inventory cells.",2)
-    _refresh_replacements()
+func _buy_stock(id: String, tier: String) -> void: parts._buy_stock(id, tier)
 
-func _new_ticket() -> void:
-    _save_dust()
-    GameState.start_repair_ticket()
-    get_tree().reload_current_scene()
+func _new_ticket() -> void: parts._new_ticket()
 
-func _init_part_motion() -> void:
-    var saved: Dictionary = GameState.job.get("service_table_positions",{})
-    for id: String in ServiceAccess.MOVABLE:
-        var motion := PartMotion.new()
-        motion.snap(access.current_rect(id).get_center(),0)
-        if id in access.removed_ids() and saved.get(id) is Dictionary:
-            var xy: Variant = saved[id].get("center",[])
-            if xy is Array and xy.size() == 2 and typeof(xy[0]) in [TYPE_INT,TYPE_FLOAT] and typeof(xy[1]) in [TYPE_INT,TYPE_FLOAT]:
-                var body := TableBody.new()
-                body.center = Vector2(float(xy[0]),float(xy[1])).clamp(ToolRig.TABLE.position+access.homes[id].size*0.5,ToolRig.TABLE.end-access.homes[id].size*0.5)
-                body.half_size = access.homes[id].size*0.5
-                body.angle = float(saved[id].get("angle",0.0))
-                part_bodies[id] = body
-                motion.center = body.center
-                motion.angle = body.angle
-        part_motions[id] = motion
+func _init_part_motion() -> void: parts._init_part_motion()
 
-func _step_part_motion(delta: float) -> void:
-    for id: String in ServiceAccess.MOVABLE:
-        var motion: RefCounted = part_motions[id]
-        if access.dragging == id:
-            part_bodies.erase(id)
-            motion.step(delta,access.current_rect(id).get_center(),0,true)
-        elif part_bodies.has(id) and id in access.removed_ids():
-            var body: RefCounted = part_bodies[id]
-            body.step(delta,ToolRig.TABLE)
-            motion.center = body.center
-            motion.angle = body.angle
-        else:
-            part_bodies.erase(id)
-            motion.step(delta,access.current_rect(id).get_center(),0,false)
+func _step_part_motion(delta: float) -> void: parts._step_part_motion(delta)
 
-func _save_service_positions() -> void:
-    var saved: Dictionary = {}
-    for id: String in part_bodies:
-        if id in access.removed_ids():
-            var center: Vector2 = part_bodies[id].center
-            saved[id] = {"center":[center.x,center.y],"angle":part_bodies[id].angle}
-    GameState.job["service_table_positions"] = saved
+func _save_service_positions() -> void: parts._save_service_positions()
 
 
-# The movable part under `point`, or "".
-func _part_under(point: Vector2) -> String:
-    var rects: Dictionary = _part_rects()
-    for id: String in ServiceAccess.MOVABLE:
-        var hit_rect: Rect2 = rects[id]
-        if part_bodies.has(id):
-            var edge: Vector2 = part_bodies[id].extent()
-            hit_rect = Rect2(rects[id].get_center()-edge,edge*2)
-        if hit_rect.has_point(point): return id
-    return ""
+func _part_under(point: Vector2) -> String: return parts._part_under(point)
 
 
-func _begin_part_drag(point: Vector2) -> bool:
-    var id: String = _part_under(point)
-    return id != "" and _start_part_drag(id, point)
+func _begin_part_drag(point: Vector2) -> bool: return parts._begin_part_drag(point)
 
 
-func _start_part_drag(id: String, point: Vector2) -> bool:
-    if not _may_enter(HandState.DRAGGING_PART):
-        return false
-    var rects: Dictionary = _part_rects()
-    access.begin(access.current_rect(id).get_center())
-    access.drag_rect = rects[id]
-    access.drag_offset = (point-(rects[id] as Rect2).position).clamp(Vector2.ZERO,(rects[id] as Rect2).size)
-    part_bodies.erase(id)
-    _sound("handling.pickup",{"kind":id,"item":"component"})
-    return true
+func _start_part_drag(id: String, point: Vector2) -> bool: return parts._start_part_drag(id, point)

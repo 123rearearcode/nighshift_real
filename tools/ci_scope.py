@@ -30,7 +30,8 @@ def scope(root, base, head="HEAD", force_full=False, manual=False):
                     continue
             runtime = True
             if (path.startswith(("scripts/bench/", "scripts/data/"))
-                    or path in ["scripts/view/bench_view.gd", "scripts/view/part_motion.gd", "tools/playtest_bench.gd"]):
+                    or path in ["scripts/view/bench_view.gd", "scripts/view/bench_thermal.gd", "scripts/view/bench_cleaning.gd",
+                                 "scripts/view/bench_parts.gd", "scripts/view/bench_ui.gd", "scripts/view/bench_input.gd", "scripts/view/part_motion.gd", "tools/playtest_bench.gd"]):
                 full = True
         return {"runtime": runtime or full, "full": full}
     except (subprocess.CalledProcessError, ValueError):
