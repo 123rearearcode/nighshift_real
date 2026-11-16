@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.42.0)
+# Nightshift - Godot Foundation Trial (v0.43.0)
+
+New in 0.43.0: **tickets and pickup.** Right-click a customer PC in the workshop room, or right-click
+the ticket (the customer and ticket name at the top of the workbench), to **Mark ready for pickup** (a
+yellow READY sticker: your own note, it changes nothing) or **Call the customer** (a green CALLED tag:
+they collect the PC next morning, exactly as you leave it). Both can be undone. Click the ticket to read
+it in full: customer, what they say, what they want, pay and the machine. The morning itself (collection,
+pay, the report) comes in the next release.
 
 New in 0.42.0: **Activities → Workshop room → PC slot → workbench**, with no extra service menu.
 Use Repair / Hardware / Diagnostic monitor tabs for the SAME customer's PC. ← Room returns directly

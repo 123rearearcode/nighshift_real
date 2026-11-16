@@ -4,6 +4,7 @@ extends Node
 const Store = preload("res://scripts/state/save_store.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
+const Ticket = preload("res://scripts/rules/ticket.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -183,3 +184,34 @@ func switch_pc(gs: Node,id: String) -> bool:
         return false
     active_id = id
     return true
+
+# D134 (Wave 3 session 3.1): one ticket's job, active or not ({} when unknown). Read-only copy.
+func ticket_job(gs: Node,id: String) -> Dictionary:
+    if id == str(gs.job.get("id","")): return gs.job.duplicate(true)
+    for entry: Dictionary in jobs(gs):
+        if str(entry.get("id","")) == id: return entry
+    return {}
+
+# D134: applies a ticket menu action (ready sticker / call) to ANY ticket of tonight, active or stored,
+# and saves both files. Returns the message to show; `status` explains a refusal.
+func ticket_action(gs: Node,id: String,action: String) -> Dictionary:
+    var job: Dictionary = ticket_job(gs,id)
+    if job.is_empty(): return {"ok":false,"message":"That ticket is not part of tonight's work."}
+    var result: Dictionary = Ticket.apply(job,action)
+    if not result["ok"]: return result
+    var session: bool = bound_path == gs.save_path and run_id != "" and _marker(gs).get("run","") == run_id
+    if session and read_only: return {"ok":false,"message":status}
+    if id == str(gs.job.get("id","")):
+        gs.job["ticket"] = result["flags"]
+    else:
+        var found: bool = false
+        for entry: Dictionary in tickets:
+            if str(entry.get("id","")) == id:
+                entry["ticket"] = result["flags"]
+                found = true
+        if not found: return {"ok":false,"message":"That ticket is not part of tonight's work."}
+    if session:
+        if not checkpoint(gs): return {"ok":false,"message":status}
+    else:
+        gs.save_game()
+    return result

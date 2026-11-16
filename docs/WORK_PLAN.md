@@ -80,9 +80,9 @@ Sessions marked "talk first" need a short design conversation with the user befo
 
 | Session | Version | What the player gets | Talk first? | State |
 | --- | --- | --- | --- | --- |
-| 3.0 Bench clean-up | 0.41.2 | nothing visible: bench_view.gd split into helpers | no | done (this release) |
-| 3.1 Tickets and pickup | 0.43.0 | tickets as records; right-click a PC: Ready for pickup (sticker) / Call customer | no | next |
-| 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later | — |
+| 3.0 Bench clean-up | 0.41.2 | nothing visible: bench_view.gd split into helpers | no | done |
+| 3.1 Tickets and pickup | 0.43.0 | tickets as records; right-click a PC: Ready for pickup (sticker) / Call customer | no | done (0.43.0) |
+| 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later | next |
 | 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; CPU and RAM unlocked | yes: part list and numbers | — |
 | 3.4 Diagnosis | 0.46.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | — |
 | 3.5 Generated tickets | 0.47.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |

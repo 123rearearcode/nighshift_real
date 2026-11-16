@@ -185,6 +185,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
 | `scenes/night_shop.tscn` | scene | Shop activity scene |
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/rules/ticket.gd` | rules | A ticket as one derived record (request, customer, machine, symptoms, requirements, terms, status) and its pickup flags: ready sticker, called (D134/D135) |
+| `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
+| `tools/test_tickets_pickup.gd` | tooling | Ticket rule, pickup flags on active and stored PCs, saves, native right-clicks in the room and on the ticket (D134) |
 | `scripts/rules/work_report.gd` | rules | Hardware check, work-done lines and the measured match to the customer's request (D133) |
 | `scripts/rules/night_clock.gd` | rules | Night clock label and how many night minutes timed tests take (D133) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |

@@ -21,6 +21,7 @@ const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
 const WorkReport = preload("res://scripts/rules/work_report.gd")
+const Ticket = preload("res://scripts/rules/ticket.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -113,6 +114,7 @@ func _make_job() -> Dictionary:
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
+        "ticket": {"request": "repair", "ready": false, "called": false},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
         "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
         "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
         "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
@@ -639,6 +641,7 @@ func load_game() -> bool:
     job["pc_powered"] = bool(job.get("pc_powered", false))
     job["infection"] = Malware.sanitize(job.get("infection", ""))
     job["cured"] = Malware.sanitize(job.get("cured", ""))
+    job["ticket"] = Ticket.sanitize(job.get("ticket", {}))
     job["tests"] = WorkReport.sanitize_tests(job.get("tests", {}))
     job["overclock"] = Overclock.sanitize(job.get("overclock", {}))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"

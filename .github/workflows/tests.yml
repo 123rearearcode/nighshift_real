@@ -91,7 +91,8 @@ jobs:
           test_install_technique|Install technique
           test_hardware_ticket_pc|Hardware ticket PC
           test_malware_overclock|Malware and overclock
-          test_menu_navigation|Menu navigation"
+          test_menu_navigation|Menu navigation
+          test_tickets_pickup|Tickets and pickup"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

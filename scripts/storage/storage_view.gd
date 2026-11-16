@@ -7,6 +7,8 @@ const Store = preload("res://scripts/storage/storage_store.gd")
 const Motion = preload("res://scripts/view/part_motion.gd")
 const Canvas = preload("res://scripts/storage/room_canvas.gd")
 const Navigation = preload("res://scripts/night/night_navigation.gd")
+const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
+const Ticket = preload("res://scripts/rules/ticket.gd")
 const WORKSHOP_SLOT := Rect2(1010,150,242,126)
 const ROOM_VIEW := Rect2(24,158,946,414)
 var model := Model.new()
@@ -36,6 +38,7 @@ var canvas: Node2D
 var add_dialog: PopupPanel
 var edit_buttons: Array[Button] = []
 var choice_buttons: Array[Button] = []
+var ticket_badges: Dictionary = {}   # ticket id -> "READY" / "CALLED" (D134), refreshed after every change
 
 func _ready() -> void:
     if not GameState.job.get("hardware_trial",{}).get("night_session",{}).is_empty(): NightSession.ensure(GameState)
@@ -89,6 +92,7 @@ func _ready() -> void:
     status = _label("",Vector2(24,677),Vector2(1230,36),14)
     _make_add_dialog()
     get_window().focus_exited.connect(_cancel)
+    _refresh_badges()
     _fit_used()
     _sync_ui()
 
@@ -213,8 +217,37 @@ func _set_arranging(enabled: bool) -> void:
 func _save() -> void:
     layout_saved = store.write(model)
     _sync_ui()
+# D134: pickup stickers drawn on room PCs, read from every ticket of tonight.
+func _refresh_badges() -> void:
+    ticket_badges.clear()
+    for job: Dictionary in NightSession.jobs(GameState):
+        var badge: String = Ticket.badge(job)
+        if badge != "": ticket_badges[str(job.get("id",""))] = badge
+
+func _ticket_id(uid: String) -> String:
+    if not model.items.has(uid) or model.items[uid]["category"] != "pc": return ""
+    return str(model.items[uid]["source_uid"])
+
+# D134: right-click on a room PC opens the same pickup menu as the workbench ticket.
+func _open_ticket_menu(uid: String, at: Vector2) -> PopupMenu:
+    var id: String = _ticket_id(uid)
+    if id == "": return null
+    return TicketMenu.popup(self,id,at,_ticket_done.bind(uid))
+
+func _ticket_action(uid: String, action: String) -> Dictionary:
+    var id: String = _ticket_id(uid)
+    if id == "": return {"ok":false,"message":"Only a customer PC has a ticket."}
+    return TicketMenu.act(self,id,action,_ticket_done.bind(uid))
+
+func _ticket_done(result: Dictionary, uid: String) -> void:
+    status.text = str(result.get("message",""))
+    _refresh_badges()
+    _show_info(uid)
+    _redraw()
+
 func _refresh() -> void:
     _cancel()
+    _refresh_badges()
     model.setup(Sources.collect(GameState),model.snapshot())
     if model.unit(selected_unit).is_empty(): selected_unit = model.units[0]["id"]
     _sync_ui()
@@ -361,6 +394,9 @@ func _input(event: InputEvent) -> void:
             panning = event.pressed and ROOM_VIEW.has_point(pointer)
         elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] and ROOM_VIEW.has_point(pointer):
             _zoom_at(zoom*(1.15 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1/1.15),pointer)
+        elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and model.held == "" and held_furniture == "" and not arranging and ROOM_VIEW.has_point(pointer):
+            var clicked: String = _hit(pointer)
+            if _ticket_id(clicked) != "": _open_ticket_menu(clicked,pointer)
         elif event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed and not store.read_only:
                 if arranging and ROOM_VIEW.has_point(pointer) and model.held == "":
@@ -404,6 +440,9 @@ func _show_info(uid: String) -> void:
     var item: Dictionary = model.items[uid]
     var shape: Vector2i = item["size"]
     info.text = "%s\n%s\n\n%s\n%s · %d × %d cells\n\n%s"%[item["label"],item["model"],item["owner"],item["condition"],shape.x,shape.y,item["note"]]
+    if item["category"] == "pc":
+        var job: Dictionary = NightSession.ticket_job(GameState,str(item["source_uid"]))
+        if not job.is_empty(): info.text += "\n\nTicket: %s. Right-click for pickup."%Ticket.status_text(job)
 func _process(delta: float) -> void:
     if model.held != "" or held_furniture != "":
         if ROOM_VIEW.has_point(pointer):
@@ -448,6 +487,14 @@ func _draw_item(uid: String,rect: Rect2,alpha: float = 1.0, painter: CanvasItem 
     else:
         _text(label,rect.position+Vector2(4,rect.size.y-4),font_size,color,painter)
     if item.get("reserved",false): _text("•",rect.position+Vector2(5,14),15,color,painter)
+    var badge: String = str(ticket_badges.get(str(item.get("source_uid","")),"")) if item["category"] == "pc" else ""
+    if badge != "":
+        # D134: the ready sticker (yellow) or the called tag (green), top-right of the case.
+        var tag_color: Color = Color("f2c94c") if badge == "READY" else Color("6fcf97")
+        var tag := Rect2(rect.end.x-58,rect.position.y+4,54,18)
+        painter.draw_rect(tag,tag_color)
+        painter.draw_rect(tag,tag_color.darkened(0.5),false,1)
+        _text(badge,tag.position+Vector2(4,14),11,Color("1d232b"),painter)
 
 func draw_room(painter: Node2D) -> void:
     painter.draw_rect(Rect2(Vector2.ZERO,Vector2(Data.ROOM_SIZE)*Data.BAY_STRIDE),Color("182730"))
