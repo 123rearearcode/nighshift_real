@@ -25,7 +25,8 @@ const TOGGLE_CALL := "toggle_call"
 static func sanitize(raw: Variant) -> Dictionary:
     var out: Dictionary = {"request": REPAIR, "ready": false, "called": false}
     if raw is Dictionary:
-        if str(raw.get("request", REPAIR)) in REQUESTS: out["request"] = str(raw["request"])
+        var request: String = str(raw.get("request", REPAIR))
+        if request in REQUESTS: out["request"] = request
         var ready: Variant = raw.get("ready", false)
         var called: Variant = raw.get("called", false)
         if ready is bool: out["ready"] = ready
