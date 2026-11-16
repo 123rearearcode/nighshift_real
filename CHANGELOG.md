@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (monitor rework; job gains optional `tests` and `cured`; save gains `night_minutes`)
 
 ### Execution status
-Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; run 43886013255 passed all 18 required suites. No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Changed (D133): "Final / thermal check" is now "Hardware check": parts in place and working, cooler locked. No temperature, no grading, hidden faults stay hidden.
