@@ -39,6 +39,40 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.44.1 - 2026-11-17 - Thermal service clarity (user playtest)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.44.0
+- Type: patch (bench feedback and one order change; no save change)
+
+### Execution status
+Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Fixed (B37): the screws could not be done while holding Space: the screwdriver was refused until the 10-second press ended. It can now be taken at any time during the press; with it in hand the mouse turns screws and Space alone presses (D147).
+- Fixed (B38): after the lever the cooler and its screws vanished (only the paste inspection was drawn). The locked cooler frame and its tight screws stay drawn over the paste.
+- Fixed (B39): after the lever the squeezed-out figure stayed frozen while wiping, and nothing confirmed the job. It now follows the wiping, says "Clean" below 2%, then "Thermal service DONE" and the next step.
+- Added: the thermal guide (steps + one NOW line) replaces the bare steps line; a verdict line after the lever.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/view/bench_thermal.gd`, `scripts/view/bench_input.gd`, `scripts/view/bench_view.gd`, `scripts/view/paste_renderer.gd` | M | Guide, verdict, screws during press, locked cooler, live wiping |
+| `tools/test_install_technique.gd` | M | New checks for all three fixes |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `project.godot`, `docs/DECISIONS.md`, `docs/BUGS.md`, `docs/INSTALL_TECHNIQUE.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+"Clean" threshold 2%; guide wording.
+
+### Known issues and open items
+Not playtested. The guide is drawn text at fixed positions; long lines may need shortening after a look.
+
+### Next action
+User re-tests the thermal service; then session 3.3 after the part-list talk.
+
 ## 0.44.0 - 2026-11-16 - Wave 3 session 3.2: night end and morning report
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session

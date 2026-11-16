@@ -126,6 +126,8 @@ var status_label: Label
 var mount_button: Button
 var film_button: Button                # D130: the cooler base with its clear plastic film
 var screw_clicks: Array = []           # D130: corner screws turned during this mount, in order (install_faults.gd)
+var locked_screw_clicks: Array = []    # 0.44.1: the screws of the last locked mount, drawn on the locked cooler
+var wipe_told: bool = false            # 0.44.1: the "squeezed-out paste is gone" confirmation was shown
 var clear_button: Button
 const SECURE_LEVER: Rect2 = Layout.BENCH_LEVER   # the cooler's retention lever beside the socket: click it to secure the cooler
 var time_up_told: bool = false
@@ -565,10 +567,17 @@ func _draw_clean_cursor() -> void:
 func _draw_paste_stage() -> void:
     PasteRenderer.draw_stage(self, paste, paste_texture, PASTE_ORIGIN, PASTE_CELL, mount)
     PasteRenderer.draw_cooler_base(self, Rect2(PANEL_X + 270, 258, 250, 40), bool(GameState.job["cooler_film_peeled"]))
-    PasteRenderer.draw_install_steps(self, Vector2(PANEL_X, 520), _install_step(), InstallFaults.STEPS)
+    # 0.44.1: the thermal guide (steps + one NOW line) replaces the bare steps line.
+    PasteRenderer.draw_guide(self, Vector2(PANEL_X, 512), thermal.guide_step(), BenchThermal.GUIDE, thermal.guide_text())
+    var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
     if mount.active:
         PasteRenderer.draw_screws(self, InstallFaults.screw_centers(_socket_region()), screw_clicks, InstallFaults.TURNS_NEEDED, InstallFaults.SCREW_RADIUS)
-    var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
+    elif locked:
+        # The cooler stays on the socket after the lever: its frame and its (tight) screws remain visible.
+        PasteRenderer.draw_locked_cooler(self, _socket_region())
+        PasteRenderer.draw_screws(self, InstallFaults.screw_centers(_socket_region()), locked_screw_clicks, InstallFaults.TURNS_NEEDED, InstallFaults.SCREW_RADIUS)
+        var verdict: Dictionary = thermal.verdict()
+        if not verdict.is_empty(): UiStyle.label(self, Vector2(PANEL_X, 500), verdict["text"], 16, TONE_COLORS[int(verdict["tone"])])
     PasteRenderer.draw_lever(self, SECURE_LEVER, mount.active, locked, SECURE_LEVER.has_point(get_global_mouse_position()), vfx_time)
 
 func _draw_paste_panel() -> void:

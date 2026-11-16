@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.44.0)
+# Nightshift - Godot Foundation Trial (v0.44.1)
+
+New in 0.44.1 (your playtest of the thermal service): a **guide** under the paste panel always shows
+the steps (Film > Paste > Press + screws > Lever > Wipe extra > Done) and one line saying what to do NOW.
+You can now **screw while holding Space**: right-click the screwdriver during the press and tighten the
+corner screws while Space keeps the cooler down. After the lever the **cooler stays visible** (locked
+frame with its tight screws, the paste seen through it) and a verdict shows the grade. Wiping the
+squeezed-out paste now updates the figure live and says **"Clean"** when it is done, then
+**"Thermal service DONE"** and what comes next.
 
 New in 0.44.0: **the night ends and the morning comes.** On Activities, **End the night** (at 06:00
 it is the only choice left; the monitor's timed tests stop). Every customer you called collects their

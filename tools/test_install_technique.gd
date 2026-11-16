@@ -117,5 +117,42 @@ func run_checks() -> void:
     check(gs.job["install_faults"] == [Faults.UNEVEN], "screws tightened round the square are recorded as uneven")
     bench.queue_free()
     await process_frame
+
+    # 0.44.1 (playtest): screws DURING the press, the cooler stays visible after the lever, wiping is confirmed.
+    bench = mounted_bench(gs, true)
+    check(bench.mount.time_left > 0.0 and bench.thermal.guide_step() == 2 and bench.thermal.guide_text().contains("Space"), "while pressing, the guide says hold Space and take the screwdriver")
+    var tool_at: Vector2 = bench.tools.motions[Ids.SCREWDRIVER].center
+    click(bench, MOUSE_BUTTON_RIGHT, true, tool_at)
+    click(bench, MOUSE_BUTTON_RIGHT, false, tool_at)
+    check(bench.tools.equipped and bench.tools.selected == Ids.SCREWDRIVER and bench.mount.time_left > 0.0, "the screwdriver can be picked up while the press is still running")
+    bench.scripted_pressing = true
+    bench.thermal._step_mount(0.2, Vector2.ZERO)
+    check(bench.mount.pressure > 0.0, "Space keeps pressing while the screwdriver is in hand")
+    bench.scripted_pressing = null
+    var corners: Array = Faults.screw_centers(bench._socket_region())
+    for screw: int in good:
+        click(bench, MOUSE_BUTTON_LEFT, true, corners[screw])
+        click(bench, MOUSE_BUTTON_LEFT, false, corners[screw])
+    check(bench.screw_clicks.size() == 8 and bench.thermal.guide_step() == 3 and bench.thermal.guide_text().contains("lever"), "screws done during the press; the guide points at the lever")
+    var lever_at: Vector2 = bench.SECURE_LEVER.get_center()
+    click(bench, MOUSE_BUTTON_LEFT, true, lever_at)
+    click(bench, MOUSE_BUTTON_LEFT, false, lever_at)
+    check(not bench.mount.active and gs.job["install_faults"].is_empty() and bench.locked_screw_clicks.size() == 8, "the lever locks; the tightened screws stay on the cooler")
+    check(bench.thermal.verdict().get("text", "").contains("LOCKED"), "after the lever the bench shows a verdict")
+    # Paste squeezed out beside the CPU: the figure follows the wiping and the bench confirms when it is clean.
+    bench.paste.deposit(3.5, 3.5, 30)
+    bench.live_stats = bench.paste.measure()
+    check(float(bench.live_stats["overflow"]) > bench.thermal.OVERFLOW_CLEAN and bench.thermal.guide_step() == 4 and bench.thermal.guide_text().contains("wipe"), "squeezed-out paste makes wiping the current step")
+    var wipe_at: Vector2 = bench.PASTE_ORIGIN + Vector2(3.5, 3.5) * float(bench.PASTE_CELL)
+    bench.tools.select(Ids.CLOTH, wipe_at)
+    bench.wiping = true
+    bench.holding = true
+    for i in range(120):
+        bench.thermal._step_paste(0.1, wipe_at + Vector2(float(i % 5) - 2.0, float(i % 3) - 1.0) * 3.0)
+        if bench.wipe_told: break
+    check(bench.wipe_told and float(bench.live_stats["overflow"]) <= bench.thermal.OVERFLOW_CLEAN and str(bench.status_label.text).contains("Clean"), "wiping updates the figure and confirms when it is clean")
+    check(bench.thermal.guide_step() == 5, "the guide reaches its last step")
+    bench.queue_free()
+    await process_frame
     restore_save(gs)
     finish("Install technique")

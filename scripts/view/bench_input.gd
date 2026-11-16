@@ -69,18 +69,19 @@ func _input(event: InputEvent) -> void:
                 bv._set_status("That section cannot reach the clamp. Grab farther along the hose and try again.", 2)
             bv.holding = false
             return
-        # D131: mid-mount the hands are busy with the cooler. Once the paste has set, the SCREWDRIVER (and only it)
-        # can be picked up for the corner screws; right-click again puts it down. Every other tool stays refused.
+        # D131 / 0.44.1: mid-mount the hands are busy with the cooler, but Space keeps pressing it, so the
+        # SCREWDRIVER (and only it) can be picked up at any time for the corner screws; right-click again puts
+        # it down. Every other tool stays refused.
         if mb.button_index == MOUSE_BUTTON_RIGHT and bv.stage == bv.STAGE_PASTE and bv.mount.active:
             if mb.pressed:
                 if bv.tools.equipped:
                     var was_screwdriver: bool = bv.tools.selected == Ids.SCREWDRIVER
                     bv._park_tool()
                     if was_screwdriver: bv._set_status("Screwdriver put down. Right-click it on the bench to pick it up again.", 0)
-                elif not bv.tools.equipped and bv.mount.time_left <= 0.0 and bv.tools.hit(mb.position, Ids.PASTE_TOOLS) == Ids.SCREWDRIVER:
+                elif not bv.tools.equipped and bv.tools.hit(mb.position, Ids.PASTE_TOOLS) == Ids.SCREWDRIVER:
                     bv.tools.select(Ids.SCREWDRIVER, mb.position)
                     bv._sound("handling.pickup", {"kind": Ids.SCREWDRIVER})
-                    bv._set_status("Screwdriver in hand. Click the four corner screws: opposite corners in turn, two passes. Then click the lever.", 0)
+                    bv._set_status("Screwdriver in hand. Keep holding Space if the press is still running, and click the four corner screws: opposite corners in turn, two passes. Then click the lever.", 0)
             bv.holding = false
             return
         if mb.button_index == MOUSE_BUTTON_RIGHT and (bv.stage == bv.STAGE_PASTE or bv.active_tool != 2 or mb.shift_pressed):
