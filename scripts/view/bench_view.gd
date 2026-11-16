@@ -147,7 +147,7 @@ var backdrop: Node2D
 var _vacuum_ui_key := Vector3i(-1,-1,-1)
 var _paste_ui_key: int = -1
 var vacuum_ui_updates: int = 0
-# 0.42.0: the bench's behaviour lives in five helpers (one-line wrappers below keep the old names).
+# 0.41.2: the bench's behaviour lives in five helpers (one-line wrappers below keep the old names).
 # They keep no state of their own; every bench variable stays here.
 var thermal := BenchThermal.new(self)    # paste, mount, install ritual (bench_thermal.gd)
 var cleaning := BenchCleaning.new(self)  # dust, pick, bin, collisions, fans (bench_cleaning.gd)
