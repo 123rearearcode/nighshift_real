@@ -150,6 +150,11 @@ static func match_lines(job: Dictionary, needs: Dictionary, pass_limit: float) -
             lines.append(UNKNOWN + "%s at %d FPS or more: last test showed %d FPS, but the PC changed since. Test again." % [title, wanted, int(result["fps"])])
         else:
             lines.append((OK if int(result["fps"]) >= wanted else NO) + "%s: %d FPS measured, wanted %d." % [title, int(result["fps"]), wanted])
+    var asked: Array = (needs.get("games", []) as Array).map(func(t: Dictionary) -> String: return str(t.get("game_id", "")))
+    for id: String in (tests["games"] as Dictionary):
+        if id in asked: continue
+        var extra: Dictionary = tests["games"][id]
+        lines.append("%s: %d FPS measured%s (not part of the request)." % [str(Games.game(id).get("title", id)), int(extra["fps"]), "" if _fresh(extra, sig) else ", before the PC changed"])
     var temp: Variant = tests.get("temp", null)
     var stale: bool = temp != null and not _fresh(temp, sig)
     if bool(needs.get("quiet", false)):
