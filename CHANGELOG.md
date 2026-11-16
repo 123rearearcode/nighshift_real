@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (code structure only; no gameplay, save or scene change)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No playtest is claimed: the bench is meant to behave exactly as in 0.41.
+Godot was NOT run by me. GitHub Actions run 43944339054 passed every required suite (599 regression checks, all bench suites) and the full scripted bench diagnostics. The first run (43942436349) caught one error: the typed `stage_buttons` array cannot be replaced through the dynamic handle; it is now filled in place. No playtest is claimed: the bench is meant to behave exactly as in 0.41.
 
 ### Added / Changed / Fixed / Removed
 - Changed: `bench_view.gd` (1482 lines) is split into five helpers: `bench_thermal.gd`, `bench_cleaning.gd`, `bench_parts.gd`, `bench_ui.gd`, `bench_input.gd`. The bench keeps all its state and a one-line wrapper per moved method with the old name, so tests, signals and the night repair bench's overrides are unchanged. bench_view.gd is now about 610 lines.
