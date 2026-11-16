@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new screen and night cycle; save gains optional `night_number`, `comebacks`; ticket flags gain `nights`)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions run 43963132597: all 22 required suites green, including the new Morning report suite (27 checks). The first run caught a parse error (B36). No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Added (D136/D146): End the night on Activities (confirmation names who collects; at 06:00 the only choice). `NightSession.end_night`: earlier comebacks arrive, called customers collect, others wait a night, collected PCs leave, new customers bring theirs, the clock resets, the night number goes up.
