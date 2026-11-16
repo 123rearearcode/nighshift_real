@@ -641,6 +641,7 @@ remain. No hot files or WORK_PLAN.md modified by 0.36.0.
 | --- | --- | --- |
 | `tools/test_install_technique.gd` | tooling | Film and screw faults: pure rule, pickup score, hidden from the final check, save, real clicks |
 | `tools/test_thermal_service.gd` | tooling | Native tab/menu/mount/retract input, obsolete UI absence, premium cooling/charge/persistence |
+| `docs/REPAIR_LOOP_DESIGN.md` | docs | Design, not built: pickup, tickets, morning report, diagnosis, events (D134 to D139) |
 | `docs/INSTALL_TECHNIQUE.md` | docs | Cooler install technique: the film, the screws, hidden faults and where they surface (D130) |
 | `docs/THERMAL_SERVICE.md` | docs | Current controls, trial material tuning and bin-reel behavior |
 

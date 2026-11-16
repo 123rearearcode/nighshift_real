@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.41.0)
+# Nightshift - Godot Foundation Trial (v0.41.1)
 
 New in 0.41.0: **the monitor measures, and measuring takes time.** Running a game now takes 30 minutes of
 the night (a few real seconds, with a progress bar); the long stress test takes 20. A night clock shows

@@ -391,3 +391,17 @@ D132 (requested by the user, 15 November 2026; mechanics are trial PROPOSALS): t
 
 D133 (requested by the user after playtesting 0.40.0, 16 November 2026): game tests take night time (30 minutes; the long stress test 20; proposals). The monitor's final/thermal check becomes a Hardware check that only says whether every part is in place, working and the cooler locked; temperatures come from game and stress tests. Beside the monitor, "Work + match" is the main tab (repairs done; how the MEASURED PC matches the request, never the hidden simulation; outdated when the PC changed) and "Client" is second. Hidden install faults stay hidden. Open: the night clock has no end-of-night consequence yet.
 
+D134 to D139 below are DESIGN decisions from a conversation with the user on 16 November 2026. None is built; the user said no coding yet. Full detail, with what is decided, proposed and open: docs/REPAIR_LOOP_DESIGN.md. Signed: Claude (Fable 5.2, model id claude-fable-5-2).
+
+D134 (user, design only): PCs can be right-clicked in the storage room and on the ticket. "Ready for pickup" is the player's own note and puts a sticker on the PC; "call the customer" makes the customer collect the next morning.
+
+D135 (user, design only): a ticket is opened whenever a customer makes a request. Request types: PC repair and PC build (builds must be discussed before coding; the one fixed point is payment, half up front and half on collection). A ticket carries a list of objects so tickets can be generated dynamically; the list is still being defined.
+
+D136 (user, design only): the night ends and a morning report follows, including the state of the player's PCs (hover for details would be nice).
+
+D137 (user, design only): diagnosis. The customer gives symptoms, the ticket hides the faults. The puzzle must stay solvable from the information the player can currently get, with several difficulty levels based on how evident the issue is. The ticket's Findings section logs observations only, never the conclusion. The long stress test becomes an app on the diagnostic computer. A known-good swap needs a test part the player owns. Replacing a part that was not broken is paid by the owner (the player) and the original goes into the player's stock; certain later upgrades can put that cost on the customer.
+
+D138 (user, design only): tickets are randomly generated; variety comes from events applied to tickets.
+
+D139 (user): upgrades are discussed later.
+

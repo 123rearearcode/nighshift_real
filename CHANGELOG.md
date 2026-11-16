@@ -39,6 +39,37 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.41.1 - 2026-11-16 - Design record: closing the repair loop (documents only)
+
+- Author: Claude (Fable 5.2, model id claude-fable-5-2) in a chat session
+- Based on: 0.41.0
+- Type: patch (documents only; no code, scene, test or save change)
+
+### Execution status
+No code changed. Godot was not run. `python3 -I tools/check_project.py` passed.
+
+### Added / Changed / Fixed / Removed
+- Added: `docs/REPAIR_LOOP_DESIGN.md`, the design agreed with the user for pickup, tickets, the morning report, diagnosis and events, marked DECIDED / PROPOSED / OPEN.
+- Added: D134 to D139 in `docs/DECISIONS.md`; a roadmap section; a current-state note.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/REPAIR_LOOP_DESIGN.md` | A | The design record |
+| `docs/DECISIONS.md`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md`, `DEVELOPMENT.md`, `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `project.godot` | M | Decisions, roadmap, file map, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems.
+
+### Decisions proposed (not approved)
+Everything marked PROPOSED or OPEN in `docs/REPAIR_LOOP_DESIGN.md`.
+
+### Known issues and open items
+None of the design is built. The user said no coding yet.
+
+### Next action
+Continue the design conversation (build requests, ticket objects, upgrades); code only when the user asks.
+
 ## 0.41.0 - 2026-11-16 - Hardware check, timed game tests, Work + match tab
 
 - Author: Claude (Fable 5.2, model id claude-fable-5-2) in a chat session

@@ -1,5 +1,10 @@
 # Nightshift — Current State and Technical Handoff
 
+Current build: **0.41.1** (code identical to 0.41.0: night workshop with repair bench, ticket-PC hardware bench,
+monitor with hardware check, timed game tests, anti-virus, overclocker and the Work + match tab). The next
+work is designed but not built: docs/REPAIR_LOOP_DESIGN.md (D134 to D139).
+Claude (Fable 5.2, model id claude-fable-5-2), 16 November 2026. Older notes below are historical.
+
 Current review build: **0.34.0 spool, brush-first controls and movable heavy waste**. Room 0.33.0
 was approved/published/merged in PR #40; its older local-only notes below are historical.
 See BENCH_FEEL_0_34.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
