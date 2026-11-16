@@ -35,6 +35,10 @@ func run_checks() -> void:
     root.add_child(view)
     await process_frame
     check(view.boot_button.disabled and view.run_button.disabled and view.output.text.contains("off"),"desktop makes the initial power requirement clear")
+    check(view.showing_work and view.work_tab.disabled and view.side_text.text.contains("WORK DONE") and view.side_text.text.contains("[??] Working PC"),"Work + match is the main tab and starts with nothing measured")
+    view._show_tab(false)
+    check(view.side_text.text.contains(str(gs.job["customer"])) and not view.side_text.text.contains("WORK DONE"),"client details are the second tab")
+    view._show_tab(true)
     # Real GUI hit testing, not a direct method-only assertion.
     var at: Vector2 = view.power_button.get_global_rect().get_center()
     for down: bool in [true,false]:
@@ -51,22 +55,28 @@ func run_checks() -> void:
     check(not view.output.text.contains("simulated FPS"),"unowned game cannot fake a benchmark")
     var start_job: Dictionary = gs.job.duplicate(true)
     var trust: Dictionary = gs.customer_state.duplicate(true)
-    view._thermal()
-    check(view.output.text.contains("CHECK PASSED") and gs.job == start_job and gs.money == cash and gs.customer_state == trust,"thermal report never pays, completes or changes trust/job")
+    view._hardware()
+    check(view.output.text.contains("HARDWARE CHECK PASSED") and not view.output.text.contains("°C /") and gs.job["state"] == start_job["state"] and gs.money == cash and gs.customer_state == trust,"hardware check only says the parts are in place; it never pays, completes or changes trust")
+    check(view.side_text.text.contains("[OK] Working PC"),"a passed hardware check shows in the match tab")
     view._buy()
     check(gs.owns_game("counter_stroke_2") and gs.money == cash-12,"Vapor buys one shop licence at its existing price")
     view._buy()
     check(gs.money == cash-12,"repeated purchase cannot charge twice")
+    var night_before: int = gs.night_minutes
     view._game()
-    check(view.output.text.contains("simulated FPS"),"owned-game app produces real existing simulation output")
+    check(view.busy_left > 0.0 and not view.output.text.contains("simulated FPS") and gs.night_minutes == night_before and view.run_button.disabled,"a game test takes time: no result and no other test while it runs")
+    view._process(view.run_seconds + 0.1)
+    check(view.output.text.contains("simulated FPS") and gs.night_minutes == night_before + 30 and view.busy_left == 0.0,"the finished game test reports and spends 30 night minutes")
+    check(gs.job["tests"]["games"].has("counter_stroke_2") and view.side_text.text.contains("FPS measured"),"the measured frame rate is stored and shown against the request")
+    view.run_seconds = 0.0
     var good: int = Checks.game_test(gs.job,gs.owned_games,"counter_stroke_2",42)["fps"]
     gs.job["service_replacements"]["gpu"] = "budget"
     check(Checks.game_test(gs.job,gs.owned_games,"counter_stroke_2",42)["fps"]<good,"budget GPU changes the reported game performance")
     gs.job["broken_parts"] = ["gpu"]
     view._game()
     check(view.output.text.contains("Boot FAILED") and not view.output.text.contains("simulated FPS"),"broken PC reports failure rather than a misleading benchmark")
-    view._thermal()
-    check(view.output.text.contains("No live temperature"),"failed boot blocks live thermal reading")
+    view._hardware()
+    check(view.output.text.contains("HARDWARE CHECK FAILED") and view.side_text.text.contains("[NO] Working PC"),"a broken part fails the hardware check")
     gs.job["broken_parts"] = []
     var unchanged: Dictionary = gs.job.duplicate(true)
     view._scan()

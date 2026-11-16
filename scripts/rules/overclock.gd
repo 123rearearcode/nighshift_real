@@ -74,7 +74,7 @@ static func stress(job: Dictionary, temp: float, long_test: bool) -> Dictionary:
     var st: String = state(job, temp)
     var settings_text: String = "x+%d / voltage %d" % [int(settings(job)["mult"]), int(settings(job)["volt"])]
     if int(settings(job)["mult"]) == 0:
-        return {"ok": true, "message": "Stock settings: nothing to stress. The CPU is not overclocked."}
+        return {"ok": true, "message": "Stock settings (not overclocked): the %s stress test passed at %.1f°C under load." % ["long" if long_test else "quick", temp]}
     if st == "crashing":
         return {"ok": false, "message": "CRASH during the %s stress test (%s at %.1f°C). Lower the multiplier or raise the voltage." % ["long" if long_test else "quick", settings_text, temp]}
     if st == "marginal" and long_test:

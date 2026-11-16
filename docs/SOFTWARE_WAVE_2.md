@@ -32,6 +32,11 @@ Long stress ($2) (`overclock.gd`). Heat from the overclock is visible in every c
 Both feed hidden pickup faults. All numbers are trial proposals awaiting the user's playtest.
 Still not built: customer-specific infection generation beyond the demo ticket; overclocking the GPU.
 
+## 0.41.0 - hardware check, timed tests, Work + match tab (D133)
+Hardware check replaces Final / thermal check. Game tests take 30 night minutes and the long stress test 20
+(`night_clock.gd`); the clock is shown but nothing ends the night yet. `work_report.gd` builds the main side
+tab from the job and from stored measurements (`job["tests"]`), which are marked outdated when the PC changes.
+
 ## What remains (historical, 0.35.0)
 
 Anti-virus and overclocker are visible, clearly marked upcoming. Clicking them explains that no

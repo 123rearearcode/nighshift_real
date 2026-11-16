@@ -39,6 +39,41 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.41.0 - 2026-11-16 - Hardware check, timed game tests, Work + match tab
+
+- Author: Claude (Fable 5.2, model id claude-fable-5-2) in a chat session
+- Based on: 0.40.0 (playtested by the user: no bugs found)
+- Type: minor (monitor rework; job gains optional `tests` and `cured`; save gains `night_minutes`)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions runs the suites on Godot 4.7.2 headless; run 43886013255 passed all 18 required suites. No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Changed (D133): "Final / thermal check" is now "Hardware check": parts in place and working, cooler locked. No temperature, no grading, hidden faults stay hidden.
+- Changed: a game test takes 30 night minutes and the long stress test 20; the monitor is busy for about 3 real seconds with a progress bar. A night clock is shown (no end-of-night rule yet).
+- Added: two tabs beside the monitor. "Work + match" (main): work done, and how measured results match the request; "Client" (second). Measurements are stored per ticket and marked outdated when the PC changes.
+- Changed: the stress test at stock settings reports the temperature, so a temperature can be measured without owning a game.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/work_report.gd`, `scripts/rules/night_clock.gd` | A | New pure rules |
+| `scripts/night/software_view.gd`, `scripts/state/game_state.gd`, `scripts/rules/overclock.gd` | M | Monitor rework, stored measurements, night minutes |
+| `tools/test_software.gd`, `tools/test_malware_overclock.gd` | M | New behaviour covered |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/SOFTWARE_WAVE_2.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+30 and 20 night minutes; 3 real seconds of waiting; quiet up to 65 C in the match tab (same rule as pickup).
+
+### Known issues and open items
+The night clock has no consequence yet. The workshop hub's own diagnosis report still uses the old thermal summary. Not playtested.
+
+### Next action
+User playtest; decide what the night clock should end.
+
 ## 0.40.0 - 2026-11-15 - Wave 2: anti-virus and overclocker
 
 - Author: Claude (Sonnet 5.5, model id claude-sonnet-5-5) in a chat session
