@@ -1,6 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.42.0)
+# Nightshift - Godot Foundation Trial (v0.41.2)
 
-New in 0.42.0: nothing to see. The repair bench's code was split into smaller pieces so the next
+New in 0.41.2: nothing to see. The repair bench's code was split into smaller pieces so the next
 releases (tickets, pickup, the morning report) can be built safely. The bench should behave exactly as before.
 
 New in 0.41.0: **the monitor measures, and measuring takes time.** Running a game now takes 30 minutes of

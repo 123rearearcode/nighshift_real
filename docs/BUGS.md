@@ -88,7 +88,7 @@ sources (install faults, infection, overclock) all follow one pattern: a pure ru
 complaint tables, summed by `pickup_score.gd` and composed in `GameState.pickup_faults`. Risks I see:
 (1) `bench_view.gd` is now about 1500 lines: the cooler-install ritual, tool hand-state and mounting all
 live in it; splitting the install ritual into its own helper is the next structural step before more rituals
-(RAM, CPU) are added. **Done in 0.42.0** (five helpers; the bench keeps state and wrappers). (2) The pickup-fault composition is a growing list in `game_state.gd`; a fourth source
+(RAM, CPU) are added. **Done in 0.41.2** (five helpers; the bench keeps state and wrappers). (2) The pickup-fault composition is a growing list in `game_state.gd`; a fourth source
 should move it into one rule script. (3) Nothing from 0.38-0.40 has been playtested by the user. No new
 bug-register entries; B-ids unchanged.
 

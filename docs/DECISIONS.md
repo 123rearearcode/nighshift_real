@@ -407,5 +407,5 @@ D139 (user): upgrades are discussed later.
 
 D140 (user, design only, 16 November 2026): build requests. Customers bring a budget and needs (games; light, medium or heavy office; video editing; crypto mining; more later), some needing more storage or RAM. Every PC has six stats: processing, graphics, RAM, storage, PSU, cooler; each use sets minimums. Needs versus wants; budget pressure, with personas and lore designed later; PSU and cooler are support stats but customers can ask for quietness; parts are named like real hardware; builds get an elegance score that feeds the shop level and online reviews; salvaged parts need a testing bay; mining customers are a persona. Later: the upsell; the wrong self-diagnosis. Detail: docs/REPAIR_LOOP_DESIGN.md section 7a. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
-D141 (user approved, 16 November 2026): Wave 3 plan of coding sessions 3.0 to 3.8 (versions 0.42.0 to 0.50.0), one playtestable release each, in docs/WORK_PLAN.md. 3.0 is a code clean-up with no visible change.
+D141 (user approved, 16 November 2026): Wave 3 plan of coding sessions 3.0 to 3.8 (3.0 shipped as 0.41.2; 3.1 to 3.8 are 0.43.0 to 0.50.0; 0.42.0 belongs to the parallel menu-navigation PR #46), one playtestable release each, in docs/WORK_PLAN.md. 3.0 is a code clean-up with no visible change.
 

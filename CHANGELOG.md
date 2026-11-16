@@ -39,11 +39,17 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
-## 0.42.0 - 2026-11-16 - Wave 3 session 3.0: repair bench split (no visible change)
+## 0.41.2 - 2026-11-16 - Wave 3 session 3.0: repair bench split (no visible change)
+
+- Renumbered (Claude, Opus 5.5, model id claude-opus-5-5): this release was first merged as 0.42.0 (PR #48), but
+  Codex's open PR #46 had already claimed 0.42.0 and pushed `archive/v0.42.0`. It is now 0.41.2 (a patch: no
+  gameplay change), so PR #46 keeps 0.42.0 and its archive. Cause: I listed open PRs through the GraphQL CLI,
+  which is blocked here, and did not retry through the REST API. Decision ids also collide (PR #46 uses
+  D134–D136, main already has D134–D141); that is resolved when PR #46 is integrated.
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
 - Based on: 0.41.1
-- Type: minor (code structure only; no gameplay, save or scene change)
+- Type: patch (code structure only; no gameplay, save or scene change)
 
 ### Execution status
 Godot was NOT run by me. GitHub Actions run 43944339054 passed every required suite (599 regression checks, all bench suites) and the full scripted bench diagnostics. The first run (43942436349) caught one error: the typed `stage_buttons` array cannot be replaced through the dynamic handle; it is now filled in place. No playtest is claimed: the bench is meant to behave exactly as in 0.41.

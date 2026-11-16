@@ -1,5 +1,5 @@
 # Cleaning stage of the repair bench: dust steps, the pick, the vacuum bin, tool and part collisions, fan speeds and dust saving.
-# Split out of bench_view.gd in 0.42.0 (Wave 3 session 3.0). Holds no state of its own: every
+# Split out of bench_view.gd in 0.41.2 (Wave 3 session 3.0). Holds no state of its own: every
 # member it touches lives on the bench (`bv`), and the bench keeps one-line wrappers with the old
 # names, so callers and tests are unchanged.
 extends RefCounted

@@ -75,11 +75,12 @@ features land in the per-tool scripts.
 
 ## Wave 3 — closing the repair loop (user approved the plan, 16 November 2026)
 Design: docs/REPAIR_LOOP_DESIGN.md (D134 to D141). One session = one release the user can playtest.
+Version 0.42.0 is taken by the parallel menu-navigation work (Codex, PR #46), so session 3.0 shipped as 0.41.2.
 Sessions marked "talk first" need a short design conversation with the user before coding.
 
 | Session | Version | What the player gets | Talk first? | State |
 | --- | --- | --- | --- | --- |
-| 3.0 Bench clean-up | 0.42.0 | nothing visible: bench_view.gd split into helpers | no | done (this release) |
+| 3.0 Bench clean-up | 0.41.2 | nothing visible: bench_view.gd split into helpers | no | done (this release) |
 | 3.1 Tickets and pickup | 0.43.0 | tickets as records; right-click a PC: Ready for pickup (sticker) / Call customer | no | next |
 | 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later | — |
 | 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; CPU and RAM unlocked | yes: part list and numbers | — |
