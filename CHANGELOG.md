@@ -83,7 +83,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: patch (compatibility with the approved diagnosis rules; no new diagnosis features; job gains optional `damaged_parts`, `shop_fitted`, `shop_custody`, `dead_slots`; stock records may carry `fitted_in`/`slot`)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed. Codex cross-review requested; the user controls the merge.
+Godot was NOT run by me. GitHub Actions run 44200267247: all required suites green and the full scripted bench diagnostics. The first run (44199925403) failed four checks: three tests still asserting the D149 behaviour, and one real bug (B41, Rearrange drawer pulled a fitted test part out). No interactive playtest is claimed. Codex cross-review requested; the user controls the merge.
 
 ### Audit (HANDOFF resume order step 2) and what changed
 Hidden-health leaks found in merged code (mostly Claude's own 0.38–0.46 work), all removed:
