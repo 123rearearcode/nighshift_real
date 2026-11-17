@@ -53,7 +53,15 @@ trial proposals**: change them in that one file. Written by Claude (Opus 5.5, mo
 | Cooler | be quiat! Dark Rokk 4 | 200 W | – | $65 |
 | Cooler | Noctoa NH-D51 | 250 W | – | $95 |
 
-## Not in 0.45.0 (next session, 3.3b)
+## On the hardware bench (0.46.0, D149)
+Slots: CPU socket, three RAM slots, two drive slots, the PSU connector, PCIe slot 1 (the PC's first card,
+which the repair bench also services) and PCIe slot 2 (a second card). Every customer part can come out
+into the drawer and stays the customer's ("loose"); the cooler must come off before the CPU. Order parts
+buys any catalogue part into the drawer; it fits any empty matching slot and then belongs to the customer
+(no charge to the customer yet). A catalogue card or cooler may upgrade a working first card / cooler taken
+out; the two old trial stock tiers still only replace a broken one. Broken loose parts cannot go back in.
+
+## Not in 0.45.0 (done in 0.46.0, kept for the record)
 Taking CPU, RAM, storage and the PSU in and out at the hardware bench, a second PCIe slot for a second
 GPU, and buying any catalogue part. Today the catalogue sets the customer PCs and the two repair-bench
 stock tiers; the hardware bench shows the real model names.
