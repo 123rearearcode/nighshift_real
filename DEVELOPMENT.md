@@ -188,6 +188,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/data/hardware_catalog.gd` | data | The hardware catalogue: CPUs, GPUs, RAM, storage, PSUs, coolers with parody names, stats and prices (D148) |
 | `scripts/rules/pc_build.gd` | rules | A PC's six stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied (D148) |
 | `tools/test_real_hardware.gd` | tooling | Catalogue, stats, support rules, multi-GPU, names, unchanged demo performance, saves (D148) |
+| `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |

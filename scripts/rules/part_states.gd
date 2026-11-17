@@ -5,6 +5,7 @@
 extends RefCounted
 
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 
 const MISSING_TEXT: String = "MISSING - lying in the repair-bench tray; drag it back or fit a replacement"
 const BROKEN_TEXT: String = "BROKEN - at the repair bench: move it to the tray, then open Replacement stock"
@@ -32,6 +33,7 @@ static func problem_lines(job: Dictionary) -> Array:
         var s: Dictionary = state(job, part_id)
         if not bool(s["fitted"]) or not bool(s["working"]):
             lines.append("%s: %s." % [part_id.to_upper(), str(s["text"])])
+    for line: String in PcBuild.missing(job): lines.append(line + ".")   # D149: CPU, RAM, drive, PSU out
     return lines
 
 

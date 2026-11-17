@@ -19,27 +19,54 @@ const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ra
 const SERVICE_MODELS: Dictionary = {"gpu": {"similar": "gpu_gtx1660", "budget": "gpu_gtx1550ti"}, "cooler": {"similar": "cool_stock_box", "budget": "cool_wraith_stelth"}}
 
 
+# 0.46.0 (D149): "" is an EMPTY slot (the part is out on the hardware bench). A missing key or an unknown
+# id falls back to the demo part. Lists may be empty, except the first GPU, which always names the
+# card whose service state the repair bench tracks.
 static func _one(raw: Variant, type: String, fallback: String) -> String:
+    if raw is String and raw == "": return ""
     return str(raw) if Catalog.is_type(str(raw), type) else fallback
 
 
 static func _many(raw: Variant, type: String, fallback: Array, most: int) -> Array:
+    if not raw is Array: return fallback.duplicate()
     var out: Array = []
-    if raw is Array:
-        for id: Variant in raw:
-            if Catalog.is_type(str(id), type) and out.size() < most: out.append(str(id))
-    return out if not out.is_empty() else fallback.duplicate()
+    for id: Variant in raw:
+        if Catalog.is_type(str(id), type) and out.size() < most: out.append(str(id))
+    return out
 
 
-# Rebuilds a parts record from known catalogue ids only (unknown ids fall back to the demo part).
+# Rebuilds a parts record from known catalogue ids only.
 static func sanitize(raw: Variant) -> Dictionary:
-    var r: Dictionary = raw if raw is Dictionary else {}
-    return {"cpu": _one(r.get("cpu", ""), Catalog.CPU, FALLBACK["cpu"]),
-        "gpus": _many(r.get("gpus", []), Catalog.GPU, FALLBACK["gpus"], 4),
-        "ram": _many(r.get("ram", []), Catalog.RAM, FALLBACK["ram"], 4),
-        "storage": _many(r.get("storage", []), Catalog.STORAGE, FALLBACK["storage"], 4),
-        "psu": _one(r.get("psu", ""), Catalog.PSU, FALLBACK["psu"]),
-        "cooler": _one(r.get("cooler", ""), Catalog.COOLER, FALLBACK["cooler"])}
+    if not raw is Dictionary: return FALLBACK.duplicate(true)
+    var r: Dictionary = raw
+    var gpus: Array = _many(r.get("gpus", null), Catalog.GPU, FALLBACK["gpus"], 2)
+    if gpus.is_empty(): gpus = FALLBACK["gpus"].duplicate()
+    return {"cpu": _one(r.get("cpu", null), Catalog.CPU, FALLBACK["cpu"]),
+        "gpus": gpus,
+        "ram": _many(r.get("ram", null), Catalog.RAM, FALLBACK["ram"], 3),
+        "storage": _many(r.get("storage", null), Catalog.STORAGE, FALLBACK["storage"], 2),
+        "psu": _one(r.get("psu", null), Catalog.PSU, FALLBACK["psu"]),
+        "cooler": _one(r.get("cooler", null), Catalog.COOLER, FALLBACK["cooler"])}
+
+
+# The catalogue model a service replacement tier stands for: "similar"/"budget" (the two stock tiers)
+# or "model:<catalogue id>" (any part bought from the catalogue, 0.46.0). `fallback` when there is none.
+static func model_of(tier: String, kind: String, fallback: String) -> String:
+    if tier.begins_with("model:"):
+        var id: String = tier.trim_prefix("model:")
+        return id if Catalog.is_type(id, Catalog.GPU if kind == Ids.GPU else Catalog.COOLER) else fallback
+    return str(SERVICE_MODELS.get(kind, {}).get(tier, fallback))
+
+
+# What is missing for the PC to start at all: one line per empty essential slot.
+static func missing(job: Dictionary) -> Array:
+    var p: Dictionary = sanitize(job.get("parts", {}))
+    var lines: Array = []
+    if str(p["cpu"]) == "": lines.append("CPU: MISSING - fit a processor in the socket at the hardware bench")
+    if (p["ram"] as Array).is_empty(): lines.append("RAM: MISSING - fit at least one memory stick at the hardware bench")
+    if (p["storage"] as Array).is_empty(): lines.append("STORAGE: MISSING - fit a drive at the hardware bench: there is no system to start")
+    if str(p["psu"]) == "": lines.append("PSU: MISSING - fit a power supply at the hardware bench")
+    return lines
 
 
 # Combined graphics of several cards: best first, each next card adds half of the previous share.
@@ -62,7 +89,7 @@ static func stats(parts: Dictionary) -> Dictionary:
 
 
 static func _stats(cpu: String, gpus: Array, ram: Array, storage: Array, psu: String, cooler: String) -> Dictionary:
-    var c: Dictionary = Catalog.part(cpu)
+    var c: Dictionary = Catalog.part(cpu) if cpu != "" else {}
     var graphics: Array = []
     var draw: int = BASE_WATTS + (int(c.get("watts", 0)) if not c.is_empty() else 0)
     for id: String in gpus:
@@ -87,8 +114,8 @@ static func effective_parts(job: Dictionary) -> Dictionary:
     var p: Dictionary = sanitize(job.get("parts", {}))
     var replaced: Dictionary = job.get("service_replacements", {}) if job.get("service_replacements", {}) is Dictionary else {}
     var gpus: Array = (p["gpus"] as Array).duplicate()
-    if replaced.has(Ids.GPU): gpus[0] = str(SERVICE_MODELS["gpu"].get(str(replaced[Ids.GPU]), gpus[0]))
-    if replaced.has(Ids.COOLER): p["cooler"] = str(SERVICE_MODELS["cooler"].get(str(replaced[Ids.COOLER]), p["cooler"]))
+    if replaced.has(Ids.GPU): gpus[0] = model_of(str(replaced[Ids.GPU]), Ids.GPU, gpus[0])
+    if replaced.has(Ids.COOLER): p["cooler"] = model_of(str(replaced[Ids.COOLER]), Ids.COOLER, p["cooler"])
     var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
     var broken: Array = job.get("broken_parts", []) if job.get("broken_parts", []) is Array else []
     if Ids.GPU in removed or Ids.GPU in broken: gpus.remove_at(0)
@@ -120,7 +147,7 @@ static func part_lines(job: Dictionary) -> Array:
     var p: Dictionary = effective_parts(job)
     var original: Dictionary = sanitize(job.get("parts", {}))
     var lines: Array = []
-    lines.append("CPU: %s (%s)" % [Catalog.part(p["cpu"])["name"], Catalog.stat_text(p["cpu"])])
+    lines.append("CPU: %s" % ("%s (%s)" % [Catalog.part(p["cpu"])["name"], Catalog.stat_text(p["cpu"])] if str(p["cpu"]) != "" else "none fitted"))
     var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
     var broken: Array = job.get("broken_parts", []) if job.get("broken_parts", []) is Array else []
     var gpus: Array = original["gpus"]
@@ -133,8 +160,10 @@ static func part_lines(job: Dictionary) -> Array:
             shown = str((p["gpus"] as Array)[0])
         lines.append("GPU: %s (%s)" % [Catalog.part(shown)["name"], Catalog.stat_text(shown)])
     for id: String in p["ram"]: lines.append("RAM: %s" % Catalog.part(id)["name"])
+    if (p["ram"] as Array).is_empty(): lines.append("RAM: none fitted")
     for id: String in p["storage"]: lines.append("Storage: %s" % Catalog.part(id)["name"])
-    lines.append("PSU: %s (%s)" % [Catalog.part(p["psu"])["name"], Catalog.stat_text(p["psu"])])
+    if (p["storage"] as Array).is_empty(): lines.append("Storage: none fitted")
+    lines.append("PSU: %s" % ("%s (%s)" % [Catalog.part(p["psu"])["name"], Catalog.stat_text(p["psu"])] if str(p["psu"]) != "" else "none fitted"))
     if str(p["cooler"]) != "": lines.append("Cooler: %s (%s)" % [Catalog.part(p["cooler"])["name"], Catalog.stat_text(p["cooler"])])
     else: lines.append("Cooler: %s (not working or not fitted)" % Catalog.part(original["cooler"])["name"])
     return lines

@@ -8,12 +8,14 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 # D148 (0.45.0): the two stock tiers are catalogue models (pc_build.gd SERVICE_MODELS). "performance" is
 # the share of the demo PCs' original part, for the old notes; heat now comes from the cooler's capacity.
 static func option(part_id: String, tier: String) -> Dictionary:
-    if not part_id in IDS or not tier in ["similar", "budget"]: return {}
-    var model: Dictionary = Catalog.part(str(PcBuild.SERVICE_MODELS[part_id][tier]))
+    if not part_id in IDS: return {}
+    var catalog_tier: bool = tier.begins_with("model:") and Catalog.is_type(tier.trim_prefix("model:"), Catalog.GPU if part_id == Ids.GPU else Catalog.COOLER)
+    if not tier in ["similar", "budget"] and not catalog_tier: return {}
+    var model: Dictionary = Catalog.part(PcBuild.model_of(tier, part_id, ""))
     var original: Dictionary = Catalog.part(str(PcBuild.SERVICE_MODELS[part_id]["similar"]))
     var key: String = "graphics" if part_id == Ids.GPU else "capacity"
     var share: int = roundi(100.0 * float(model[key]) / float(original[key]))
-    return {"label": ("Budget: " if tier == "budget" else "Equivalent: ") + str(model["name"]),
+    return {"label": ("Budget: " if tier == "budget" else ("Catalogue: " if catalog_tier else "Equivalent: ")) + str(model["name"]),
         "model": str(model["id"]),
         "cost": int(model["price"]),
         "performance": share,

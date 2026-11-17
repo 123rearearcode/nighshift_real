@@ -1,10 +1,10 @@
 # Handoff — current state first
 
-## Current handoff — 0.45.1 documentation correction
+## Current handoff — 0.46.1 documentation correction
 
-**Verified 17 November 2026 against main 0.45.0, commit
-`0499333afb8d9ae3659324902d70fff021e529e1`.** This patch changes documentation and version metadata
-only; the game implementation remains the 0.45.0 baseline. No new gameplay is built here.
+**Verified 17 November 2026 against main 0.46.0, commit
+`b6004d2d04bb3c97cb7d40ffa93a556760257b08`.** This patch changes documentation and version metadata
+only; the game implementation remains the 0.46.0 baseline. No new gameplay is built here.
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 17 November 2026, Europe/Bucharest. The user explicitly asked to correct this handoff FIRST, then
@@ -52,22 +52,23 @@ demands 11 graphics / 15 processing; repair stock tiers mapped to catalogue mode
 **Actual catalogue count: 28 models** (5 CPU, 5 GPU, 4 RAM, 4 storage, 5 PSU, 5 cooler), counted
 from `hardware_catalog.gd`. The old 0.45.0 changelog says 27; that historical count is inaccurate.
 
-In 0.45.0 the complete physical hardware interaction is NOT finished: CPU/RAM/storage/PSU cannot
-yet all be taken in/out, the bench has one PCIe slot, and purchases are still the two stock tiers.
-The multi-GPU STAT model being present does not mean the multi-GPU bench is finished.
+### Session 3.3b is now merged — 0.46.0
 
-### What Claude is doing now — session 3.3b
+PR #55 merged while this correction was being prepared. WORK_PLAN now marks 3.3b done and
+3.4 Diagnosis next. CPU, RAM, drives and PSU can be removed into the drawer and refitted;
+the cooler must come off before the CPU. There is a second PCIe slot, two drive slots,
+a PSU connector, and Order parts for catalogue purchases. Customer parts remain customer-owned
+loose parts. Empty required slots prevent booting. Rearrange drawer repacks only the drawer.
 
-**In progress per the user's current instruction; not shipped on the verified main snapshot.**
-Planned version in WORK_PLAN: 0.46.0. Scope: removable/refittable CPU, RAM, storage and PSU,
-a second PCIe slot, buying any catalogue part. WORK_PLAN still says "next"; the user has said
-Claude is actively working on it. Do not report it as complete without a merged version/commit.
+Known limitations from the release: CPU removal does not update the repair bench paste stage;
+RAM and drives refit in slot order. Connector positions and free fitted parts remain proposed.
+This documents the merged implementation, not a new interactive playtest.
 
-Claude owns this implementation. Do not concurrently edit the hardware bench, catalogue/PC rules,
-GameState or inventory/ownership integration it needs. The established hot files remain
-`scripts/view/bench_view.gd`, `scripts/bench/tool_rig.gd`, `scripts/state/game_state.gd`;
-shared files outside that trio can collide too. Confirm Claude's actual file list before parallel code.
-One open PR per hot file, start from updated main, cross-review before merge. No work-plan edit here.
+Claude's previous 3.3b reservation is historical now. No next code assignment is assumed:
+confirm his next scope before touching shared hardware, inventory, PC rules or GameState files.
+The established hot files are scripts/view/bench_view.gd, scripts/bench/tool_rig.gd and
+scripts/state/game_state.gd. Other shared files can collide too. One open PR per hot file;
+cross-review before merge. No WORK_PLAN edit here.
 
 ### Remaining Wave 3 work (planned, not implemented by this correction)
 
@@ -87,14 +88,13 @@ reconcile it with today's `job.parts`/ticket/inventory implementation before usi
 
 ### Execution evidence and next action
 
-The 0.45.0 CHANGELOG records CI run 44134587054 with 24 required suites green and Real hardware
-85 checks; that is historical CI evidence, not a new run by Codex for this correction. No manual
-playtest of this baseline is claimed here. This docs patch's own checks are in its changelog entry.
+The 0.46.0 CHANGELOG records CI run 44148883923 with 25 required suites green,
+including Hardware parts (27 checks). This is Claude's recorded evidence, not a run or
+interactive playtest by Codex. This documentation patch's checks are in its changelog entry.
 
-**Next:** Claude continues 3.3b. Codex finishes this handoff correction, presents choices, then waits
-for the user to choose a scope. No diagnosis, generation, balance or testing-bay work is authorized
-merely by this correction. Claude's code/hot files stay reserved; only handoff and release metadata
-are changed. Merge/release status must be stated accurately in the delivery, not assumed.
+**Next:** Codex presents choices and waits for the user to select a scope. Session 3.4 is next
+in the plan, but no implementation is authorized by this handoff correction. No hot file is
+edited here; agree actual ownership before parallel code. No merge is assumed.
 
 ## Historical handoffs — retained for provenance, NOT current project status
 

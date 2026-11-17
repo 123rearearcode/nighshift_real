@@ -1,8 +1,14 @@
-# Nightshift - Godot Foundation Trial (v0.45.1)
+# Nightshift - Godot Foundation Trial (v0.46.1)
 
-0.45.1 is a **documentation-only handoff correction** over game-code baseline 0.45.0. HANDOFF.md
-now distinguishes shipped hardware stats from Claude's in-progress 3.3b bench work, records D148
-proposals correctly, and marks old status notes as historical. No gameplay change.
+0.46.1 is a documentation-only handoff correction against merged 0.46.0; no gameplay changes.
+
+New in 0.46.0: **every part comes out at the hardware bench.** CPU, RAM, drives and the PSU can be
+dragged into the drawer and back (the cooler comes off before the CPU, as in a real PC). The board has a
+second PCIe slot for a second graphics card, two drive slots and a PSU connector. **Order parts** (bottom
+right) buys any part from the catalogue into the drawer; drag it into an empty slot to fit it. A bought
+card or cooler can also upgrade a working one you took out: the customer's old part stays in the drawer
+as theirs, and you can swap it back. A PC with no CPU, RAM, drive or PSU will not start. Parts you fit are
+a gift for now (charging the customer is for later).
 
 New in 0.45.0: **real hardware.** Every PC is now made of named parts (close parodies: Intol, AMB,
 Nvidya, Corsare...) with six stats: processing, graphics, RAM, storage, PSU and cooler. Too small a PSU

@@ -73,8 +73,17 @@ static func sanitize_tests(raw: Variant) -> Dictionary:
 # The Hardware check: is every part in place, working, and the cooler locked? Nothing about
 # temperature, performance or how WELL anything was installed.
 static func hardware_check(job: Dictionary) -> Dictionary:
-    var lines: Array = ["CPU and RAM: in place."]
+    var lines: Array = []
     var ok: bool = true
+    # D149: CPU, RAM, drives and the PSU can be out too; the PSU must also be big enough.
+    for line: String in PcBuild.missing(job):
+        ok = false
+        lines.append(line + ".")
+    if PcBuild.missing(job).is_empty(): lines.append("CPU, RAM, drive and PSU: in place.")
+    var power: Dictionary = PcBuild.effective(job)
+    if PcBuild.missing(job).is_empty() and not bool(power["powered"]):
+        ok = false
+        lines.append("PSU: TOO SMALL - the parts need %d W, it gives %d W." % [int(power["draw_w"]), int(power["psu_w"])])
     for part_id: String in ServiceParts.IDS:
         var s: Dictionary = PartStates.state(job, part_id)
         if bool(s["fitted"]) and bool(s["working"]):

@@ -259,7 +259,7 @@ func _candidate(mouse: Vector2) -> Dictionary:
         var result: Dictionary = PlacementRules.check_placement(board,inventory.items[i]["part"],inventory.items[i]["rotation"],cell,inventory.occupied(),int(pc["depth"]))
         var connector: Dictionary = PlacementRules.connector_at(board,cell)
         var rect: Rect2 = _connector_rect(connector) if not connector.is_empty() else Rect2(_cell_to_pos(cell),Vector2(fp)*CELL)
-        return {"kind":"board", "cell":cell, "ok":result["ok"], "rect":rect, "message":result["message"]}
+        return {"kind":"board", "cell":cell, "ok":result["ok"], "rect":rect, "message":result["message"], "connector_id":str(result.get("connector_id",""))}
     return {"ok":false, "message":"Try an empty drawer space or a matching socket."}
 
 func _process(delta: float) -> void:
@@ -323,6 +323,8 @@ func _type_color(type: String) -> Color:
         "CPU_SOCKET": return Color("e86b70")
         "PCIE_X16": return Color("b99cf0")
         "COOLER_MOUNT": return Color("62b9bd")
+        "STORAGE_SLOT": return Color("7fc97f")
+        "PSU_BAY": return Color("9aa3ad")
     return Color.GRAY
 func _text(pos: Vector2, text: String, size: int = 16, color: Color = COLOR_TEXT) -> void:
     draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
@@ -381,6 +383,9 @@ func _draw_part(i: int) -> void:
             draw_circle(center,size.y*0.35,Color("383d4a"))
             draw_arc(center,size.y*0.35,0,TAU,20,Color("ddd5ed"),1)
         _text(Vector2(-14,4),"GPU",11,Color.BLACK)
+    elif item["part"]["category"] in ["STORAGE","PSU"]:
+        draw_rect(rect.grow(-4),Color(0,0,0,0.18))
+        _text(Vector2(-size.x*0.5+4,5),"PSU" if item["part"]["category"] == "PSU" else "DRIVE",11,Color.BLACK)
     else:
         var radius: float = minf(size.x,size.y)*0.34
         draw_circle(Vector2.ZERO,radius,Color("294e55"))

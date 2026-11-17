@@ -39,27 +39,27 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
-## 0.45.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
+## 0.46.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
-- Based on: main 0.45.0 (0499333afb8d9ae3659324902d70fff021e529e1)
+- Based on: main 0.46.0 (b6004d2d04bb3c97cb7d40ffa93a556760257b08)
 - Type: patch (documentation accuracy and matching release metadata only)
 
 ### Execution status
-No game code changed. Godot was not run for this docs-only correction. The existing 0.45.0 CI
+No game code changed. Godot was not run for this docs-only correction. The existing 0.46.0 CI
 results are attributed to that version, not presented as this patch's new tests. No gameplay
 implementation or manual playtest is claimed. Date: 17 November 2026, Europe/Bucharest.
 
 ### Added / Changed / Fixed / Removed
 - Replace the misleading top-level 0.42.0 handoff with a verified current summary: shipped
-  0.45.0 hardware model versus Claude's user-reported in-progress 3.3b (planned 0.46.0).
+  0.46.0 hardware bench, including the 3.3b merge that arrived during this correction.
 - List shipped menu, bench split, tickets, morning cycle and thermal fixes; clarify current
   hardware/monitor integration and remaining Wave 3 sessions/design discussions.
 - Separate D148 decisions from implemented trial proposals. Count actual catalogue records:
   28 (5 CPU, 5 GPU, 4 RAM, 4 storage, 5 PSU, 5 cooler), correcting the old reported count of 27.
 - Mark old handoff status blocks historical, preserving provenance. Warn that the old blanket
   no-implementation introduction and old shared-PC proposal do not describe today's main.
-- State Claude's reservation and Codex's exact authorization: correct handoff, present choices,
+- State coordination requirements and Codex's exact authorization: correct handoff, present choices,
   wait. No parallel feature, balance proposal document or code is started.
 - Match README/project version to this docs patch; no WORK_PLAN.md or runtime script edits.
 
@@ -74,20 +74,57 @@ implementation or manual playtest is claimed. Date: 17 November 2026, Europe/Buc
 ### Checks performed
 - Reconciled handoff with project version, latest changelog, D148, Wave 3 work plan and catalogue.
 - Counted catalogue declarations by type: 28 total. No catalogue file was edited.
-- `python3 -I tools/check_project.py`: PASSED, 0 problems (120 scripts, 571 references, 178 mapped files).
+- `python3 -I tools/check_project.py`: PASSED, 0 problems (see checker output for current counts).
 - `git diff --check`: passed. No Godot run; no CI result for this patch claimed yet.
 
 ### Decisions proposed (not approved)
 None implemented. Parallel-work choices will be presented to the user after the handoff correction.
 
 ### Known issues and open items
-3.3b is in progress per the user but absent from the verified main snapshot. Shared design files
+3.3b is now merged; CPU removal/paste-stage synchronization and slot-order refitting remain limitations. Shared design files
 may retain historical wording; this patch deliberately corrects HANDOFF first. No runtime re-test.
 
 ### Next action
-Claude continues session 3.3b; its hardware/inventory/core files and hot files remain reserved.
+Wave 3 session 3.4 is next; confirm Claude's next assignment before parallel code.
 Codex presents choices and waits for approval before any further work. No hot files touched;
-no merge assumed. Preserve archive/v0.45.0 and create archive/v0.45.1 for the correction.
+no merge assumed. Preserve existing archives and create archive/v0.46.1 for the correction.
+
+## 0.46.0 - 2026-11-17 - Wave 3 session 3.3b: hardware bench parts
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.45.0
+- Type: minor (new bench behaviour; job gains optional `loose_parts`; stock records may be catalogue parts; parts may have empty slots)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 44148883923: all 25 required suites green, including the new Hardware parts suite (27 checks), and the full scripted bench diagnostics. The first run caught the PSU connector at the compact board edge (B40). No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D149): CPU, RAM, drives and the PSU come out at the hardware bench into the drawer and back; the customer keeps them as loose parts. The cooler must come off before the CPU.
+- Added: board connectors for a second PCIe slot, two drives and the PSU; drawing for drives and PSUs.
+- Added: Order parts on the hardware bench: any catalogue part into the drawer; fits any empty matching slot.
+- Added: catalogue cards and coolers can upgrade a working first card / cooler taken out (tier `model:<id>`); the customer's old part stays loose and can be swapped back.
+- Changed: a PC missing its CPU, RAM, drive or PSU does not start; the hardware check reports missing parts and a too-small PSU.
+- Changed: Rearrange drawer repacks the drawer only.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `tools/test_hardware_parts.gd` | A | Suite |
+| `scripts/rules/customer_pc.gd`, `scripts/rules/pc_build.gd`, `scripts/data/hardware_catalog.gd`, `scripts/data/service_parts.gd`, `scripts/data/component_data.gd`, `scripts/state/game_state.gd`, `scripts/night/hardware_view.gd`, `scripts/view/workshop_view.gd`, `scripts/rules/part_states.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/work_report.gd` | M | Parts in and out, stock, upgrades, checks |
+| `tools/test_hardware_ticket_pc.gd`, `.github/workflows/tests.yml` | M | Lock test updated, suite registered |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/HARDWARE_CATALOG.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+Connector positions; fitted parts are free for the customer.
+
+### Known issues and open items
+Removing the CPU does not change the repair bench's paste stage. RAM and drives refit in slot order, not the exact slot. Not playtested.
+
+### Next action
+Session 3.4 (0.47.0): diagnosis.
 
 ## 0.45.0 - 2026-11-17 - Wave 3 session 3.3: real hardware
 
