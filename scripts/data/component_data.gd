@@ -82,7 +82,7 @@ static func demo_board() -> Dictionary:
             {"id": "m2_2", "label": "Drive slot 2", "short_label": "D2", "type": "STORAGE_SLOT",
                 "origin": Vector2i(6, 8), "footprint": Vector2i(2, 1)},
             {"id": "psu_bay", "label": "Power supply connector", "short_label": "PSU", "type": "PSU_BAY",
-                "origin": Vector2i(6, 4), "footprint": Vector2i(3, 2)},
+                "origin": Vector2i(5, 4), "footprint": Vector2i(3, 2)},
         ],
     }
 
