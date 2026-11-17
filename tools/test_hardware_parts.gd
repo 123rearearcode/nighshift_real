@@ -42,7 +42,7 @@ func run_checks() -> void:
     var snap: Dictionary = placed.duplicate(true)
     snap[CustomerPC.uid(job, "cpu")] = {"location": "drawer", "cell": [0, 0], "rotation": 0}
     var applied: Dictionary = CustomerPC.apply(job, snap)
-    check(applied["parts"]["cpu"] == "" and applied["loose_parts"] == [{"id": "cpu_i5_6060", "broken": false}], "a CPU moved to the drawer leaves the socket empty and becomes a loose customer part")
+    check(applied["parts"]["cpu"] == "" and applied["loose_parts"] == [{"id": "cpu_i5_6060", "broken": false, "damaged": false, "original_of": ""}], "a CPU moved to the drawer leaves the socket empty and becomes a loose customer part")
     var empty: Dictionary = job.duplicate(true)
     empty["parts"] = applied["parts"]
     check(PcBuild.missing(empty).size() == 1 and str(PcBuild.missing(empty)[0]).begins_with("CPU"), "an empty socket is reported missing")

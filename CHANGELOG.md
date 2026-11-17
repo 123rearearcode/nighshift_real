@@ -103,8 +103,8 @@ No conflict found: hidden film/screw flags stay out of checks; measurements alre
 | `scripts/rules/part_states.gd`, `scripts/rules/pc_build.gd`, `scripts/rules/customer_pc.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/work_report.gd` | M | Known vs hidden, observations, test parts in stats, dead slots |
 | `scripts/state/game_state.gd` | M | Visible damage, custody, return, settlement, load sanitizing |
 | `scripts/night/hardware_view.gd`, `scripts/view/bench_view.gd`, `scripts/view/bench_parts.gd`, `scripts/view/bench_cleaning.gd`, `scripts/storage/storage_sources.gd`, `scripts/night/morning_view.gd` | M | No health in UI or permissions; custody on the bench; morning "kept" line |
-| `tools/test_regressions.gd`, `tools/test_hardware_parts.gd` | M | D115-era assertions rewritten to D150; custody, return, dead card, settlement |
-| `README.md`, `CHANGELOG.md`, `project.godot`, `docs/DECISIONS.md` | M | Docs and version |
+| `tools/test_regressions.gd`, `tools/test_hardware_parts.gd`, `tools/test_software.gd`, `tools/test_night_workshop.gd` | M | D115-era and D149-era assertions rewritten to D150; custody, return, dead card, settlement |
+| `README.md`, `CHANGELOG.md`, `project.godot`, `docs/DECISIONS.md`, `docs/BUGS.md` | M | Docs, version, B41 |
 
 ### Checks performed
 `python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.

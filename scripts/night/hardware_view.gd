@@ -292,6 +292,8 @@ func _reset_state() -> void:
     var placed: Dictionary = CustomerPC.placements(GameState.job, {})
     for key: String in placed:
         if str(placed[key].get("location", "drawer")) != "drawer": fitted[key] = placed[key]
+    for slot: String in GameState.job.get("shop_fitted", {}):   # shop test parts stay fitted too (B41)
+        fitted[str(GameState.job["shop_fitted"][slot]["uid"])] = {"location": slot, "cell": [0, 0], "rotation": 0}
     inventory.setup(board, int(pc["depth"]), fitted, _components())
     _reset_motion()
     _save_inventory()
