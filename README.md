@@ -1,4 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.45.0)
+# Nightshift - Godot Foundation Trial (v0.45.1)
+
+0.45.1 is a **documentation-only handoff correction** over game-code baseline 0.45.0. HANDOFF.md
+now distinguishes shipped hardware stats from Claude's in-progress 3.3b bench work, records D148
+proposals correctly, and marks old status notes as historical. No gameplay change.
 
 New in 0.45.0: **real hardware.** Every PC is now made of named parts (close parodies: Intol, AMB,
 Nvidya, Corsare...) with six stats: processing, graphics, RAM, storage, PSU and cooler. Too small a PSU

@@ -39,6 +39,56 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.45.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.45.0 (0499333afb8d9ae3659324902d70fff021e529e1)
+- Type: patch (documentation accuracy and matching release metadata only)
+
+### Execution status
+No game code changed. Godot was not run for this docs-only correction. The existing 0.45.0 CI
+results are attributed to that version, not presented as this patch's new tests. No gameplay
+implementation or manual playtest is claimed. Date: 17 November 2026, Europe/Bucharest.
+
+### Added / Changed / Fixed / Removed
+- Replace the misleading top-level 0.42.0 handoff with a verified current summary: shipped
+  0.45.0 hardware model versus Claude's user-reported in-progress 3.3b (planned 0.46.0).
+- List shipped menu, bench split, tickets, morning cycle and thermal fixes; clarify current
+  hardware/monitor integration and remaining Wave 3 sessions/design discussions.
+- Separate D148 decisions from implemented trial proposals. Count actual catalogue records:
+  28 (5 CPU, 5 GPU, 4 RAM, 4 storage, 5 PSU, 5 cooler), correcting the old reported count of 27.
+- Mark old handoff status blocks historical, preserving provenance. Warn that the old blanket
+  no-implementation introduction and old shared-PC proposal do not describe today's main.
+- State Claude's reservation and Codex's exact authorization: correct handoff, present choices,
+  wait. No parallel feature, balance proposal document or code is started.
+- Match README/project version to this docs patch; no WORK_PLAN.md or runtime script edits.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `HANDOFF.md` | M | Authoritative current state, decisions/proposals, history and ownership |
+| `CHANGELOG.md` | M | Signed documentation-only correction |
+| `README.md` | M | Patch version and no-gameplay-change note |
+| `project.godot` | M | Version metadata only |
+
+### Checks performed
+- Reconciled handoff with project version, latest changelog, D148, Wave 3 work plan and catalogue.
+- Counted catalogue declarations by type: 28 total. No catalogue file was edited.
+- `python3 -I tools/check_project.py`: PASSED, 0 problems (120 scripts, 571 references, 178 mapped files).
+- `git diff --check`: passed. No Godot run; no CI result for this patch claimed yet.
+
+### Decisions proposed (not approved)
+None implemented. Parallel-work choices will be presented to the user after the handoff correction.
+
+### Known issues and open items
+3.3b is in progress per the user but absent from the verified main snapshot. Shared design files
+may retain historical wording; this patch deliberately corrects HANDOFF first. No runtime re-test.
+
+### Next action
+Claude continues session 3.3b; its hardware/inventory/core files and hot files remain reserved.
+Codex presents choices and waits for approval before any further work. No hot files touched;
+no merge assumed. Preserve archive/v0.45.0 and create archive/v0.45.1 for the correction.
+
 ## 0.45.0 - 2026-11-17 - Wave 3 session 3.3: real hardware
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
