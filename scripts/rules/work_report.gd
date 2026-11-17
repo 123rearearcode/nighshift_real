@@ -13,6 +13,7 @@ const Overclock = preload("res://scripts/rules/overclock.gd")
 const Games = preload("res://scripts/data/games.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 
 const OK := "[OK] "
 const NO := "[NO] "
@@ -168,4 +169,5 @@ static func match_lines(job: Dictionary, needs: Dictionary, pass_limit: float) -
 
 
 static func text(job: Dictionary, needs: Dictionary, pass_limit: float) -> String:
-    return "WORK DONE\n" + "\n".join(work_lines(job)) + "\n\nMATCH TO THE REQUEST\n" + "\n".join(match_lines(job, needs, pass_limit))
+    return "WORK DONE\n" + "\n".join(work_lines(job)) + "\n\nMATCH TO THE REQUEST\n" + "\n".join(match_lines(job, needs, pass_limit)) \
+        + "\n\nPC SPECS\n" + PcBuild.summary_line(job) + "\n" + "\n".join(PcBuild.part_lines(job))   # D148

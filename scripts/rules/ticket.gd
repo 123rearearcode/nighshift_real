@@ -8,6 +8,7 @@
 extends RefCounted
 
 const PartStates = preload("res://scripts/rules/part_states.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 
 const REPAIR := "repair"
 const BUILD := "build"
@@ -106,7 +107,9 @@ static func text(job: Dictionary, customer: Dictionary, games: Dictionary) -> St
         "Collection: %s" % r["terms"]["collection"] if str(r["terms"]["collection"]) != "" else "",
         "",
         "Machine: %s PC · %s" % [str(r["machine"]["layout"]).capitalize(), r["machine"]["parts"]],
+        "Specs: " + PcBuild.summary_line(job),
     ]
+    lines.append_array(PcBuild.part_lines(job))   # D148: every part by name
     var kept: Array = []
     for i in range(lines.size()):
         # optional lines are "" when absent; keep the two deliberate blank separators (index 2 and 9)

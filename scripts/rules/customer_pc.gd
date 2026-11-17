@@ -4,6 +4,8 @@
 # Pure functions: no scene, no input, no drawing, no save IO.
 extends RefCounted
 
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
+const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const ComponentData = preload("res://scripts/data/component_data.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
@@ -35,9 +37,21 @@ static func is_fixed(part_uid: String) -> bool:
     return is_customer(part_uid) and part_of(part_uid) in FIXED
 
 
+# D148: one stick per RAM part of the customer's PC (at most the slots there are).
 static func ram_sticks(job: Dictionary) -> int:
-    var gb: int = int((job.get("pc_specs", {}) as Dictionary).get("ram_gb", 8))
-    return clampi(int(ceil(float(gb) / 8.0)), 1, RAM_SLOTS.size())
+    return clampi((PcBuild.sanitize(job.get("parts", {}))["ram"] as Array).size(), 1, RAM_SLOTS.size())
+
+
+# The catalogue model of a customer part as it is in the PC now (a replacement shows its own model).
+static func model_name(job: Dictionary, part: String) -> String:
+    var p: Dictionary = PcBuild.sanitize(job.get("parts", {}))
+    var replaced: Dictionary = job.get("service_replacements", {}) if job.get("service_replacements", {}) is Dictionary else {}
+    var id: String = ""
+    match part:
+        "cpu": id = str(p["cpu"])
+        Ids.GPU: id = str(PcBuild.SERVICE_MODELS["gpu"].get(str(replaced.get(Ids.GPU, "")), p["gpus"][0]))
+        Ids.COOLER: id = str(PcBuild.SERVICE_MODELS["cooler"].get(str(replaced.get(Ids.COOLER, "")), p["cooler"]))
+    return "%s (%s)" % [Catalog.part(id)["name"], Catalog.stat_text(id)] if id != "" else ""
 
 
 # The customer's parts as bench components. Order matters: CPU first (the cooler mount needs it),
@@ -47,14 +61,15 @@ static func components(job: Dictionary) -> Array:
     var cpu: Dictionary = ComponentData.cpu_chip()
     cpu["id"] = uid(job, "cpu")
     cpu["display_name"] = "Customer's CPU"
-    cpu["details"] = [["Owner", "Customer's PC"], ["Condition", "working"], ["Note", "Fixed in this ticket"]]
+    cpu["details"] = [["Model", model_name(job, "cpu")], ["Owner", "Customer's PC"], ["Condition", "working"], ["Note", "Fixed in this ticket"]]
     out.append(cpu)
     var letters: Array = ["a", "b", "c"]
     for i in range(ram_sticks(job)):
         var ram: Dictionary = ComponentData.ram_stick()
         ram["id"] = uid(job, "ram_" + str(letters[i]))
         ram["display_name"] = "Customer's RAM"
-        ram["details"] = [["Owner", "Customer's PC"], ["Condition", "working"], ["Note", "Fixed in this ticket"]]
+        var stick: String = str((PcBuild.sanitize(job.get("parts", {}))["ram"] as Array)[i])
+        ram["details"] = [["Model", "%s (%s)" % [Catalog.part(stick)["name"], Catalog.stat_text(stick)]], ["Owner", "Customer's PC"], ["Condition", "working"], ["Note", "Fixed in this ticket"]]
         out.append(ram)
     for part: String in [Ids.GPU, Ids.COOLER]:
         out.append(service_component(job, part))
@@ -68,7 +83,7 @@ static func service_component(job: Dictionary, part: String) -> Dictionary:
     var label: String = "GPU" if part == Ids.GPU else "cooler"
     component["display_name"] = ("Replacement " if replaced else "Customer's ") + label
     var broken: bool = part in (job.get("broken_parts", []) as Array)
-    var details: Array = [["Owner", "Customer's PC"], ["Condition", "BROKEN" if broken else "working"]]
+    var details: Array = [["Model", model_name(job, part)], ["Owner", "Customer's PC" if not replaced else "Customer's PC (part from your stock)"], ["Condition", "BROKEN" if broken else "working"]]
     if part == Ids.GPU:
         details.append(["Screws", "tight" if int(job.get("gpu_screws", 2)) >= 2 else "NOT tight"])
     component["details"] = details

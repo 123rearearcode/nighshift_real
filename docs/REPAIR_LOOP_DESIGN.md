@@ -150,6 +150,10 @@ CALLED tag; both undo. Stored in job["ticket"] {request, ready, called}; the rec
 | Music production | 120 | 0 | 32 | 1000 |
 | School / kid's PC | 70 | 30 | 8 | 500 |
 
+## 7a-bis. Real hardware (D148) — model BUILT in 0.45.0
+The six stats, support rules, several GPUs and the catalogue: docs/HARDWARE_CATALOG.md. The build request
+(7a) will choose parts from that catalogue.
+
 ## 7b. The Wave 3 plan (D141)
 The user approved a plan of coding sessions 3.0 to 3.8 (one release each). It lives in docs/WORK_PLAN.md.
 

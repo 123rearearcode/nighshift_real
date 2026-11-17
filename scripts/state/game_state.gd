@@ -23,6 +23,7 @@ const Overclock = preload("res://scripts/rules/overclock.gd")
 const WorkReport = preload("res://scripts/rules/work_report.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const Morning = preload("res://scripts/rules/morning.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -118,7 +119,8 @@ func _make_job() -> Dictionary:
         "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
-        "pc_specs": {"cpu_power": 100, "ram_gb": 8},   # the rest of the customer's PC, for the fps simulation (D94)
+        "parts": PcBuild.sanitize(who.get("pc", {})),   # D148 (0.45.0): the customer's PC as catalogue parts
+        "pc_specs": PcBuild.specs(who.get("pc", {})),   # derived from "parts" (processing, RAM) for the fps simulation (D94)
         "ticket": {"request": "repair", "ready": false, "called": false, "nights": 0},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
         "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
         "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
@@ -476,6 +478,10 @@ func assess() -> Dictionary:
     # D115: one binary line per serviceable part, with the exact place to fix it. This replaced
     # the old aggregate notes after a playtest where a broken GPU left the player with no path.
     notes.append_array(PartStates.problem_lines(job))
+    var cooling: float = PcBuild.cooling_heat(job)   # D148: a cooler too small for the CPU's heat
+    if cooling > 0.0:
+        temp += cooling
+        notes.append("The cooler cannot remove all of the CPU's heat (+%d C)." % roundi(cooling))
     var oc_heat: float = Overclock.heat(job)   # D132: overclock heat is visible to the shop's own check
     if oc_heat > 0.0:
         temp += oc_heat
@@ -653,7 +659,10 @@ func load_game() -> bool:
     job.erase("required_power")   # 0.25.0 (D97): the boot test replaced the power threshold
     var specs: Variant = job.get("pc_specs", {})
     if not specs is Dictionary: specs = {}
-    job["pc_specs"] = {"cpu_power": maxi(1, int((specs as Dictionary).get("cpu_power", 100))), "ram_gb": maxi(1, int((specs as Dictionary).get("ram_gb", 8)))}
+    # D148 (0.45.0): the parts are the truth; pc_specs is derived from them. Old saves get the customer's PC.
+    var default_pc: Dictionary = Customers.customer(str(job.get("customer_id", ""))).get("pc", {})
+    job["parts"] = PcBuild.sanitize(job["parts"] if job.get("parts", null) is Dictionary else default_pc)
+    job["pc_specs"] = PcBuild.specs(job["parts"])
     if Customers.customer(str(job.get("customer_id", ""))).is_empty():
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
@@ -712,11 +721,9 @@ func customer_view(id: String) -> Dictionary:
 
 
 # The GPU power of the PC as it stands (original 100, a replacement its tier, broken 0).
+# D148: the PC's combined graphics score (0 when its only card is broken or out).
 func current_gpu_power() -> int:
-    if Ids.GPU in job["broken_parts"]: return 0
-    if job["service_replacements"].has(Ids.GPU):
-        return int(ServiceParts.option(Ids.GPU, str(job["service_replacements"][Ids.GPU])).get("power", 100))
-    return 100
+    return roundi(float(PcBuild.effective(job)["graphics"]))
 
 
 # Buying a game to test with (D94). Returns false when unknown, owned already or unaffordable.
@@ -840,6 +847,8 @@ func make_ticket_job(customer_id: String) -> Dictionary:
     fresh["customer"] = str(who["name"])
     fresh["complaint"] = str(who["complaint"])
     fresh["payout"] = int(who["payout"])
+    fresh["parts"] = PcBuild.sanitize(who.get("pc", {}))
+    fresh["pc_specs"] = PcBuild.specs(fresh["parts"])
     return fresh
 
 

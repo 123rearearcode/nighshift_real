@@ -185,6 +185,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
 | `scenes/night_shop.tscn` | scene | Shop activity scene |
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/data/hardware_catalog.gd` | data | The hardware catalogue: CPUs, GPUs, RAM, storage, PSUs, coolers with parody names, stats and prices (D148) |
+| `scripts/rules/pc_build.gd` | rules | A PC's six stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied (D148) |
+| `tools/test_real_hardware.gd` | tooling | Catalogue, stats, support rules, multi-GPU, names, unchanged demo performance, saves (D148) |
+| `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
 | `scenes/morning.tscn` | scene | Morning report scene |
