@@ -89,3 +89,25 @@ static func stat_text(id: String) -> String:
         PSU: return "%d W" % int(p["watts"])
         COOLER: return "removes %d W of heat" % int(p["capacity"])
     return ""
+
+
+# 0.46.0 (D149): how each type sits on the board (connector type, footprint in cells, height).
+const BENCH: Dictionary = {
+    CPU: {"connector": "CPU_SOCKET", "footprint": Vector2i(3, 3), "height": 1, "short": "CPU", "category": "CPU"},
+    GPU: {"connector": "PCIE_X16", "footprint": Vector2i(8, 1), "height": 2, "short": "GPU", "category": "GPU"},
+    RAM: {"connector": "DDR4_DIMM", "footprint": Vector2i(1, 4), "height": 1, "short": "RAM", "category": "RAM"},
+    STORAGE: {"connector": "STORAGE_SLOT", "footprint": Vector2i(2, 1), "height": 1, "short": "SSD", "category": "STORAGE"},
+    PSU: {"connector": "PSU_BAY", "footprint": Vector2i(3, 2), "height": 2, "short": "PSU", "category": "PSU"},
+    COOLER: {"connector": "COOLER_MOUNT", "footprint": Vector2i(2, 2), "height": 2, "short": "COOL", "category": "COOLER"},
+}
+
+
+# A hardware-bench component for one catalogue part (the bench's drag-and-drop shape).
+static func component(uid: String, id: String) -> Dictionary:
+    var p: Dictionary = part(id)
+    if p.is_empty(): return {}
+    var shape: Dictionary = BENCH[str(p["type"])]
+    return {"id": uid, "category": shape["category"], "display_name": str(p["name"]), "short_label": shape["short"],
+        "connector_type": shape["connector"], "footprint": shape["footprint"], "height": int(shape["height"]),
+        "details": [["Model", str(p["name"])], ["Spec", stat_text(id)], ["Price", "$%d" % int(p["price"])]]}
+

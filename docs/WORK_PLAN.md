@@ -86,8 +86,8 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.1 Tickets and pickup | 0.43.0 | tickets as records; right-click a PC: Ready for pickup (sticker) / Call customer | no | done |
 | 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later (answered: D146) | done (0.44.0) |
 | 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; several GPUs | answered (D148) | done (0.45.0) |
-| 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | next |
-| 3.4 Diagnosis | 0.47.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | — |
+| 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | done (0.46.0) |
+| 3.4 Diagnosis | 0.47.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | next |
 | 3.5 Generated tickets | 0.48.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
 | 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
 | 3.7 Build requests | 0.50.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection; 0.50.0 structural review | yes: uses table numbers | — |

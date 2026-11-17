@@ -74,6 +74,15 @@ static func demo_board() -> Dictionary:
             # the mount around it. "requires" makes a slot usable only once that other slot is filled.
             {"id": "cooler_mount", "label": "Cooler mount", "short_label": "CM", "type": "COOLER_MOUNT",
                 "origin": Vector2i(0, 4), "footprint": Vector2i(2, 2), "requires": "cpu"},
+            # 0.46.0 (D149): a second graphics card, two drives and the power supply's connector.
+            {"id": "pcie_2", "label": "PCIe x16 slot 2", "short_label": "PCIe 2", "type": "PCIE_X16",
+                "origin": Vector2i(0, 7), "footprint": Vector2i(8, 1)},
+            {"id": "m2_1", "label": "Drive slot 1", "short_label": "D1", "type": "STORAGE_SLOT",
+                "origin": Vector2i(4, 8), "footprint": Vector2i(2, 1)},
+            {"id": "m2_2", "label": "Drive slot 2", "short_label": "D2", "type": "STORAGE_SLOT",
+                "origin": Vector2i(6, 8), "footprint": Vector2i(2, 1)},
+            {"id": "psu_bay", "label": "Power supply connector", "short_label": "PSU", "type": "PSU_BAY",
+                "origin": Vector2i(5, 4), "footprint": Vector2i(3, 2)},
         ],
     }
 

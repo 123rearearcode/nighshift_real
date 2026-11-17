@@ -12,7 +12,7 @@ static func boot(job: Dictionary) -> Dictionary:
     if not bool(job.get("pc_powered",false)):
         return {"ok":false,"message":"Power is off. Use the PC power button before running live tests."}
     var problems: Array = PartStates.problem_lines(job)
-    if not job.get("broken_parts",[]).is_empty() or not job.get("removed_parts",[]).is_empty():
+    if not job.get("broken_parts",[]).is_empty() or not job.get("removed_parts",[]).is_empty() or not PcBuild.missing(job).is_empty():
         return {"ok":false,"message":"Boot FAILED. Fit and repair the missing/broken parts first.\n"+"\n".join(problems)}
     var s: Dictionary = PcBuild.effective(job)   # D148: the PSU must cover what the parts draw
     if not bool(s["powered"]):

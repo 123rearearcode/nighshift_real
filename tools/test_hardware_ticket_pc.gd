@@ -18,7 +18,7 @@ func run_checks() -> void:
     var parts: Array = CustomerPC.components(job)
     var ids: Array = parts.map(func(p: Dictionary) -> String: return str(p["id"]))
     check(ids[0] == CustomerPC.uid(job, "cpu") and CustomerPC.uid(job, Ids.GPU) in ids and CustomerPC.uid(job, Ids.COOLER) in ids, "ticket PC lists its own CPU, GPU and cooler")
-    check(CustomerPC.is_fixed(CustomerPC.uid(job, "cpu")) and not CustomerPC.is_fixed(CustomerPC.uid(job, Ids.GPU)), "CPU is locked, GPU is movable")
+    check(not CustomerPC.is_fixed(CustomerPC.uid(job, "cpu")) and not CustomerPC.is_fixed(CustomerPC.uid(job, Ids.GPU)), "0.46.0: nothing is locked; CPU and GPU can both come out")
     var fitted: Dictionary = CustomerPC.placements(job, {})
     check(str(fitted[CustomerPC.uid(job, Ids.GPU)]["location"]) == "pcie", "fitted GPU sits on the PCIe slot")
 

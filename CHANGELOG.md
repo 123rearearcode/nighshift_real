@@ -39,6 +39,43 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.46.0 - 2026-11-17 - Wave 3 session 3.3b: hardware bench parts
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.45.0
+- Type: minor (new bench behaviour; job gains optional `loose_parts`; stock records may be catalogue parts; parts may have empty slots)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 44148883923: all 25 required suites green, including the new Hardware parts suite (27 checks), and the full scripted bench diagnostics. The first run caught the PSU connector at the compact board edge (B40). No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D149): CPU, RAM, drives and the PSU come out at the hardware bench into the drawer and back; the customer keeps them as loose parts. The cooler must come off before the CPU.
+- Added: board connectors for a second PCIe slot, two drives and the PSU; drawing for drives and PSUs.
+- Added: Order parts on the hardware bench: any catalogue part into the drawer; fits any empty matching slot.
+- Added: catalogue cards and coolers can upgrade a working first card / cooler taken out (tier `model:<id>`); the customer's old part stays loose and can be swapped back.
+- Changed: a PC missing its CPU, RAM, drive or PSU does not start; the hardware check reports missing parts and a too-small PSU.
+- Changed: Rearrange drawer repacks the drawer only.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `tools/test_hardware_parts.gd` | A | Suite |
+| `scripts/rules/customer_pc.gd`, `scripts/rules/pc_build.gd`, `scripts/data/hardware_catalog.gd`, `scripts/data/service_parts.gd`, `scripts/data/component_data.gd`, `scripts/state/game_state.gd`, `scripts/night/hardware_view.gd`, `scripts/view/workshop_view.gd`, `scripts/rules/part_states.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/work_report.gd` | M | Parts in and out, stock, upgrades, checks |
+| `tools/test_hardware_ticket_pc.gd`, `.github/workflows/tests.yml` | M | Lock test updated, suite registered |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/HARDWARE_CATALOG.md` | M | Docs and version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+Connector positions; fitted parts are free for the customer.
+
+### Known issues and open items
+Removing the CPU does not change the repair bench's paste stage. RAM and drives refit in slot order, not the exact slot. Not playtested.
+
+### Next action
+Session 3.4 (0.47.0): diagnosis.
+
 ## 0.45.0 - 2026-11-17 - Wave 3 session 3.3: real hardware
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session

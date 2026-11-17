@@ -24,6 +24,8 @@ const WorkReport = preload("res://scripts/rules/work_report.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const Morning = preload("res://scripts/rules/morning.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
+const Catalog = preload("res://scripts/data/hardware_catalog.gd")
+const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -117,6 +119,7 @@ func _make_job() -> Dictionary:
         "paste_done": false,      # the player pressed Complete repaste on a good result
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
+        "loose_parts": [],        # D149 (0.46.0): the customer's parts lying in the hardware drawer, out of the PC: [{id, broken}]
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
         "parts": PcBuild.sanitize(who.get("pc", {})),   # D148 (0.45.0): the customer's PC as catalogue parts
@@ -182,13 +185,20 @@ func replace_service_part(part_id: String, tier: String) -> bool:
     return false
 
 func fit_inventory_part(part_id: String, uid: String) -> bool:
-    if job["state"] == "done" or not part_id in job["broken_parts"] or not part_id in job["removed_parts"]: return false
+    if job["state"] == "done" or not part_id in job["removed_parts"]: return false
     var index: int = -1
     for i in range(player_inventory.size()):
         if player_inventory[i]["uid"] == uid: index = i
     if index < 0 or not stock_available(uid): return false
     var record: Dictionary = player_inventory[index]
-    if record["kind"] != part_id or ServiceParts.option(part_id,record["tier"]).is_empty(): return false
+    # D149: a catalogue part may also UPGRADE a working first GPU / cooler; the two stock tiers only replace a broken one.
+    var tier: String = ("model:" + str(record.get("model", ""))) if str(record["tier"]) == "model" else str(record["tier"])
+    if record["kind"] != part_id or ServiceParts.option(part_id,tier).is_empty(): return false
+    var broken: bool = part_id in job["broken_parts"]
+    if not broken and str(record["tier"]) != "model": return false
+    if not broken:
+        # The customer's working part stays theirs: it lies in the drawer as a loose part.
+        (job["loose_parts"] as Array).append({"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, part_id)), "broken": false})
     job["removed_component_records"].append({"uid":job["service_replacement_ids"].get(part_id,"customer_"+str(job["id"])+"_"+part_id),"kind":part_id,"tier":job["service_replacements"].get(part_id,"similar"),"condition":"broken","owner":"customer"})
     player_inventory.remove_at(index)
     inventory_layout.erase(uid)
@@ -196,7 +206,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
     job["removed_parts"].erase(part_id)
     if part_id == Ids.GPU:
         job["gpu_screws"] = 0   # D131: a new card is not screwed in yet
-    job["service_replacements"][part_id] = record["tier"]
+    job["service_replacements"][part_id] = tier
     job["service_replacement_ids"][part_id] = uid
     if part_id == Ids.COOLER:
         job["paste_grade"] = ""
@@ -231,9 +241,12 @@ func inventory_components() -> Array:
     var stock: Array = []
     for record: Dictionary in player_inventory:
         var component: Dictionary
-        if record["kind"] == "ram":
+        if record["kind"] == "ram" and str(record["tier"]) != "model":
             component = ComponentData.ram_stick()
             component["id"] = record["uid"]
+        elif str(record["tier"]) == "model":
+            component = Catalog.component(record["uid"],str(record["model"]))   # D149: any catalogue part
+            component["details"].append(["Owner","Player stock"])
         elif record["kind"] == "cpu":
             component = ComponentData.cpu_chip()
             component["id"] = record["uid"]
@@ -568,8 +581,14 @@ func load_game() -> bool:
             var uid: String = str(record.get("uid",""))
             var kind: String = str(record.get("kind",""))
             var tier: String = str(record.get("tier",""))
-            if uid == "" or seen_stock.has(uid) or not kind in ["ram", "cpu", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
             if str(record.get("owner","player")) != "player" or str(record.get("condition","working")) != "working": continue
+            if tier == "model":   # D149: a part bought from the catalogue
+                var model: String = str(record.get("model",""))
+                if uid == "" or seen_stock.has(uid) or not Catalog.is_type(model,kind): continue
+                player_inventory.append({"uid":uid,"kind":kind,"tier":"model","model":model,"owner":"player","condition":"working"})
+                seen_stock[uid] = true
+                continue
+            if uid == "" or seen_stock.has(uid) or not kind in ["ram", "cpu", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
             player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
             seen_stock[uid] = true
     # Saves from before the CPU existed gain the demo CPU once (D116); later loads keep it.
@@ -663,6 +682,7 @@ func load_game() -> bool:
     var default_pc: Dictionary = Customers.customer(str(job.get("customer_id", ""))).get("pc", {})
     job["parts"] = PcBuild.sanitize(job["parts"] if job.get("parts", null) is Dictionary else default_pc)
     job["pc_specs"] = PcBuild.specs(job["parts"])
+    job["loose_parts"] = CustomerPC.loose(job)
     if Customers.customer(str(job.get("customer_id", ""))).is_empty():
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
@@ -688,7 +708,7 @@ func load_game() -> bool:
     if typeof(job["service_replacements"]) == TYPE_DICTIONARY:
         for id in job["service_replacements"]:
             var tier: String = str(job["service_replacements"][id])
-            if not ServiceParts.option(str(id), tier).is_empty(): valid_replacements[str(id)] = tier
+            if not ServiceParts.option(str(id), tier).is_empty(): valid_replacements[str(id)] = tier   # includes "model:<id>" (D149)
     job["service_replacements"] = valid_replacements
     job["dust_schema"] = 2
     # Never trust old or malformed containers/grades as proof of completed work.
@@ -856,3 +876,89 @@ func start_next_night() -> void:
     night_number += 1
     night_minutes = 0
     save_game()
+
+
+# ----- 0.46.0: hardware bench parts (Wave 3 session 3.3b, D149) -----
+
+# Buys any catalogue part into the drawer. False when unknown, unaffordable or the drawer is full.
+func buy_catalog_part(id: String) -> bool:
+    var p: Dictionary = Catalog.part(id)
+    if p.is_empty() or money < int(p["price"]): return false
+    var uid: String = "player_stock_%d" % inventory_sequence
+    while player_inventory.any(func(item: Dictionary) -> bool: return item["uid"] == uid):
+        inventory_sequence += 1
+        uid = "player_stock_%d" % inventory_sequence
+    var parts: Array = inventory_components()
+    parts.append(Catalog.component(uid, id))
+    var grid := GridInventory.new()
+    var pc: Dictionary = PCLayout.profile(str(job["layout"]))
+    grid.setup(pc["board"],pc["depth"],inventory_layout,parts)
+    var new_index: int = grid.items.size()-1
+    if not grid.can_store(new_index,grid.items[new_index]["cell"]): return false
+    money -= int(p["price"])
+    inventory_sequence += 1
+    player_inventory.append({"uid":uid,"kind":str(p["type"]),"tier":"model","model":id,"owner":"player","condition":"working"})
+    inventory_layout = grid.snapshot()
+    save_game()
+    return true
+
+
+# Fits a bought catalogue part from the drawer into an EMPTY slot of the customer's PC (CPU socket,
+# RAM, drive, PSU, or the second PCIe slot). The part becomes the customer's. False when it cannot.
+func fit_catalog_stock(uid: String, slot: String) -> bool:
+    if job["state"] == "done": return false
+    var index: int = -1
+    for i in range(player_inventory.size()):
+        if player_inventory[i]["uid"] == uid and str(player_inventory[i]["tier"]) == "model": index = i
+    if index < 0: return false
+    var record: Dictionary = player_inventory[index]
+    var model: String = str(record["model"])
+    var type: String = str(Catalog.part(model).get("type", ""))
+    var p: Dictionary = PcBuild.sanitize(job.get("parts", {}))
+    if slot == CustomerPC.CPU_SLOT and type == Catalog.CPU and str(p["cpu"]) == "": p["cpu"] = model
+    elif slot == CustomerPC.PSU_SLOT and type == Catalog.PSU and str(p["psu"]) == "": p["psu"] = model
+    elif slot in CustomerPC.RAM_SLOTS and type == Catalog.RAM and (p["ram"] as Array).size() < CustomerPC.RAM_SLOTS.size(): (p["ram"] as Array).append(model)
+    elif slot in CustomerPC.STORAGE_SLOTS and type == Catalog.STORAGE and (p["storage"] as Array).size() < CustomerPC.STORAGE_SLOTS.size(): (p["storage"] as Array).append(model)
+    elif slot == CustomerPC.GPU2_SLOT and type == Catalog.GPU and (p["gpus"] as Array).size() < 2: (p["gpus"] as Array).append(model)
+    else: return false
+    player_inventory.remove_at(index)
+    inventory_layout.erase(uid)
+    job["parts"] = p
+    job["pc_specs"] = PcBuild.specs(p)
+    save_game()
+    return true
+
+
+# Writes a hardware-bench snapshot of the customer's parts back into the job. Returns true when the
+# PC's contents changed (the bench then re-projects). `snapshot`: GridInventory.snapshot().
+func apply_bench(snapshot: Dictionary) -> bool:
+    if job["state"] == "done": return false
+    var before: String = str([job.get("parts", {}), job.get("loose_parts", []), job.get("service_replacements", {}), job.get("removed_parts", [])])
+    var result: Dictionary = CustomerPC.apply(job, snapshot)
+    var loose: Array = result["loose_parts"]
+    var p: Dictionary = result["parts"]
+    # A customer's own card or cooler dropped on the first slot takes over from the one that was there.
+    for kind: String in result["first"]:
+        var entry: Dictionary = result["first"][kind]
+        if bool(entry["broken"]) or not kind in job["removed_parts"]:
+            loose.append(entry)
+            continue
+        loose.append({"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, kind)), "broken": kind in job["broken_parts"]})
+        if kind == Ids.GPU: p["gpus"][0] = entry["id"]
+        else: p["cooler"] = entry["id"]
+        job["service_replacements"].erase(kind)
+        job["service_replacement_ids"].erase(kind)
+        job["broken_parts"].erase(kind)
+        job["removed_parts"].erase(kind)
+        if kind == Ids.GPU: job["gpu_screws"] = 0
+        else:
+            job["paste_grade"] = ""
+            job["paste_done"] = false
+    for entry: Dictionary in loose: entry.erase("cell")
+    job["parts"] = PcBuild.sanitize(p)
+    job["pc_specs"] = PcBuild.specs(job["parts"])
+    job["loose_parts"] = loose
+    var changed: bool = before != str([job["parts"], job["loose_parts"], job.get("service_replacements", {}), job.get("removed_parts", [])])
+    if changed: save_game()
+    return changed
+
