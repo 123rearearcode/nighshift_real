@@ -37,7 +37,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
-(nothing yet)
+### Diagnosis design review handoff — 2026-11-17 (documentation only)
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No invented deployment id; this limitation does not satisfy D51's exact-id preference.
+- Based on: PR #56 head 2052ecf; verified main remains 0.46.0 / b6004d2.
+- Changed: HANDOFF.md records the user's confirmed diagnosis choices, marks open story difficulty,
+  assistance, complaint/observation presentation and ambiguity classification questions, and provides
+  a read-before-continuing prompt. Supersedes the now-stale instruction to present A/B/C and wait.
+- Files changed: HANDOFF.md (M), CHANGELOG.md (M). No runtime, save, version or other-agent edits.
+- Execution: no Godot run; documentation-only. Integration assigns a version per the parallel-work rule.
+- Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
+- Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
+  isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
 ## 0.46.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
 
