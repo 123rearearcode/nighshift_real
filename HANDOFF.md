@@ -1,80 +1,100 @@
 # Handoff — current state first
 
-## Read before continuing diagnosis — user review, 17 November 2026
+## Read before resuming — diagnosis design and work split, 18 November 2026
 
-This is a **design handoff, not a gameplay implementation or a new coding assignment**. The user
-selected diagnosis design (A), reviewed the in-chat proposal, and requested this handoff plus a
-read-before-continuing prompt. Main was verified at `b6004d2d04bb3c97cb7d40ffa93a556760257b08`
-(0.46.0, merged 3.3b). Session 3.4 remains next in the published plan. No open diagnosis PR was
-visible when checked; another agent's live assignment/progress is not independently verified.
-PR #56 contains the earlier handoff correction and this follow-up; it is not merged by this task.
+**User-approved design update, not an implemented diagnosis release.** The latest user instructions
+approve pushing the diagnosis design, select a manual for optional assistance, exclude customer
+follow-up questions for now, and require an explicit Codex/Claude work split. Any existing code that
+conflicts with these decisions must receive a separate compatibility patch FIRST, before Claude
+continues new diagnosis features. This section supersedes the earlier discussion-only handoff.
 
-The older paragraph saying Codex must still present A/B/C is superseded: A was selected and its
-design is under discussion. Keep uncommitted work and other agents' files intact. The user wants
-any resulting changes to already-built behaviour isolated in a follow-up push **after discussion**.
-Do not treat agreement with design as permission to implement unresolved choices.
+Verified baseline: main 0.46.0, commit `b6004d2d04bb3c97cb7d40ffa93a556760257b08`; 3.3b merged in
+PR #55. Session 3.4 is next in the published plan. No open diagnosis PR was visible at verification;
+Claude's unpublished progress is unknown. Do not assume the plan proves his current live branch state.
+This documentation update is on PR #56, unmerged. No runtime code is changed by it.
 
-### Confirmed by this user review
+### Read and apply
 
-- Diagnosis begins with the customer's description; hidden faults, player-visible information and
-  actual machine state stay separate. The user wants the complaint to have multiple aspects as
-  appropriate to difficulty. Exact complaint taxonomy/presentation remains to be discussed.
-- Reserve **Observations** primarily for what the player sees inside the computer. Keep measured
-  test results distinguishable. Findings can collect both without writing the player's conclusion.
-  The exact UI grouping below that umbrella is not yet approved.
-- Tests have specific purposes and limits; inspection/Hardware check/fitting permissions must not
-  expose hidden health automatically. More detailed visual component inspection comes later with
-  graphics, not as a new scope requirement for this release.
-- Controlled before/after comparisons are useful. Diagnostic ambiguities should be explored and
-  classified by category; the actual category list is still a proposal to discuss.
-- Findings preserve configuration context and historical results; relevant changes make old results
-  outdated for the current build. **Timestamps must use the real shared night clock**, not wall time,
-  a separate diagnostic counter or invented example times. Include night identity for midnight and
-  multi-night work. Existing clock rules currently charge timed tests; this does not silently approve
-  a new continuous-time implementation for all bench actions.
-- Preserve D130/D133/D146 hidden-installation and delayed-discovery boundaries. No new check may
-  announce hidden film/screw technique flags or otherwise override pickup/comeback rules.
-- Temporary substitutions use actually owned parts without a replacement penalty; removed parts
-  retain customer ownership. Permanent handover settles replacement/ownership consequences at
-  collection; unnecessary working-part replacement is paid by the player and the original enters
-  player stock. Keep test-part identity visible. Refitting must not serve as a hidden-health oracle.
-- Investigation uses the existing night-time/electricity trade-offs. Reviewing notes costs no
-  additional time. Repeated tests cost time; refused tests do not charge their full run; incomplete
-  runs retain only observations actually obtained. Fault triggers should be reproducible, not a
-  random chance to reveal the answer. Existing duration/price numbers remain trial tuning.
-- Difficulty comes from evidence/reasoning while remaining solvable using available capabilities.
-  Owned substitutes must be appropriate for the test, not merely of the same broad part type.
-  The user accepted this principle; reconcile its application to mandatory story jobs in discussion.
-- The example cases were accepted **for later**. Do not implement the proposed case pack now or
-  assume a two-fault case schedule has been selected. No generation/testing-bay/build-request work
-  is authorized by this design discussion.
+1. Read this section, DEVELOPMENT.md, the newest CHANGELOG entry, then D137/D148/D149 and D150.
+2. Read docs/REPAIR_LOOP_DESIGN.md section 5 (the detailed approved diagnosis contract) and the
+   diagnosis summary at the top of docs/DESIGN.md.
+3. Read docs/WORK_PLAN.md's diagnosis work split. Check actual branch and file ownership before editing.
 
-### Still open — discuss before implementing
+The customer complaint starts diagnosis. Complaints can contain several aspects; Findings records
+physical Observations, Measurements and Work history distinctly, never the player's conclusion.
+Hidden health must not leak from hover text, Hardware check, fitting permissions or other UI.
+Detailed visual component inspection and the proposed example-case pack are deferred.
+Findings must use the canonical night clock and night identity; preserve old measurements as
+historical and mark them outdated after relevant configuration changes. No independent fake timer.
+Preserve D130/D133/D146 hidden-installation and delayed pickup/comeback rules.
 
-1. How story-case complexity, the player's existing PC knowledge and optional assistance interact.
-   No difficulty selector, automatic difficulty adjustment, hint system or tutorial format is approved.
-2. How a multi-aspect complaint is presented without changing the facts between assistance settings.
-3. Observation/measurement UI grouping and the final ambiguity categories.
-4. How to guarantee diagnostic access for mandatory story cases without a free phantom test kit,
-   deleting a story job, or making the game's hidden truth depend on the player's inventory.
-5. Exact scope of any retrofit to 0.46.0 and coordination with the agent implementing 3.4.
+Story-case facts/faults stay fixed. Optional explanations and graduated guidance come through a
+**manual**, consulted by the player. No automatic difficulty adjustment, mentor, new customer
+follow-up dialogue, or automatic diagnosis. The manual does not read hidden fault flags to reveal
+an answer. Its exact chapters, presentation and degree of guidance remain implementation/design
+proposals to review, not an approved case-specific hint engine.
 
-### Copyable prompt for Codex / the next diagnosis implementer
+Temporary tests use actually owned, suitable parts; removed customer parts remain theirs. A test
+swap is not a paid replacement. Permanent handover at collection settles ownership/costs; a working
+part replaced unnecessarily costs the player and its original goes into stock. Keep individual part
+identity and visible custody clear. Test results report observations within the test's scope.
+Repeated tests cost their normal time; refused/incomplete tests cannot fabricate a completed result.
+Reviewing notes/manual adds no separate diagnostic time charge; do not rewrite the global clock.
 
-> Before continuing Nightshift Wave 3 session 3.4, read the first section of HANDOFF.md on
-> docs/handoff-current-0451 (PR #56), then D137/D148/D149, REPAIR_LOOP_DESIGN.md and WORK_PLAN.md.
-> The user has reviewed the diagnosis proposal. Read the Confirmed and Still open lists separately;
-> do not implement the pending difficulty/assistance/taxonomy choices. Report your current branch,
-> implemented diagnosis scope and changed files; compare them against the confirmed rules. Pay
-> particular attention to hidden-health leaks, customer versus shop test-part ownership, historical
-> measurement validity and Findings timestamps sourced from the shared night clock. Preserve
-> hidden installation/pickup rules and all existing uncommitted work. Coordinate file ownership
-> before parallel edits. For behaviour already implemented that needs changing, describe the delta
-> first; the user requested a separate follow-up push after discussion. This prompt is a design
-> synchronization request, not authorization to start new gameplay work or merge a PR.
+Cases must have an achievable evidence path with the player's available capabilities. Mandatory
+story jobs cannot simply disappear for lack of a test part. The exact alternate-path/acquisition
+solution for each such case still needs design. Optional generated tickets remain Wave 3.5;
+this does not authorize a generator, testing bay, build requests or the later example-case pack.
 
-Signed: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work,
-17 November 2026, Europe/Bucharest. No runtime code changed or Godot execution claimed.
+### Work split — Codex and Claude
+
+| Owner | Work | File boundary |
+| --- | --- | --- |
+| Codex | Diagnosis specification, manual content/design, ambiguity classification proposals, acceptance criteria; cross-review Claude's patch and 3.4 | HANDOFF.md and diagnosis design documents during this pass; later manual content in a dedicated file after agreeing its format. No concurrent runtime edits. |
+| Claude | Audit current code/unpublished work; make the compatibility patch first when needed; then implement 3.4, manual reader integration and regression tests | Diagnosis/state/ownership/clock/save/bench/monitor runtime and associated tests. Own shared hot files for this assignment; keep the manual UI read-only with respect to PC state. |
+
+Codex can develop manual wording and evidence-design notes in parallel with Claude's code audit/patch.
+Do not both edit the same design file: Codex owns the diagnosis sections for this pass; Claude reports
+necessary contract corrections in his PR for Codex to incorporate. Claude logs his own code changes
+and updates implemented status at integration; this documentation push does not certify his code.
+Runtime manual work is Claude's integration task, not a second Codex hot-file PR. Agree the small
+manual-content interface before wiring it; do not wait for a whole future content catalogue.
+
+### Claude's required resume order
+
+1. Identify your actual branch/base, completed/unpublished 3.4 work and changed files. Preserve it.
+2. Compare it against the detailed section 5 contract. Audit health leaks, fitting/refitting,
+   temporary/permanent custody and payments, shared-clock logging, stale results and pickup secrecy.
+3. **If any already-built behaviour conflicts, make a separately versioned compatibility patch and
+   PR first.** Keep new diagnosis/manual features out of that patch. Describe the changed behaviour,
+   add meaningful regression tests, and follow the existing cross-review/merge process. Do not
+   invent a patch when the audit finds no necessary delta; report the evidence instead.
+4. Codex cross-reviews that patch. Continue 3.4 from the reconciled baseline after integration;
+   do not silently combine compatibility fixes and the feature release. Unpublished feature work
+   should be rebased/adapted, not discarded or relabelled as already merged.
+5. Implement the approved diagnosis scope and manual access using Codex's content/design. Keep
+   unresolved taxonomy/detail choices marked proposed; do not invent extra case packs or dialogue.
+6. Update current implementation evidence and handoff; request cross-review. User controls merge.
+
+### Copyable prompt for Claude
+
+> Before resuming Nightshift, read the top of HANDOFF.md on docs/handoff-current-0451 (PR #56),
+> docs/REPAIR_LOOP_DESIGN.md section 5, D150 and the diagnosis split in WORK_PLAN.md. Codex owns
+> diagnosis design/manual content and cross-review; you own the runtime compatibility audit/patch,
+> then session 3.4 and manual integration/tests. Report your current branch and unpublished scope.
+> FIRST compare existing code with the approved rules. If it conflicts, deliver a separate patch
+> before continuing new features; preserve and adapt your existing work. Audit hidden-health leaks
+> including fitting refusal, owned test-part/customer custody and collection settlement, Findings
+> timestamps from the actual night clock, outdated measurements, and hidden installation/pickup
+> boundaries. Story facts stay fixed; assistance is an optional manual. No customer follow-up
+> questions, automatic difficulty changes, mentor or hidden-fault-driven answers. The later example
+> cases remain deferred. Coordinate shared file ownership, run relevant regressions, obtain Codex's
+> cross-review and follow the existing user-controlled merge process.
+
+Open details: complaint layout, final ambiguity categories, manual chapters/presentation, and the
+available diagnostic route for each mandatory story case. These do not reopen confirmed rules.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. Documentation only; no Godot run or runtime implementation claimed.
 
 ## Current handoff — 0.46.1 documentation correction
 
@@ -95,8 +115,8 @@ propose parallel-work choices and wait. That does not approve implementing any o
 
 Latest explicit user instructions and confirmed decisions control scope. Design documents contain
 both decisions and proposals: do not promote proposed numbers/formulas into approved design. The
-repair-loop document's blanket old introduction saying "Nothing ... is built" is stale; its BUILT
-section markers, current work-plan table and numbered changelog establish actual implementation.
+repair-loop document now distinguishes shipped sections from the approved, not-yet-built diagnosis
+design; its BUILT markers, current work-plan table and numbered changelog establish implementation.
 Older statuses below this CURRENT section are history, not instructions to redo or block shipped work.
 
 ### What is actually in main
@@ -168,10 +188,9 @@ The 0.46.0 CHANGELOG records CI run 44148883923 with 25 required suites green,
 including Hardware parts (27 checks). This is Claude's recorded evidence, not a run or
 interactive playtest by Codex. This documentation patch's checks are in its changelog entry.
 
-**Next (updated 17 November):** A/diagnosis design was selected; see the user-review section at
-the top for confirmed choices, unresolved discussion and the next-implementer prompt. Session 3.4
-is next in the published plan; actual live ownership must be confirmed. No gameplay implementation
-or merge is authorized by this documentation update.
+**Next (updated 18 November):** follow the top-level work split and Claude resume order. Codex owns
+design/manual content and cross-review; Claude audits and patches conflicting existing behaviour
+FIRST, then resumes 3.4 integration. This push changes documentation only; no merge is authorized.
 
 ## Historical handoffs — retained for provenance, NOT current project status
 

@@ -37,6 +37,31 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Approved diagnosis/manual design and coordinated resume — 2026-11-18 (documentation only)
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No invented deployment id. This limitation remains explicit against D51's exact-id requirement.
+- Based on: PR #56 with the previous diagnosis-review handoff; verified main 0.46.0 / b6004d2.
+- Changed: record D150 and the approved optional manual/fixed story facts/no follow-up questions;
+  reconcile the earlier diagnosis decisions in the working design and detailed repair-loop contract.
+  Separate Observations/Measurements/Work history; specify shared-clock Findings, test limits,
+  historical validity, temporary test-part ownership and collection settlement; retain hidden pickup
+  rules and deferred case/visual/generator scope. Candidate taxonomies/UI details remain proposed.
+- Changed: revise HANDOFF and WORK_PLAN to split work: Codex design/manual content and cross-review;
+  Claude runtime audit, necessary separate compatibility patch FIRST, then 3.4/manual integration/tests.
+  Replace the earlier discussion-only resume prompt with a copyable Claude assignment and boundaries.
+  Correct the repair-loop introduction that incorrectly said none of its shipped sections were built.
+- Files changed: HANDOFF.md (M), docs/DESIGN.md (M), docs/REPAIR_LOOP_DESIGN.md (M),
+  docs/DECISIONS.md (M), docs/WORK_PLAN.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, runtime code, case pack, manual runtime or save change.
+  Existing release metadata remains the handoff patch's; integration assigns the next delivery version.
+- Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
+  Checked consistent D150/manual/work-split/patch-first references across all five changed design/handoff files.
+- Open: exact manual content/presentation, complaint layout, final ambiguity categories, case-specific
+  mandatory-story diagnostic routes; Claude's current unpublished scope must be reported by Claude.
+- Next action: Claude reads the new handoff and audits before resuming; patch conflicts first in a
+  separate version/PR. Codex handles manual/design and reviews his code. No merge in this task.
+
 ### Diagnosis design review handoff — 2026-11-17 (documentation only)
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.

@@ -1,5 +1,45 @@
 # Nightshift — Working Design
 
+## Diagnosis design update — approved 17–18 November 2026 (D150)
+
+Design contract, **not an implementation claim**. Verified main is 0.46.0 with 3.3b merged;
+diagnosis is next. Detailed current rules: REPAIR_LOOP_DESIGN.md section 5. Resume instructions and
+file ownership: HANDOFF.md and WORK_PLAN.md. Older status paragraphs below describe their versions.
+
+- Start from the customer's complaint, potentially with multiple aspects. Hidden faults and actual
+  state remain separate from what the player knows. No diagnosis quiz or new completion button.
+- Findings distinguishes physical **Observations**, test **Measurements** and **Work history**;
+  it never writes the conclusion. Log only evidence actually exposed, with relevant part/configuration
+  context. Keep historical results and mark them outdated after relevant changes.
+- Timestamps use the actual shared night clock and night identity, including midnight/save/load/PC
+  switching. No separate diagnostic clock. Existing clock mechanics are not rewritten by this design.
+- Story-case facts/faults stay fixed. Optional explanations and progressively more specific guidance
+  come through a **manual** chosen by the user. No automatic difficulty scaling, mentor, new customer
+  follow-up questions, hidden-fault-driven answers or automatic hints. Manual chapter/UI details remain
+  proposals; this approves the format, not an extra case-specific hint engine.
+- Test outputs have defined limits; Hardware check, hover text and fitting/refitting permissions
+  cannot expose hidden health. Meaningful comparisons can narrow possibilities without claiming proof
+  beyond what changed. Ambiguity classification is requested; its exact categories remain proposed.
+- Preserve D130/D133/D146 hidden installation and delayed pickup/comeback behaviour.
+- Temporary substitutions require suitable parts actually owned by the player; those stay shop-owned
+  and removed customer parts stay theirs. Settle permanent replacement at collection. An unnecessary
+  replacement of a working part costs the player and its original enters player stock; no double charge
+  for a purchased test part or charge merely for an experiment.
+- Use existing test time/cost trade-offs; trial numbers stay provisional. Refused/incomplete tests
+  cannot claim a completed result. Reading notes/manual adds no separate time charge.
+- Cases remain solvable using available capabilities. Mandatory story jobs do not vanish or change
+  truth when equipment is absent; their particular alternate/acquisition path still needs design.
+- Rich visual component inspection and the proposed example-case pack are **later**. Generation,
+  testing bay and builds remain their separate Wave 3 sessions.
+
+**Split and delivery:** Codex owns diagnosis design/manual content and cross-review. Claude owns
+runtime diagnosis/manual integration and its tests. Claude audits existing/unpublished code FIRST;
+if it conflicts with the approved contract, deliver a separate compatibility patch before continuing
+new features. Preserve unpublished work, coordinate hot files and retain user-controlled merges.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. No runtime implementation or Godot run by this documentation update.
+
 **Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
 Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
 measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules

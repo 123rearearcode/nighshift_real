@@ -25,6 +25,38 @@ Codex's design; investigating unclear bugs with the scripted playtest.
 6. **Unchanged:** sign with your model (D51), bump the version, follow the changelog template, keep
    `archive/vX.Y.Z` branches, never claim untested work was tested.
 
+## Diagnosis work split — 18 November 2026 (D150)
+
+The user requested separate Codex/Claude assignments while pushing the approved diagnosis design.
+This scope refines the general division above for session 3.4; it does not claim either agent's
+unpublished code is complete. Main was verified at 0.46.0; actual branch/file ownership is checked
+before edits. Current detailed contract: REPAIR_LOOP_DESIGN.md section 5; resume prompt: HANDOFF.md.
+
+| Owner | Deliverables | Boundaries |
+| --- | --- | --- |
+| Codex | Diagnosis specification, manual wording/content design, ambiguity/evidence acceptance criteria; cross-review patch and 3.4 | Own diagnosis design sections in this documentation pass. No simultaneous edits to runtime/hot files. Dedicated manual content file/format can be agreed next; no example-case pack now. |
+| Claude | Audit merged and unpublished code; patch conflicting existing behaviour FIRST; then diagnosis runtime, standalone stress app, Findings, custody/clock/save integration, manual reader and regression tests | Own runtime files needed for 3.4, including shared hot files and hardware/monitor/state rules. Keep manual read-only with respect to PC state. Do not rewrite Codex's design sections concurrently. |
+
+Parallel work: Codex can develop manual content/evidence specifications while Claude audits/patches.
+Agree the manual content interface before Claude wires it. Codex reviews code against the approved
+contract; Claude reports necessary design-contract clarifications in his PR for Codex to reconcile.
+Each agent logs their own changes. Follow existing cross-review and user-controlled merge rules.
+
+**Required order:** audit current branch -> separate compatibility patch if existing behaviour
+conflicts -> Codex cross-review/integration under existing merge rules -> resume 3.4 from that
+baseline -> feature cross-review. Preserve/rebase unpublished feature work. The patch excludes new
+diagnosis/manual features and gets its own version/PR; no artificial patch is required if the audit
+finds no delta. Check health leaks/refitting, temporary versus permanent ownership/costs, actual night
+clock timestamps, stale measurements and hidden-installation pickup rules. New features that do not
+exist yet belong in 3.4, not in a falsely labelled compatibility patch.
+
+Assistance is an optional manual; story facts stay fixed. No customer follow-up dialogue, automatic
+difficulty scaling, mentor or hidden-fault-based answer. Detailed visuals/example cases remain later.
+This documentation pass does not begin runtime work, add a generator or supersede later talk-first gates.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest.
+
 ## Phase 1 — Quick wins (no gameplay change) — Claude
 1. **Shared test helper and simpler workflow.** `tools/test_support.gd` (check, summary line, temporary
    save path, bench loader); the 7 suites use it; the workflow runs them in one loop. Done when the same
@@ -87,7 +119,7 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later (answered: D146) | done (0.44.0) |
 | 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; several GPUs | answered (D148) | done (0.45.0) |
 | 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | done (0.46.0) |
-| 3.4 Diagnosis | 0.47.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | next |
+| 3.4 Diagnosis | 0.47.0 (planned) | D150: complaint/evidence separation; Findings on real night clock; standalone stress app; owned temporary test parts; collection settlement; manual assistance | core approved; detailed presentation/taxonomy still proposed | next: Claude audit/compatibility patch first if needed; Codex design/manual and cross-review |
 | 3.5 Generated tickets | 0.48.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
 | 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
 | 3.7 Build requests | 0.50.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection; 0.50.0 structural review | yes: uses table numbers | — |
