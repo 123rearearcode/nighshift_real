@@ -76,6 +76,8 @@ features land in the per-tool scripts.
 ## Wave 3 — closing the repair loop (user approved the plan, 16 November 2026)
 Design: docs/REPAIR_LOOP_DESIGN.md (D134 to D141). One session = one release the user can playtest.
 Version 0.42.0 is taken by the parallel menu-navigation work (Codex, PR #46), so session 3.0 shipped as 0.41.2.
+Session 3.3 was split in two on 17 November 2026 (D148): the hardware model (0.45.0) and the hardware bench
+parts (3.3b, 0.46.0); later sessions moved up one version.
 Sessions marked "talk first" need a short design conversation with the user before coding.
 
 | Session | Version | What the player gets | Talk first? | State |
@@ -83,12 +85,13 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.0 Bench clean-up | 0.41.2 | nothing visible: bench_view.gd split into helpers | no | done |
 | 3.1 Tickets and pickup | 0.43.0 | tickets as records; right-click a PC: Ready for pickup (sticker) / Call customer | no | done |
 | 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later (answered: D146) | done (0.44.0) |
-| 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; CPU and RAM unlocked | yes: part list and numbers | next |
-| 3.4 Diagnosis | 0.46.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | — |
-| 3.5 Generated tickets | 0.47.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
-| 3.6 Testing bay | 0.48.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
-| 3.7 Build requests | 0.49.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection | yes: uses table numbers | — |
-| 3.8 Elegance and reviews | 0.50.0 | elegance score feeding shop level and online reviews; 0.50.0 structural review | yes: what elegant means, shop level | — |
+| 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; several GPUs | answered (D148) | done (0.45.0) |
+| 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | next |
+| 3.4 Diagnosis | 0.47.0 | symptoms not faults; Findings = observations; long stress test app; owned test parts; wrong replacement paid by the owner, original to stock | no | — |
+| 3.5 Generated tickets | 0.48.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
+| 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
+| 3.7 Build requests | 0.50.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection; 0.50.0 structural review | yes: uses table numbers | — |
+| 3.8 Elegance and reviews | 0.51.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | — |
 
 Playtest gates proposed: after 3.2, 3.4 and 3.7. Later, not in Wave 3: personas and lore, the upsell, the
 wrong self-diagnosis, upgrades.

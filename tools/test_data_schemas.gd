@@ -27,7 +27,8 @@ const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rec
 const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING, "grip_scale": TYPE_FLOAT}
 const MATERIAL_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "cost": TYPE_INT, "heat_penalty": TYPE_FLOAT,
     "yield_scale": TYPE_FLOAT, "mobility_scale": TYPE_FLOAT, "scam": TYPE_BOOL}
-const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT, "power": TYPE_INT}
+const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT, "power": TYPE_INT,
+    "model": TYPE_STRING}   # 0.45.0 (D148): the catalogue model of the tier
 
 
 
@@ -172,7 +173,8 @@ func test_paste_materials() -> void:
 const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "portrait": TYPE_STRING,
     "scripted": TYPE_BOOL, "profession": TYPE_STRING, "persona": TYPE_STRING, "about": TYPE_STRING,
     "complaint": TYPE_STRING, "uses": TYPE_STRING, "habits": TYPE_STRING, "patience": TYPE_STRING,
-    "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY}
+    "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY,
+    "pc": TYPE_DICTIONARY}   # 0.45.0 (D148): the PC the customer brings, as catalogue parts
 const GAME_REQUIRED: Dictionary = {"id": TYPE_STRING, "title": TYPE_STRING, "price": TYPE_INT,
     "gpu_demand": TYPE_INT, "cpu_demand": TYPE_INT, "ram_min": TYPE_INT}
 const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)

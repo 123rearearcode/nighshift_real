@@ -1,4 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.44.1)
+# Nightshift - Godot Foundation Trial (v0.45.0)
+
+New in 0.45.0: **real hardware.** Every PC is now made of named parts (close parodies: Intol, AMB,
+Nvidya, Corsare...) with six stats: processing, graphics, RAM, storage, PSU and cooler. Too small a PSU
+and the PC will not start; too small a cooler and it runs hot. 100 is a soft ceiling (the best single
+GPU is 98); several GPUs add up. The ticket, the monitor's Work tab and the hardware bench show every
+part by name. Today's two customers run exactly as before. The full list is in docs/HARDWARE_CATALOG.md.
 
 New in 0.44.1 (your playtest of the thermal service): a **guide** under the paste panel always shows
 the steps (Film > Paste > Press + screws > Lever > Wipe extra > Done) and one line saying what to do NOW.

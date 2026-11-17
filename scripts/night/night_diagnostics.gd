@@ -10,6 +10,7 @@ const Software = preload("res://scripts/rules/software_checks.gd")
 const Frames = preload("res://scripts/rules/fps_sim.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 
 static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     var temp: float = Legacy.BASE_TEMP
@@ -32,12 +33,15 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
         temp += float(material.get("heat_penalty",0))
         notes.append("Cooler contact: %s. Material: %s."%[grade,material.get("label","Unknown")])
     notes.append_array(PartStates.problem_lines(job))   # D115: binary per part, with the exact repair path
-    var gpu: float = 100.0
+    var pc: Dictionary = PcBuild.effective(job)   # D148: the PC's own parts
+    var gpu: float = float(pc["graphics"])
     for id: String in job.get("service_replacements",{}):
         var replacement: Dictionary = Parts.option(id,str(job["service_replacements"][id]))
-        temp += float(replacement.get("heat_penalty",0))
-        if id == "gpu": gpu = float(replacement.get("performance",100))
         if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
+    var cooling: float = PcBuild.cooling_heat(job)
+    if cooling > 0.0:
+        temp += cooling
+        notes.append("The cooler cannot remove all of the CPU's heat (+%.0f°C)."%cooling)
     var oc_heat: float = Overclock.heat(job)
     if oc_heat > 0.0:
         temp += oc_heat
@@ -48,8 +52,7 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     var boot: Dictionary = Software.boot(job)
     var boots: bool = boot["ok"]
     notes.push_front(boot["message"])
-    var specs: Dictionary = job.get("pc_specs",{})
     for id: String in owned_games:
         var game: Dictionary = Games.game(id)
-        if boots and not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(specs.get("cpu_power",100)) * Overclock.cpu_factor(job) * Malware.cpu_share(job),float(specs.get("ram_gb",8)),game,temp)])
+        if boots and not game.is_empty(): notes.append("%s: %d simulated fps."%[game["title"],Frames.fps(gpu if boots else 0,float(pc["processing"]) * Overclock.cpu_factor(job) * Malware.cpu_share(job),float(pc["ram_gb"]),game,temp)])
     return {"temp":temp,"boots":boots,"passed":boots and temp<Legacy.PASS_TEMP,"notes":notes}

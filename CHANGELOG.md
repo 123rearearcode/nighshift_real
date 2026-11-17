@@ -39,6 +39,43 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 (nothing yet)
 
+## 0.45.0 - 2026-11-17 - Wave 3 session 3.3: real hardware
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.44.1
+- Type: minor (new hardware model; job gains `parts`; `pc_specs` is now derived; game demands rescaled)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 44134587054: all 24 required suites green, including the new Real hardware suite (85 checks). The first run (44134189559) failed only the data-schema guard, which needed the two new keys declared. No interactive playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Added (D148): `hardware_catalog.gd` (27 parody-named parts with six stats and prices) and `pc_build.gd` (a PC's stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied).
+- Changed: every customer PC is a parts record (`job["parts"]`, the customer's `pc`); `pc_specs` is derived from it; old saves get the customer's own PC.
+- Changed: the boot check refuses a PC whose parts draw more than the PSU gives; the shop's check and the monitor add heat when the cooler is too small for the CPU (this replaces the budget cooler's fixed +8 °C with the same 8 °C from its capacity).
+- Changed: FPS, the pickup and the diagnosis read graphics, processing and RAM from the parts. Counter Stroke 2's demands moved to the new scale (11 / 15) so the demo PCs perform exactly as before.
+- Changed: the two repair-bench stock tiers are named catalogue models with the old prices; the ticket, the Work tab and the hardware bench show every part by name and the six stats.
+- Changed (tests): the 0.25 FPS and pickup assertions use the new scale with the same meaning.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/hardware_catalog.gd`, `scripts/rules/pc_build.gd`, `tools/test_real_hardware.gd`, `docs/HARDWARE_CATALOG.md` | A | Catalogue, rule, suite, part list |
+| `scripts/data/customers.gd`, `scripts/data/games.gd`, `scripts/data/service_parts.gd`, `scripts/state/game_state.gd`, `scripts/night/night_session.gd`, `scripts/night/night_diagnostics.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/customer_pc.gd`, `scripts/rules/ticket.gd`, `scripts/rules/work_report.gd` | M | Parts everywhere |
+| `tools/test_regressions.gd`, `.github/workflows/tests.yml` | M | Rescaled assertions, suite registration |
+| `README.md`, `HANDOFF.md`, `CHANGELOG.md`, `DEVELOPMENT.md`, `project.godot`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/REPAIR_LOOP_DESIGN.md` | M | Docs, plan split, version |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+Every number in docs/HARDWARE_CATALOG.md; multi-GPU halving; 50 W base; 0.5 °C per excess watt.
+
+### Known issues and open items
+CPU, RAM, storage and PSU cannot be taken out yet, there is one PCIe slot, and only the two stock tiers can be bought: session 3.3b. Not playtested.
+
+### Next action
+User reviews the part list; session 3.3b (0.46.0).
+
 ## 0.44.1 - 2026-11-17 - Thermal service clarity (user playtest)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session

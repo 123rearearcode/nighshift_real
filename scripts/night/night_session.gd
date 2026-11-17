@@ -5,6 +5,7 @@ const Store = preload("res://scripts/state/save_store.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -43,6 +44,8 @@ func start(gs: Node) -> bool:
     other["customer"] = who["name"]
     other["complaint"] = who["complaint"]
     other["payout"] = who["payout"]
+    other["parts"] = PcBuild.sanitize(who.get("pc", {}))   # D148: this customer's own PC
+    other["pc_specs"] = PcBuild.specs(other["parts"])
     other["layout"] = "compact"
     other["broken_parts"] = ["gpu"] if cid == "t002_relu" else []
     Malware.infect(other, Malware.ADWARE)   # D132: the second demo PC arrives with adware (the hint is in the complaint)

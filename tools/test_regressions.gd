@@ -1612,13 +1612,17 @@ func test_0_23(gs: Node) -> void:
 # 0.25.0: the customer model's first wave (D92-D97): fps simulation, bought games, pickup scores.
 func test_0_25(gs: Node) -> void:
     var cs2: Dictionary = Games.game("counter_stroke_2")
-    check(FpsSim.fps(110.0, 120.0, 8.0, cs2) == 120, "double the demands yields double the base fps")
-    check(FpsSim.fps(65.0, 100.0, 8.0, cs2) == 70, "a budget GPU still clears 60 fps when cool")
-    check(FpsSim.fps(65.0, 100.0, 8.0, cs2, 90.0) < 60, "the same GPU throttled at 90 C drops below 60")
-    check(FpsSim.fps(110.0, 60.0, 8.0, cs2) == 60, "a weak CPU caps the frame rate (the slowest part sets the pace)")
-    var starved: int = FpsSim.fps(110.0, 120.0, 4.0, cs2)
+    # 0.45.0 (D148): numbers on the catalogue scale. gd/cd = what yields 60 fps; the demo PC is graphics 20,
+    # processing 25, and the budget GPU is graphics 13 (65% of it), exactly as before the rescale.
+    var gd: float = float(cs2["gpu_demand"])
+    var cd: float = float(cs2["cpu_demand"])
+    check(FpsSim.fps(2.0 * gd, 2.0 * cd, 8.0, cs2) == 120, "double the demands yields double the base fps")
+    check(FpsSim.fps(13.0, 25.0, 8.0, cs2) == 70, "a budget GPU still clears 60 fps when cool")
+    check(FpsSim.fps(13.0, 25.0, 8.0, cs2, 90.0) < 60, "the same GPU throttled at 90 C drops below 60")
+    check(FpsSim.fps(2.0 * gd, cd, 8.0, cs2) == 60, "a weak CPU caps the frame rate (the slowest part sets the pace)")
+    var starved: int = FpsSim.fps(2.0 * gd, 2.0 * cd, 4.0, cs2)
     check(starved < 60 and starved > 0, "too little RAM makes it stutter (%d fps)" % starved)
-    check(FpsSim.fps(0.0, 100.0, 8.0, cs2) == 0, "a dead GPU renders nothing")
+    check(FpsSim.fps(0.0, 25.0, 8.0, cs2) == 0, "a dead GPU renders nothing")
     check(FpsSim.thermal_factor(50.0) == 1.0 and FpsSim.thermal_factor(90.0) == 0.5, "throttling runs from none at 60 C to half at 90 C")
     gs.tickets_taken = 0   # the pickup below is scored against Mara
     gs.new_game()
@@ -1651,11 +1655,11 @@ func test_0_25(gs: Node) -> void:
     check((gs.customer_view("t001_mara")["history"] as Array).size() == 1, "history survives save and load")
     # An unhappy gamer: a throttled budget GPU misses Relu's 60 fps and he comes back sooner.
     var relu: Dictionary = Customers.customer("t002_relu")
-    var unhappy: Dictionary = PickupScore.score(relu, 74.0, 65.0, 100.0, 8.0, float(gs.PASS_TEMP))
+    var unhappy: Dictionary = PickupScore.score(relu, 74.0, 13.0, 25.0, 8.0, float(gs.PASS_TEMP))   # 0.45.0 scale: budget GPU, demo CPU
     check(int(unhappy["score"]) < PickupScore.HAPPY_FROM and not (unhappy["misses"] as Array).is_empty(), "a hot budget GPU misses Relu's frame rate (score %d)" % int(unhappy["score"]))
     check(PickupScore.comeback_days(30) == 1 and PickupScore.comeback_days(50) == 2 and PickupScore.comeback_days(65) == 3 and PickupScore.comeback_days(70) == 0,
         "angrier customers come back sooner; happy ones do not")
-    var happy_relu: Dictionary = PickupScore.score(relu, 45.0, 100.0, 100.0, 8.0, float(gs.PASS_TEMP))
+    var happy_relu: Dictionary = PickupScore.score(relu, 45.0, 20.0, 25.0, 8.0, float(gs.PASS_TEMP))   # 0.45.0 scale: the demo PC
     check(int(happy_relu["score"]) >= PickupScore.HAPPY_FROM, "a cool full-power PC satisfies the gamer")
 
 

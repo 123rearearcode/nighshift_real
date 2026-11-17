@@ -29,6 +29,8 @@ static func customer(id: String) -> Dictionary:
             "budget": 90,
             "payout": 60,
             "needs": {"boots": true, "quiet": true},
+            # D148 (0.45.0): the PC she brings, as catalogue parts (hardware_catalog.gd).
+            "pc": {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"},
         }
     if id == "t002_relu":
         return {
@@ -47,5 +49,6 @@ static func customer(id: String) -> Dictionary:
             "budget": 140,
             "payout": 80,
             "needs": {"boots": true, "games": [{"game_id": "counter_stroke_2", "min_fps": 60}]},
+            "pc": {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_ssd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"},
         }
     return {}
