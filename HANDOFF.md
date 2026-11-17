@@ -1,5 +1,81 @@
 # Handoff — current state first
 
+## Read before continuing diagnosis — user review, 17 November 2026
+
+This is a **design handoff, not a gameplay implementation or a new coding assignment**. The user
+selected diagnosis design (A), reviewed the in-chat proposal, and requested this handoff plus a
+read-before-continuing prompt. Main was verified at `b6004d2d04bb3c97cb7d40ffa93a556760257b08`
+(0.46.0, merged 3.3b). Session 3.4 remains next in the published plan. No open diagnosis PR was
+visible when checked; another agent's live assignment/progress is not independently verified.
+PR #56 contains the earlier handoff correction and this follow-up; it is not merged by this task.
+
+The older paragraph saying Codex must still present A/B/C is superseded: A was selected and its
+design is under discussion. Keep uncommitted work and other agents' files intact. The user wants
+any resulting changes to already-built behaviour isolated in a follow-up push **after discussion**.
+Do not treat agreement with design as permission to implement unresolved choices.
+
+### Confirmed by this user review
+
+- Diagnosis begins with the customer's description; hidden faults, player-visible information and
+  actual machine state stay separate. The user wants the complaint to have multiple aspects as
+  appropriate to difficulty. Exact complaint taxonomy/presentation remains to be discussed.
+- Reserve **Observations** primarily for what the player sees inside the computer. Keep measured
+  test results distinguishable. Findings can collect both without writing the player's conclusion.
+  The exact UI grouping below that umbrella is not yet approved.
+- Tests have specific purposes and limits; inspection/Hardware check/fitting permissions must not
+  expose hidden health automatically. More detailed visual component inspection comes later with
+  graphics, not as a new scope requirement for this release.
+- Controlled before/after comparisons are useful. Diagnostic ambiguities should be explored and
+  classified by category; the actual category list is still a proposal to discuss.
+- Findings preserve configuration context and historical results; relevant changes make old results
+  outdated for the current build. **Timestamps must use the real shared night clock**, not wall time,
+  a separate diagnostic counter or invented example times. Include night identity for midnight and
+  multi-night work. Existing clock rules currently charge timed tests; this does not silently approve
+  a new continuous-time implementation for all bench actions.
+- Preserve D130/D133/D146 hidden-installation and delayed-discovery boundaries. No new check may
+  announce hidden film/screw technique flags or otherwise override pickup/comeback rules.
+- Temporary substitutions use actually owned parts without a replacement penalty; removed parts
+  retain customer ownership. Permanent handover settles replacement/ownership consequences at
+  collection; unnecessary working-part replacement is paid by the player and the original enters
+  player stock. Keep test-part identity visible. Refitting must not serve as a hidden-health oracle.
+- Investigation uses the existing night-time/electricity trade-offs. Reviewing notes costs no
+  additional time. Repeated tests cost time; refused tests do not charge their full run; incomplete
+  runs retain only observations actually obtained. Fault triggers should be reproducible, not a
+  random chance to reveal the answer. Existing duration/price numbers remain trial tuning.
+- Difficulty comes from evidence/reasoning while remaining solvable using available capabilities.
+  Owned substitutes must be appropriate for the test, not merely of the same broad part type.
+  The user accepted this principle; reconcile its application to mandatory story jobs in discussion.
+- The example cases were accepted **for later**. Do not implement the proposed case pack now or
+  assume a two-fault case schedule has been selected. No generation/testing-bay/build-request work
+  is authorized by this design discussion.
+
+### Still open — discuss before implementing
+
+1. How story-case complexity, the player's existing PC knowledge and optional assistance interact.
+   No difficulty selector, automatic difficulty adjustment, hint system or tutorial format is approved.
+2. How a multi-aspect complaint is presented without changing the facts between assistance settings.
+3. Observation/measurement UI grouping and the final ambiguity categories.
+4. How to guarantee diagnostic access for mandatory story cases without a free phantom test kit,
+   deleting a story job, or making the game's hidden truth depend on the player's inventory.
+5. Exact scope of any retrofit to 0.46.0 and coordination with the agent implementing 3.4.
+
+### Copyable prompt for Codex / the next diagnosis implementer
+
+> Before continuing Nightshift Wave 3 session 3.4, read the first section of HANDOFF.md on
+> docs/handoff-current-0451 (PR #56), then D137/D148/D149, REPAIR_LOOP_DESIGN.md and WORK_PLAN.md.
+> The user has reviewed the diagnosis proposal. Read the Confirmed and Still open lists separately;
+> do not implement the pending difficulty/assistance/taxonomy choices. Report your current branch,
+> implemented diagnosis scope and changed files; compare them against the confirmed rules. Pay
+> particular attention to hidden-health leaks, customer versus shop test-part ownership, historical
+> measurement validity and Findings timestamps sourced from the shared night clock. Preserve
+> hidden installation/pickup rules and all existing uncommitted work. Coordinate file ownership
+> before parallel edits. For behaviour already implemented that needs changing, describe the delta
+> first; the user requested a separate follow-up push after discussion. This prompt is a design
+> synchronization request, not authorization to start new gameplay work or merge a PR.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work,
+17 November 2026, Europe/Bucharest. No runtime code changed or Godot execution claimed.
+
 ## Current handoff — 0.46.1 documentation correction
 
 **Verified 17 November 2026 against main 0.46.0, commit
@@ -92,9 +168,10 @@ The 0.46.0 CHANGELOG records CI run 44148883923 with 25 required suites green,
 including Hardware parts (27 checks). This is Claude's recorded evidence, not a run or
 interactive playtest by Codex. This documentation patch's checks are in its changelog entry.
 
-**Next:** Codex presents choices and waits for the user to select a scope. Session 3.4 is next
-in the plan, but no implementation is authorized by this handoff correction. No hot file is
-edited here; agree actual ownership before parallel code. No merge is assumed.
+**Next (updated 17 November):** A/diagnosis design was selected; see the user-review section at
+the top for confirmed choices, unresolved discussion and the next-implementer prompt. Session 3.4
+is next in the published plan; actual live ownership must be confirmed. No gameplay implementation
+or merge is authorized by this documentation update.
 
 ## Historical handoffs — retained for provenance, NOT current project status
 
