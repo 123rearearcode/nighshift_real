@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new bench behaviour; job gains optional `loose_parts`; stock records may be catalogue parts; parts may have empty slots)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions run 44148883923: all 25 required suites green, including the new Hardware parts suite (27 checks), and the full scripted bench diagnostics. The first run caught the PSU connector at the compact board edge (B40). No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Added (D149): CPU, RAM, drives and the PSU come out at the hardware bench into the drawer and back; the customer keeps them as loose parts. The cooler must come off before the CPU.
