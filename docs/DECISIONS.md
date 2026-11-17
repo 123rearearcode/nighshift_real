@@ -442,3 +442,35 @@ D148 (user + Claude, Opus 5.5, model id claude-opus-5-5, 17 November 2026; Wave 
 
 D149 (Claude, Opus 5.5, model id claude-opus-5-5, 17 November 2026; Wave 3 session 3.3b, user said "execute 3.3b"): hardware bench parts. Every customer part can come out into the drawer and stays the customer's (job["loose_parts"]); job["parts"] lists what is fitted, "" meaning an empty slot. New board connectors: PCIe slot 2, two drive slots, a PSU connector (abstract positions on the existing boards). The first GPU and the cooler keep their repair-bench service state; a catalogue card or cooler can be fitted over a working one taken out (replacement tier "model:<id>"), the old part becoming loose, and a loose customer part dropped on the first slot swaps back in. Order parts on the hardware bench buys any catalogue part into the drawer; fitted parts become the customer's at no charge (charging is the upsell, deferred by the user). A PC missing its CPU, RAM, drive or PSU does not start and fails the hardware check; the hardware check also fails a PSU that is too small. Rearrange drawer never empties the PC. PROPOSALS: the connector positions; parts fitted for free.
 
+### D150 — Diagnosis refinements, manual and coordinated delivery (user approved, 17–18 November 2026)
+
+The user reviewed the diagnosis proposal, accepted its evidence/test/ownership/time principles,
+then chose fixed story-case facts with optional explanations and progressive guidance, **a manual**
+for that assistance, and **no customer follow-up questions for now**. Full contract and distinction
+between confirmed rules and proposals: REPAIR_LOOP_DESIGN.md section 5; summary in DESIGN.md.
+
+Complaints can have multiple aspects. Findings separates primarily physical Observations from
+Measurements and Work history, records the actual shared night clock/night identity and configuration,
+keeps outdated evidence historical, and never writes the causal conclusion. Tests report only what
+they establish; hidden health cannot leak from hover/check/refit permissions. Preserve hidden
+installation/pickup boundaries. Temporary owned test parts retain shop ownership; customer originals
+retain theirs. Permanent collection settles replacement/costs, including the player paying for a
+needless working-part replacement and taking the original into stock; experimental swaps are not
+charged as permanent replacements. This supersedes D149's provisional auto-transfer-on-fitting
+where it conflicts; it does not introduce new customer charging or refund rules.
+
+Story faults do not change with assistance or slow play. Manual access is deliberate and cannot
+read hidden faults to supply an answer; no mentor or extra case-specific hint engine is approved.
+Difficulty comes from evidence/reasoning with achievable diagnostic access. Exact manual presentation,
+complaint layout, ambiguity taxonomy and story-case equipment routes remain proposals/open details.
+Existing test timing/cost numbers remain trial tuning. Rich visuals and the example cases are later;
+no generator, testing bay or build-request implementation is authorized by this design push.
+
+The user also requested an explicit work split and **a patch first** for any conflicting existing
+code. Assignment: Codex owns specification/manual content and cross-review; Claude owns runtime
+audit, separate necessary compatibility patch, then 3.4/manual integration/tests. See WORK_PLAN.md
+and the top of HANDOFF.md for boundaries and the copyable Claude resume prompt. Preserve unpublished
+work; verify actual live branch scope. No merge authorized by this documentation task.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. Approved design, not a claim that code has been changed.

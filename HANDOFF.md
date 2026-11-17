@@ -1,6 +1,204 @@
-# Handoff - read this first
+# Handoff — current state first
 
-**Current source 0.42.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+## Read before resuming — diagnosis design and work split, 18 November 2026
+
+**User-approved design update, not an implemented diagnosis release.** The latest user instructions
+approve pushing the diagnosis design, select a manual for optional assistance, exclude customer
+follow-up questions for now, and require an explicit Codex/Claude work split. Any existing code that
+conflicts with these decisions must receive a separate compatibility patch FIRST, before Claude
+continues new diagnosis features. This section supersedes the earlier discussion-only handoff.
+
+Verified baseline: main 0.46.0, commit `b6004d2d04bb3c97cb7d40ffa93a556760257b08`; 3.3b merged in
+PR #55. Session 3.4 is next in the published plan. No open diagnosis PR was visible at verification;
+Claude's unpublished progress is unknown. Do not assume the plan proves his current live branch state.
+This documentation update is on PR #56, unmerged. No runtime code is changed by it.
+
+### Read and apply
+
+1. Read this section, DEVELOPMENT.md, the newest CHANGELOG entry, then D137/D148/D149 and D150.
+2. Read docs/REPAIR_LOOP_DESIGN.md section 5 (the detailed approved diagnosis contract) and the
+   diagnosis summary at the top of docs/DESIGN.md.
+3. Read docs/WORK_PLAN.md's diagnosis work split. Check actual branch and file ownership before editing.
+
+The customer complaint starts diagnosis. Complaints can contain several aspects; Findings records
+physical Observations, Measurements and Work history distinctly, never the player's conclusion.
+Hidden health must not leak from hover text, Hardware check, fitting permissions or other UI.
+Detailed visual component inspection and the proposed example-case pack are deferred.
+Findings must use the canonical night clock and night identity; preserve old measurements as
+historical and mark them outdated after relevant configuration changes. No independent fake timer.
+Preserve D130/D133/D146 hidden-installation and delayed pickup/comeback rules.
+
+Story-case facts/faults stay fixed. Optional explanations and graduated guidance come through a
+**manual**, consulted by the player. No automatic difficulty adjustment, mentor, new customer
+follow-up dialogue, or automatic diagnosis. The manual does not read hidden fault flags to reveal
+an answer. Its exact chapters, presentation and degree of guidance remain implementation/design
+proposals to review, not an approved case-specific hint engine.
+
+Temporary tests use actually owned, suitable parts; removed customer parts remain theirs. A test
+swap is not a paid replacement. Permanent handover at collection settles ownership/costs; a working
+part replaced unnecessarily costs the player and its original goes into stock. Keep individual part
+identity and visible custody clear. Test results report observations within the test's scope.
+Repeated tests cost their normal time; refused/incomplete tests cannot fabricate a completed result.
+Reviewing notes/manual adds no separate diagnostic time charge; do not rewrite the global clock.
+
+Cases must have an achievable evidence path with the player's available capabilities. Mandatory
+story jobs cannot simply disappear for lack of a test part. The exact alternate-path/acquisition
+solution for each such case still needs design. Optional generated tickets remain Wave 3.5;
+this does not authorize a generator, testing bay, build requests or the later example-case pack.
+
+### Work split — Codex and Claude
+
+| Owner | Work | File boundary |
+| --- | --- | --- |
+| Codex | Diagnosis specification, manual content/design, ambiguity classification proposals, acceptance criteria; cross-review Claude's patch and 3.4 | HANDOFF.md and diagnosis design documents during this pass; later manual content in a dedicated file after agreeing its format. No concurrent runtime edits. |
+| Claude | Audit current code/unpublished work; make the compatibility patch first when needed; then implement 3.4, manual reader integration and regression tests | Diagnosis/state/ownership/clock/save/bench/monitor runtime and associated tests. Own shared hot files for this assignment; keep the manual UI read-only with respect to PC state. |
+
+Codex can develop manual wording and evidence-design notes in parallel with Claude's code audit/patch.
+Do not both edit the same design file: Codex owns the diagnosis sections for this pass; Claude reports
+necessary contract corrections in his PR for Codex to incorporate. Claude logs his own code changes
+and updates implemented status at integration; this documentation push does not certify his code.
+Runtime manual work is Claude's integration task, not a second Codex hot-file PR. Agree the small
+manual-content interface before wiring it; do not wait for a whole future content catalogue.
+
+### Claude's required resume order
+
+1. Identify your actual branch/base, completed/unpublished 3.4 work and changed files. Preserve it.
+2. Compare it against the detailed section 5 contract. Audit health leaks, fitting/refitting,
+   temporary/permanent custody and payments, shared-clock logging, stale results and pickup secrecy.
+3. **If any already-built behaviour conflicts, make a separately versioned compatibility patch and
+   PR first.** Keep new diagnosis/manual features out of that patch. Describe the changed behaviour,
+   add meaningful regression tests, and follow the existing cross-review/merge process. Do not
+   invent a patch when the audit finds no necessary delta; report the evidence instead.
+4. Codex cross-reviews that patch. Continue 3.4 from the reconciled baseline after integration;
+   do not silently combine compatibility fixes and the feature release. Unpublished feature work
+   should be rebased/adapted, not discarded or relabelled as already merged.
+5. Implement the approved diagnosis scope and manual access using Codex's content/design. Keep
+   unresolved taxonomy/detail choices marked proposed; do not invent extra case packs or dialogue.
+6. Update current implementation evidence and handoff; request cross-review. User controls merge.
+
+### Copyable prompt for Claude
+
+> Before resuming Nightshift, read the top of HANDOFF.md on docs/handoff-current-0451 (PR #56),
+> docs/REPAIR_LOOP_DESIGN.md section 5, D150 and the diagnosis split in WORK_PLAN.md. Codex owns
+> diagnosis design/manual content and cross-review; you own the runtime compatibility audit/patch,
+> then session 3.4 and manual integration/tests. Report your current branch and unpublished scope.
+> FIRST compare existing code with the approved rules. If it conflicts, deliver a separate patch
+> before continuing new features; preserve and adapt your existing work. Audit hidden-health leaks
+> including fitting refusal, owned test-part/customer custody and collection settlement, Findings
+> timestamps from the actual night clock, outdated measurements, and hidden installation/pickup
+> boundaries. Story facts stay fixed; assistance is an optional manual. No customer follow-up
+> questions, automatic difficulty changes, mentor or hidden-fault-driven answers. The later example
+> cases remain deferred. Coordinate shared file ownership, run relevant regressions, obtain Codex's
+> cross-review and follow the existing user-controlled merge process.
+
+Open details: complaint layout, final ambiguity categories, manual chapters/presentation, and the
+available diagnostic route for each mandatory story case. These do not reopen confirmed rules.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. Documentation only; no Godot run or runtime implementation claimed.
+
+## Current handoff — 0.46.1 documentation correction
+
+**Verified 17 November 2026 against main 0.46.0, commit
+`b6004d2d04bb3c97cb7d40ffa93a556760257b08`.** This patch changes documentation and version metadata
+only; the game implementation remains the 0.46.0 baseline. No new gameplay is built here.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+17 November 2026, Europe/Bucharest. The user explicitly asked to correct this handoff FIRST, then
+propose parallel-work choices and wait. That does not approve implementing any of those choices.
+
+### Read next and authority
+
+1. `DEVELOPMENT.md`, then the newest `CHANGELOG.md` entry.
+2. `docs/DECISIONS.md`, especially D148 for hardware and D134–D147 for the current repair loop.
+3. `docs/WORK_PLAN.md`, **Wave 3** table, for current sessions/ownership (not just the older 17-step table).
+4. `docs/HARDWARE_CATALOG.md` and `docs/REPAIR_LOOP_DESIGN.md`, then the files assigned to your task.
+
+Latest explicit user instructions and confirmed decisions control scope. Design documents contain
+both decisions and proposals: do not promote proposed numbers/formulas into approved design. The
+repair-loop document now distinguishes shipped sections from the approved, not-yet-built diagnosis
+design; its BUILT markers, current work-plan table and numbered changelog establish implementation.
+Older statuses below this CURRENT section are history, not instructions to redo or block shipped work.
+
+### What is actually in main
+
+| Implemented | Current state |
+| --- | --- |
+| Menus / 0.42.0 | Room PC slot opens work directly; Repair, Hardware and Monitor view the same selected PC; Arrange room, Pause and Continue exist. Menu decisions are D142–D144 after integration renumbering. |
+| Wave 3 session 3.0 / 0.41.2 | Repair bench split into helpers. This does not mean all old engineering-plan steps are finished. |
+| 3.1 / 0.43.0 | Ticket records; ready sticker and customer call actions on room PC/header ticket. |
+| 3.2 / 0.44.0 | Night ends at 06:00, morning report, collection/payment and delayed comebacks, next-night transition. |
+| Thermal follow-up / 0.44.1 | Screws can be done during the press using Space; locked cooler remains visible; wiping feedback and thermal-service completion guidance. |
+| 3.3 / 0.45.0 | Catalogue-based hardware/PC stats, PSU boot requirement, cooler support, several GPUs in the stats model, derived FPS/pickup/diagnosis. |
+
+The connected customer-PC hardware view, screwdriver/install faults, Shop tool upgrades, malware,
+overclocking, timed monitor tests and Work + match/Client views are already part of this baseline.
+Do not describe Hardware as the old separate sandbox, or anti-virus/overclocker as unimplemented.
+
+### D148 — decisions versus proposals
+
+**Confirmed direction:** CPU, GPU, RAM sticks, storage, PSU, cooler; motherboard/case fixed for now;
+four or five prototype models per type; close-parody names; PSU and cooler as support stats;
+processing/graphics with 100 as a mid-to-late-game soft ceiling, top single GPU parody at 98;
+multiple GPUs allowed. This prototype selection does not cancel the earlier larger release-catalogue goal.
+
+**Implemented trial proposals, NOT final balance:** model prices/stats in HARDWARE_CATALOG;
+best GPU + half next + quarter next; 50 W base draw; 0.5°C per excess CPU watt; Counter Stroke 2
+demands 11 graphics / 15 processing; repair stock tiers mapped to catalogue models with old prices.
+
+**Actual catalogue count: 28 models** (5 CPU, 5 GPU, 4 RAM, 4 storage, 5 PSU, 5 cooler), counted
+from `hardware_catalog.gd`. The old 0.45.0 changelog says 27; that historical count is inaccurate.
+
+### Session 3.3b is now merged — 0.46.0
+
+PR #55 merged while this correction was being prepared. WORK_PLAN now marks 3.3b done and
+3.4 Diagnosis next. CPU, RAM, drives and PSU can be removed into the drawer and refitted;
+the cooler must come off before the CPU. There is a second PCIe slot, two drive slots,
+a PSU connector, and Order parts for catalogue purchases. Customer parts remain customer-owned
+loose parts. Empty required slots prevent booting. Rearrange drawer repacks only the drawer.
+
+Known limitations from the release: CPU removal does not update the repair bench paste stage;
+RAM and drives refit in slot order. Connector positions and free fitted parts remain proposed.
+This documents the merged implementation, not a new interactive playtest.
+
+Claude's previous 3.3b reservation is historical now. No next code assignment is assumed:
+confirm his next scope before touching shared hardware, inventory, PC rules or GameState files.
+The established hot files are scripts/view/bench_view.gd, scripts/bench/tool_rig.gd and
+scripts/state/game_state.gd. Other shared files can collide too. One open PR per hot file;
+cross-review before merge. No WORK_PLAN edit here.
+
+### Remaining Wave 3 work (planned, not implemented by this correction)
+
+| Session | Planned version | Scope | Design conversation still needed? |
+| --- | --- | --- | --- |
+| 3.4 Diagnosis | 0.47.0 | Symptoms hide faults; observational Findings; standalone long stress app; owned test parts; mistaken-replacement cost/original-to-stock rule | Existing decisions recorded; implementation depends on 3.3b. |
+| 3.5 Generated tickets | 0.48.0 | Events, difficulty, automated solvability checks | Yes: handling unowned test parts. |
+| 3.6 Testing bay | 0.49.0 | Discover salvaged parts' true condition | Yes: bay interaction/rules. |
+| 3.7 Build requests | 0.50.0 | Budget, needs/wants, assembly, half upfront/half at collection; structural review | Yes: workload requirement numbers on D148's new scale. |
+| 3.8 Elegance/reviews | 0.51.0 | Elegance, shop level and online reviews | Yes: meaning of elegance/progression. |
+
+The older workload table uses an earlier score scale; its proposed numbers need reconciliation
+before build requests. Playtest gates are proposed after 3.2, 3.4 and 3.7. Personas/lore and the
+other later work remain in the broader design; this table is the current Wave 3 slice only.
+The old unmerged shared-PC proposal PR #19 is a proposal from a much earlier source version;
+reconcile it with today's `job.parts`/ticket/inventory implementation before using it.
+
+### Execution evidence and next action
+
+The 0.46.0 CHANGELOG records CI run 44148883923 with 25 required suites green,
+including Hardware parts (27 checks). This is Claude's recorded evidence, not a run or
+interactive playtest by Codex. This documentation patch's checks are in its changelog entry.
+
+**Next (updated 18 November):** follow the top-level work split and Claude resume order. Codex owns
+design/manual content and cross-review; Claude audits and patches conflicting existing behaviour
+FIRST, then resumes 3.4 integration. This push changes documentation only; no merge is authorized.
+
+## Historical handoffs — retained for provenance, NOT current project status
+
+Everything below records earlier deliveries. Labels such as "current", "next", "not implemented",
+"do not push" or "unmerged" within those old notes apply to their original date/version only.
+Use the CURRENT handoff above, current decisions/work plan and newest changelog instead.
+
+**Historical source 0.42.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 16 November 2026, Europe/Bucharest. Based on merged main 0.41.0 (1a46912), not the old PR #41
 branch. PR #41 and Claude's 0.38–0.41 additions are already merged. New feature/menu-navigation
 branch implements the user's approved UX path. Read docs/MENU_NAVIGATION.md before future menus.
@@ -12,7 +210,7 @@ WORK_PLAN.md changes. New UI-only navigation preferences are run-bound; canonica
 Push requested; open new review PR and unique archive/v0.42.0, do not merge automatically.
 Claude goes next for cross-review. Older branch/current-version notes below are historical.
 
-**Current 0.37.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+**Historical 0.37.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User-approved thermal UI/paste/bin changes: see THERMAL_SERVICE.md.
 Three-choice material MenuButton, real super-paste cooling/tint/persistence, no tool toggle,
 readiness-only Mount under socket, distinct tabs, retract push-button physically on the bin.
@@ -20,7 +218,7 @@ Extends PR #41 only; keep unmerged for Claude cross-review. Narrow bench_view/to
 hot-file edits are explicitly user assigned and part of that same PR. WORK_PLAN.md unchanged.
 
 
-**Current 0.36.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+**Historical 0.36.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. New user assignment: room PC drop slot, remove dropdown/duplicate
 shortcuts, standard top-right Activities. See ROOM_WORKSHOP.md. The uploaded 02:05 recording visibly
 shows v0.32.0, not the fixed room in 0.33+. Replay its native click sequence on this delivery.
@@ -28,7 +226,7 @@ No new hot-file edits; this extends existing PR #41 only. Do not merge automatic
 for cross-review. Current hardware bench remains shop stock, not a second customer-PC repair model.
 
 
-**Current 0.35.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+**Historical 0.35.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User requested cloth inset, PCs off by default, then Wave 2.
 The same bench-feel PR now includes a first diagnostic desktop (boot, thermal, Vapor purchase/FPS).
 Anti-virus/overclocker are explicitly upcoming, not fake tools. New/missing-power PCs default off;
@@ -37,7 +235,7 @@ Current user assignment supersedes the older Claude software split for this slic
 Hot files bench_view/tool_rig/GameState are touched in this ONE existing PR; Claude reviews next.
 
 
-**Current 0.34.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+**Historical 0.34.0:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
 15 November 2026, Europe/Bucharest. User authorized publishing/merging room 0.33.0: PR #40 merged
 at f31eaea after CI passed. Earlier local/no-push notes below are historical. New spool/brush/weight
 changes are a separate review branch. Spool now stores deployed length separately from capacity;
@@ -46,7 +244,7 @@ User directly requested these narrow hot-file feel changes; no competing bench P
 Claude cross-reviews the new changes before any merge. See docs/BENCH_FEEL_0_34.md.
 
 
-**Current local delivery 0.33.0 — read before historical notes:** Codex (GPT 6.1 Sol,
+**Historical local delivery 0.33.0 — read before historical notes:** Codex (GPT 6.1 Sol,
 model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest. Based on integrated
 main 0.32.0. PR #39 is already merged; review findings: docs/REVIEW_0_32.md (comment posted).
 Storage now uses direct room furniture, 4×2 bays, zoom/pan and no per-rack buttons; popup has real
@@ -62,7 +260,7 @@ Prior local inventory fixes stay unpublished. No hot-file edits; leave new PR un
 
 
 **Project:** Nightshift, a 2D pixel-art PC repair and shop-management game for Steam. This folder is a
-small Godot 4.7.2 foundation trial, not the game. **Version at handoff: 0.46.0.**
+small Godot 4.7.2 foundation trial, not the game. **Version at historical handoff: 0.45.0.**
 **0.30.0 handoff:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026
 (Europe/Bucharest). Stacked follow-up branch; leave 0.29.0 and this work unmerged. New Game enters
 Activities; Workshop selects two actual repair PCs, Final Check never finishes/pays; third rack shelf.
@@ -77,7 +275,7 @@ on cross-review and eventual canonical-state integration.
 **Signed:** Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026, 0.27.0 native dumpster physics (also 0.26.0 salvage demo). Earlier contributors: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026, 0.22.1. Earlier contributors: Claude (Sonnet 5.5, model id claude-sonnet-5-5), working in a chat session, 2026-11-12, up to 0.14.1; Claude (Opus 5.5, model id claude-opus-5-5), same session, 2026-11-13, 0.14.2 to 0.15.1. Codex: read docs/HANDOFF_FOR_CODEX.md.
 **Claude did not run Godot.** Subsequent review ran the automated checks in Godot 4.6.3, not the user's real version 4.7.2 (confirmed by the user on 2026-11-12). **Update 0.14.0:** GitHub Actions ran the automated checks on Godot 4.7.2.stable.official (headless): 172 data schema and 344 regression checks, 0 failures, on 0.12.2. Still pending: human interactive validation (looks, feel, mouse and keyboard play) on 4.7.2.
 
-## Current update 0.32.0 — integration of all open PRs, the broken-GPU dead end, the bug register, Upgrades tab
+## Historical update 0.32.0 — integration of all open PRs, the broken-GPU dead end, the bug register, Upgrades tab
 
 Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
 The user's playtest hit a loop-blocker: a broken GPU "replaced" at the hardware bench still
@@ -101,7 +299,7 @@ part-state rule for the shop ticket, the old final check, and the night workshop
 archive/v0.29.0 (storage), v0.30.0 (night), v0.31.0 (salvage variety), v0.29.0-claude (standalone
 0.29.0), v0.32.0 (this integration).
 
-## Current update 0.28.0 — cross-review fixes, rotation, settings, rim containment
+## Historical update 0.28.0 — cross-review fixes, rotation, settings, rim containment
 
 Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
 Both cross-reviews are done: Claude reviewed and merged Codex's native dumpster physics (PR #33),
@@ -115,7 +313,7 @@ user://nightshift_settings.json); and the held salvage find can no longer bulldo
 of the dumpster (D108: rim barrier on layer 256 that only the carried body ignores). Wave 2 (the
 software-checks monitor screen) is deliberately NOT started, per the user.
 
-## Current update 0.27.0 — real 2D dumpster physics trial
+## Historical update 0.27.0 — real 2D dumpster physics trial
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 Same entry F5 → Salvage demo, now side-view with native rigid-body gravity/collisions/support/collapse.
@@ -129,7 +327,7 @@ All five core docs revision 1.15. No hot file/customer/software/shared-save chan
 updated rather than opening a second salvage PR. Claude cross-reviews; do not self-merge. Keep 0.26.0
 archive/ZIP as the previous prototype. This is an experiment; final minigame format depends on playtest.
 
-## Current update 0.26.0 — playable salvage sandbox
+## Historical update 0.26.0 — playable salvage sandbox
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
 F5 → Salvage demo. Two test cars/sites, physical layered searching/opening/stripping, sorting, trunk
@@ -144,7 +342,7 @@ feel and layout; target-engine headless results are in CHANGELOG. Nine suites no
 This PR supersedes unmerged design PR #31 (renumbered to avoid Claude's customer D92–D97); preserve both
 contributors' records if shared docs/version numbering advances again. Cross-review; do not self-merge.
 
-## Current update 0.25.0 — the customer model, first wave
+## Historical update 0.25.0 — the customer model, first wave
 
 Signed: Claude (Fable 5, model id claude-fable-5), working in a chat session, 14 November 2026.
 The user approved docs/CUSTOMER_MODEL_MAP.md point by point before any code (D92–D97). Customers
@@ -158,7 +356,7 @@ minigame in parallel (docs/CODEX_PROMPT_SALVAGE.md); Claude cross-reviews Codex 
 done. The software-checks monitor screen (boot test, anti-virus, Vapor store, overclocker) is the
 next wave — the rules behind it are built, the screen is not.
 
-## Current update 0.22.1 — bounded performance pass
+## Historical update 0.22.1 — bounded performance pass
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
 The user explicitly authorised the measured performance recommendations. This isolated PR makes narrow
@@ -170,7 +368,7 @@ a separate CanvasItem. Paste height-field writes must invalidate its revision. N
 asynchronous-save change. Eight required suites (new cache/wake contracts); quick profiling is optional.
 No interactive visual/feel acceptance is claimed.
 
-## Current update 0.20.1 — test cleanup only
+## Historical update 0.20.1 — test cleanup only
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
 The user explicitly authorised test cleanup during Claude's engineering work. No scripts/ files change;
@@ -180,7 +378,7 @@ is available. The existing lever bypass and rejected-selection highlight are hon
 pending-contract failures, not gameplay fixes or passing coverage. Claude fixes/promotes those cases.
 Do not merge this PR until Claude cross-review/user acceptance. Next action and exact checks: CHANGELOG.
 
-## Current update 0.19.1 — work plan and split of responsibilities
+## Historical update 0.19.1 — work plan and split of responsibilities
 
 Signed: Claude (Opus 5.5, model id claude-opus-5-5), chat session, 13 November 2026.
 
@@ -196,7 +394,7 @@ Video: bin fills around 35 seconds, intentionally stopping extraction; switching
 
 Cooler request is interaction design, not art. Pressure/release and lever feedback goals accepted; exact new puzzle still proposed. Back cancels unfinished mounting rather than bypassing the physical lever. Preserve existing grading/completion gates.
 
-## Current update 0.18.0 — trapped threads, clamp, reach and mount put-down
+## Historical update 0.18.0 — trapped threads, clamp, reach and mount put-down
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026. User reports 0.17.1 pickup/removal working.
 
@@ -208,7 +406,7 @@ Recording diagnosis: right-button handling was blocked by mount.active, so tools
 
 Cooler visual ideas are discussion proposals only (DESIGN_PROPOSALS section 6). Keep D52/D57 and existing pressure rules until an explicit redesign is selected. See latest changelog for target-engine results; no human graphical acceptance of 0.18.0 claimed.
 
-## Current update 0.17.1 — recording-led input bug fix
+## Historical update 0.17.1 — recording-led input bug fix
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
 
@@ -218,7 +416,7 @@ Second confirmed fault: in Move parts mode the resting-tool hit test ran before 
 
 New regression: 7 of 11 failures before the fix; expanded post-fix checks and target-engine results in CHANGELOG. This is a reproduced input cause, superseding earlier root-cause uncertainty for this recorded path. Historical 0.17.0 notes remain correct about what was known then. No dust-physics/tuning/save-format change. User visual acceptance of this patch is still needed.
 
-## Current update 0.17.0 — dust restoration/travel and movable clamp
+## Historical update 0.17.0 — dust restoration/travel and movable clamp
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
 
@@ -230,7 +428,7 @@ Right-drag the clamp around the desk; whole footprint is kept outside PC/bin and
 
 Root-cause boundary: the original first-entry stall was not reproduced on a controlled fresh 0.16.0 ticket (fresh and New dirty PC gave equal suction). Tests now exercise first entry, saved reopen, legacy saved progress, New dirty PC and reset through actual bench input, including brush response. Fixes address lost physical state, light-contact feedback and access/suction behaviour; do not claim a user-save-specific root cause was established without that save. See checks in CHANGELOG; human acceptance remains needed.
 
-## Current update 0.16.0 — start screen and hose
+## Historical update 0.16.0 — start screen and hose
 
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026. The user identified the model as GPT 6.1 Sol; use this signature going forward. Earlier truthful unavailable-id notes remain historical. The user authorises merging all open PRs and reports testing the other AI's work. Only #10 was open at inventory; it is now merged. Older PRs were already merged.
 
@@ -325,23 +523,23 @@ Authority: latest explicit user instruction, then docs/DECISIONS.md and docs/DES
 Current sequence: documentation baseline; target-editor playtest; bounded save/progress fixes; proposed behaviour-preserving split of bench_view.gd; then shared PC state. Full inventory/hub/catalogue expansion is not part of this patch. Include all five core documents in every future project ZIP and refresh them whenever accepted scope or state changes.
 
 
-## 0.8.0 current handoff — Codex, 12 November 2026
+## 0.8.0 historical handoff — Codex, 12 November 2026
 Authorised user fixes implemented: shared case/board cell layout, tower/compact previews, on-board cooler/RAM/GPU cleaning geometry, faster 36-bundle cleaning, explicit syringe selection/reset on paste-stage activation, exact dust reload accounting and stale-grade invalidation. PC drawing extracted from bench_view.gd to pc_renderer.gd. Original target remains 4.7.2; actual checks run with 4.6.3. tools/test_regressions.gd passes 71 checks; GUI fresh dust, tool switching, RAM snap and profile previews observed. Payment tested by isolated state/save regression, not full human repair completion.
 The user-reported absent dust was not reproduced on a fresh PC; a saved cleaned PC legitimately has no dust. Preserve saved progress, show the clean-resume message, and use New game for a genuinely new ticket. Do not automatically re-dirty a completed customer's machine to mask this distinction.
 All five core documents updated to v1.3 and bundled. Read their CURRENT_STATE and STABILISATION sections; prior open-task lists are historical. Keep reviewing code; next gaps include general persistent PC state, actual case assembly, save validation/atomicity and remaining view/controller extraction. Do not start catalogue generation; user owns catalogue design. Every future ZIP includes the five docs and check logs.
 
 
-## 0.9.0 current handoff — Codex, 12 November 2026
+## 0.9.0 historical handoff — Codex, 12 November 2026
 User requested restrained base suction, independent specks, component-blocked access with physical removal, no duplicate syringe control and smoothness review. Broader physics redesign explicitly deferred. GPU/cooler move to tray and back; underneath dust is protected while installed, surface dust follows the part. Final check requires refitting. Removing cooler invalidates paste; mounting it refits. Removal state saves; old fully cleaned saves migrate without adding hidden dirt. Only these two parts are service-removable, not a full inventory implementation.
 Current tuning: 51 bundles/34 specks, pull4/range50/ramp0.2. 96 regressions passed in Godot4.6.3 plus GUI GPU removal/exposure/refit observed. Target4.7.2 not run, full human payment session not run. No FPS/performance gain claim; cached blocker geometry and event-position drag fix address identified work/input issues. tools/test_regressions.gd contains reproducible tests.
 All five core docs are version1.4 and bundled. Read their newest sections rather than stale historical summaries above. Next user tests pace/challenge, then discusses future physics representation. Do not add vacuum upgrades, a catalogue or a general hub without a task. Log every file change and preserve prior delivered ZIPs.
 
 
-## 0.10.0 current handoff — Codex, 12 November2026
+## 0.10.0 historical handoff — Codex, 12 November2026
 Current explicit user task added risky pick and similar/inferior substitution. Key4 inspects cooler/GPU trapped dust and attempts extraction with per-stroke risk. Damage saved and final-check gated. Replacements panel permits equivalent/budget purchase only after damaged part removal; purchasing auto-fits and saves tier. Budget cooler affects thermal result; GPU specification metadata awaits future benchmark. No full stock, catalogue, detection/reputation or disclosure mechanics. All five core docs are1.5. New scripts dust_pick.gd and service_parts.gd keep rules/data out of view; simulation has controlled extraction API. Read newest CHANGELOG entry for actual checks. Broader physics redesign remains deferred; user playtests risk/reward now. Keep original safe access path and established once-only payout. Do not interpret an inferior part passing functional check as an instruction to auto-refund or erase the downgrade.
 
 The same unreleased0.10.0 delivery also implements the user's follow-up request for forgiving hardware inventory handling. GridInventory handles three sample pieces, footprints, free storage, slot installation and serialisation. PartMotion handles presentation-only damped following/lift/sway/rotation. job.hardware_trial stores separate snapshots for tower/compact; this sandbox is not connected to repair-PC stock. Unsupported drops restore previous placement with a nonmodal hint; ordinary drawer drops never invoke socket rules. Latest regression count246; read final changelog. Do not claim real collision/throw physics or reuse reference assets.
 
 
-## Current0.11.0 handoff — Codex,12 November2026
+## Historical 0.11.0 handoff — Codex,12 November2026
 Latest authorised scope: shared tabletop throw/bounce and tactile repair-tool handling, dynamic brush, visible fresh-ticket dust, player inventory connected to replacement fitting. See docs1.6 newest sections; historical sandbox-only/no-throw notes are superseded. Added TableBody,BrushShape,ToolRig and ToolRenderer, linked GridInventory to GameState player stock. Buy stock and Fit owned stock are separate transactions; no second charge. Cooler/GPU removal, protected dust and pick risks remain. Resting service poses save; flight/tool positions do not. Hardware throws safely settle before scene exit. New dirty PC keeps economy but replaces practice work, with ticket-id save guard. Fresh dust failure not reproduced; no auto-re-dirty on opening.325 regressions in Godot4.6.3; actual final checks logged. Target4.7.2/full human payment still pending. No supplier/catalogue/reputation or3D/body-body collision expansion was made. Keep five docs, logs and source versions in future ZIPs.

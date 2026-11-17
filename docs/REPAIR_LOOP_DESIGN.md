@@ -1,15 +1,19 @@
 # Repair loop design: tickets, pickup, morning report, diagnosis (D134 to D139)
 
 Recorded from a design conversation with the creative director (the user) on 16 November 2026.
-Written by Claude (Fable 5.2, model id claude-fable-5-2). **Nothing in this document is built.**
-The user said "no coding yet": do not implement any of it until the user asks.
+Original design by Claude (Fable 5.2, model id claude-fable-5-2). **Implementation status varies by
+section:** pickup/night end and hardware are shipped through 0.46.0; section 5 is the approved
+diagnosis design, not an implementation claim. The original conversation said "no coding yet";
+subsequent explicit assignments and the current HANDOFF/WORK_PLAN govern what happens next.
+Diagnosis refinements and manual/work split recorded by Codex (GPT-6; exact deployment model id not
+exposed by this session), ChatGPT Work, 18 November 2026, Europe/Bucharest (D150).
 
 Status key used below:
 - **DECIDED** = the user said this, in their words or by a direct yes.
 - **PROPOSED** = Claude's suggestion from the same conversation; the user has not confirmed it.
 - **OPEN** = to be discussed before coding.
 
-## 1. Why (the gaps in the 0.41 loop)
+## 1. Historical motivation (the gaps in the 0.41 loop; not current implementation status)
 
 The night loop today is: pick a PC, repair bench, hardware bench, monitor. It never closes: there is no
 hand-back, no payment and no next customer in the night flow, nothing ends the night, the ticket tells you
@@ -73,46 +77,152 @@ CALLED tag; both undo. Stored in job["ticket"] {request, ready, called}; the rec
 - DECIDED (user, 16 November 2026): film left on, pop-ups and loud fans show at pickup; loose GPU screws and
   an unstable overclock come back after a few days (built: two mornings later).
 
-## 5. Diagnosis (D137)
+## 5. Diagnosis (D137, refined by D150) — APPROVED DESIGN, not built by this update
 
-- DECIDED: the customer gives **symptoms**; the ticket hides the **faults**; the player finds the cause.
-- DECIDED: the user likes this symptom-to-fault table (first cut, contents still adjustable):
+### 5.1 The player's task and information layers — DECIDED
 
-| Symptom the customer reports | Possible faults |
+Diagnosis begins with the customer's description. The player chooses useful inspections/tests,
+compares evidence, works on the PC and decides when to call the customer. There is no diagnosis
+submission quiz, new completion button or automatic conclusion in Findings.
+
+| Information | Meaning | Example (illustrative, not a new playable case) |
+| --- | --- | --- |
+| Complaint | The customer's experience, potentially with several aspects | Games become slow after a while and fans become loud |
+| Observations | Primarily what the player sees inside the machine | Dust visibly obstructing cooler fins |
+| Measurements | Results obtained from instruments/tests | Temperature rising while measured FPS falls |
+| Work history | What the player changed, with relevant part identity | Customer GPU removed; owned test GPU fitted |
+| Findings | The notebook collecting those records without a conclusion | Timestamped inspection, work and test records |
+
+Only log physical evidence the current inspection actually exposes. Richer component visuals are
+LATER with graphics; do not invent unseen physical clues as if the player inspected them.
+Complaint wording/layout is still adjustable. A complaint may include behaviour, trigger, associated
+symptoms, history and requirements; those field names and mandatory structure are PROPOSED.
+Customers do not answer follow-up questions in the current scope: initial description plus inspection
+and tests provide the evidence. Wrong customer self-diagnosis remains later work.
+
+The original approved symptom families remain a first cut, not a promise to add every listed fault:
+
+| Complaint family | Candidate explanations |
 | --- | --- |
-| "It won't turn on" | dead GPU, dead RAM stick, a part that is only loose |
-| "It shuts off or gets loud in games" | clogged dust, dried paste, hidden miner, overclock left on by the customer |
-| "It's slow" | adware or miner, heat throttling, too little RAM for what they run |
-| "Games crash at random" | unstable overclock, failing RAM, overheating |
-| "Weird lines on the screen" | dying GPU |
+| PC does not start properly | Missing/loose or failed part; insufficient power support |
+| Shuts off, gets loud or slows during games | Dust, poor thermal contact, inadequate cooler, miner, overclock |
+| Slow ordinary use | Adware/miner, heat throttling, insufficient resources for the workload |
+| Games crash | Unstable overclock, memory/GPU trouble, overheating |
+| Strange screen output | GPU trouble |
 
-- DECIDED, engineering requirement: **the puzzle must stay solvable from the information the player can
-  currently get.** There are **several difficulty levels, based on how evident the issue is.**
-- DECIDED: the ticket has a **Findings** section. It logs **observations only** ("Boot failed", "Boots with
-  the shop's test GPU", "71°C under load", "Scan clean"). The game never writes the conclusion; the
-  morning report shows whether the player was right.
-- DECIDED: the **long stress test is an app on the diagnostic computer** in its own right (today it is a
-  button inside the overclocker controls).
-- DECIDED: a known-good swap needs a test part the player **owns** (no free shop set).
-- DECIDED: when the player replaces a part that was not broken, **the owner (player) pays** for the
-  mistake, and the customer's original part goes **into the player's stock**. Certain later upgrades will
-  let the player put that cost on the customer.
-- PROPOSED evidence sources: looking inside the case, boot check, temperature under load, anti-virus scan,
-  long stress test (intermittent faults, costs night minutes), known-good swap at the hardware bench.
-- PROPOSED: one or two faults per ticket, sometimes with a misleading symptom; fixing one of two faults
-  comes back in a later morning report.
+Exact wording and mapping to observable startup stages are PROPOSED. Do not equate no image with
+no power in every case. Future internal fault states must be supported before using them in tickets.
 
-### What "solvable" has to mean in code (Claude's engineering note, to design before coding)
+### 5.2 Story difficulty and the manual — DECIDED
 
-1. Every fault must have at least one observation that separates it from every other fault sharing its
-   symptom, using only tests and parts the player can have at that point.
-2. Because test parts must be owned, the generator must not deal a ticket whose only separating
-   observation needs a part the player cannot have. Either it checks what the player owns, or every such
-   fault also has a second evidence path. OPEN: which of the two.
-3. Difficulty is a property of the ticket, measured by how evident the cause is: for example how many
-   tests are needed, whether a symptom misleads, whether there are two faults.
-4. An automated test should generate many tickets and prove, with a simple solver, that each one is
-   solvable at its stated difficulty. This is the guard against unsolvable puzzles.
+Story-case facts/faults remain consistent. Player knowledge and optional assistance are separate
+from case complexity. Do not reroll a story PC or change its true fault because the player asks for
+help, plays slowly or reads the manual. No automatic difficulty scaling is approved.
+
+An optional **manual** provides explanations and progressively more specific investigative guidance.
+The user chose a manual rather than a mentor; exact chapters, layout and levels of guidance remain
+PROPOSED. Explain components, symptoms, tests and how to compare evidence without reading hidden
+fault flags to write the answer. No separate case-specific hint engine or new dialogue mechanic is
+approved. Assistance is consulted deliberately, never automatically inserted as a diagnosis.
+
+Case difficulty comes from how evident the issue is, plausible explanations and relevant test paths.
+Authored story progression can introduce these gradually. The six proposed example cases and any
+case pack/two-fault schedule were accepted **for later**, not for immediate implementation.
+
+### 5.3 Test scope, evidence and ambiguity — DECIDED principles
+
+Tests report what they observe, within their scope. No universal broken-part detector. In particular,
+inspection/hover, Hardware check and fitting/refitting permissions must not reveal hidden health.
+Known physical absence, visible condition, model labels and established evidence may be shown.
+Unknown salvaged-part condition is not made known merely by opening its inventory card.
+
+| Test/action | Can establish | Cannot automatically establish |
+| --- | --- | --- |
+| Physical inspection | Visible dust, empty slots, exposed seating, labels | Hidden internal health |
+| Boot attempt | Observed startup/display/OS behaviour | Sustained stability |
+| Hardware check | Observable detection/configuration results | Every hidden faulty part and technique flag |
+| Vapor game test | Measured FPS, temperature and failures during that run | Every workload or future stability |
+| Anti-virus scan | Supported infections the scan detects | Hardware health |
+| Standalone long stress app | Sustained behaviour under tested conditions | The unique faulty part in every case |
+| Reseat or owned-part substitution | Behaviour after that controlled change | Universal proof that the removed part was bad |
+| Restore stock clock settings | Behaviour without the old overclock | Absence of other faults |
+
+Compare like conditions. A lower-power GPU making a PC boot also changes power demand, so the
+comparison alone need not isolate GPU health. Early cases can avoid this ambiguity; harder cases
+must provide a way to resolve it. Fault triggers should be reproducible from state/load/duration,
+not a random roll that eventually reveals the answer after identical tests.
+
+The user requested classification of ambiguities. This candidate taxonomy is **PROPOSED**, not
+an approved player-facing menu: shared symptoms; several variables changed; test coverage limits;
+one fault masking another; capacity versus condition; installation versus component health.
+
+### 5.4 Findings, time and result validity — DECIDED
+
+Findings record observations/measurements/work, never the causal conclusion. Keep relevant
+configuration/part identity and before/after context. Old evidence remains readable after changes,
+but is marked historical/outdated for the current configuration when the change matters.
+
+**All timestamps come from the existing shared night clock.** Include night identity so midnight,
+multiple nights, save/load and switching PCs do not confuse ordering. Record actual event times;
+a completed timed test can retain start/end from that same clock. Do not use real wall time, a
+separate diagnostic timer or fabricated timestamps. Existing clock charges remain authoritative;
+this design does not silently convert every bench action to a new continuous-time system.
+
+Test durations/prices remain trial tuning (currently game 30 night minutes, long stress 20 and its
+existing electricity fee). Repeated runs cost time again. Refused tests explain their prerequisites
+without charging a full completed run; interrupted tests retain only observations actually obtained
+and are labelled incomplete. Reading notes/manual adds no separate diagnostic-time charge. Preserve
+existing pause/busy-test/night-end guards; do not fabricate results past the permitted clock boundary.
+
+### 5.5 Hidden technique and pickup — DECIDED
+
+Preserve D130/D133/D146. Hardware check and Findings must not announce hidden film/screw technique
+flags. Do not silently move pickup-only or delayed-comeback discoveries into diagnostics. Permitted
+measurements may be recorded without naming a hidden installation mistake. If a new measurement
+would contradict an existing delayed-discovery rule, resolve that boundary before implementing it.
+
+### 5.6 Owned test parts versus permanent replacement — DECIDED
+
+- A known-good substitution requires a suitable part the player actually owns. No phantom free kit.
+- A temporary fitted test part remains shop-owned; the customer's removed part remains theirs.
+  Swapping and restoring is not an unnecessary-replacement charge or an ownership transfer.
+- Preserve individual identity even for identical models. Make shop test-part custody visible.
+- Permanent handover at collection settles replacement/cost consequences. If the player needlessly
+  replaces a working part, the player bears the cost and the original enters player stock (D137).
+  A later upgrade allowing charges to the customer is not part of this task.
+- Do not double-charge an already purchased part or charge just for fitting it experimentally.
+- Refitting restrictions must not become a hidden-health oracle. The 0.46.0 auto-transfer-on-fitting
+  and health-based refusal need comparison against this contract, not blind reuse as diagnosis rules.
+- Keep normal save/load, PC switching, inventory capacity and rollback safe; do not duplicate, lose or
+  silently sell parts. Actual implementation contracts belong in Claude's patch/feature PR.
+
+### 5.7 Solvability — DECIDED principle, case-specific solutions OPEN
+
+Every offered case needs an achievable evidence path with available tests and suitable owned parts.
+Test suitability includes capacity/compatibility, not just a matching broad component type.
+An optional generator may consider available capabilities. A mandatory story case must not disappear
+or change its hidden fault because a test part is missing. Design an alternate path, progression
+prerequisite or reachable acquisition opportunity; the choice for each story case is still OPEN.
+Voluntarily losing equipment may require obtaining it again; no new automatic subsidy is approved.
+
+Generation/events and an automated solver belong to 3.5, not this design push. When implemented,
+solvability checks must use only player-accessible evidence and actual capabilities, including
+reachable follow-up tests after a masking fault is addressed. No hidden-truth shortcut in the solver.
+
+### 5.8 Delivery order and ownership — user-requested split, 18 November 2026
+
+Codex owns diagnosis design, manual content/design and ambiguity/acceptance specifications, plus
+cross-review. Claude owns the runtime audit, necessary compatibility patch, 3.4 implementation,
+manual reader integration and regression tests. See WORK_PLAN and HANDOFF for file boundaries.
+
+**Patch first:** Claude compares merged code and his unpublished work with sections 5.1–5.7. Any
+conflicting existing behaviour gets a separate versioned compatibility patch/PR BEFORE new diagnosis
+features. Do not bundle the new manual, case pack or generator into that patch. If there is no delta,
+report that finding rather than inventing a patch. Preserve unpublished work and adapt it after the
+patch is integrated under the existing cross-review/user-controlled merge process.
+
+Manual content/design can progress in parallel with that audit. Agree its small content format before
+runtime integration. This document update implements no runtime feature, case or manual content pack.
 
 ## 6. Events and variety (D138)
 

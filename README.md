@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.46.0)
+# Nightshift - Godot Foundation Trial (v0.46.1)
+
+0.46.1 is a documentation-only handoff correction against merged 0.46.0; no gameplay changes.
 
 New in 0.46.0: **every part comes out at the hardware bench.** CPU, RAM, drives and the PSU can be
 dragged into the drawer and back (the cooler comes off before the CPU, as in a real PC). The board has a

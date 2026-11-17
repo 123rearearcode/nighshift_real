@@ -37,7 +37,94 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
-(nothing yet)
+### Approved diagnosis/manual design and coordinated resume — 2026-11-18 (documentation only)
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No invented deployment id. This limitation remains explicit against D51's exact-id requirement.
+- Based on: PR #56 with the previous diagnosis-review handoff; verified main 0.46.0 / b6004d2.
+- Changed: record D150 and the approved optional manual/fixed story facts/no follow-up questions;
+  reconcile the earlier diagnosis decisions in the working design and detailed repair-loop contract.
+  Separate Observations/Measurements/Work history; specify shared-clock Findings, test limits,
+  historical validity, temporary test-part ownership and collection settlement; retain hidden pickup
+  rules and deferred case/visual/generator scope. Candidate taxonomies/UI details remain proposed.
+- Changed: revise HANDOFF and WORK_PLAN to split work: Codex design/manual content and cross-review;
+  Claude runtime audit, necessary separate compatibility patch FIRST, then 3.4/manual integration/tests.
+  Replace the earlier discussion-only resume prompt with a copyable Claude assignment and boundaries.
+  Correct the repair-loop introduction that incorrectly said none of its shipped sections were built.
+- Files changed: HANDOFF.md (M), docs/DESIGN.md (M), docs/REPAIR_LOOP_DESIGN.md (M),
+  docs/DECISIONS.md (M), docs/WORK_PLAN.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, runtime code, case pack, manual runtime or save change.
+  Existing release metadata remains the handoff patch's; integration assigns the next delivery version.
+- Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
+  Checked consistent D150/manual/work-split/patch-first references across all five changed design/handoff files.
+- Open: exact manual content/presentation, complaint layout, final ambiguity categories, case-specific
+  mandatory-story diagnostic routes; Claude's current unpublished scope must be reported by Claude.
+- Next action: Claude reads the new handoff and audits before resuming; patch conflicts first in a
+  separate version/PR. Codex handles manual/design and reviews his code. No merge in this task.
+
+### Diagnosis design review handoff — 2026-11-17 (documentation only)
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No invented deployment id; this limitation does not satisfy D51's exact-id preference.
+- Based on: PR #56 head 2052ecf; verified main remains 0.46.0 / b6004d2.
+- Changed: HANDOFF.md records the user's confirmed diagnosis choices, marks open story difficulty,
+  assistance, complaint/observation presentation and ambiguity classification questions, and provides
+  a read-before-continuing prompt. Supersedes the now-stale instruction to present A/B/C and wait.
+- Files changed: HANDOFF.md (M), CHANGELOG.md (M). No runtime, save, version or other-agent edits.
+- Execution: no Godot run; documentation-only. Integration assigns a version per the parallel-work rule.
+- Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
+- Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
+  isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
+
+## 0.46.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
+
+- Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
+- Based on: main 0.46.0 (b6004d2d04bb3c97cb7d40ffa93a556760257b08)
+- Type: patch (documentation accuracy and matching release metadata only)
+
+### Execution status
+No game code changed. Godot was not run for this docs-only correction. The existing 0.46.0 CI
+results are attributed to that version, not presented as this patch's new tests. No gameplay
+implementation or manual playtest is claimed. Date: 17 November 2026, Europe/Bucharest.
+
+### Added / Changed / Fixed / Removed
+- Replace the misleading top-level 0.42.0 handoff with a verified current summary: shipped
+  0.46.0 hardware bench, including the 3.3b merge that arrived during this correction.
+- List shipped menu, bench split, tickets, morning cycle and thermal fixes; clarify current
+  hardware/monitor integration and remaining Wave 3 sessions/design discussions.
+- Separate D148 decisions from implemented trial proposals. Count actual catalogue records:
+  28 (5 CPU, 5 GPU, 4 RAM, 4 storage, 5 PSU, 5 cooler), correcting the old reported count of 27.
+- Mark old handoff status blocks historical, preserving provenance. Warn that the old blanket
+  no-implementation introduction and old shared-PC proposal do not describe today's main.
+- State coordination requirements and Codex's exact authorization: correct handoff, present choices,
+  wait. No parallel feature, balance proposal document or code is started.
+- Match README/project version to this docs patch; no WORK_PLAN.md or runtime script edits.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `HANDOFF.md` | M | Authoritative current state, decisions/proposals, history and ownership |
+| `CHANGELOG.md` | M | Signed documentation-only correction |
+| `README.md` | M | Patch version and no-gameplay-change note |
+| `project.godot` | M | Version metadata only |
+
+### Checks performed
+- Reconciled handoff with project version, latest changelog, D148, Wave 3 work plan and catalogue.
+- Counted catalogue declarations by type: 28 total. No catalogue file was edited.
+- `python3 -I tools/check_project.py`: PASSED, 0 problems (see checker output for current counts).
+- `git diff --check`: passed. No Godot run; no CI result for this patch claimed yet.
+
+### Decisions proposed (not approved)
+None implemented. Parallel-work choices will be presented to the user after the handoff correction.
+
+### Known issues and open items
+3.3b is now merged; CPU removal/paste-stage synchronization and slot-order refitting remain limitations. Shared design files
+may retain historical wording; this patch deliberately corrects HANDOFF first. No runtime re-test.
+
+### Next action
+Wave 3 session 3.4 is next; confirm Claude's next assignment before parallel code.
+Codex presents choices and waits for approval before any further work. No hot files touched;
+no merge assumed. Preserve existing archives and create archive/v0.46.1 for the correction.
 
 ## 0.46.0 - 2026-11-17 - Wave 3 session 3.3b: hardware bench parts
 
