@@ -46,7 +46,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (new hardware model; job gains `parts`; `pc_specs` is now derived; game demands rescaled)
 
 ### Execution status
-Godot was NOT run by me. CI_RESULT_PLACEHOLDER No interactive playtest is claimed.
+Godot was NOT run by me. GitHub Actions run 44134587054: all 24 required suites green, including the new Real hardware suite (85 checks). The first run (44134189559) failed only the data-schema guard, which needed the two new keys declared. No interactive playtest is claimed.
 
 ### Added / Changed / Fixed / Removed
 - Added (D148): `hardware_catalog.gd` (27 parody-named parts with six stats and prices) and `pc_build.gd` (a PC's stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied).
