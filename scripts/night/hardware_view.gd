@@ -1,6 +1,6 @@
 # The night hardware bench shows the SELECTED TICKET'S OWN PC (D131): its CPU, RAM, GPU and cooler sit
 # on the board exactly as the repair bench left them, and every move here is written back to the job.
-# Parts removed at the repair bench lie in the drawer, broken parts say BROKEN, and replacing a broken
+# Parts removed at the repair bench lie in the drawer (only visibly damaged ones say DAMAGED, D150), and replacing a
 # GPU/cooler uses stock from the drawer. The shop's spare stock lives in the same drawer.
 extends "res://scripts/view/workshop_view.gd"
 const Navigation = preload("res://scripts/night/night_navigation.gd")
@@ -49,7 +49,8 @@ func _button(text: String,pos: Vector2,size: Vector2,callback: Callable) -> void
 func _components() -> Array:
     var mine: Array = CustomerPC.components(GameState.job)
     var tail: Array = mine.slice(mine.size() - 2)   # GPU and cooler last, so loose ones never push the shop stock around
-    return mine.slice(0, mine.size() - 2) + GameState.inventory_components() + tail
+    # 0.46.2 (D150): shop parts fitted in this PC for a test come right after the customer's fitted parts.
+    return mine.slice(0, mine.size() - 2) + GameState.fitted_components() + GameState.inventory_components() + tail
 
 func _bench_memory() -> Dictionary:
     var trial: Variant = GameState.job.get("hardware_trial", {})
@@ -62,6 +63,8 @@ func _saved_layout() -> Dictionary:
         var entry: Variant = GameState.inventory_layout[part_uid]
         if entry is Dictionary and str(entry.get("location", "drawer")) == "drawer": layout[part_uid] = entry   # shop stock never rests on the customer's board
     layout.merge(CustomerPC.placements(GameState.job, _bench_memory()), true)
+    for slot: String in GameState.job.get("shop_fitted", {}):   # shop test parts sit on their slots
+        layout[str(GameState.job["shop_fitted"][slot]["uid"])] = {"location": slot, "cell": [0, 0], "rotation": 0}
     return layout
 
 func _title_text() -> String:
@@ -83,10 +86,24 @@ func _save_inventory() -> void:
         var location: String = str((snapshot[part_uid] as Dictionary)["location"])
         if location == "drawer": stock_layout[part_uid] = snapshot[part_uid]
         else: placed.append([part_uid, location])
+    var reproject: bool = false
+    var custody_before: Array = (job.get("shop_custody", []) as Array).duplicate()
     for part: String in [Ids.GPU, Ids.COOLER]:
         GameState.set_service_part_fitted(part, CustomerPC.fitted_in(job, snapshot, part))
+    reproject = custody_before != (job.get("shop_custody", []) as Array)   # a shop replacement went back to stock
+    # 0.46.2 (D150): a shop test part taken off its slot goes back to the drawer as stock.
+    var shop_now: Dictionary = {}
+    for entry: Array in placed: shop_now[str(entry[0])] = str(entry[1])
+    for slot: String in (job.get("shop_fitted", {}) as Dictionary).keys():
+        var test_uid: String = str(job["shop_fitted"][slot]["uid"])
+        if str(shop_now.get(test_uid, "")) != slot:
+            GameState.unfit_catalog_stock(test_uid)
+            if snapshot.has(test_uid) and str(snapshot[test_uid]["location"]) == "drawer": stock_layout[test_uid] = snapshot[test_uid]
+            reproject = true
+        else:
+            placed = placed.filter(func(e: Array) -> bool: return str(e[0]) != test_uid)   # still where it was
     if not job["hardware_trial"] is Dictionary: job["hardware_trial"] = {}
-    var reproject: bool = GameState.apply_bench(snapshot)
+    reproject = GameState.apply_bench(snapshot) or reproject
     # Drawer cells: the removed first GPU / cooler keep theirs; loose parts keep theirs by model, in order.
     var memory: Dictionary = {}
     for part: String in [Ids.GPU, Ids.COOLER]:
@@ -121,9 +138,7 @@ func _configure_layout() -> void:
     _remember_ids()
 
 func _stock_record(part_uid: String) -> Dictionary:
-    for record: Dictionary in GameState.player_inventory:
-        if record["uid"] == part_uid: return record
-    return {}
+    return GameState._record(part_uid)
 
 # Stock on a slot: a replacement on the first GPU slot / cooler mount, or a new part in any other slot.
 func _fit_stock(part_uid: String, slot: String) -> bool:
@@ -133,7 +148,7 @@ func _fit_stock(part_uid: String, slot: String) -> bool:
         _fit_replacement(part_uid)
         return true
     if GameState.fit_catalog_stock(part_uid, slot):
-        _set_status("%s fitted. It is part of %s's PC now." % [Catalog.part(str(record.get("model", ""))).get("name", "Part"), str(GameState.job.get("customer", "the customer"))])
+        _set_status("%s fitted for a test. It stays yours: take it out again and it goes back to the drawer. If it is still in when %s collects, it goes home with the PC." % [Catalog.part(str(record.get("model", ""))).get("name", "Part"), str(GameState.job.get("customer", "the customer"))])
         return true
     _set_status("That part does not fit this slot.", true)
     return true
@@ -145,14 +160,13 @@ func _fit_replacement(part_uid: String) -> void:
     if GameState.fit_inventory_part(kind, part_uid):
         _configure_layout()
         _set_status(("Graphics card fitted. Its bracket screws are loose: pick up the screwdriver and tighten both." if kind == Ids.GPU
-            else "Cooler fitted. It still needs fresh paste, mounting and screws at the repair bench.") + (" The customer's own one is in the drawer." if str(record["tier"]) == "model" and not CustomerPC.loose(GameState.job).is_empty() else ""))
+            else "Cooler fitted. It still needs fresh paste, mounting and screws at the repair bench.") + " It stays yours until the customer collects; theirs is in the drawer.")
     else:
         _configure_layout()
         _set_status("That stock part does not fit this ticket.", true)
 
-# What may go where (D149). Stock tiers ("Equivalent"/"Budget") only replace a BROKEN first GPU / cooler;
-# catalogue parts fit any empty matching slot, including over a working first GPU / cooler taken out.
-# Broken parts never go back in. The PC's first card belongs in the first PCIe slot.
+# What may go where. 0.46.2 (D150): only physical fit decides; a part's health never does (no oracle).
+# Anything owned and suitable may go into an empty matching slot. The PC's first card belongs in slot 1.
 func _candidate(mouse: Vector2) -> Dictionary:
     var result: Dictionary = super._candidate(mouse)
     if inventory.held < 0 or result.get("kind", "") != "board" or not bool(result.get("ok", false)): return result
@@ -161,23 +175,16 @@ func _candidate(mouse: Vector2) -> Dictionary:
     var job: Dictionary = GameState.job
     var why: String = ""
     if CustomerPC.is_customer(part_uid):
-        var kind: String = CustomerPC.part_of(part_uid)
-        if CustomerPC.is_broken(job, part_uid) and kind == "loose":
-            why = "This part is broken: it cannot go back in. Fit a working one."
-        elif kind == Ids.GPU and slot == CustomerPC.GPU2_SLOT:
+        if CustomerPC.part_of(part_uid) == Ids.GPU and slot == CustomerPC.GPU2_SLOT:
             why = "This is the PC's first card: it goes in PCIe slot 1. Slot 2 is for a second card."
-        elif kind == "loose" and slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]] and CustomerPC.is_broken(job, part_uid):
-            why = "This part is broken: it cannot go back in."
     else:
         var record: Dictionary = _stock_record(part_uid)
         var kind: String = str(record.get("kind", ""))
-        var catalogue: bool = str(record.get("tier", "")) == "model"
         if slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]]:
             if not kind in Ids.SERVICE_PARTS: why = "That part does not go here."
             elif not kind in job["removed_parts"]: why = "Take the customer's %s out first." % kind.to_upper()
-            elif not catalogue and not kind in job["broken_parts"]: why = "The customer's %s works. Refit it, or fit a part from the catalogue to upgrade it." % kind.to_upper()
-        elif not catalogue:
-            why = "Old trial stock only replaces a broken GPU or cooler. Order parts from the catalogue to fit new ones."
+        elif str(record.get("tier", "")) != "model":
+            why = "This old trial stock only goes in the first GPU slot or on the cooler mount."
     if why != "":
         result["ok"] = false
         result["message"] = why
@@ -260,9 +267,10 @@ func _draw() -> void:
     var job: Dictionary = GameState.job
     for i in range(inventory.items.size()):
         var part_uid: String = str(inventory.items[i]["part"]["id"])
-        if CustomerPC.is_customer(part_uid) and CustomerPC.is_broken(job, part_uid) and i != inventory.held:
+        # D150 (0.46.2): only damage the player caused and can see is labelled; hidden health never is.
+        if CustomerPC.is_customer(part_uid) and CustomerPC.is_damaged(job, part_uid) and i != inventory.held:
             var r: Rect2 = _item_rect(i)
-            _text(r.position + Vector2(4, 14), "BROKEN", 13, Color("ff8a80"))
+            _text(r.position + Vector2(4, 14), "DAMAGED", 13, Color("ff8a80"))
     if gpu_is_fitted():
         var radius: float = InstallFaults.gpu_screw_radius(CELL)
         var centers: Array = InstallFaults.gpu_screw_centers(gpu_slot_rect(), CELL)

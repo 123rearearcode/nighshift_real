@@ -555,17 +555,18 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     cash = gs.money
     var old_count: int = gs.player_inventory.size()
     check(gs.replace_service_part("gpu","budget") and gs.money == cash, "fitting owned stock has no second charge")
-    check(gs.player_inventory.size() == old_count-1 and gs.stock_count("gpu","budget") == stock, "fit consumes exactly one physical part")
+    # 0.46.2 (D150): a fitted part is a test until collection: it stays the shop's record, marked fitted.
+    check(gs.player_inventory.size() == old_count and gs.stock_count("gpu","budget") == stock, "fit keeps the part as shop stock, fitted (one fewer available)")
     var consumed: String = gs.job["service_replacement_ids"]["gpu"]
-    check(not gs.stock_available(consumed), "installed customer replacement cannot also remain player stock")
-    check(gs.job["removed_component_records"].size() == 1 and gs.job["removed_component_records"][0]["owner"] == "customer", "broken original retains customer ownership")
+    check(not gs.stock_available(consumed), "a part fitted in the customer's PC is not also available stock")
+    check(gs.job["loose_parts"].size() == 1 and gs.job["loose_parts"][0]["original_of"] == "gpu", "the customer's original stays theirs, out of the PC")
     check(not gs.fit_inventory_part("gpu",consumed), "same part cannot be fitted twice")
     gs.load_game()
-    check(gs.player_inventory.size() == old_count-1 and not gs.stock_available(consumed), "inventory consumption survives save/load")
+    check(gs.player_inventory.size() == old_count and not gs.stock_available(consumed), "custody of the fitted part survives save/load")
     var view: Node = load("res://scenes/main.tscn").instantiate()
     root.add_child(view)
     view.set_process(false)
-    check(view.inventory.items.size() == gs.player_inventory.size(), "hardware drawer uses the same current player stock")
+    check(view.inventory.items.size() == gs.player_inventory.size() - 1, "hardware drawer shows the current stock, minus the part fitted in a customer PC")
     var absent: bool = true
     for item: Dictionary in view.inventory.items: absent = absent and item["part"]["id"] != consumed
     check(absent, "consumed replacement does not regenerate in hardware drawer")
@@ -1758,20 +1759,20 @@ func test_0_29(gs: Node) -> void:
     check(bool(fine["fitted"]) and bool(fine["working"]), "a fresh PC reports every part fitted and working")
     gs.damage_service_part("gpu")
     var broken: Dictionary = gs.part_state("gpu")
-    check(not bool(broken["working"]) and str(broken["text"]).contains("Replacement stock"),
-        "a broken part says BROKEN and names the exact place to fix it")
+    check(not bool(broken["working"]) and str(broken["text"]).contains("DAMAGED"),
+        "a part the player visibly damaged says DAMAGED (D150: visible damage may be shown)")
     var fractions: Dictionary = {}
     for zone: Dictionary in Zones.zones():
         fractions[zone["id"]] = 1.0
     gs.set_dust(fractions)
     pasted(gs)
     var r: Dictionary = gs.run_final_check()
-    check(not bool(r["passed"]) and str(r["notes"]).contains("GPU: BROKEN") and str(r["notes"]).contains("Replacement stock"),
-        "the failed check lists the part's binary state and the repair path (the 0.28.x playtest dead end)")
+    check(not bool(r["passed"]) and str(r["notes"]).contains("GPU:") and str(r["notes"]).contains("DAMAGED"),
+        "the failed check names the part the player visibly damaged")
     gs.job["removed_parts"].append("gpu")
     var missing: Dictionary = gs.part_state("gpu")
-    check(not bool(missing["fitted"]) and str(gs.run_final_check()["notes"]).contains("GPU: MISSING"),
-        "a part in the tray reads MISSING, not a vague refusal")
+    check(not bool(missing["fitted"]) and str(gs.run_final_check()["notes"]).contains("GPU: NOT FITTED"),
+        "a part in the tray reads NOT FITTED, not a vague refusal")
     check(gs.replace_service_part("gpu", "budget"), "the named path actually repairs it")
     check(bool(gs.part_state("gpu")["fitted"]) and bool(gs.part_state("gpu")["working"]) and str(gs.part_state("gpu")["tier"]) == "budget",
         "after the replacement the part reads fitted and working again")
@@ -1801,8 +1802,8 @@ func test_0_29(gs: Node) -> void:
     check(shop.upgrade_panel.visible and not shop.result_scroll.visible and not shop.customer_scroll.visible, "the Upgrades tab swaps the lower card")
     check(shop.upgrade_button.get_parent() == shop.upgrade_panel and shop.hose_button.get_parent() == shop.upgrade_panel,
         "all tool upgrades live together under the Upgrades tab")
-    check(shop.ticket_label.text.contains("GPU BROKEN") and shop.ticket_label.text.contains("Replacement stock"),
-        "the ticket itself shows the broken part and where to fix it")
+    check(shop.ticket_label.text.contains("GPU DAMAGED"),
+        "the ticket shows the part the player visibly damaged")
     check(shop.ticket_label.get_parent() == shop.ticket_scroll, "the ticket is bounded like the other cards")
     shop.queue_free()
     gs.new_game()
@@ -1814,29 +1815,36 @@ func test_0_32(gs: Node) -> void:
     var PartStates: GDScript = load("res://scripts/rules/part_states.gd")
     var Diagnostics: GDScript = load("res://scripts/night/night_diagnostics.gd")
     var job: Dictionary = {"removed_parts": [], "broken_parts": [], "service_replacements": {}}
-    check(PartStates.problem_lines(job).is_empty() and PartStates.state(job, "gpu")["text"] == "working",
+    check(PartStates.problem_lines(job).is_empty() and PartStates.state(job, "gpu")["text"] == "fitted",
         "a healthy job has no part problems")
+    # 0.46.2 (D150): a hidden fault is NOT named by any text; only the boot shows what the screen does.
     job["broken_parts"] = ["gpu"]
     var broken: Dictionary = PartStates.state(job, "gpu")
-    check(not bool(broken["working"]) and bool(broken["fitted"]) and str(broken["text"]).contains("Replacement stock"),
-        "a broken part says BROKEN and names the repair path (pure rule, no autoload)")
+    check(not bool(broken["working"]) and bool(broken["fitted"]) and not str(broken["text"]).contains("BROKEN") and broken["text"] == "fitted",
+        "a hidden fault reads like any fitted part (pure rule, no autoload)")
+    check(PartStates.boot_symptoms(job) == [PartStates.SYMPTOMS["gpu"]], "the boot shows what the player would see, not the cause")
     job["removed_parts"] = ["cooler"]
     var lines: Array = PartStates.problem_lines(job)
-    check(lines.size() == 2 and "\n".join(lines).contains("GPU: BROKEN") and "\n".join(lines).contains("COOLER: MISSING"),
-        "problem lines list each part once, in the shared order")
-    check(PartStates.summary(job).contains("GPU BROKEN") and PartStates.summary(job).contains("COOLER MISSING"),
-        "the one-line ticket summary carries both states")
+    check(lines.size() == 1 and "\n".join(lines).contains("COOLER: NOT FITTED") and not "\n".join(lines).contains("GPU"),
+        "problem lines list only what is known: the part that is out")
+    check(PartStates.summary(job).contains("GPU fitted") and PartStates.summary(job).contains("COOLER NOT FITTED"),
+        "the one-line ticket summary carries presence only")
     job["service_replacements"] = {"gpu": "budget"}
     job["broken_parts"] = []
-    check(str(PartStates.state(job, "gpu")["text"]).contains("budget replacement"), "a replaced part reads working with its tier")
+    check(str(PartStates.state(job, "gpu")["text"]).contains("replacement"), "a replaced part reads fitted, with a replacement")
     # The night workshop diagnosis uses the same lines instead of its own vague aggregate notes.
     gs.tickets_taken = 0
     gs.new_game(false)
     gs.damage_service_part("gpu")
     var report: Dictionary = Diagnostics.evaluate(gs.job, gs.owned_games)
     var joined: String = "\n".join(report["notes"])
-    check(not bool(report["boots"]) and joined.contains("GPU: BROKEN") and joined.contains("Replacement stock"),
-        "the night diagnosis names the broken part and the repair path (BUGS.md B18)")
+    check(not bool(report["boots"]) and joined.contains("GPU:") and joined.contains("DAMAGED"),
+        "the night diagnosis names the part the player visibly damaged (BUGS.md B18)")
+    gs.job["damaged_parts"] = []   # same fault, but hidden (a story fault): no name, only the observation
+    gs.job["pc_powered"] = true
+    report = Diagnostics.evaluate(gs.job, gs.owned_games)
+    joined = "\n".join(report["notes"])
+    check(not bool(report["boots"]) and not joined.contains("GPU:") and joined.contains("no image"), "a hidden fault shows only as what the screen does (D150)")
     check(not joined.contains("Replace these parts"), "the old vague aggregate note is gone from the diagnosis")
     check(gs.part_state("gpu") == PartStates.state(gs.job, "gpu"), "GameState.part_state is the pure rule, not a copy")
     gs.new_game()

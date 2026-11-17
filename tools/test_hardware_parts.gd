@@ -56,37 +56,44 @@ func run_checks() -> void:
     gs.money = 5000
     check(gs.buy_catalog_part("ram_16gb") and gs.money == 5000 - 26 and stock_uid(gs, "ram_16gb") != "", "any catalogue part can be bought into the drawer")
     check(not gs.buy_catalog_part("nonsense"), "unknown parts cannot be bought")
-    check(gs.fit_catalog_stock(stock_uid(gs, "ram_16gb"), "ram_2") and gs.job["parts"]["ram"] == ["ram_8gb", "ram_16gb"] and gs.job["pc_specs"]["ram_gb"] == 24 and stock_uid(gs, "ram_16gb") == "", "a bought stick fits an empty RAM slot and becomes the customer's")
+    # 0.46.2 (D150): fitting is a test; the part stays the shop's until the customer collects.
+    var stick: String = stock_uid(gs, "ram_16gb")
+    check(gs.fit_catalog_stock(stick, "ram_2") and gs.job["shop_fitted"].has("ram_2") and gs.job["parts"]["ram"] == ["ram_8gb"] and PcBuild.effective(gs.job)["ram_gb"] == 24, "a bought stick fits an empty RAM slot as a test: it counts, but it is not the customer's")
+    check(stock_uid(gs, "ram_16gb") == stick and gs._record(stick).get("fitted_in", "") == str(gs.job["id"]) and not gs.stock_available(stick), "the fitted stick is still your stock record, marked fitted in this PC")
     gs.buy_catalog_part("cpu_rysen5_3060")
     check(not gs.fit_catalog_stock(stock_uid(gs, "cpu_rysen5_3060"), "cpu"), "a CPU cannot go into an occupied socket")
     gs.buy_catalog_part("gpu_rx6060")
-    check(gs.fit_catalog_stock(stock_uid(gs, "gpu_rx6060"), "pcie_2") and gs.current_gpu_power() == 42, "a second card in PCIe slot 2 adds to the first (32 + 20 / 2)")
+    var card: String = stock_uid(gs, "gpu_rx6060")
+    check(gs.fit_catalog_stock(card, "pcie_2") and gs.current_gpu_power() == 42, "a second card in PCIe slot 2 adds to the first (32 + 20 / 2)")
+    check(gs.unfit_catalog_stock(card) and gs.stock_available(card) and gs.current_gpu_power() == 20, "taking a test part out returns it to your stock")
     gs.job["parts"]["gpus"] = ["gpu_gtx1660", "gpu_rtx5900"]
     gs.set_pc_powered(true)
     check(not Checks.boot(gs.job)["ok"] and str(WorkReport.hardware_check(gs.job)["message"]).contains("TOO SMALL"), "a big second card on the small PSU: no boot, and the hardware check says the PSU is too small")
-    gs.job["parts"]["gpus"] = ["gpu_gtx1660", "gpu_rx6060"]
+    gs.job["parts"]["gpus"] = ["gpu_gtx1660"]
 
-    # Upgrading the first card: the customer's working card stays theirs, in the drawer.
+    # A shop card in slot 1 over the customer's WORKING card, then taken out again.
     gs.set_service_part_fitted(Ids.GPU, false)
     gs.buy_catalog_part("gpu_rtx3800")
-    check(gs.fit_inventory_part(Ids.GPU, stock_uid(gs, "gpu_rtx3800")) and gs.job["service_replacements"][Ids.GPU] == "model:gpu_rtx3800", "a catalogue card upgrades a working first card taken out")
-    check(CustomerPC.loose(gs.job) == [{"id": "gpu_gtx1660", "broken": false}] and gs.current_gpu_power() == 66, "the customer's old card is a loose part; the new one counts (50 + 32 / 2)")
-    # Swapping it back: the old card on PCIe slot 1, the new one out.
-    gs.set_service_part_fitted(Ids.GPU, false)
-    var back: Dictionary = CustomerPC.placements(gs.job, {})
-    back[CustomerPC.uid(gs.job, Ids.GPU)] = {"location": "drawer", "cell": [0, 0], "rotation": 0}
-    back[CustomerPC.uid(gs.job, "loose_0")] = {"location": "pcie", "cell": [0, 0], "rotation": 0}
-    check(gs.apply_bench(back) and gs.job["parts"]["gpus"][0] == "gpu_gtx1660" and not gs.job["service_replacements"].has(Ids.GPU) and not Ids.GPU in gs.job["removed_parts"], "the customer's own card can go back into slot 1")
-    check(CustomerPC.loose(gs.job) == [{"id": "gpu_rtx3800", "broken": false}] and gs.job["gpu_screws"] == 0, "the bought card is now loose, and the refitted one needs its screws")
+    var big: String = stock_uid(gs, "gpu_rtx3800")
+    check(gs.fit_inventory_part(Ids.GPU, big) and gs.job["service_replacements"][Ids.GPU] == "model:gpu_rtx3800" and Ids.GPU in gs.job["shop_custody"], "a catalogue card can go in slot 1; it stays the shop's")
+    check(CustomerPC.loose(gs.job) == [{"id": "gpu_gtx1660", "broken": false, "damaged": false, "original_of": "gpu"}] and gs.current_gpu_power() == 50, "the customer's card waits in the drawer as theirs")
+    check(gs.set_service_part_fitted(Ids.GPU, false) and gs.stock_available(big) and CustomerPC.loose(gs.job).is_empty() and Ids.GPU in gs.job["removed_parts"] and not gs.job["service_replacements"].has(Ids.GPU), "taking the shop card out returns it to stock; the customer's card is again the one that is out")
+    check(gs.set_service_part_fitted(Ids.GPU, true) and gs.current_gpu_power() == 20, "the customer's own card goes back in")
 
-    # Saves keep all of it.
+    # Health never decides what may be fitted: a dead card goes in and simply adds nothing.
+    gs.job["loose_parts"] = [{"id": "gpu_rx6060", "broken": true}]
+    var dead: Dictionary = CustomerPC.placements(gs.job, {})
+    dead[CustomerPC.uid(gs.job, "loose_0")] = {"location": "pcie_2", "cell": [0, 0], "rotation": 0}
+    check(gs.apply_bench(dead) and gs.job["parts"]["gpus"] == ["gpu_gtx1660", "gpu_rx6060"] and gs.job["dead_slots"] == ["pcie_2"] and gs.current_gpu_power() == 20, "a customer card that does not work can be fitted; it adds nothing (no refusal, no label)")
+    var gpu2: Dictionary = {}
+    for c: Dictionary in CustomerPC.components(gs.job):
+        if c["id"] == CustomerPC.uid(gs.job, "gpu_2"): gpu2 = c
+    check(not str(gpu2["details"]).contains("BROKEN") and not str(gpu2["details"]).contains("working"), "its hover card names no health")
+
+    # Collection settles it: test parts go home with the PC; a needlessly replaced working original is yours.
     gs.buy_catalog_part("sto_nvme_1tb")
     gs.save_game()
-    check(gs.load_game() and CustomerPC.loose(gs.job).size() == 1 and stock_uid(gs, "sto_nvme_1tb") != "" and gs.job["parts"]["ram"].size() == 2, "loose parts, bought stock and fitted parts survive save and load")
-    gs.job["service_replacements"] = {Ids.GPU: "model:gpu_rtx3800"}
-    gs.save_game()
-    check(gs.load_game() and gs.job["service_replacements"].get(Ids.GPU, "") == "model:gpu_rtx3800", "a catalogue replacement survives a reload")
-    gs.job["service_replacements"] = {}
+    check(gs.load_game() and gs.job["shop_fitted"].has("ram_2") and gs._record(stick).get("fitted_in", "") == str(gs.job["id"]) and stock_uid(gs, "sto_nvme_1tb") != "" and gs.job["dead_slots"] == ["pcie_2"], "test parts, custody and bought stock survive save and load")
     night.checkpoint(gs)
 
     # The bench itself.
@@ -96,6 +103,17 @@ func run_checks() -> void:
     var cpu_key: String = CustomerPC.uid(gs.job, "cpu")
     var cpu_i: int = item_index(view, cpu_key)
     check(cpu_i >= 0 and view.inventory.items[cpu_i]["location"] == "cpu" and item_index(view, CustomerPC.uid(gs.job, "psu")) >= 0 and item_index(view, CustomerPC.uid(gs.job, "gpu_2")) >= 0, "the bench shows the CPU, PSU and second card on their slots")
+    var test_i: int = item_index(view, stick)
+    check(test_i >= 0 and view.inventory.items[test_i]["location"] == "ram_2", "the shop's test stick sits on its slot on the bench")
+    view.inventory.begin(test_i)
+    view.inventory.store(view.inventory.first_space(test_i))
+    view._save_inventory()
+    check(not gs.job["shop_fitted"].has("ram_2") and gs.stock_available(stick), "dragging the test stick to the drawer returns it to stock")
+    test_i = item_index(view, stick)
+    view.inventory.begin(test_i)
+    view.inventory.install(connector(view, "ram_2")["origin"])
+    view._save_inventory()
+    check(gs.job["shop_fitted"].has("ram_2") and not gs.stock_available(stick), "and back onto the slot it is fitted for a test again")
     view._try_pick_up(view._item_rect(cpu_i).get_center())
     check(view.inventory.held == -1 and str(view.status_label.text).contains("cooler"), "the CPU cannot come out while the cooler sits on it")
     gs.set_service_part_fitted(Ids.COOLER, false)
@@ -121,6 +139,26 @@ func run_checks() -> void:
     check(gs.job["parts"]["cpu"] == "cpu_i5_6060" and gs.job["parts"]["psu"] == "psu_cv450", "Rearrange drawer never pulls parts out of the PC")
     view.queue_free()
     await process_frame
+
+    # Collection: the test stick goes home with the PC; nothing else of yours is lost or duplicated.
+    var before: int = gs.player_inventory.size()
+    var kept: Array = gs.settle_custody()
+    check(gs._record(stick).is_empty() and gs.player_inventory.size() == before - 1 and kept.is_empty() and gs.job["shop_fitted"].is_empty(), "at collection a test part becomes the customer's; an added part replaced nothing")
+    gs.new_game(false)
+    gs.money = 500
+    gs.set_service_part_fitted(Ids.GPU, false)
+    gs.buy_catalog_part("gpu_rx6060")
+    gs.fit_inventory_part(Ids.GPU, stock_uid(gs, "gpu_rx6060"))
+    before = gs.player_inventory.size()
+    kept = gs.settle_custody()
+    var original: String = stock_uid(gs, "gpu_gtx1660")
+    check(kept.size() == 1 and str(kept[0]).contains("GTX 1660") and original != "" and gs.stock_available(original) and gs.player_inventory.size() == before, "replacing a WORKING card needlessly: the new one goes home, the original enters your stock")
+    gs.new_game(false)
+    gs.job["broken_parts"] = ["gpu"]
+    gs.set_service_part_fitted(Ids.GPU, false)
+    gs.buy_catalog_part("gpu_rx6060")
+    gs.fit_inventory_part(Ids.GPU, stock_uid(gs, "gpu_rx6060"))
+    check(gs.settle_custody().is_empty() and stock_uid(gs, "gpu_gtx1660") == "", "replacing a card that did not work: nothing comes back to you")
     _remove_save_files(manifest)
     restore_save(gs)
     finish("Hardware parts")

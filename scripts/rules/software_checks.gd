@@ -11,9 +11,13 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 static func boot(job: Dictionary) -> Dictionary:
     if not bool(job.get("pc_powered",false)):
         return {"ok":false,"message":"Power is off. Use the PC power button before running live tests."}
-    var problems: Array = PartStates.problem_lines(job)
-    if not job.get("broken_parts",[]).is_empty() or not job.get("removed_parts",[]).is_empty() or not PcBuild.missing(job).is_empty():
-        return {"ok":false,"message":"Boot FAILED. Fit and repair the missing/broken parts first.\n"+"\n".join(problems)}
+    # D150 (0.46.2): a missing part is known and named; a part that does not work only shows as what
+    # the player would see on the screen. The boot never names the faulty part.
+    if not job.get("removed_parts",[]).is_empty() or not PcBuild.missing(job).is_empty():
+        return {"ok":false,"message":"Boot FAILED: parts are missing.\n"+"\n".join(PartStates.problem_lines(job))}
+    var symptoms: Array = PartStates.boot_symptoms(job)
+    if not symptoms.is_empty():
+        return {"ok":false,"message":"Boot FAILED.\n"+"\n".join(symptoms)}
     var s: Dictionary = PcBuild.effective(job)   # D148: the PSU must cover what the parts draw
     if not bool(s["powered"]):
         return {"ok":false,"message":"Boot FAILED: the power supply cannot run this PC (it needs %d W, the PSU gives %d W). Fit a bigger PSU."%[int(s["draw_w"]),int(s["psu_w"])]}

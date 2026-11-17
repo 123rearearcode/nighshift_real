@@ -36,6 +36,6 @@ static func collect(gs: Node) -> Dictionary:
         items[uid] = {"id":uid,"source_uid":str(job["id"]),"category":"pc","kind":"pc","label":"Customer PC",
             "model":("Compact PC" if job.get("layout","tower") == "compact" else "Tower PC")+" · "+str(job.get("customer","Customer")),
             "size":Vector2i(7,5) if job.get("layout","tower") == "compact" else Vector2i(8,6),"owner":"Customer property · "+str(job["id"]),
-            "condition":"Needs repair" if not job.get("broken_parts",[]).is_empty() else "Awaiting service","reserved":false,
+            "condition":"Awaiting service","reserved":false,
             "note":"Ticket %s. Whole customer PC, including fitted parts. Drag it into the workshop slot in the room to work on it."%str(job["id"])}
     return items
