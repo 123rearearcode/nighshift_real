@@ -119,6 +119,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
 | `docs/BUGS.md` | docs | The bug register: every bug found, its root cause, and the every-10-versions structural review |
+| `docs/PART_LIFECYCLE.md` | docs | Component identity/custody invariants, staged migration acceptance and cross-AI integration boundaries |
+| `tools/check_bug_register.py` | tooling | Validate one bug index, statuses, detail/evidence links and the next review marker |
+| `tools/test_bug_register.py` | tooling | Malformed register fixtures protecting the ledger checker |
+| `tools/test_part_lifecycle.gd` | tooling | Cross-PC same-model spare identity, damage, custody, collection, reload and malformed external data journeys |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |

@@ -7,6 +7,10 @@ in every morning: how many depends on the shop's **online rating** (stars from r
 problem drawn for that night. Later nights bring harder problems. Every case can be solved, sometimes
 only by buying a known-good part to test with, and can end with a happy customer.
 
+0.48.0 also includes 0.47.1 (Codex, PR #60): the bug register is reconciled and checked automatically,
+with complete part-lifecycle regressions across two PCs. The staged customer-part identity work remains
+explicit in docs/PART_LIFECYCLE.md and the handoff.
+
 0.47.0 is session 3.4, Diagnosis (D150). Every PC has a **Findings** notebook (a tab beside the monitor)
 that keeps what you saw at the benches, what each test measured and what you changed, stamped with the
 night clock; old readings stay but are marked outdated once the PC changes. The long load test is now its

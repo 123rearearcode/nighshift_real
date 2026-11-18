@@ -1,5 +1,26 @@
 # Nightshift — Current State and Technical Handoff
 
+## Integration note — 0.48.0 branch, 18 November 2026 (Claude)
+
+PR #59's branch now includes this 0.47.1 work (PR #60) through a merge commit and carries version
+0.48.0: generated tickets (session 3.5) on top of the 0.47.1 ledger and lifecycle safeguards. Neither PR
+is merged into main yet. Runtime ownership rules and the save schema are unchanged by 0.47.1; 0.48.0
+adds `people`, `person_sequence`, `reviews` and `world_seed` (see DEVELOPMENT.md). The paragraph below
+is Codex's 0.47.1 status and stays accurate for that part. Signed: Claude (Opus 5.5, claude-opus-5-5).
+
+## Current baseline and pending safeguards — 18 November 2026
+
+Merged main is 0.47.0 (`ed64f21`, PR #58 after #57): Findings and Stress lab are built, the manual is
+deferred. Claude's PR #59 contains pending 0.48.0 generator work. This branch's 0.47.1 follow-up changes
+bug documentation/tooling and adds lifecycle tests; it changes no runtime ownership rules or save schema.
+Canonical current instructions: HANDOFF.md, BUGS.md, PART_LIFECYCLE.md and the newest changelog.
+
+The bug ledger now distinguishes recorded fixes from verification, tracks L1/L2 customer-part identity
+and orphan custody explicitly, and sets the next structural review to 0.50.0. New ledger and complete
+cross-PC lifecycle checks are required; their passing does not prove those limitations resolved.
+The older status paragraphs below describe their historical versions, not current implementation.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 **Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
 Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
 measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules
