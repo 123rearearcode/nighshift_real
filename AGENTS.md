@@ -15,6 +15,11 @@ Project rules:
 6. Every bug — user-reported, CI-caught or review-found — gets a row in `docs/BUGS.md` when it is
    found, with its root cause filled in when fixed. Every 10 versions (0.30.0, 0.40.0, …) the
    integrating AI runs the structural review described at the top of that file.
+   Follow its one-index/detail format and Fixed versus Verified evidence rules. Run
+   `python3 -I tools/check_bug_register.py` and `python3 -B tools/test_bug_register.py`.
+   Read `docs/PART_LIFECYCLE.md` before changing ownership, fitting, collection or save migration;
+   retain the required cross-PC lifecycle tests. Never claim slot-derived identity or orphan custody
+   is solved merely because the existing test suite passes. Coordinate hot-file ownership first.
 
 Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADMAP.md, docs/DECISIONS.md and docs/CURRENT_STATE.md. Read STABILISATION.md for the current milestone. Latest explicit user decisions and the reconciled core docs take precedence over stale OPEN labels in local proposal notes.
 

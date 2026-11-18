@@ -1,5 +1,18 @@
 # Nightshift — Current State and Technical Handoff
 
+## Current baseline and pending safeguards — 18 November 2026
+
+Merged main is 0.47.0 (`ed64f21`, PR #58 after #57): Findings and Stress lab are built, the manual is
+deferred. Claude's PR #59 contains pending 0.48.0 generator work. This branch's 0.47.1 follow-up changes
+bug documentation/tooling and adds lifecycle tests; it changes no runtime ownership rules or save schema.
+Canonical current instructions: HANDOFF.md, BUGS.md, PART_LIFECYCLE.md and the newest changelog.
+
+The bug ledger now distinguishes recorded fixes from verification, tracks L1/L2 customer-part identity
+and orphan custody explicitly, and sets the next structural review to 0.50.0. New ledger and complete
+cross-PC lifecycle checks are required; their passing does not prove those limitations resolved.
+The older status paragraphs below describe their historical versions, not current implementation.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 **Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
 Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
 measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules

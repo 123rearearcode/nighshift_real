@@ -12,6 +12,12 @@ tuning from the user's playtests.
 **Claude — engineering and code health:** steps 1–15 and 17 below; the build half of step 16 on top of
 Codex's design; investigating unclear bugs with the scripted playtest.
 
+18 November 2026 current assignment: the user authorized Codex's bug-audit follow-up (0.47.1):
+reconcile BUGS, enforce its schema/evidence rules, add complete cross-PC lifecycle coverage, and
+document staged component identity/custody work. Claude's open #59 owns shared runtime/generator work;
+this follow-up does not edit those hot files. HANDOFF and PART_LIFECYCLE describe integration and the
+still-open L1/L2 scope. Preserve ALL workflow suite/check entries when reconciling the two branches.
+
 ## Rules so the two agents do not collide
 1. **One owner per hot file at a time.** Hot files: `scripts/view/bench_view.gd`, `scripts/bench/tool_rig.gd`,
    `scripts/state/game_state.gd`. During Phases 2 and 4 Claude owns them; Codex works in other files or
@@ -124,7 +130,7 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.2 Night end and morning report | 0.44.0 | 06:00 ends the night; one card per PC, hover for state; next night | yes: what surfaces at pickup vs later (answered: D146) | done (0.44.0) |
 | 3.3 Real hardware | 0.45.0 | named parts with processing, graphics, RAM, storage, PSU, cooler; PSU/cooler as support stats; several GPUs | answered (D148) | done (0.45.0) |
 | 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | done (0.46.0) |
-| 3.4 Diagnosis | 0.47.0 | D150: complaint/evidence separation; Findings on real night clock; standalone stress app (Stress lab); owned temporary test parts; collection settlement (0.46.2/0.46.3) | core approved; detailed presentation/taxonomy still proposed | built by Claude (PR, stacked on PR #57); awaiting Codex cross-review and the user's merge |
+| 3.4 Diagnosis | 0.47.0 | D150: complaint/evidence separation; Findings on real night clock; standalone stress app (Stress lab); owned temporary test parts; collection settlement (0.46.2/0.46.3) | core approved; detailed presentation/taxonomy still proposed | merged in PR #58 after #57; manual playtest still not recorded |
 | 3.4m Diagnosis manual | later (unassigned version) | optional manual: explanations and graduated guidance, read-only, never reads hidden faults (D150) | yes: Codex's content format first | **deferred by the user on 18 November 2026** as a separate later point; not part of 0.47.0 |
 | 3.5 Generated tickets | 0.48.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
 | 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |

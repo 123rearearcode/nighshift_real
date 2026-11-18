@@ -1,4 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.47.0)
+# Nightshift - Godot Foundation Trial (v0.47.1)
+
+0.47.1 reconciles the bug register and adds enforced evidence/format checks plus complete component
+lifecycle regressions across two PCs. No gameplay rule, inventory model or save schema is changed.
+The staged customer-part identity work remains explicit in docs/PART_LIFECYCLE.md and the handoff.
 
 0.47.0 is session 3.4, Diagnosis (D150). Every PC has a **Findings** notebook (a tab beside the monitor)
 that keeps what you saw at the benches, what each test measured and what you changed, stamped with the

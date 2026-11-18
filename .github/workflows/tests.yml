@@ -43,6 +43,8 @@ jobs:
           cd "$PROJECT_DIR"
           python3 -I tools/check_project.py
           python3 -B tools/test_ci_scope.py
+          python3 -I tools/check_bug_register.py
+          python3 -B tools/test_bug_register.py
 
       - name: Choose verification scope
         id: scope
@@ -96,6 +98,7 @@ jobs:
           test_morning|Morning report
           test_real_hardware|Real hardware
           test_hardware_parts|Hardware parts
+          test_part_lifecycle|Part lifecycle
           test_diagnosis|Diagnosis"
           bad=0
           while IFS='|' read -r file name; do

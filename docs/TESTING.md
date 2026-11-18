@@ -1,5 +1,26 @@
 # Test policy — 0.27.0
 
+## Current addition — 0.47.1 ledger and complete component journeys
+
+The original ten-suite counts below are historical; the current required list is in the workflow.
+Always run the project checker, CI scope tests, `python3 -I tools/check_bug_register.py` and
+`python3 -B tools/test_bug_register.py`, including on documentation-only changes. Malformed-register
+fixtures verify that detached rows, missing details/evidence, duplicate ids and overdue review markers
+fail validation. The checker enforces record consistency; it does not prove a fix works or user acceptance.
+
+Runtime verification also includes `tools/test_part_lifecycle.gd` (summary: Part lifecycle). It follows
+two PCs and same-model shop parts through fit, undo, damage, switch, save/load, collection and repeat
+settlement. Do not weaken its custody checks to accommodate a refactor. Add an appropriate full journey
+when ownership/identity/save logic changes, not just a successful initial fit assertion.
+
+See PART_LIFECYCLE.md for invariants and acceptance criteria not yet implemented for all customer parts.
+A passing shop-stock lifecycle suite is not proof of L1 customer-part identity or L2 orphan recovery.
+Read optional save values once, validate that local value, then use it; keep missing-key and malformed
+nested-data fixtures. Do not label historical bugs Verified without named evidence.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest.
+
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work · 13 November 2026.
 User authorised the test audit recommendations. Gameplay is unchanged; Claude still owns the Phase 2 hot files.
 

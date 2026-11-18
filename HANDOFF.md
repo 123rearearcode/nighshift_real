@@ -1,5 +1,59 @@
 # Handoff — current state first
 
+## Current work — 0.47.1 bug register and lifecycle safeguards, 18 November 2026
+
+User assignment: implement the bug-audit recommendations in a NEW PR and include resume instructions
+for other AIs. Base is merged main 0.47.0 (`ed64f21`): PRs #57 and #58 are already merged. Claude's
+PR #59 (0.48.0 generated tickets) is open and touches shared runtime state. This branch does not edit
+GameState, benches or the generator, and it does not merge any PR.
+
+Delivered here: one reconciled 47-bug index with details; explicit Fixed/Verified evidence types;
+current RC-1/RC-4 status, diagnosis-safe RC-2 wording, next checkpoint 0.50.0; Python ledger validation
+and malformed-ledger fixtures run in CI even for docs changes; required cross-PC Part lifecycle suite.
+Read docs/PART_LIFECYCLE.md for complete-journey invariants and the staged part-record direction.
+
+**Important boundary:** lifecycle tests pass for existing shop-stock uids/custody; a full stable
+customer-part registry and orphan recovery are NOT implemented here. L1/L2 are explicitly Investigating,
+not invented fixes or automatically promoted confirmed bugs. Do not infer their completion from green CI.
+
+### Instructions for Claude / any integrating AI
+
+1. Read this section, docs/BUGS.md filing rules, docs/PART_LIFECYCLE.md and the new 0.47.1 changelog.
+2. Check actual main and open PRs. This branch is independent of #59; reconcile whichever lands second.
+   Preserve the new bug checker/tests AND Diagnosis/Part lifecycle/Generated tickets workflow entries.
+   Do not overwrite 0.48.0 metadata or reuse a B-id allocated in another open PR. If a new ledger row is
+   added, add its matching detail section and explicit evidence status; run the checker before pushing.
+3. Keep Fixed separate from Verified; name Automated/Graphical/User evidence and link the regression
+   or recording. No claim of user acceptance from headless tests. Historical notes are not current rules.
+4. Before further ownership/save changes, run tools/test_part_lifecycle.gd and add the missing complete
+   journey. Same-model neighbours, returns after damage, inactive-PC reload and repeat collection matter.
+5. Coordinate ownership before the next runtime identity migration. Introduce stable physical customer
+   records incrementally behind existing projections; do not create a second writable PC database.
+   Satisfy the L1/L2 acceptance scenarios before marking them fixed. Never unlock or delete orphan
+   custody merely because the referenced ticket cannot be found.
+6. Read optional/external values once, validate the local value, then use it. Keep missing-key and
+   malformed nested-record fixtures (B8/B30/B34). Do not check get() then index the absent key.
+7. Reconcile current root causes at 0.50.0 and advance its review marker. Keep old review provenance.
+   Review/merge remains user-controlled. The deferred manual remains deferred.
+
+### Copyable resume prompt
+
+> Read HANDOFF.md's 0.47.1 section and PART_LIFECYCLE.md before continuing. This PR reconciles the
+> bug ledger and adds enforced ledger/evidence checks plus complete cross-PC lifecycle tests; it does
+> not migrate all customer-part identity or solve orphan recovery. Preserve all bug IDs and test suites
+> when reconciling with PR #59. Check version allocation and live hot-file ownership. For identity
+> work, stage one authoritative per-part model with separate actual/known condition and prove the
+> complete migration/rollback journeys before closing L1/L2. Do not treat historical notes or green CI
+> as user verification. Run the register checker and relevant lifecycle/native tests before pushing.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. Execution evidence is in CHANGELOG 0.47.1; no manual playtest claimed.
+
+## Previous delivery notes — historical snapshots, not current merge instructions
+
+The following version-specific statuses are retained as provenance. The current section above and
+the actual repository state supersede their old open/stacked/merge-order/ownership claims.
+
 ## Current — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026
 
 Branch `feat/diagnosis-0470`, **stacked on PR #57** (0.46.3, head 02b6343). Claude reviewed Codex's

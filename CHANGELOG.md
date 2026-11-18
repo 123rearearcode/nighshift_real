@@ -76,6 +76,70 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.47.1 - 2026-11-18 - Reconcile bug register and enforce complete component journeys
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No deployment id is invented; this limitation remains explicit against D51.
+- Based on: main 0.47.0, ed64f21835a1610d39bb5c6f37b6686de2f33279 (PRs #57 and #58 merged).
+- Type: patch (bug-register/tooling/test improvements; no gameplay or save-schema change).
+
+### Execution status
+Target Godot 4.7.2 headless import and the new Part lifecycle suite ran locally (38 checks, zero
+failures). All 25 required Godot suites passed (1,805 checks); Python checker results are below.
+No manual graphical playtest or new player-facing diagnosis/manual feature is claimed.
+
+### Added / Changed / Fixed / Removed
+- Reconcile all 47 historical bugs into one canonical index and per-bug details. Add status, severity,
+  area and evidence types; distinguish recorded fixes from automated/graphical/user verification.
+- Correct stale next-review (now 0.50.0), RC-1/RC-4 merge status and RC-2's diagnosis-unsafe wording.
+  Preserve historical reviews as explicitly superseded quotations, not active instructions.
+- Track existing customer-part identity and orphan-custody limitations as L1/L2 Investigating rather
+  than pretending all structural issues are solved. Define RC-5 for identity/custody journey failures.
+- Add an always-run register checker and malformed-ledger unit fixtures. Validate index/detail/id
+  consistency, status/severity, evidence paths and review deadlines; do not infer runtime correctness.
+- Add a required cross-PC Part lifecycle suite: identical original models with different health,
+  distinct same-model spares, exclusive custody, damage/return, active/inactive reload, collection,
+  repeat settlement, stale measurement history and malformed optional external data.
+- Record component invariants and a staged physical-part migration contract in PART_LIFECYCLE.
+  Update AGENTS, handoff, testing/work plan and current state so other AIs preserve the checks and
+  coordinate with Claude's open #59 instead of racing shared runtime files.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `docs/BUGS.md` | M | One index/details, explicit evidence/status, current RCs, limitations, preserved history |
+| `docs/PART_LIFECYCLE.md` | A | Invariants, migration acceptance and AI integration boundaries |
+| `tools/check_bug_register.py` | A | Ledger validation and due-review guard |
+| `tools/test_bug_register.py` | A | Malformed-ledger validation fixtures |
+| `tools/test_part_lifecycle.gd` | A | Complete two-PC custody/health/identity/reload journeys |
+| `.github/workflows/tests.yml` | M | Always-run ledger checks and required lifecycle suite |
+| `AGENTS.md`, `HANDOFF.md`, `docs/WORK_PLAN.md`, `docs/CURRENT_STATE.md`, `docs/TESTING.md` | M | Other-AI instructions, status/evidence and next-stage boundaries |
+| `DEVELOPMENT.md` | M | New tooling/docs file-map entries |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Patch version, scope and evidence |
+
+### Checks performed
+- Target import: Godot 4.7.2, passed.
+- Part lifecycle: 38 checks, zero failures.
+- All 25 required Godot suites: 1,805 checks, zero failures and no script/parse errors.
+- Scripted bench smoke: Playtest finished, no script/parse errors.
+- Register checker: zero problems; malformed-register fixtures: 12 tests passed.
+- CI scope fixtures: 9 tests passed.
+- Project checker: passed, zero problems. `git diff --check`: passed.
+
+### Decisions proposed (not approved)
+No new gameplay. Exact canonical part-record field layout and orphan-recovery policy remain design/
+implementation proposals; this PR records acceptance criteria, not a second writable registry.
+
+### Known issues and open items
+L1/L2 remain Investigating. The full stable customer-part migration is not implemented by these tests.
+Historical B1–B41 evidence is not reconstructed or asserted as reverified. Open #59 modifies overlapping
+workflow/docs/version metadata; the second integrator must preserve both sets of changes and all IDs.
+
+### Next action
+Claude cross-review, then user-controlled merge. Reconcile with #59 using HANDOFF/PART_LIFECYCLE
+instructions. Coordinate ownership before runtime identity migration; keep it incremental and prove
+complete journeys. The manual remains deferred. No merge authorized by this task.
+
 ## 0.47.0 - 2026-11-18 - Diagnosis: Findings notebook, Stress lab, 06:00 test limit
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
