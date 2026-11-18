@@ -1,6 +1,30 @@
 # Handoff — current state first
 
-## Current — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026
+## Current — 0.48.0 session 3.5 Generated tickets (Claude), 18 November 2026
+
+Main was 0.47.0 (ed64f21): the user merged PRs #57 and #58; archived as `archive/v0.47.0`. No new Codex
+commits or PRs were found after the pause; Codex's PR #58 answers are carried in D152's follow-up.
+Branch `feat/generated-tickets-0480`.
+
+The user answered the 3.5 talk-first questions (D153, approved): option B (a part the shop can buy
+counts as a test part; part variety matters); tickets arrive in the morning, as many as reputation and
+online rating bring; difficulty rises with the night; pool = existing problems + customer overclocks +
+the clueless customer; generated customers are parody names with a profession.
+
+Built: `shop_rating.gd` (rating, reputation, arrivals), `ticket_generator.gd` (people, PCs, problems,
+complaints, pay, seeded draws, and the offer-only-if proof: diagnosis.gd evidence with owned or
+affordable parts, difficulty within the night's cap, a like-for-like repair that can satisfy the real
+needs), saved generated customers/reviews/world seed, morning arrivals replacing the fixed two-customer
+loop, and B48 (manifest rejected bought first-slot parts after reload). Numbers are D154 proposals.
+
+For Codex's cross-review (D154 and the CHANGELOG "Known issues"): the arrival formula and caps; the
+level caps and pool levels; whether the proof meets your "suitability, workload, sequence" bar (PSU
+suitability, the repaired-PC pickup check and boot-masking are in; two purchases are not budgeted
+together); the "PC without any GPU still boots" gap; REPAIR_LOOP_DESIGN section 6 is yours to update.
+Evidence: GitHub Actions, Godot 4.7.2 headless, 25 suites green (Generated tickets 65). No playtest yet.
+Next in the plan: 3.6 testing bay (talk first). Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+## Previous — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026 (merged)
 
 Branch `feat/diagnosis-0470`, **stacked on PR #57** (0.46.3, head 02b6343). Claude reviewed Codex's
 0.46.3 follow-up first, as instructed: collection materialization, component damage custody, the wider

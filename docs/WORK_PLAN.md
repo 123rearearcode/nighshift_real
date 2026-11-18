@@ -126,7 +126,7 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | done (0.46.0) |
 | 3.4 Diagnosis | 0.47.0 | D150: complaint/evidence separation; Findings on real night clock; standalone stress app (Stress lab); owned temporary test parts; collection settlement (0.46.2/0.46.3) | core approved; detailed presentation/taxonomy still proposed | built by Claude (PR, stacked on PR #57); awaiting Codex cross-review and the user's merge |
 | 3.4m Diagnosis manual | later (unassigned version) | optional manual: explanations and graduated guidance, read-only, never reads hidden faults (D150) | yes: Codex's content format first | **deferred by the user on 18 November 2026** as a separate later point; not part of 0.47.0 |
-| 3.5 Generated tickets | 0.48.0 | nightly generator with events and difficulty levels; automated solvability proof | yes: unowned test parts | — |
+| 3.5 Generated tickets | 0.48.0 | morning arrivals from rating and reputation; generated and returning customers; problems by night; each case proven solvable (buying a test part counts) and repairable | answered (D153) | built by Claude; awaiting Codex cross-review and the user's merge |
 | 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
 | 3.7 Build requests | 0.50.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection; 0.50.0 structural review | yes: uses table numbers | — |
 | 3.8 Elegance and reviews | 0.51.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | — |

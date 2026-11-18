@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.47.0)
+# Nightshift - Godot Foundation Trial (v0.48.0)
+
+0.48.0 is session 3.5, **generated tickets**. After the first night (Mara and Relu), new customers walk
+in every morning: how many depends on the shop's **online rating** (stars from recent pickups) and its
+**reputation** (how much customers trust it). Some are regulars coming back, most are new people
+(regulars, gamers and clueless customers who ask for the wrong thing), each with their own PC and a
+problem drawn for that night. Later nights bring harder problems. Every case can be solved, sometimes
+only by buying a known-good part to test with, and can end with a happy customer.
 
 0.47.0 is session 3.4, Diagnosis (D150). Every PC has a **Findings** notebook (a tab beside the monitor)
 that keeps what you saw at the benches, what each test measured and what you changed, stamped with the

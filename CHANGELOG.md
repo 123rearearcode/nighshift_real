@@ -76,6 +76,75 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.48.0 - 2026-11-18 - Generated tickets: morning arrivals, online rating, reputation
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.47.0 (main ed64f21, PRs #57 and #58 merged; archived as archive/v0.47.0).
+- Type: minor (session 3.5: new player-facing feature, D153 user approved, D154 proposals).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 25
+suites passed, including the new Generated tickets suite (65 checks). No manual graphical playtest yet.
+
+### Added
+- **Morning arrivals**: after the night, new tickets come in. How many depends on the online rating
+  (stars from the latest pickups; every pickup is a review) and the reputation (average customer trust);
+  the morning report says why ("Online rating 4.1★ (6 reviews) · reputation 58/100 · 2 new customers").
+  The shop holds at most 4 customer PCs; an empty shop always gets a walk-in.
+- **Generated customers**: parody names with a profession (regular, gamer, clueless), each with their own
+  PC and needs, saved with the game. Regulars who still trust the shop come back with a new problem.
+- **Generated cases**: dust; a GPU or the memory the customer took out; a power supply too small for a
+  card they fitted themselves; adware; a miner; an overclock they set; a faulty GPU; a faulty cooler; a
+  dead second card. Night 1 stays the story night; one-test problems from night 2, swap problems from night
+  4, extra problems on later nights. The complaint says what the customer saw, never the cause.
+- Every offered case is checked first: each problem has a way to be found with what the shop owns or can
+  afford to buy (D153 option B, including the test game), the difficulty fits the night, and a proper
+  repair can make the customer happy. Same save, same mornings (seeded).
+
+### Fixed
+- B48: a bought GPU/cooler fitted in the first slot no longer makes the night manifest invalid after a
+  reload (which locked switching between PCs). Bug from 0.46.0, found while building option B.
+
+### Changed
+- Story customers Mara and Relu no longer bring a new PC every morning; they can return as regulars.
+- The solvability rules count parts the shop can afford to buy, and a customer's part lying out of the PC.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/ticket_generator.gd` | A | People, PCs, problems by night, complaint, pay, the solvable/repairable proof, seeded draws |
+| `scripts/rules/shop_rating.gd` | A | Online rating, reputation, arrivals and the morning summary |
+| `scripts/data/generated_people.gd` | A | Name and text pools per profession; the clueless decoy need |
+| `tools/test_generated_tickets.gd` | A | 65 checks across 144 seeded cases, persistence, two mornings, B48 |
+| `scripts/state/game_state.gd` | M | `people`, `person_sequence`, `reviews`, `world_seed` saved; `person()`, rating/reputation, sanitizer; capabilities allow buying |
+| `scripts/night/night_session.gd` | M | Morning arrivals replace the fixed two-customer loop; manifest accepts generated customers and bought parts (B48) |
+| `scripts/rules/diagnosis.gd` | M | Buyable test parts and the test game; parts out of the PC as evident conditions |
+| `scripts/night/morning_view.gd`, `scripts/night/ticket_menu.gd` | M | Arrivals line; ticket window reads generated customers |
+| `tools/test_morning.gd`, `tools/test_diagnosis.gd` | M | Expectations follow arrivals; owned-only cases set `buy: false` |
+| `.github/workflows/tests.yml` | M | Generated tickets suite registered |
+| `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/BUGS.md`, `HANDOFF.md` | M | File map, generator contracts, D153/D154, plan status, B48, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.48.0 and release notes |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (0 problems).
+- GitHub Actions on Godot 4.7.2 (headless): 25 suites, 0 failures; Generated tickets 65, Diagnosis 58,
+  Morning report 27.
+
+### Decisions
+- D153 (user approved): option B for test parts, morning arrivals from reputation and rating, difficulty
+  by night, the pool incl. customer overclocks and clueless customers, parody-name customers.
+- D154 (proposed): every number above (rating, arrivals, return chance, level caps, pool levels, pay).
+
+### Known issues and open items
+- A PC with no graphics card at all at the hardware bench still boots (older gap; generated cases use the
+  repair-bench "card out" state instead). For Codex's review.
+- Returning generated customers bring the PC they had, not the repaired build they collected.
+- Two shop purchases in one case are not budgeted together by the solvability proof (each is checked alone).
+- Storage: more than about three PCs fill the starting rack; extras wait for space until more furniture is bought.
+
+### Next action
+Codex cross-reviews; the user merges. Playtest gate after 3.4/3.5. Next plan session: 3.6 testing bay (talk first).
+
 ## 0.47.0 - 2026-11-18 - Diagnosis: Findings notebook, Stress lab, 06:00 test limit
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

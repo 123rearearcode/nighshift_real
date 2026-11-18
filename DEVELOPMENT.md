@@ -745,3 +745,19 @@ the notebook or a future manual; it exists for tests and the 3.5 generator. Time
 `NightClock.fits` before charging anything. The diagnosis manual is not built (deferred by the user).
 
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
+
+
+## Generated tickets contracts — 0.48.0 (session 3.5)
+
+Save gains `people` (generated customers by id `pNNNN`, rebuilt by `GameState._person_from`: known
+fields only, profession in regular/gamer/clueless, needs and PC sanitized; story ids are refused),
+`person_sequence`, `reviews` (pickup scores, newest 20) and `world_seed` (non-zero; created when
+missing). SAVE_FORMAT stays 1. Look customers up with `GameState.person(id)` or `customer_view(id)`,
+never `Customers.customer()` directly, wherever a ticket's customer may be generated (load, manifest
+validation, ticket window, pickup, comebacks). Mornings: `NightSession._arrivals` draws with
+`TicketGenerator.rng_for(world_seed, night, slot)` only, so the same save repeats; never call
+`randi()`/`randf()` in generation. `ticket_generator.gd` preloads `game_state.gd`, so GameState must
+never preload the generator (rating maths live in `shop_rating.gd` for that reason). Every case passes
+`TicketGenerator.check()` before it is offered; the proof reads hidden truth and is never shown.
+
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
