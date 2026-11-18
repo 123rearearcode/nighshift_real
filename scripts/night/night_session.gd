@@ -8,6 +8,7 @@ const Ticket = preload("res://scripts/rules/ticket.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Generator = preload("res://scripts/rules/ticket_generator.gd")
 const ShopRating = preload("res://scripts/rules/shop_rating.gd")
+const ServiceParts = preload("res://scripts/data/service_parts.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -127,8 +128,10 @@ func _valid(entry: Variant,gs: Node) -> bool:
             if not typeof(coordinate) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(coordinate)): return false
     for key: String in ["cpu_power","ram_gb"]:
         if not typeof(entry["pc_specs"].get(key,null)) in [TYPE_INT,TYPE_FLOAT] or not is_finite(float(entry["pc_specs"][key])): return false
-    for value: Variant in entry["service_replacements"].values():
-        if not value in ["similar","budget"]: return false
+    # B48 (0.48.0): a bought catalogue part fitted in the first slot is "model:<id>" (D149); accept every
+    # option the game itself accepts, as the main save's loader does.
+    for kind: Variant in entry["service_replacements"]:
+        if ServiceParts.option(str(kind),str(entry["service_replacements"][kind])).is_empty(): return false
     return entry["hardware_trial"].get("night_session",null) is Dictionary
 
 func _protect(gs: Node,message: String) -> bool:

@@ -127,6 +127,7 @@ func run_checks() -> void:
     gs.reviews = []
     gs.tickets_taken = 0
     gs.new_game(false)
+    gs.world_seed = 4242   # a fixed world: this morning takes the same path on every run
     check(night.start(gs), "night 1 starts with the two story customers")
     for entry: Dictionary in night.jobs(gs): night.ticket_action(gs, str(entry["id"]), Ticket.TOGGLE_CALL)
     var report: Dictionary = night.end_night(gs)
@@ -153,6 +154,22 @@ func run_checks() -> void:
     var second_new: int = (second["cards"] as Array).filter(func(c: Dictionary) -> bool: return c["kind"] == "new").size()
     check(second["ok"] and second_new == ShopRating.arrivals(float(second["rating"]), int(second["reputation"]), waiting) and night.jobs(gs).filter(func(j: Dictionary) -> bool: return j.get("state", "open") != "done").size() <= ShopRating.MAX_OPEN,
         "waiting PCs count against the shop's space; it never holds more than %d" % ShopRating.MAX_OPEN)
+
+    # ---- B48: a bought part fitted in the first GPU slot keeps the manifest valid after a reload ----
+    gs.money = 500
+    var other_id: String = ""
+    for entry: Dictionary in night.jobs(gs):
+        if str(entry["id"]) != str(gs.job["id"]) and entry.get("state", "open") != "done": other_id = str(entry["id"])
+    check(gs.buy_catalog_part("gpu_gtx1660"), "a catalogue GPU is bought")
+    var bought: String = ""
+    for record: Dictionary in gs.player_inventory:
+        if str(record.get("model", "")) == "gpu_gtx1660" and str(record.get("tier", "")) == "model": bought = str(record["uid"])
+    check((Ids.GPU in gs.job["removed_parts"] or gs.set_service_part_fitted(Ids.GPU, false)) and gs.fit_inventory_part(Ids.GPU, bought) and str(gs.job["service_replacements"][Ids.GPU]).begins_with("model:"), "it is fitted as a test part in the first slot")
+    if other_id != "":
+        check(night.switch_pc(gs, other_id), "switch away, so that PC is stored in the night manifest")
+        gs.save_game()
+        night.bound_path = ""
+        check(gs.load_game() and night.ensure(gs) and not night.read_only, "after a reload the manifest is still valid and switching stays open (B48)")
 
     _remove_save_files(manifest)
     restore_save(gs)
