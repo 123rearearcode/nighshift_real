@@ -153,7 +153,7 @@ func run_checks() -> void:
     repair.scripted_pressing = null
     var pressed: Dictionary = PasteSnapshot.capture(repair.paste)
     check(repair.mount.active, "the cooler is being pressed")
-    repair._notification(NOTIFICATION_WM_CLOSE_REQUEST)
+    repair._notification(Node.NOTIFICATION_WM_CLOSE_REQUEST)
     check(not repair.mount.active and str(gs.job["paste_grade"]) == "" and gs.job["hardware_trial"].get("night_paste", {}).get("height_bytes", "") == pressed["height_bytes"], "closing the game mid-press cancels the press (no result) but saves the paste exactly as pressed")
     repair.queue_free()
     await process_frame
