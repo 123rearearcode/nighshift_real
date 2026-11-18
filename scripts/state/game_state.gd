@@ -1061,9 +1061,16 @@ func findings_text() -> String:
 # For solvability checks only (diagnosis.gd): what the shop can test with right now.
 func diagnosis_capabilities() -> Dictionary:
     var stock: Dictionary = {}
+    var models: Dictionary = {}
     for record: Dictionary in player_inventory:
-        if stock_available(str(record["uid"])): stock[str(record["kind"])] = int(stock.get(str(record["kind"]), 0)) + 1
-    return {"stock": stock, "games": owned_games.duplicate(), "money": money}
+        if not stock_available(str(record["uid"])): continue
+        var kind: String = str(record["kind"])
+        stock[kind] = int(stock.get(kind, 0)) + 1
+        var model: String = PcBuild.stock_model(record)
+        if model != "":
+            if not models.has(kind): models[kind] = []
+            (models[kind] as Array).append(model)
+    return {"stock": stock, "models": models, "games": owned_games.duplicate(), "money": money}
 
 
 func _note_build(before: Array) -> void:

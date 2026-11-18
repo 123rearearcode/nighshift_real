@@ -193,6 +193,12 @@ func run_checks() -> void:
     var blocked: Array = Diagnosis.assess(relu_job, relu_temp, no_gpu)
     check(not Diagnosis.solvable(relu_job, relu_temp, no_gpu) and blocked.filter(func(c: Dictionary) -> bool: return int(c["level"]) == Diagnosis.UNSOLVABLE).size() == 2,
         "without an owned GPU the swap is impossible, and the masked adware cannot be reached either")
+    check((caps["models"][Ids.GPU] as Array).has("gpu_gtx1660") and Diagnosis.suits(relu_job, Ids.GPU, "gpu_gtx1660"), "the starter test GPU suits Relu's PC: its PSU can power it")
+    var too_big: Dictionary = caps.duplicate(true)
+    too_big["models"][Ids.GPU] = ["gpu_rtx5900"]
+    check(not Diagnosis.suits(relu_job, Ids.GPU, "gpu_rtx5900") and not Diagnosis.solvable(relu_job, relu_temp, too_big),
+        "a spare GPU his 450 W PSU cannot power is no known-good test: owning the right kind is not enough")
+    check(str(relu_job["complaint"]).contains("screen stays black") and not str(relu_job["complaint"]).to_lower().contains("gpu"), "Relu's complaint matches his boot symptom without naming the part")
     var marginal: Dictionary = mara_job.duplicate(true)
     marginal["overclock"] = {"mult": 1, "volt": 0}
     var broke: Dictionary = caps.duplicate(true)

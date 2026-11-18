@@ -10,6 +10,10 @@
 #   3 COMPARED    only a controlled change shows it (an owned known-good part swapped in)
 # A condition's level is the cheapest path the player can take NOW. A path that needs the PC to start
 # is open once every start-blocking condition is itself solvable (a masking fault, addressed first).
+# Codex (PR #58): these are provisional INTERNAL evidence-path labels, not approved difficulty tiers and
+# not a player-facing selector. Nor is this a finished solvability proof for generated tickets: the 3.5
+# generator stays behind its own design/validation gate. A known-good swap here at least needs a spare
+# that suits the PC (the PSU must power it), not just a part of the right kind.
 extends RefCounted
 
 const Ids = preload("res://scripts/data/ids.gd")
@@ -25,9 +29,10 @@ const UNSOLVABLE: int = 99
 
 
 # What the player can use: {"stock": {kind: count of working, available owned parts},
-# "games": [owned game ids], "money": shop cash}. Built by GameState.diagnosis_capabilities().
-static func capabilities(stock: Dictionary, games: Array, money: int) -> Dictionary:
-    return {"stock": stock, "games": games, "money": money}
+# "models": {kind: [catalogue ids of those parts]}, "games": [owned game ids], "money": shop cash}.
+# Built by GameState.diagnosis_capabilities(). Without "models", only the counts are checked.
+static func capabilities(stock: Dictionary, games: Array, money: int, models: Dictionary = {}) -> Dictionary:
+    return {"stock": stock, "models": models, "games": games, "money": money}
 
 
 # Each live condition of the job with its evidence paths. A path is {"test", "level", "needs": {...},
@@ -74,9 +79,29 @@ static func _path(test: String, level: int, needs: Dictionary = {}, boots: bool 
     return {"test": test, "level": level, "needs": needs, "boots": boots}
 
 
-static func _open(path: Dictionary, caps: Dictionary) -> bool:
+# Would this owned model, swapped into the first GPU slot / onto the cooler mount, give a PC that can
+# start? (The PSU must power it; a cooler must be a cooler.) Uses the existing build rules only.
+static func suits(job: Dictionary, kind: String, model: String) -> bool:
+    var trial: Dictionary = job.duplicate(true)
+    var replaced: Dictionary = trial.get("service_replacements", {}) if trial.get("service_replacements", {}) is Dictionary else {}
+    replaced[kind] = "model:" + model
+    trial["service_replacements"] = replaced
+    for key: String in ["broken_parts", "removed_parts", "damaged_parts"]:
+        var list: Array = (trial.get(key, []) as Array).duplicate() if trial.get(key, []) is Array else []
+        list.erase(kind)
+        trial[key] = list
+    var s: Dictionary = PcBuild.effective(trial)
+    if kind == Ids.GPU: return (PcBuild.effective_parts(trial)["gpus"] as Array).has(model) and bool(s["powered"])
+    if kind == Ids.COOLER: return str(PcBuild.effective_parts(trial)["cooler"]) == model and int(s["cooler_w"]) > 0
+    return true
+
+
+static func _open(path: Dictionary, caps: Dictionary, job: Dictionary = {}) -> bool:
     var needs: Dictionary = path["needs"]
     if needs.has("stock") and int((caps.get("stock", {}) as Dictionary).get(str(needs["stock"]), 0)) <= 0: return false
+    if needs.has("stock") and caps.get("models", {}) is Dictionary and (caps["models"] as Dictionary).has(str(needs["stock"])):
+        var fits: Array = (caps["models"][str(needs["stock"])] as Array).filter(func(m: Variant) -> bool: return suits(job, str(needs["stock"]), str(m)))
+        if fits.is_empty(): return false
     if needs.has("game") and (caps.get("games", []) as Array).is_empty(): return false
     if needs.has("money") and int(caps.get("money", 0)) < int(needs["money"]): return false
     return true
@@ -95,14 +120,14 @@ static func assess(job: Dictionary, load_temp: float, caps: Dictionary) -> Array
     for item: Dictionary in found:
         var best: int = UNSOLVABLE
         for path: Dictionary in item["paths"]:
-            if not bool(path["boots"]) and _open(path, caps): best = mini(best, int(path["level"]))
+            if not bool(path["boots"]) and _open(path, caps, job): best = mini(best, int(path["level"]))
         levels[item["id"]] = best
         if _blocks_boot(str(item["id"])) and best == UNSOLVABLE: boot_reachable = false
     var out: Array = []
     for item: Dictionary in found:
         var best: int = int(levels[item["id"]])
         for path: Dictionary in item["paths"]:
-            if bool(path["boots"]) and boot_reachable and _open(path, caps): best = mini(best, int(path["level"]))
+            if bool(path["boots"]) and boot_reachable and _open(path, caps, job): best = mini(best, int(path["level"]))
         out.append({"id": item["id"], "level": best})
     return out
 

@@ -109,6 +109,10 @@ suites passed, including the new Diagnosis suite (55 checks). No manual graphica
 - Monitor layout: Vapor / game test / Stress lab on the second row; the overclocker row keeps the quick
   stress test; three tabs: Work, Findings, Client.
 - Hardware check failure line: "something is missing, too small or not locked" (it cannot see broken parts).
+- After Codex's answers on PR #58: Relu's complaint now matches what his PC shows ("The frame rate suddenly
+  tanked; now the PC powers on but the screen stays black. I can't play Counter Stroke at all."); his GPU
+  fault and FPS requirement are unchanged. The solvability check now requires a spare that suits the PC
+  (the PSU must power a test GPU), not just a part of the right kind.
 
 ### Files changed
 | File | Change | What |
@@ -123,6 +127,7 @@ suites passed, including the new Diagnosis suite (55 checks). No manual graphica
 | `scripts/night/night_session.gd` | M | The second demo PC starts with its own empty notebook |
 | `scripts/rules/night_clock.gd` | M | `fits()`: does a test still end by 06:00 |
 | `scripts/rules/work_report.gd` | M | Hardware check failure wording |
+| `scripts/data/customers.gd` | M | Relu's complaint wording (Codex's correction) |
 | `tools/test_software.gd` | M | Tab state and scan-notebook expectations |
 | `.github/workflows/tests.yml` | M | Diagnosis suite registered |
 | `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `HANDOFF.md` | M | File map, diagnosis contracts, D152 proposals, 3.4 status and the deferred manual item, handoff |
@@ -139,8 +144,8 @@ suites passed, including the new Diagnosis suite (55 checks). No manual graphica
 
 ### Known issues and open items
 - The diagnosis manual is not built: the user deferred it on 18 November 2026 as a separate later item (WORK_PLAN 3.4m).
-- Story-case consistency, for Codex: Relu's complaint ("frame rate tanked") does not match what his PC
-  now shows (no image at boot, from the hidden GPU fault). Story facts were left unchanged.
+- `diagnosis.gd` is not a finished solvability proof for generated tickets (Codex): workload fit and
+  test sequencing still need the 3.5 design/validation gate. Its levels are internal labels only.
 - The notebook is read at the monitor only; the benches write into it but do not display it.
 - Customer-part identity is still slot-derived (known since 0.46.2).
 

@@ -41,7 +41,7 @@ static func customer(id: String) -> Dictionary:
             "profession": "gamer",
             "persona": "Chatty, knows benchmark numbers by heart, no patience for stutter.",
             "about": "Economics student; plays ranked matches every evening. A regular at the shop since his first build.",
-            "complaint": "Frame rate tanked out of nowhere; matches are unplayable.",
+            "complaint": "The frame rate suddenly tanked; now the PC powers on but the screen stays black. I can't play Counter Stroke at all.",   # 0.47.0: matches his boot symptom (Codex, PR #58)
             "uses": "Counter Stroke 2 every evening; wants it smooth.",
             "habits": "Opens the case himself, watches temperatures and clock speeds. Would spot a swapped part or old paste in a week.",
             "patience": "Can wait two days, not three.",

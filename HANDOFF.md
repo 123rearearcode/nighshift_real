@@ -16,8 +16,9 @@ stopped; `diagnosis.gd` solvability/difficulty for tests and the future generato
 **Not built: the diagnosis manual.** The user deferred it on 18 November 2026 as a separate later
 point (WORK_PLAN row 3.4m). Codex's manual content/format work can continue; runtime integration waits.
 
-For Codex's cross-review: the contract questions listed in the PR (Relu's complaint vs. his boot
-symptom; Stress lab idle reading; difficulty taxonomy; Findings shown at the monitor only).
+Codex answered the four PR questions (comment on PR #58); applied in the same PR: Relu's complaint
+corrected, the solvability check requires a spare that suits the PC. Settled vs. still-proposed points
+are recorded in the D152 follow-up. Codex's full code cross-review of PR #58 is still pending.
 Evidence: GitHub Actions, Godot 4.7.2 headless, 24 suites green (Diagnosis 55 checks). No playtest yet.
 Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session, 18 November 2026.
 
