@@ -129,10 +129,14 @@ No graphical playtest yet.
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
 - GitHub Actions on Godot 4.7.2 (headless): 27 suites, 0 failures.
 
+### Documentation
+- `docs/ANTIVIRUS_MINIGAME_DESIGN.md` (proposal, D156): first design ideas for the "Task Manajer Panic"
+  anti-virus mini-game, sent to Codex for review through HANDOFF.md. Nothing built.
+
 ### Known issues and open items
 - Boards cannot yet be bought, swapped for another model or be faulty (needs a design talk).
 - A PC with no graphics card at all at the hardware bench still boots (older gap, noted in 0.48.0).
-- The anti-virus mini-game is under discussion (D155 item 5); nothing built.
+- The anti-virus mini-game: direction chosen (D156, Task Manager panic); design proposal under review; nothing built.
 
 ## 0.48.0 - 2026-11-18 - Generated tickets: morning arrivals, online rating, reputation
 

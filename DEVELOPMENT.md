@@ -97,6 +97,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
 | `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for Codex: design pass on the scam direction and the dust minigame purpose |
+| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | PROPOSAL for review (D156): "Task Manajer Panic", the anti-virus mini-game: scan as scouting, tells, virus types, scanners, power-ups, build steps, open questions; not built |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |

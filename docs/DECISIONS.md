@@ -526,3 +526,11 @@ size reads as the default; with the board out nothing can be fitted (bench and s
 cannot start ("MOTHERBOARD: NOT IN THE CASE"); boards are not yet bench drag pieces, order-panel stock or
 fault carriers (board faults/replacement boards need a design talk). Recorded by Claude (Opus 5.5,
 model id claude-opus-5-5).
+
+### D156 — Anti-virus mini-game direction: option D, Task Manager panic (user, 18 November 2026)
+
+Of four options (zapper arena, current on the board, light-cycle duel, Task Manager panic) the user chose
+**D, Task Manager panic**, "cus it fits the goofy style of the game". Approved: the direction only.
+Claude's first design ideas are in `docs/ANTIVIRUS_MINIGAME_DESIGN.md` (proposal, for Codex's review and
+the user's answers to its open questions); nothing is built. Recorded by Claude (Opus 5.5, model id
+claude-opus-5-5).

@@ -1,5 +1,22 @@
 # Handoff — current state first
 
+## Review request — anti-virus mini-game design (for Codex / ChatGPT), 18 November 2026
+
+The user chose option D, a **Task Manager panic** (D156), for the anti-virus mini-game and asked that
+Claude's first design ideas go to chat for review through this handoff. Read
+`docs/ANTIVIRUS_MINIGAME_DESIGN.md` (proposal, nothing built). In short: the scan becomes the scouting
+step (better products detect and tag more kinds; a weak scan never hides a virus, it only fails to tag
+it); "Remove threat" opens a ~40-second "Task Manajer" round where malware processes with goofy faces
+must be ended by clicking while real system processes must be spared (ending one blue-screens the PC);
+an infection meter fills while malware runs. Enemy ideas: the existing adware and miner strains, plus a
+worm, a disguised trojan, a rootkit, ransomware and a respawner. Scanners are owned products; power-ups
+are consumable charges (Freeze Ray, Highlighter, Rubber Duck, Firewall, Sudo Hammer, Auto-Kill Bot).
+
+Please review against D150 (observation-only evidence, solvable puzzles, difficulty by how evident a tell
+is), D153 (difficulty by night) and D132/`malware.gd`; challenge or add ideas in a comment or a docs PR.
+The eight open questions in its section 9 are the user's to answer. Do not start code: the user wants a
+discussion first. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current — 0.48.1 user requests (Claude), 18 November 2026
 
 The user merged PR #59 (with PR #60 inside); main is 0.48.0 (`6c18522`), archived as `archive/v0.48.0`;
