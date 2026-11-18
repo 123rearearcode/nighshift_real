@@ -76,6 +76,64 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.48.1 - 2026-11-18 - Motherboards, GPU bracket screws, vacuum and paste kept across screens
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.48.0 (main 6c18522, PR #59 merged with PR #60 inside; archived as archive/v0.48.0).
+- Type: patch (user requests and a user-reported layout bug, D155). 0.49.0 stays reserved for 3.6.
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 27
+suites passed, including the new Board and bench state suite (39 checks) and Codex's Part lifecycle
+suite (38). The screw placement was also checked with a render of the game's own layout numbers.
+No graphical playtest yet.
+
+### Added
+- **Motherboards** are part of every PC: four parody models (two per case size). The hardware bench
+  shows the customer's board by name; "Take out the motherboard" works only once every other part is
+  out (otherwise it says what is still fitted). With the board out the case is shown empty, nothing can
+  be fitted, the PC cannot start (the boot check names the missing motherboard) and Findings notes the
+  work. "Fit the motherboard back" restores it. Generated PCs get a board that fits their case.
+- The vacuum's **bin fill and the dust riding in the hose are saved** with the shop: leaving the bench,
+  switching PCs or reloading no longer empties them; emptying the bin is saved too.
+- Closing the game on the repair bench saves like leaving it: an unlocked press is cancelled (no
+  result), the pressed paste is kept.
+
+### Fixed
+- B49: the GPU's two bracket screws were drawn on the row below the card, which is the second PCIe slot.
+  They now sit on the card's rear bracket, outside the board.
+
+### Confirmed unchanged
+- Paste pressed before leaving the repair bench already stayed as pressed (the press itself is
+  cancelled); now covered by a regression test, including after closing the game.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/data/hardware_catalog.gd` | M | Four boards, default per case size, helpers |
+| `scripts/rules/pc_build.gd` | M | `board` in parts, `board_model`, `board_out`, missing/part lines |
+| `scripts/rules/customer_pc.gd` | M | Writing the bench back keeps the board |
+| `scripts/state/game_state.gd` | M | `board_out`, `board_blocker`, take out / fit back, fitting refused without a board, `vacuum_state` saved |
+| `scripts/night/hardware_view.gd` | M | Motherboard button, empty-case drawing, drops refused, bracket plate and screws |
+| `scripts/rules/install_faults.gd` | M | Screws on the GPU's rear bracket (B49) |
+| `scripts/rules/findings.gd`, `scripts/rules/ticket_generator.gd` | M | Board in the configuration and inspection; generated boards |
+| `scripts/bench/vacuum_state.gd` | A | Saved vacuum contents: sanitize, capture, restore |
+| `scripts/view/bench_view.gd`, `scripts/view/bench_cleaning.gd`, `scripts/bench/hose_flow.gd` | M | Restore and save the vacuum |
+| `scripts/night/repair_view.gd` | M | Save on closing the game |
+| `tools/test_board_and_bench_state.gd` | A | 39 checks: board journey on the real bench, screws, vacuum, paste |
+| `.github/workflows/tests.yml` | M | Suite registered |
+| `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/BUGS.md`, `HANDOFF.md` | M | File map and contracts, D155, plan row, B49, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.48.1 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): 27 suites, 0 failures.
+
+### Known issues and open items
+- Boards cannot yet be bought, swapped for another model or be faulty (needs a design talk).
+- A PC with no graphics card at all at the hardware bench still boots (older gap, noted in 0.48.0).
+- The anti-virus mini-game is under discussion (D155 item 5); nothing built.
+
 ## 0.48.0 - 2026-11-18 - Generated tickets: morning arrivals, online rating, reputation
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

@@ -767,3 +767,16 @@ never preload the generator (rating maths live in `shop_rating.gd` for that reas
 `TicketGenerator.check()` before it is offered; the proof reads hidden truth and is never shown.
 
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
+
+
+## Motherboard and saved-tool contracts — 0.48.1
+
+`job.parts.board` is a board id from `HardwareCatalog.BOARDS` or "" (= the case's default board; old
+saves). Read it through `PcBuild.board_model(job)`, never directly. `job.board_out` (bool) is true only
+after `GameState.take_out_board()`, which requires `board_blocker() == ""` (every part out, no shop test
+parts fitted). While it is true, `fit_inventory_part`, `fit_catalog_stock`, `set_service_part_fitted(...,
+true)` and `apply_bench` with anything on a slot all refuse, and `PcBuild.missing()` lists the board
+first. Code that rebuilds a parts dictionary must carry `board` (see `CustomerPC.apply`). Boards are not
+in `HardwareCatalog.PARTS`/`TYPES` on purpose: they are not bench drag pieces or order-panel stock.
+Save gains `vacuum_state` ({bin, hose: [[t, amount]]}, `VacuumState.sanitize`); the bench restores it in
+`_ready` and stores it on every dust save and when the bin is emptied. Recorded by Claude (Opus 5.5).

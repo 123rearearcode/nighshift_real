@@ -506,3 +506,23 @@ The user's answers to the session 3.5 talk-first questions, verbatim in substanc
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026. Approved design.
 
 D154 (Claude, Opus 5.5, model id claude-opus-5-5, 18 November 2026; implementation PROPOSALS of session 3.5 / 0.48.0 under D153, for Codex's cross-review): (1) online rating = stars 1–5 from the latest 10 pickup scores (3.0 before any review); reputation = average trust of customers served (50 before any); every pickup is a review. (2) Arrivals = 1, +1 at ≥3.5★, +1 at ≥4.5★, +1 at reputation ≥60, −1 below 2.5★, at most 3, never more than 4 customer PCs in the shop, an empty shop always gets one walk-in. (3) Each arrival has a 35% chance to be a returning customer (served before, trust ≥40, no PC in the shop), else a new person. (4) Difficulty cap by the night the ticket arrives for: night 1 evident, nights 2–3 one test, night 4+ a known-good swap; extra easier problems from night 3 (up to 1) and night 5 (up to 2). (5) Pool and levels: dust, a GPU or memory taken out by the customer, a power supply too small for a self-fitted bigger card (1); adware, a miner, a customer overclock (2); a faulty GPU, a faulty cooler, a dead second card (3); exclusive groups stop two start-blocking or two GPU problems sharing a PC. (6) A case is offered only when diagnosis.gd finds an evidence path for every problem with owned or affordable parts (and the test game, which can be bought), its difficulty fits the night, and the PC repaired like for like (plus an affordable power supply when needed) can satisfy the customer's real needs (pickup score ≥70); otherwise redrawn, up to 12 times, then a plain dusty PC. (7) A gamer's frame-rate target is the highest of 30/45/60/90/120/144 under 95% of the repaired PC's rate; a clueless customer states 120 fps in Counter Stroke 2 but really only needs a working (sometimes quiet) PC. (8) Pay = $30 + $15 × problem level; budget = pay + $60. (9) Generation is seeded by a per-save world seed, the night and the arrival slot: the same save gets the same mornings. (10) Generated customers are stored in the save (`people`) with their PC and needs. All numbers are proposals; solvability remains an internal proof, never shown.
+
+### D155 — Persistence, motherboards and the anti-virus direction (user, 18 November 2026)
+
+The user's answers to PR #19's open questions and new requests:
+1. **Paste survives leaving the screen mid-press: yes.** The unlocked press is cancelled (no grade), the
+   paste stays exactly as pressed and is saved with the PC; closing the game on the bench counts too.
+2. **The vacuum's bin and hose stay full across screens and reloads: yes.** Saved with the shop (the
+   vacuum is a shop tool), so reopening the bench is no free emptying.
+3. **Motherboards:** you must remove all parts before the motherboard can come out; motherboards are
+   part of a PC's parts.
+4. Bug report: the GPU screws on the hardware bench were in the wrong place (B49).
+5. **Anti-virus becomes a fast, "electrifying" mini-game, the most dynamic in the game** (discussion
+   first, not built): several anti-virus scans; "Remove threat" starts a mini-game where the virus is
+   the enemy; several virus kinds; buyable anti-virus tools act as power-ups. Form still to choose.
+Approved design for 1–4. Implementation proposals (Claude, 0.48.1, for Codex's cross-review): four
+parody boards (two per case size; "" = the case's default board for old saves); a board of the wrong
+size reads as the default; with the board out nothing can be fitted (bench and state refuse) and the PC
+cannot start ("MOTHERBOARD: NOT IN THE CASE"); boards are not yet bench drag pieces, order-panel stock or
+fault carriers (board faults/replacement boards need a design talk). Recorded by Claude (Opus 5.5,
+model id claude-opus-5-5).

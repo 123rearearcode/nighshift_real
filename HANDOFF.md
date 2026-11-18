@@ -1,6 +1,21 @@
 # Handoff — current state first
 
-## Current — 0.48.0 integration: PR #60 (0.47.1) reconciled into PR #59, 18 November 2026
+## Current — 0.48.1 user requests (Claude), 18 November 2026
+
+The user merged PR #59 (with PR #60 inside); main is 0.48.0 (`6c18522`), archived as `archive/v0.48.0`;
+GitHub shows #60 as merged too. Branch `feat/board-persistence-0481` carries 0.48.1 (D155): motherboards
+as PC parts (out only once every other part is out; nothing fits while it is out), GPU bracket screws on
+the rear bracket (B49), the vacuum's bin and hose saved with the shop, and a save when the game closes
+on the repair bench (paste mid-press already survived leaving; now tested). Codex's Part lifecycle suite
+ran unchanged and green; the new board journey lives in `tools/test_board_and_bench_state.gd`.
+
+PR #19 (Codex's 13 November part-model proposal) was compared with the current code and reported to
+the user: its direction continues in PART_LIFECYCLE.md; the user answered its open questions (D155 1–3).
+Closing it is the user's call. The anti-virus mini-game (D155 item 5) is in discussion, nothing built.
+Next in the plan after that: 3.6 testing bay (talk first). Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.48.0 integration: PR #60 (0.47.1) reconciled into PR #59, 18 November 2026
 
 The user asked Claude to reconcile the two open PRs per Codex's instructions and push the result.
 Branch `feat/generated-tickets-0480` (PR #59) now contains PR #60's commit 656221d through a normal
