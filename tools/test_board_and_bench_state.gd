@@ -66,6 +66,7 @@ func run_checks() -> void:
     view._board_pressed()
     check(PcBuild.board_out(gs.job) and view.board_button.text.contains("Fit the motherboard back") and str(view.status_label.text).contains(board_name), "the motherboard comes out and the bench says so")
     check(Findings_last(gs.job).contains("Taken out: Motherboard"), "taking it out is work history in Findings")
+    gs.set_pc_powered(true)
     check(str(PcBuild.missing(gs.job)[0]).begins_with("MOTHERBOARD") and str(Checks.boot(gs.job)["message"]).contains("MOTHERBOARD"), "a PC without its motherboard cannot start, and the boot check names it")
     var stock_i: int = -1
     for i in range(view.inventory.items.size()):
@@ -75,6 +76,7 @@ func run_checks() -> void:
     var preview: Dictionary = view._candidate(target)
     check(not bool(preview.get("ok", true)) and str(preview.get("message", "")).contains("motherboard is out"), "nothing can be dropped into the case while the motherboard is out")
     view.inventory.cancel()
+    gs.set_pc_powered(false)
     check(not gs.set_service_part_fitted(Ids.GPU, true) and not gs.fit_catalog_stock("stock_ram_demo", "ram_1"), "state refuses fitting without the motherboard too")
     gs.save_game()
     check(gs.load_game() and PcBuild.board_out(gs.job), "the motherboard stays out through save and load")
