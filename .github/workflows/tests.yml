@@ -96,7 +96,8 @@ jobs:
           test_morning|Morning report
           test_real_hardware|Real hardware
           test_hardware_parts|Hardware parts
-          test_diagnosis|Diagnosis"
+          test_diagnosis|Diagnosis
+          test_generated_tickets|Generated tickets"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

@@ -6,6 +6,8 @@ const Customers = preload("res://scripts/data/customers.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
+const Generator = preload("res://scripts/rules/ticket_generator.gd")
+const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -85,7 +87,7 @@ func ensure(gs: Node) -> bool:
     var ids: Dictionary = {}
     var pcs: Dictionary = {}
     for entry: Variant in raw["tickets"]:
-        if not _valid(entry) or ids.has(str(entry["id"])):
+        if not _valid(entry,gs) or ids.has(str(entry["id"])):
             return _protect(gs,"Ticket manifest contains an invalid job. Active PC recovered; switching is disabled.")
         var tag: Dictionary = entry["hardware_trial"]["night_session"]
         var pc_id: String = str(tag.get("pc",""))
@@ -98,12 +100,12 @@ func ensure(gs: Node) -> bool:
     capture(gs) # main save is authoritative for the active PC, including crash-time progress
     return true
 
-func _valid(entry: Variant) -> bool:
+func _valid(entry: Variant,gs: Node) -> bool:
     if not entry is Dictionary: return false
     for key: String in ["id","customer_id","customer","complaint","layout","state","paste_grade","paste_material"]:
         if not entry.get(key,null) is String: return false
     if not entry["layout"] in ["tower","compact"] or not entry["state"] in ["open","done"]: return false
-    if Customers.customer(entry["customer_id"]).is_empty(): return false
+    if gs.person(str(entry["customer_id"])).is_empty(): return false   # 0.48.0: story or generated customer
     for key: String in ["dust","dust_state","hardware_trial","service_table_positions","service_replacements","service_replacement_ids","pc_specs"]:
         if not entry.get(key,null) is Dictionary: return false
     for key: String in ["removed_parts","broken_parts","removed_component_records","scams"]:
@@ -227,12 +229,40 @@ func ticket_action(gs: Node,id: String,action: String) -> Dictionary:
 func _open_tickets() -> Array:
     return tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" and str(entry["hardware_trial"]["night_session"].get("pc","")) != "")
 
-# Per-customer flavour of a new demo ticket until the generator exists (session 3.5).
-func _flavour(job: Dictionary) -> void:
-    if job["customer_id"] == "t002_relu":
-        job["layout"] = "compact"
-        job["broken_parts"] = ["gpu"]
-    if int(str(job["id"]).trim_prefix("T")) % 2 == 0: Malware.infect(job, Malware.ADWARE)
+# 0.48.0 (session 3.5, D153): this morning's new customers. How many come follows the online rating
+# and the reputation; each is a returning customer (who still trusts the shop) or a new person, and
+# brings a generated case the shop can solve and can end well. Deterministic per save, night and slot.
+func _arrivals(gs: Node,night: int) -> Dictionary:
+    var present: Array = _open_tickets().map(func(entry: Dictionary) -> String: return str(entry["customer_id"]))
+    var stars: float = gs.shop_rating()
+    var rep: int = gs.shop_reputation()
+    var count: int = ShopRating.arrivals(stars,rep,_open_tickets().size())
+    var caps: Dictionary = gs.diagnosis_capabilities()
+    var cards: Array = []
+    for slot in range(count):
+        var r: RandomNumberGenerator = Generator.rng_for(int(gs.world_seed),night,slot)
+        var who: Dictionary = {}
+        var pc: Dictionary = {}
+        var returning: bool = false
+        if r.randf() < Generator.RETURN_CHANCE:
+            var known: Array = []
+            for id: String in gs.known_customers():
+                if not id in present and gs.customer_state.has(id) and int(gs.customer_view(id).get("trust",0)) >= Generator.RETURN_MIN_TRUST: known.append(id)
+            if not known.is_empty():
+                who = gs.customer_view(str(known[r.randi_range(0,known.size()-1)]))
+                pc = who.get("pc",{})
+                returning = true
+        if who.is_empty(): who = Generator.new_person(r,gs.next_person_id())
+        var drawn: Dictionary = Generator.draw_case(gs.make_ticket_job(""),who,pc,caps,night,r)
+        if not bool(drawn["person"].get("scripted",false)): gs.remember_person(drawn["person"])
+        var fresh: Dictionary = drawn["job"]
+        _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))
+        tickets.append(fresh)
+        present.append(str(fresh["customer_id"]))
+        cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":str(fresh["customer_id"]),
+            "returning":returning,"reaction":("Back again. " if returning else "New customer. ")+"New ticket: %s"%str(fresh["complaint"]),"job":fresh.duplicate(true)})
+    gs.save_game()
+    return {"cards":cards,"summary":ShopRating.summary(stars,gs.reviews.size(),rep,count),"rating":stars,"reputation":rep,"count":count}
 
 # Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
 # night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
@@ -257,17 +287,9 @@ func end_night(gs: Node) -> Dictionary:
         cards.append({"kind":"waiting","ticket":str(entry["id"]),"customer":str(entry["customer"]),"customer_id":str(entry["customer_id"]),
             "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"],
             "job":entry.duplicate(true)})
-    # Every customer whose PC left brings a new one, if they have no other PC here (two customers exist today).
-    var present: Array = _open_tickets().map(func(entry: Dictionary) -> String: return str(entry["customer_id"]))
-    for cid: String in Customers.IDS:
-        if cid in present: continue
-        var fresh: Dictionary = gs.make_ticket_job(cid)
-        _flavour(fresh)
-        _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))
-        tickets.append(fresh)
-        cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":cid,
-            "reaction":"New ticket: %s"%str(fresh["complaint"]),"job":fresh.duplicate(true)})
-        present.append(cid)
+    # 0.48.0: new tickets come in with the morning, as many as the rating and reputation bring.
+    var arrivals: Dictionary = _arrivals(gs,night+1)
+    cards.append_array(arrivals["cards"])
     # The active PC must be one still in the shop.
     if gs.job.get("state","open") == "done":
         var next_id: String = str(_open_tickets()[0]["id"])
@@ -277,5 +299,6 @@ func end_night(gs: Node) -> Dictionary:
     if not checkpoint(gs): return {"ok":false,"message":status}
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
-    last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money)}
+    last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money),"arrivals":arrivals["summary"],
+        "rating":arrivals["rating"],"reputation":arrivals["reputation"]}
     return last_report
