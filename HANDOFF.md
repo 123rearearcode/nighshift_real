@@ -1,5 +1,40 @@
 # Handoff — current state first
 
+## Current PR #57 follow-up — 0.46.3, 18 November 2026
+
+The user explicitly assigned Codex to fix all findings from the PR #57 review and push the result.
+This overrides the earlier design-only Codex boundary **for this bounded compatibility repair**.
+Main is 0.46.1 (`39b1884`, PR #56 merged). PR #57 is the unmerged compatibility patch; this follow-up
+starts from its reviewed head `07d7cb9` (0.46.2). Do not describe PR #56 as still open or diagnosis as
+shipped. Claude reported no unpublished work in PR #57; independently verify any newer work.
+
+Implemented by this follow-up:
+- At collection, materialize all shop-fitted parts into the actual PC record before releasing custody,
+  consuming stock once. The morning card, save/reload and repeat settlement keep the same build.
+- Removing a damaged shop GPU/cooler preserves it as known broken stock and restores the original's
+  own health flags. Save/load retains that damaged stock and its visible damage annotation.
+- Measurement signatures include catalogue hardware, fitted test parts/identity and dead-slot state.
+  Prior measurements remain historical and become outdated when the relevant hardware changes.
+- Starter RAM/CPU resolve to existing catalogue models while retaining their original owned uid.
+  The physical cooler-before-CPU rule applies to shop CPUs too. A compatible save flag marks the
+  one-time starter CPU migration so collection cannot create a free replacement on reload.
+
+No Findings notebook, manual UI/content, standalone stress app, new cases or generator was added.
+Known limitations from Claude's PR remain: identical customer-part identity is still slot-derived,
+and an orphan fitted_in mark has no recovery UI. These were not the four requested review fixes.
+
+**Claude resume:** review the 0.46.3 changes/tests in PR #57 before resuming 3.4; do not reapply the
+0.46.2 versions of settlement, return_replacement, stock fitting or measurement signatures. Preserve
+the real build at collection, component-specific damage and the one-time migration flag. After
+cross-review and user-controlled integration, resume the existing split: Codex diagnosis/manual
+content and cross-review; Claude diagnosis/manual runtime integration and tests. Check live ownership
+before editing shared files. This task pushes fixes but does not authorize a merge.
+
+Checks/evidence: see CHANGELOG 0.46.3; target Godot 4.7.2, with reproductions that failed on the reviewed
+PR before the fixes. No manual graphical playtest is claimed.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest.
+
 ## Read before resuming — diagnosis design and work split, 18 November 2026
 
 **User-approved design update, not an implemented diagnosis release.** The latest user instructions
@@ -8,10 +43,10 @@ follow-up questions for now, and require an explicit Codex/Claude work split. An
 conflicts with these decisions must receive a separate compatibility patch FIRST, before Claude
 continues new diagnosis features. This section supersedes the earlier discussion-only handoff.
 
-Verified baseline: main 0.46.0, commit `b6004d2d04bb3c97cb7d40ffa93a556760257b08`; 3.3b merged in
-PR #55. Session 3.4 is next in the published plan. No open diagnosis PR was visible at verification;
-Claude's unpublished progress is unknown. Do not assume the plan proves his current live branch state.
-This documentation update is on PR #56, unmerged. No runtime code is changed by it.
+Original design baseline was main 0.46.0 (3.3b merged in PR #55). Update: PR #56 is merged as
+0.46.1 and PR #57 contains the runtime compatibility work described above. Session 3.4 remains next.
+The following sections describe the approved design and standing split; the top-level current user
+assignment takes precedence over their older design-only/no-runtime notes.
 
 ### Read and apply
 

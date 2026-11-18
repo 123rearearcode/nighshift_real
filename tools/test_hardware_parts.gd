@@ -159,6 +159,101 @@ func run_checks() -> void:
     gs.buy_catalog_part("gpu_rx6060")
     gs.fit_inventory_part(Ids.GPU, stock_uid(gs, "gpu_rx6060"))
     check(gs.settle_custody().is_empty() and stock_uid(gs, "gpu_gtx1660") == "", "replacing a card that did not work: nothing comes back to you")
+    await review_regressions(gs, night)
     _remove_save_files(manifest)
     restore_save(gs)
     finish("Hardware parts")
+
+
+# PR 57 cross-review: exercise the handover and reversal, not only the initial fit.
+func review_regressions(gs: Node, night: Node) -> void:
+    gs.new_game(false)
+    gs.money = 10000
+    gs.job["parts"]["cpu"] = ""
+    gs.job["parts"]["ram"] = []
+    gs.job["parts"]["storage"] = []
+    gs.job["parts"]["psu"] = ""
+    var transferred: Array = []
+    for pair: Array in [["cpu_rysen5_3060", "cpu"], ["ram_16gb", "ram_1"], ["sto_nvme_1tb", "m2_1"], ["psu_focus750", "psu_bay"], ["gpu_rx6060", "pcie_2"]]:
+        gs.buy_catalog_part(pair[0])
+        var part_uid: String = stock_uid(gs, pair[0])
+        transferred.append(part_uid)
+        check(gs.fit_catalog_stock(part_uid, pair[1]), "handover fixture fits " + pair[0])
+    var before: Dictionary = PcBuild.effective(gs.job)
+    var card: Dictionary = gs.collect_active()
+    check(PcBuild.effective(gs.job) == before and PcBuild.effective(card["job"]) == before,
+        "collection preserves the complete fitted build in both the job and morning card")
+    check(PcBuild.missing(gs.job).is_empty() and transferred.all(func(key: String) -> bool: return gs._record(key).is_empty()),
+        "handover transfers all fitted parts exactly once, without emptying required slots")
+    gs.save_game()
+    check(gs.load_game() and PcBuild.effective(gs.job) == before and gs.settle_custody().is_empty() and PcBuild.effective(gs.job) == before,
+        "the transferred build survives reload and repeated settlement without duplicate parts")
+
+    for kind: String in [Ids.GPU, Ids.COOLER]:
+        gs.new_game(false)
+        var test_uid: String = "trial_gpu" if kind == Ids.GPU else "stock_cooler_similar"
+        gs.set_service_part_fitted(kind, false)
+        check(gs.fit_inventory_part(kind, test_uid) and gs.damage_service_part(kind), "damage fixture: fitted shop " + kind + " snaps")
+        check(gs.set_service_part_fitted(kind, false) and not kind in gs.job["broken_parts"] and not kind in gs.job["damaged_parts"],
+            "removing damaged test " + kind + " restores the healthy customer's original state")
+        check(gs._record(test_uid).get("condition", "") == "broken" and not gs.stock_available(test_uid),
+            "the damaged shop " + kind + " returns as known broken stock, not a repaired spare")
+        gs.save_game()
+        check(gs.load_game() and gs._record(test_uid).get("condition", "") == "broken",
+            "damaged shop " + kind + " is retained after save/load")
+        check(gs.set_service_part_fitted(kind, true) and not kind in gs.job["broken_parts"], "the undamaged original " + kind + " can be restored")
+
+    gs.new_game(false)
+    gs.money = 1000
+    var measured: String = WorkReport.signature(gs.job)
+    gs.job["tests"] = {"games": {"counter_stroke_2": {"fps": 100, "temp": 60.0, "sig": measured}}, "hardware": {"ok": true, "sig": measured}}
+    gs.buy_catalog_part("ram_16gb")
+    gs.fit_catalog_stock(stock_uid(gs, "ram_16gb"), "ram_2")
+    check(WorkReport.signature(gs.job) != measured and "\n".join(WorkReport.match_lines(gs.job, {"games": [{"game_id": "counter_stroke_2", "min_fps": 60}]}, 75)).contains("changed since"),
+        "fitting test RAM invalidates prior hardware/FPS measurements")
+    for field: String in ["cpu", "ram", "storage", "psu", "gpus"]:
+        var changed: Dictionary = gs.job.duplicate(true)
+        changed["parts"][field] = {"cpu": "cpu_rysen5_3060", "ram": ["ram_16gb"], "storage": ["sto_nvme_1tb"], "psu": "psu_focus750", "gpus": ["gpu_rx6060"]}[field]
+        check(WorkReport.signature(changed) != WorkReport.signature(gs.job), field + " changes invalidate measurements")
+    var dead_changed: Dictionary = gs.job.duplicate(true)
+    dead_changed["dead_slots"] = ["pcie_2"]
+    check(WorkReport.signature(dead_changed) != WorkReport.signature(gs.job), "changed second-card state invalidates measurements")
+
+    # Exercise starter parts through the same bench drag/drop route as bought parts.
+    gs.new_game(false)
+    night.start(gs)
+    var view: Node = load("res://scenes/night_hardware.tscn").instantiate()
+    root.add_child(view)
+    await process_frame
+    var spare_cpu_i: int = item_index(view, "stock_cpu_demo")
+    view._try_pick_up(view._item_rect(spare_cpu_i).get_center())
+    check(view.inventory.held == spare_cpu_i, "a cooler on the board does not stop picking up a spare CPU in the drawer")
+    view.inventory.cancel()
+    var ram_i: int = item_index(view, "trial_ram_a")
+    view.inventory.begin(ram_i)
+    check(view._candidate(view._cell_to_pos(connector(view, "ram_2")["origin"]) + Vector2(2, 2)).get("ok", false), "starter RAM has no record-format fitting restriction")
+    view.inventory.install(connector(view, "ram_2")["origin"])
+    view._save_inventory()
+    check(gs.job["shop_fitted"].has("ram_2") and PcBuild.effective(gs.job)["ram_gb"] == 16,
+        "dragging starter RAM fits the actual owned record and contributes its capacity")
+    gs.set_service_part_fitted(Ids.COOLER, false)
+    view._configure_layout()
+    var cpu_i: int = item_index(view, CustomerPC.uid(gs.job, "cpu"))
+    view.inventory.begin(cpu_i)
+    view.inventory.store(view.inventory.first_space(cpu_i))
+    view._save_inventory()
+    cpu_i = item_index(view, "stock_cpu_demo")
+    view.inventory.begin(cpu_i)
+    view.inventory.install(connector(view, "cpu")["origin"])
+    view._save_inventory()
+    check(gs.job["shop_fitted"].has("cpu") and PcBuild.missing(gs.job).is_empty(), "starter CPU fits as an owned test part")
+    gs.set_service_part_fitted(Ids.COOLER, true)
+    view._configure_layout()
+    cpu_i = item_index(view, "stock_cpu_demo")
+    view._try_pick_up(view._item_rect(cpu_i).get_center())
+    check(view.inventory.held == -1 and str(view.status_label.text).contains("cooler"), "the cooler also blocks removal of a shop-owned test CPU")
+    view.queue_free()
+    await process_frame
+    gs.settle_custody()
+    gs.save_game()
+    check(gs.load_game() and gs._record("stock_cpu_demo").is_empty(), "a handed-over starter CPU is not recreated by legacy migration")

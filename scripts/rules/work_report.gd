@@ -42,6 +42,17 @@ static func signature(job: Dictionary) -> String:
     parts.sort()
     for part: Variant in parts:
         text += "%s:%s;" % [str(part), str(replaced[part])]
+    # Catalogue and temporary fitted hardware affect every live result too. Keep slot/part identity
+    # in the fingerprint, so swapping test parts cannot leave an old result certified as current.
+    text += "|build:" + JSON.stringify(PcBuild.sanitize(job.get("parts", {})))
+    var shop: Dictionary = job.get("shop_fitted", {})
+    var slots: Array = shop.keys()
+    slots.sort()
+    for slot: Variant in slots:
+        text += "|test:%s:%s:%s" % [str(slot), str(shop[slot].get("uid", "")), str(shop[slot].get("model", ""))]
+    var dead: Array = (job.get("dead_slots", []) as Array).duplicate()
+    dead.sort()
+    text += "|dead:" + ",".join(dead)
     var oc: Dictionary = Overclock.settings(job)
     text += "|%s|%s|%s|%s|%s|%d|%d|%s" % [str(job.get("paste_grade", "")), str(bool(job.get("paste_done", false))), str(job.get("paste_material", "")), ",".join(removed), ",".join(broken), int(oc["mult"]), int(oc["volt"]), Malware.strain(job)]
     return str(text.hash())

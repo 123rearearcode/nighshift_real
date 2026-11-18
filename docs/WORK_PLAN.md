@@ -27,6 +27,11 @@ Codex's design; investigating unclear bugs with the scripted playtest.
 
 ## Diagnosis work split — 18 November 2026 (D150)
 
+Current bounded exception: after reviewing PR #57, the user assigned Codex to fix its four findings
+and push all changes. Codex owns the affected runtime/test files for that 0.46.3 follow-up on the
+existing PR. Claude resumes the standing split below after reviewing/integrating this patch under
+the existing user-controlled merge process; do not race edits to those shared files. See HANDOFF.md.
+
 The user requested separate Codex/Claude assignments while pushing the approved diagnosis design.
 This scope refines the general division above for session 3.4; it does not claim either agent's
 unpublished code is complete. Main was verified at 0.46.0; actual branch/file ownership is checked

@@ -183,8 +183,8 @@ func _candidate(mouse: Vector2) -> Dictionary:
         if slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]]:
             if not kind in Ids.SERVICE_PARTS: why = "That part does not go here."
             elif not kind in job["removed_parts"]: why = "Take the customer's %s out first." % kind.to_upper()
-        elif str(record.get("tier", "")) != "model":
-            why = "This old trial stock only goes in the first GPU slot or on the cooler mount."
+        elif PcBuild.stock_model(record) == "":
+            why = "That stock record has no matching hardware model."
     if why != "":
         result["ok"] = false
         result["message"] = why
@@ -203,7 +203,8 @@ func _try_pick_up(mouse: Vector2) -> void:
         if _item_rect(i).has_point(mouse):
             var key: String = str(inventory.items[i]["part"]["id"])
             # Like a real PC: the cooler sits on the CPU, so it comes off first.
-            if CustomerPC.is_customer(key) and CustomerPC.part_of(key) == "cpu" and not Ids.COOLER in GameState.job["removed_parts"]:
+            var is_cpu: bool = CustomerPC.part_of(key) == "cpu" if CustomerPC.is_customer(key) else str(_stock_record(key).get("kind", "")) == "cpu"
+            if is_cpu and str(inventory.items[i]["location"]) == CustomerPC.CPU_SLOT and not Ids.COOLER in GameState.job["removed_parts"]:
                 _set_status("The cooler sits on the CPU: take the cooler off first.", true)
                 return
             break

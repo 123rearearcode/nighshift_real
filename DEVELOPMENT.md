@@ -20,6 +20,8 @@ Format: `MAJOR.MINOR.PATCH`, for example `0.5.1`.
 - **Source of truth:** `config/version` in `project.godot`. The shop screen shows it. The newest
   `CHANGELOG.md` entry, the first line of `README.md` and the ZIP file name must agree with it.
   `tools/check_project.py` verifies the first three.
+
+
 - **MAJOR** stays `0` while this is a trial. `1.0.0` is reserved for when the user declares a real
   production build.
 - **MINOR** goes up for a new player-visible feature, a new screen or system, or a change to a data,
@@ -703,3 +705,18 @@ Unknown/corrupt/missing files fall back; newer numeric versions cannot be overwr
 real night scene records its UI path; returning to Title retains the last activity. No per-frame
 preference writes. Existing game save/manifest remain authoritative. A failed UI preference write
 warns in Pause that Continue may fall back. A failed actual layout/game checkpoint blocks exit.
+
+
+## Compatibility contracts — 0.46.3
+
+Compatibility update 0.46.3 (PR #57): settlement materializes temporary fitted hardware into job.parts
+before consuming stock and clearing custody. return_replacement restores the original's own flags
+and retains damage on the shop record; condition="broken" stock survives load and is shown as known
+damage, not a hidden fault revealed for free. PcBuild.stock_model maps legacy starter records to
+existing models without changing uid. WorkReport.signature includes parts, shop_fitted and dead_slots.
+The optional root save flag starter_cpu_seeded marks completed one-time CPU migration; old saves
+without it retain the historical migration, while new saves never respawn a collected starter CPU.
+SAVE_FORMAT remains 1 (additive optional flag, not an incompatible schema change). No new runtime files.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest.

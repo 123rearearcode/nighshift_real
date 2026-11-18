@@ -76,6 +76,65 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.46.3 - 2026-11-18 - PR 57 review fixes: preserve the PC, component damage and test validity
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No deployment id is invented; this limitation remains explicit against D51.
+- Based on: reviewed PR #57 head 07d7cb978befcf937cdd13b6e44a4bf4733e4266 (0.46.2), based on main 0.46.1.
+- Type: patch (user-authorized corrections to the compatibility patch; no new diagnosis/manual feature).
+
+### Execution status
+Godot 4.7.2 was run locally by Codex, headless. The expanded hardware suite reproduced 23 failing
+assertions against the original reviewed code, then passed all 67 checks after the fixes and the additional spare-CPU pickup guard. All 23 required
+suites passed (1,708 checks total, including the final hardware-suite rerun). No manual graphical playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Collection writes fitted shop hardware into the permanent PC record before clearing custody;
+  effective build, morning card, reload and repeated settlement preserve the actual machine.
+- A damaged shop GPU/cooler stays damaged when removed. Clear the test-part flags before restoring
+  the customer's own state. Retain the damaged shop record across save/load and show known damage.
+- Fingerprint catalogue parts, temporary fitted-part identity and dead slots so changed hardware
+  invalidates prior hardware, FPS and temperature measurements.
+- Resolve existing starter RAM/CPU (and trial GPU/cooler) to catalogue models without replacing their
+  owned uid. Bench acceptance no longer depends on the stock record being catalogue-format.
+- Enforce cooler-before-CPU removal for shop test CPUs too. Persist a compatible one-time starter CPU
+  migration marker so handing it over cannot manufacture a free replacement on the next load.
+- Update handoff/work ownership for the user's bounded request that Codex fix PR #57; Claude resumes
+  the standing runtime assignment after reviewing/integrating this follow-up. No merge authorized here.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/game_state.gd` | M | Permanent handover, component damage restoration, damaged stock load, starter migration, legacy fitting |
+| `scripts/rules/pc_build.gd` | M | Resolve existing starter stock to its model |
+| `scripts/rules/work_report.gd` | M | Hardware-aware result signature |
+| `scripts/night/hardware_view.gd` | M | Format-independent fitting and shop CPU removal guard |
+| `tools/test_hardware_parts.gd` | M | Handover/reload/repeat, damaged swaps, stale results and real bench starter-part regressions |
+| `HANDOFF.md`, `docs/WORK_PLAN.md` | M | Current status and bounded Codex/Claude handback |
+| `DEVELOPMENT.md`, `docs/BUGS.md`, `docs/DECISIONS.md` | M | Additive save contract, B42–B47 and superseded trial-stock restriction |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version, release notes and validation |
+
+### Checks performed
+- Target import in Godot 4.7.2: passed.
+- Hardware parts: 67 checks, 0 failures (23 new regression assertions failed before the runtime fixes).
+- `python3 tools/test_ci_scope.py`: 9 tests passed.
+- All 23 required Godot suites passed: 1,708 checks, 0 failures (the final hardware-suite rerun
+  raised its count from 66 to 67; the other 22 suites were unchanged).
+- Scripted bench smoke diagnostics: Playtest finished, no script/parse errors.
+- `python3 -I tools/check_project.py`: passed, 0 problems. `git diff --check`: passed.
+
+### Decisions proposed (not approved)
+No new design. Existing trial prices/timings and D151's other proposed behaviour remain provisional.
+
+### Known issues and open items
+Identical customer-part identity is still slot-derived and orphan custody has no recovery UI, as
+already documented by Claude. No new diagnosis notebook/manual/cases, no manual visual acceptance.
+An old save lacking starter_cpu_seeded gets the existing one-time CPU migration; new saves persist it.
+
+### Next action
+Push to PR #57 for review; user controls merge. Claude then resumes 3.4 from the reconciled baseline,
+preserving these invariants. Codex retains manual/design content and cross-review responsibilities.
+
 ## 0.46.2 - 2026-11-18 - Diagnosis compatibility patch: no hidden-health leaks, test-part custody (D150)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
@@ -84,6 +143,11 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ### Execution status
 Godot was NOT run by me. GitHub Actions run 44200267247: all required suites green and the full scripted bench diagnostics. The first run (44199925403) failed four checks: three tests still asserting the D149 behaviour, and one real bug (B41, Rearrange drawer pulled a fitted test part out). No interactive playtest is claimed. Codex cross-review requested; the user controls the merge.
+
+Correction — 18 November 2026, Codex (GPT-6; deployment id unavailable): cross-review found that
+hardware/test-part changes were NOT included in the measurement signature; the "No conflict found"
+audit statement below was incorrect. Collection and damage-return bugs were also found. See 0.46.3
+for the reproductions/fixes; the remainder below is the historical 0.46.2 report.
 
 ### Audit (HANDOFF resume order step 2) and what changed
 Hidden-health leaks found in merged code (mostly Claude's own 0.38–0.46 work), all removed:

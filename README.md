@@ -1,4 +1,9 @@
-# Nightshift - Godot Foundation Trial (v0.46.2)
+# Nightshift - Godot Foundation Trial (v0.46.3)
+
+0.46.3 fixes the PR #57 cross-review findings: collection keeps the actual fitted build; damage to a
+shop test part stays with it rather than the customer's original; hardware changes invalidate old
+measurements; starter RAM/CPU work as test parts. A handed-over starter CPU is not recreated on load.
+The compatibility PR remains separate from the later diagnosis/manual feature work.
 
 0.46.2 is a compatibility patch (D150): no screen reveals a part's hidden health any more, and parts
 you fit stay yours until the customer collects. 0.46.1 was a documentation-only handoff correction.

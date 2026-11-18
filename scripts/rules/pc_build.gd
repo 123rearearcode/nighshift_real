@@ -25,6 +25,20 @@ const STORAGE_SLOTS: Array = ["m2_1", "m2_2"]
 const SERVICE_MODELS: Dictionary = {"gpu": {"similar": "gpu_gtx1660", "budget": "gpu_gtx1550ti"}, "cooler": {"similar": "cool_stock_box", "budget": "cool_wraith_stelth"}}
 
 
+# Existing starter records predate catalogue ids. Resolve their real model without changing custody
+# or replacing their uid: legacy RAM and CPU are still usable physical test parts.
+static func stock_model(record: Dictionary) -> String:
+    var kind: String = str(record.get("kind", ""))
+    var tier: String = str(record.get("tier", ""))
+    if tier == "model":
+        var model: String = str(record.get("model", ""))
+        return model if Catalog.is_type(model, kind) else ""
+    if tier == "similar":
+        if kind == Catalog.RAM: return "ram_8gb"
+        if kind == Catalog.CPU: return "cpu_i5_6060"
+    return str(SERVICE_MODELS.get(kind, {}).get(tier, ""))
+
+
 # 0.46.0 (D149): "" is an EMPTY slot (the part is out on the hardware bench). A missing key or an unknown
 # id falls back to the demo part. Lists may be empty, except the first GPU, which always names the
 # card whose service state the repair bench tracks.

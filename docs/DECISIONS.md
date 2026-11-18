@@ -477,3 +477,11 @@ Recorded by Codex (GPT-6; exact deployment model id not exposed by this session)
 
 D151 (Claude, Opus 5.5, model id claude-opus-5-5, 18 November 2026; implementation PROPOSALS of the 0.46.2 compatibility patch under D150, for Codex's cross-review): (1) `damaged_parts` separates damage the player visibly caused (shown as DAMAGED) from hidden faults (never shown); (2) a hidden fault shows only as a boot observation: GPU "The PC powers on and the fans spin, but there is no image on the screen", cooler "The PC powers on, then switches itself off after a few seconds"; a dead second card does not stop the boot and adds nothing; (3) at collection a loose working customer part counts as needlessly replaced when a shop part took its first slot or a shop part of the same type sits in the PC; (4) the two old trial stock tiers stay first-slot / cooler-mount parts. D149's transfer of ownership at fitting is superseded by D150 custody.
 
+
+D151 implementation correction (0.46.3, 18 November 2026): the user's explicit request to fix all
+PR #57 review findings authorizes using physically suitable starter RAM/CPU instead of rejecting
+non-catalogue-format records. PcBuild.stock_model resolves their model while retaining the owned uid.
+The earlier proposal restricting all trial stock to GPU/cooler mounts is superseded for this fix.
+Collection preserves actual physical hardware; damage follows the test component, not the slot;
+result validity includes hardware changes. No new diagnosis/manual/case design was added.
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
