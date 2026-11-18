@@ -17,6 +17,8 @@ const ORDER_RECT := Rect2(60, 150, 650, 440)
 var screwdriver_held: bool = false
 var order_panel: Panel
 var order_buttons: Dictionary = {}   # catalogue id -> Buy button (D149)
+var board_button: Button              # 0.48.1: take the motherboard out / fit it back
+const BOARD_BUTTON := Rect2(60, 112, 320, 34)
 
 func _ready() -> void:
     super._ready()
@@ -24,6 +26,7 @@ func _ready() -> void:
         if node is Label and node.position.y < 32: node.hide()
     Navigation.workbench(self,"hardware",_activities)
     _build_order_panel()
+    _build_board_button()
     # D150 (0.47.0): looking over the PC at the hardware bench is an inspection; Findings keeps it.
     GameState.record_finding(Findings.OBSERVATION, Findings.hardware_bench_observation(GameState.job), "hardware_bench")
 
@@ -71,7 +74,7 @@ func _saved_layout() -> Dictionary:
     return layout
 
 func _title_text() -> String:
-    return "NIGHTSHIFT / HARDWARE BENCH - ticket %s: %s's own PC, as it stands on the repair bench\nEvery part can come out: drag it to the drawer and back. Fit parts from your stock into empty slots (Order parts to buy). The GPU's bracket screws need the screwdriver (tray under the case)." % [str(GameState.job.get("id", "")), str(GameState.job.get("customer", ""))]
+    return "NIGHTSHIFT / HARDWARE BENCH - ticket %s: %s's own PC, as it stands on the repair bench\nEvery part can come out: drag it to the drawer and back. Fit parts from your stock into empty slots (Order parts to buy). The GPU's bracket screws need the screwdriver (tray under the case). The motherboard comes out only once every other part is out." % [str(GameState.job.get("id", "")), str(GameState.job.get("customer", ""))]
 
 func _intro_text() -> String:
     return "Ticket %s. %s" % [str(GameState.job.get("id", "")), PcBuild.summary_line(GameState.job)]
@@ -126,6 +129,7 @@ func _save_inventory() -> void:
     for entry: Array in placed: reproject = _fit_stock(str(entry[0]), str(entry[1])) or reproject
     if reproject: _configure_layout()
     _remember_ids()
+    _refresh_board_button()
 
 # Which catalogue part each customer uid stood for when the layout was built (uids are re-numbered
 # when loose parts change, so drawer cells are carried over by model).
@@ -138,7 +142,67 @@ func _remember_ids() -> void:
 
 func _configure_layout() -> void:
     super._configure_layout()
+    # 0.48.1: the board drawn is the customer's own motherboard model.
+    board["display_name"] = "%s · customer's motherboard" % str(Catalog.board(PcBuild.board_model(GameState.job))["name"])
     _remember_ids()
+    _refresh_board_button()
+
+# ---- the motherboard (0.48.1; user: every part must be out before it can come out) ----
+
+func _build_board_button() -> void:
+    board_button = Button.new()
+    board_button.name = "BoardButton"
+    board_button.position = BOARD_BUTTON.position
+    board_button.size = BOARD_BUTTON.size
+    board_button.pressed.connect(_board_pressed)
+    add_child(board_button)
+    _refresh_board_button()
+
+func _refresh_board_button() -> void:
+    if not is_instance_valid(board_button): return
+    if PcBuild.board_out(GameState.job):
+        board_button.text = "Fit the motherboard back"
+        board_button.tooltip_text = "Put the customer's motherboard back in the case. Parts can only go in once it is back."
+    else:
+        var blocker: String = GameState.board_blocker()
+        board_button.text = "Take out the motherboard"
+        board_button.tooltip_text = blocker if blocker != "" else "Every part is out: the motherboard can come out of the case."
+
+func _board_pressed() -> void:
+    if inventory.held >= 0 or screwdriver_held: return
+    _save_inventory()
+    var name_text: String = str(Catalog.board(PcBuild.board_model(GameState.job))["name"])
+    if PcBuild.board_out(GameState.job):
+        if GameState.fit_board_back():
+            NightSession.checkpoint(GameState)
+            _configure_layout()
+            _set_status("%s is back in the case. Parts can go in again." % name_text)
+        return
+    var blocker: String = GameState.board_blocker()
+    if blocker != "":
+        _set_status(blocker, true)
+        return
+    if GameState.take_out_board():
+        NightSession.checkpoint(GameState)
+        _configure_layout()
+        _set_status("Motherboard out: the customer's %s lies beside the case. Fit it back before any part can go in." % name_text)
+
+func _draw_board() -> void:
+    if not PcBuild.board_out(GameState.job):
+        super._draw_board()
+        return
+    var area: Rect2 = PCLayout.board_rect(pc, geometry)
+    draw_rect(area, Color(0.1, 0.12, 0.13, 0.6))
+    var corners: Array = [area.position, Vector2(area.end.x, area.position.y), area.end, Vector2(area.position.x, area.end.y), area.position]
+    for i in range(4):
+        var a: Vector2 = corners[i]
+        var b: Vector2 = corners[i + 1]
+        var steps: int = int(a.distance_to(b) / 12.0)
+        for k in range(0, steps, 2):
+            draw_line(a.lerp(b, float(k) / steps), a.lerp(b, float(k + 1) / steps), Color("8a949a"), 2.0)
+    _text(area.position + Vector2(10, 26), "MOTHERBOARD OUT OF THE CASE", 16, Color("ffcf7a"))
+    _text(area.position + Vector2(10, 48), "%s lies beside the case." % str(Catalog.board(PcBuild.board_model(GameState.job))["name"]), 14)
+    _text(area.position + Vector2(10, 68), "Fit it back (button above) before any part can go in.", 14)
 
 func _stock_record(part_uid: String) -> Dictionary:
     return GameState._record(part_uid)
@@ -172,6 +236,10 @@ func _fit_replacement(part_uid: String) -> void:
 # Anything owned and suitable may go into an empty matching slot. The PC's first card belongs in slot 1.
 func _candidate(mouse: Vector2) -> Dictionary:
     var result: Dictionary = super._candidate(mouse)
+    if result.get("kind", "") == "board" and PcBuild.board_out(GameState.job):
+        result["ok"] = false
+        result["message"] = "The motherboard is out of the case: fit it back first."
+        return result
     if inventory.held < 0 or result.get("kind", "") != "board" or not bool(result.get("ok", false)): return result
     var part_uid: String = str(inventory.items[inventory.held]["part"]["id"])
     var slot: String = str(result.get("connector_id", ""))
@@ -278,13 +346,16 @@ func _draw() -> void:
     if gpu_is_fitted():
         var radius: float = InstallFaults.gpu_screw_radius(CELL)
         var centers: Array = InstallFaults.gpu_screw_centers(gpu_slot_rect(), CELL)
+        var bracket: Rect2 = InstallFaults.gpu_bracket_rect(gpu_slot_rect(), CELL)   # 0.48.1: on the card's rear bracket
+        draw_rect(bracket, Color("7d868c"))
+        draw_rect(bracket, Color("c9d1d6"), false, 1.0)
         for s in range(centers.size()):
             var tight: bool = s < int(job["gpu_screws"])
             draw_circle(centers[s], radius, Color("3b424d"))
             draw_arc(centers[s], radius, 0.0, TAU, 20, Color("dfe6ea") if tight else COLOR_BAD, 2.0)
             if tight: draw_line(centers[s] + Vector2(-radius * 0.5, 0), centers[s] + Vector2(radius * 0.5, 0), Color("dfe6ea"), 2.0)
         if int(job["gpu_screws"]) < InstallFaults.GPU_SCREW_COUNT:
-            _text((centers[1] as Vector2) + Vector2(radius + 8, 5), "GPU screws loose", 12, COLOR_BAD)
+            _text(Vector2(bracket.position.x - 40.0, (centers[0] as Vector2).y + 4.0), "loose", 12, COLOR_BAD)
     if screwdriver_held:
         draw_set_transform(pointer - Vector2(-18, 24) * 1.0)
         ToolRenderer.draw_screwdriver(self)

@@ -28,6 +28,7 @@ const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
 const Findings = preload("res://scripts/rules/findings.gd")
 const TicketRating = preload("res://scripts/rules/shop_rating.gd")
+const VacuumState = preload("res://scripts/bench/vacuum_state.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -67,6 +68,7 @@ var tickets_taken: int = 0      # how many tickets the shop has COMPLETED; picks
 var people: Dictionary = {}     # 0.48.0 (D153): generated customers by id ("p0001"...): who they are, their PC and needs; kept like customer_state
 var person_sequence: int = 1    # 0.48.0: the next generated customer's number
 var reviews: Array = []         # 0.48.0: pickup scores (0..100), newest last: the shop's online rating (ticket_generator.gd)
+var vacuum_state: Dictionary = {"bin": 0.0, "hose": []}   # 0.48.1 (user): the vacuum keeps its bin and hose contents across screens and reloads (a shop tool, not per PC)
 var world_seed: int = 0         # 0.48.0: seeds every generated morning, so the same save always gets the same customers
 var sound_volume: float = 1.0   # master volume 0..1 (D107); lives in its own settings file, never in the game save
 var settings_path: String = SETTINGS_PATH # injectable for isolated regression tests
@@ -96,6 +98,7 @@ func new_game(persist: bool = true) -> void:
     # owned_games and customer_state are NOT reset: the games and the relationships belong to the shop.
     # 0.48.0: neither are the generated customers, the reviews or the world seed (one is made if missing).
     if world_seed == 0: world_seed = _new_seed()
+    vacuum_state = {"bin": 0.0, "hose": []}   # 0.48.1: a new shop starts with an empty vacuum
     if persist:
         save_game()
 
@@ -140,6 +143,7 @@ func _make_job() -> Dictionary:
         "pc_specs": PcBuild.specs(who.get("pc", {})),   # derived from "parts" (processing, RAM) for the fps simulation (D94)
         "ticket": {"request": "repair", "ready": false, "called": false, "nights": 0},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
         "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
+        "board_out": false,       # 0.48.1: the motherboard is out of the case (only once every other part is out)
         "findings": [],           # D150 (0.47.0): the Findings notebook (findings.gd): seen / measured / done, on the night clock
         "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
         "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
@@ -214,7 +218,7 @@ func replace_service_part(part_id: String, tier: String) -> bool:
     return false
 
 func fit_inventory_part(part_id: String, uid: String) -> bool:
-    if job["state"] == "done" or not part_id in job["removed_parts"]: return false
+    if job["state"] == "done" or not part_id in job["removed_parts"] or PcBuild.board_out(job): return false
     var index: int = -1
     for i in range(player_inventory.size()):
         if player_inventory[i]["uid"] == uid: index = i
@@ -383,6 +387,7 @@ func set_service_part_fitted(part_id: String, fitted: bool) -> bool:
     var removed: bool = part_id in job["removed_parts"]
     if fitted == not removed:
         return false
+    if fitted and PcBuild.board_out(job): return false   # 0.48.1: nothing goes in without the motherboard
     if not fitted and part_id in job["shop_custody"]:
         return return_replacement(part_id)
     var before: Array = Findings.configuration(job)
@@ -605,6 +610,7 @@ func save_game() -> void:
         "person_sequence": person_sequence,
         "reviews": reviews,
         "world_seed": world_seed,
+        "vacuum_state": vacuum_state,
         "tickets_taken": tickets_taken,
         "night_minutes": night_minutes,
         "night_number": night_number,
@@ -678,6 +684,7 @@ func load_game() -> bool:
             if typeof(score) in [TYPE_INT, TYPE_FLOAT] and is_finite(float(score)): reviews.append(clampi(int(score), 0, 100))
     reviews = reviews.slice(maxi(0, reviews.size() - REVIEWS_KEEP))
     world_seed = int(data.get("world_seed", 0)) if typeof(data.get("world_seed", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
+    vacuum_state = VacuumState.sanitize(data.get("vacuum_state", {}))
     if world_seed == 0: world_seed = _new_seed()
     customer_state = {}
     var raw_customers: Variant = data.get("customer_state", {})
@@ -763,6 +770,7 @@ func load_game() -> bool:
     job["ticket"] = Ticket.sanitize(job.get("ticket", {}))
     job["tests"] = WorkReport.sanitize_tests(job.get("tests", {}))
     job["findings"] = Findings.sanitize(job.get("findings", []))
+    job["board_out"] = PcBuild.board_out(job)
     job["overclock"] = Overclock.sanitize(job.get("overclock", {}))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
@@ -995,7 +1003,7 @@ func buy_catalog_part(id: String) -> bool:
 # Fits a bought catalogue part from the drawer into an EMPTY slot of the customer's PC (CPU socket,
 # RAM, drive, PSU, or the second PCIe slot). Custody stays with the shop until collection.
 func fit_catalog_stock(uid: String, slot: String) -> bool:
-    if job["state"] == "done": return false
+    if job["state"] == "done" or PcBuild.board_out(job): return false
     var record: Dictionary = _record(uid)
     if record.is_empty() or not stock_available(uid): return false
     var model: String = PcBuild.stock_model(record)
@@ -1026,6 +1034,9 @@ func fit_catalog_stock(uid: String, slot: String) -> bool:
 # PC's contents changed (the bench then re-projects). `snapshot`: GridInventory.snapshot().
 func apply_bench(snapshot: Dictionary) -> bool:
     if job["state"] == "done": return false
+    if PcBuild.board_out(job):   # 0.48.1: with the motherboard out, nothing can sit on a slot
+        for key: Variant in snapshot:
+            if snapshot[key] is Dictionary and str((snapshot[key] as Dictionary).get("location", "drawer")) != "drawer": return false
     var before: String = str([job.get("parts", {}), job.get("loose_parts", []), job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", [])])
     var configured: Array = Findings.configuration(job)
     var result: Dictionary = CustomerPC.apply(job, snapshot)
@@ -1063,6 +1074,48 @@ func apply_bench(snapshot: Dictionary) -> bool:
         _note_build(configured)
         save_game()
     return changed
+
+
+# ----- 0.48.1: the motherboard (user, 18 November 2026) -----
+
+# Why the motherboard cannot come out right now ("" = it can): every other part must be out first.
+func board_blocker() -> String:
+    if PcBuild.board_out(job): return "The motherboard is already out of the case."
+    var p: Dictionary = PcBuild.sanitize(job.get("parts", {}))
+    var still: Array = []
+    if str(p["cpu"]) != "": still.append("CPU")
+    if not Ids.COOLER in job["removed_parts"]: still.append("cooler")
+    if not Ids.GPU in job["removed_parts"]: still.append("graphics card")
+    if (p["gpus"] as Array).size() > 1: still.append("second graphics card")
+    if not (p["ram"] as Array).is_empty(): still.append("memory")
+    if not (p["storage"] as Array).is_empty(): still.append("drives")
+    if str(p["psu"]) != "": still.append("power supply")
+    var shop: Variant = job.get("shop_fitted", {})
+    if shop is Dictionary and not (shop as Dictionary).is_empty(): still.append("your test parts")
+    if still.is_empty(): return ""
+    return "Take out every part first. Still fitted: %s." % ", ".join(still)
+
+
+func take_out_board() -> bool:
+    if job["state"] == "done" or board_blocker() != "": return false
+    var before: Array = Findings.configuration(job)
+    job["board_out"] = true
+    _note_build(before)
+    save_game()
+    return true
+
+
+func fit_board_back() -> bool:
+    if job["state"] == "done" or not PcBuild.board_out(job): return false
+    var before: Array = Findings.configuration(job)
+    job["board_out"] = false
+    _note_build(before)
+    save_game()
+    return true
+
+
+func set_vacuum(bin_fill: float, hose: Array) -> void:
+    vacuum_state = VacuumState.sanitize({"bin": bin_fill, "hose": hose})
 
 
 # ----- 0.48.0: customers who are not in the data file (D153) -----

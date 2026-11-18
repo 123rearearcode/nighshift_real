@@ -198,6 +198,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
+| `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
@@ -213,6 +214,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
+| `scripts/bench/vacuum_state.gd` | state | The vacuum's saved bin fill and hose clumps: sanitize, capture, restore (0.48.1; kept across screens and reloads) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
 | `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |

@@ -4,6 +4,7 @@
 # GameState autoload. This file draws, reads the mouse and keyboard and shows text.
 # Placeholder shapes only: real graphics come later.
 extends Node2D
+const VacuumState = preload("res://scripts/bench/vacuum_state.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const Layout = preload("res://scripts/data/layout.gd")
 
@@ -166,6 +167,7 @@ func _ready() -> void:
     cooler_zone = DustZones.index_of(Ids.COOLER)
     case_fan_zone = DustZones.index_of("case_fan")
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
+    VacuumState.restore(GameState.vacuum_state, bin, tools.flow)   # 0.48.1: the bin and hose keep what they held
     _initialize_dust()
     cooler_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone)) if GameState.job["pc_powered"] else 0.0
     case_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone)) if GameState.job["pc_powered"] else 0.0

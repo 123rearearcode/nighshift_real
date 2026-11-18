@@ -58,6 +58,41 @@ const PARTS: Dictionary = {
 }
 
 
+# 0.48.1 (user, 18 November 2026): the motherboard is one of the PC's parts. Kept apart from PARTS on
+# purpose: boards are not drag-and-drop bench pieces or order-panel stock yet (no board faults or
+# replacement boards are designed). "form" says which case it fits: tower (ATX) or compact (mATX);
+# every board of a form has the same slots (pc_layout.gd). Parody names, trial prices.
+const BOARD := "board"
+const BOARDS: Dictionary = {
+    "board_atx_b350": {"brand": "AzRock", "model": "B350 Steel Legend", "form": "tower", "price": 45},
+    "board_atx_z390": {"brand": "MSY", "model": "Z390 Torpedo Pro", "form": "tower", "price": 120},
+    "board_matx_h310": {"brand": "Gigabait", "model": "H310M Snug", "form": "compact", "price": 35},
+    "board_matx_b450": {"brand": "Asos", "model": "Prime B450M-Q", "form": "compact", "price": 60},
+}
+const DEFAULT_BOARD: Dictionary = {"tower": "board_atx_b350", "compact": "board_matx_h310"}
+
+
+static func board(id: String) -> Dictionary:
+    var b: Variant = BOARDS.get(id, null)
+    if not b is Dictionary: return {}
+    var out: Dictionary = (b as Dictionary).duplicate()
+    out["id"] = id
+    out["type"] = BOARD
+    out["name"] = "%s %s" % [out["brand"], out["model"]]
+    return out
+
+
+static func is_board(id: String) -> bool:
+    return BOARDS.has(id)
+
+
+static func boards_for(form: String) -> Array:
+    var out: Array = []
+    for id: String in BOARDS:
+        if BOARDS[id]["form"] == form: out.append(id)
+    return out
+
+
 static func part(id: String) -> Dictionary:
     var p: Variant = PARTS.get(id, null)
     if not p is Dictionary: return {}

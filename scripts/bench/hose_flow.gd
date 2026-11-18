@@ -2,7 +2,7 @@
 # the nozzle and rides the air to the dust bin; it only reaches the bin (and fills it) when it
 # arrives. With the suction off, dust in the hose stays where it is. Cleaning progress does not
 # wait for it: the part counts as cleaned the moment the dust is swallowed. No drawing, no input.
-# Not saved: like the bin, a reloaded bench starts with an empty hose.
+# 0.48.1: saved with the shop (vacuum_state.gd), like the bin: a reloaded bench finds the hose as it was.
 extends RefCounted
 
 const TRAVEL_SECONDS: float = 0.7     # nozzle to bin with full suction

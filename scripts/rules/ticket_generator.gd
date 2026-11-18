@@ -296,6 +296,8 @@ static func draw_case(job: Dictionary, person: Dictionary, pc: Dictionary, caps:
         trial["layout"] = "tower" if r.randf() < 0.5 else "compact"
         var events: Array = choose_events(r, night)
         if not apply_events(trial, events, r): continue
+        # 0.48.1: a motherboard model that fits the case (the layout is final once the problems are applied).
+        trial["parts"]["board"] = _pick(r, Catalog.boards_for("compact" if str(trial["layout"]) == "compact" else "tower"))
         var fixed: Dictionary = repaired(trial, int(caps.get("money", 0)))
         if fixed.is_empty(): continue
         if not bool(person.get("scripted", false)): who["needs"] = needs_for(who, fixed, r)

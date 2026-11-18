@@ -100,7 +100,8 @@ jobs:
           test_hardware_parts|Hardware parts
           test_part_lifecycle|Part lifecycle
           test_diagnosis|Diagnosis
-          test_generated_tickets|Generated tickets"
+          test_generated_tickets|Generated tickets
+          test_board_and_bench_state|Board and bench state"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"
