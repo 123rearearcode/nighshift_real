@@ -1,4 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.46.3)
+# Nightshift - Godot Foundation Trial (v0.47.0)
+
+0.47.0 is session 3.4, Diagnosis (D150). Every PC has a **Findings** notebook (a tab beside the monitor)
+that keeps what you saw at the benches, what each test measured and what you changed, stamped with the
+night clock; old readings stay but are marked outdated once the PC changes. The long load test is now its
+own monitor app, the **Stress lab**: temperature readings over the run, loud fans, and when it crashes.
+Timed tests no longer start if they would run past 06:00. The diagnosis manual is a separate later item.
 
 0.46.3 fixes the PR #57 cross-review findings: collection keeps the actual fitted build; damage to a
 shop test part stays with it rather than the customer's original; hardware changes invalidate old

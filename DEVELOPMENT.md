@@ -724,3 +724,20 @@ SAVE_FORMAT remains 1 (additive optional flag, not an incompatible schema change
 
 Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
 18 November 2026, Europe/Bucharest.
+
+
+## Diagnosis contracts — 0.47.0 (session 3.4)
+
+`job.findings` is the Findings notebook (`scripts/rules/findings.gd`): an Array of
+`{kind, text, night, minute, until, sig, source, incomplete}`, kind `observation`/`measurement`/`work`,
+rebuilt by `Findings.sanitize` on load (unknown kinds, empty texts and malformed stamps are dropped;
+newest 150 kept). Old saves and manifests without the key simply start an empty notebook; SAVE_FORMAT
+stays 1. Write entries only through `GameState.note()` (no save) or `GameState.record_finding()` (saves);
+both stamp `night_number`, `night_minutes` and `WorkReport.signature(job)`. Hardware changes are logged
+inside GameState's own mutators (`_note_build` diffs `Findings.configuration` before/after), so views
+never write work history themselves. **Never put hidden health into a Findings text**: only what the
+player was shown. `scripts/rules/diagnosis.gd` reads hidden truth and must never be called from a view,
+the notebook or a future manual; it exists for tests and the 3.5 generator. Timed monitor tests check
+`NightClock.fits` before charging anything. The diagnosis manual is not built (deferred by the user).
+
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.

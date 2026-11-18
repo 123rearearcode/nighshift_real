@@ -76,6 +76,77 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.47.0 - 2026-11-18 - Diagnosis: Findings notebook, Stress lab, 06:00 test limit
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.46.3 (PR #57 head 02b6343, not yet merged); this branch is stacked on it.
+- Type: minor (session 3.4: new player-facing diagnosis features under D150).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 24
+suites passed, including the new Diagnosis suite (55 checks). No manual graphical playtest has been done.
+
+### Added
+- **Findings notebook** on every PC (Findings tab beside the monitor; it also opens on the big screen).
+  It keeps what you SAW (opening the repair bench: dust per part, parts out, cooler lever, visible
+  damage; opening the hardware bench: fitted parts by model and owner, empty slots, the customer's parts
+  in the drawer), what tests MEASURED (boot, Hardware check, game test, anti-virus scan, quick stress,
+  Stress lab) and what you DID (parts out/in with owner and test-part stock id, cleaning, repaste,
+  overclock changes, anti-virus removal, visible damage). Each entry carries the night number and the
+  night clock; timed tests keep their start and end. Older looks and readings stay readable and are
+  marked outdated once the PC changes. The customer's complaint heads the notebook. No conclusions,
+  no hints, nothing hidden.
+- **Stress lab**: the long load test is its own monitor app (20 minutes, $2 electricity). Temperature
+  readings every 5 minutes on the night clock, when the fans get loud, and whether and when the PC
+  crashes; a crash ends the run and only the minutes run are spent. It reports behaviour, never a cause.
+- Diagnosis solvability and difficulty rules (`diagnosis.gd`, tests only): both story PCs are proven
+  solvable with the starter stock; Mara's is evident, Relu's needs a known-good GPU swap before the
+  masked adware can be scanned.
+
+### Changed
+- Timed tests (game test, Stress lab) are refused before any charge when they would end after 06:00.
+- Switching the PC off during a timed test notes it as INCOMPLETE with no result (still no time spent).
+- Monitor layout: Vapor / game test / Stress lab on the second row; the overclocker row keeps the quick
+  stress test; three tabs: Work, Findings, Client.
+- Hardware check failure line: "something is missing, too small or not locked" (it cannot see broken parts).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/findings.gd` | A | Notebook entries, sanitize, outdated marking, bench inspection texts, part labels with owner |
+| `scripts/rules/stress_lab.gd` | A | The Stress lab run: readings, loud fans, deterministic crash minute |
+| `scripts/rules/diagnosis.gd` | A | Solvability and difficulty from the hidden truth (tests / future generator only) |
+| `tools/test_diagnosis.gd` | A | 55 checks: notebook, secrecy, work history, save/switching, Stress lab, 06:00, solvability |
+| `scripts/state/game_state.gd` | M | `findings` on the job, `note`/`record_finding`/`findings_text`, work logging inside mutators, `diagnosis_capabilities` |
+| `scripts/night/software_view.gd` | M | Stress lab app, Findings tab, measurements noted, 06:00 guard, incomplete note on power-off |
+| `scripts/night/repair_view.gd`, `scripts/night/hardware_view.gd` | M | Inspection noted when the bench opens |
+| `scripts/night/night_session.gd` | M | The second demo PC starts with its own empty notebook |
+| `scripts/rules/night_clock.gd` | M | `fits()`: does a test still end by 06:00 |
+| `scripts/rules/work_report.gd` | M | Hardware check failure wording |
+| `tools/test_software.gd` | M | Tab state and scan-notebook expectations |
+| `.github/workflows/tests.yml` | M | Diagnosis suite registered |
+| `DEVELOPMENT.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `HANDOFF.md` | M | File map, diagnosis contracts, D152 proposals, 3.4 status and the deferred manual item, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.47.0 and release notes |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed (0 problems).
+- GitHub Actions on Godot 4.7.2 (headless): 24 suites, 0 failures; Diagnosis 55, Software 38,
+  Hardware parts 67, Real hardware 85, Morning report 27, Regressions 625.
+
+### Decisions proposed (not approved)
+- D152 (1)–(6): notebook shape and sources, Stress lab numbers (5-minute readings, 10-minute warm-up,
+  crash at minute 3 / 14), the 06:00 refusal, the Hardware check wording, difficulty levels 1–3.
+
+### Known issues and open items
+- The diagnosis manual is not built: the user deferred it on 18 November 2026 as a separate later item (WORK_PLAN 3.4m).
+- Story-case consistency, for Codex: Relu's complaint ("frame rate tanked") does not match what his PC
+  now shows (no image at boot, from the hidden GPU fault). Story facts were left unchanged.
+- The notebook is read at the monitor only; the benches write into it but do not display it.
+- Customer-part identity is still slot-derived (known since 0.46.2).
+
+### Next action
+Codex cross-reviews this PR after PR #57; the user controls both merges (PR #57 first). Playtest gate after 3.4.
+
 ## 0.46.3 - 2026-11-18 - PR 57 review fixes: preserve the PC, component damage and test validity
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
