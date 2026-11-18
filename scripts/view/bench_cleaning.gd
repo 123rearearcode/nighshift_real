@@ -120,7 +120,7 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     bv._audio_loop("brush.contact",working and bv.active_tool == 1 and bv.dust.last_brush_contacts > 0,{"speed":bv.tools.speed.length(),"contacts":bv.dust.last_brush_contacts})
     _after_dust_step(delta, mouse)
     var target: String = bv._pick_target(mouse)
-    var eligible: bool = bv.active_tool == 3 and working and target != "" and not target in GameState.job["broken_parts"] and GameState.job["state"] != "done" and bv.dust.trapped_count(target) > 0
+    var eligible: bool = bv.active_tool == 3 and working and target != "" and not target in GameState.job.get("damaged_parts", []) and GameState.job["state"] != "done" and bv.dust.trapped_count(target) > 0
     bv._audio_loop("pick.scrape",eligible,{"part":target})
     var stroke: Dictionary = bv.pick.step(delta, target, eligible)
     if not stroke.is_empty():

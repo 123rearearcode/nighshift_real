@@ -53,14 +53,18 @@ static func parts(job: Dictionary) -> Dictionary:
     return PcBuild.sanitize(job.get("parts", {}))
 
 
-# The customer's parts lying outside the PC: [{id, broken}], known catalogue ids only.
+# The customer's parts lying outside the PC: [{id, broken, damaged, original_of}], known ids only.
+# broken = hidden truth (never shown); damaged = visible damage the player caused; original_of = "gpu" /
+# "cooler" when a shop part took its place in the first slot (0.46.2, D150 custody).
 static func loose(job: Dictionary) -> Array:
     var out: Array = []
     var raw: Variant = job.get("loose_parts", [])
     if raw is Array:
         for entry: Variant in raw:
             if entry is Dictionary and not Catalog.part(str(entry.get("id", ""))).is_empty():
-                out.append({"id": str(entry["id"]), "broken": bool(entry.get("broken", false))})
+                var of: String = str(entry.get("original_of", ""))
+                out.append({"id": str(entry["id"]), "broken": bool(entry.get("broken", false)), "damaged": bool(entry.get("damaged", false)),
+                    "original_of": of if of in [Ids.GPU, Ids.COOLER] else ""})
     return out
 
 
@@ -99,11 +103,13 @@ static func model_name(job: Dictionary, part: String) -> String:
     return "%s (%s)" % [Catalog.part(id)["name"], Catalog.stat_text(id)] if id != "" else ""
 
 
-static func _customer_part(job: Dictionary, key: String, id: String, broken: bool, where: String) -> Dictionary:
+# D150: a hover card shows model, owner and where it is; never hidden health. Visible damage the
+# player caused is the one condition it may name.
+static func _customer_part(job: Dictionary, key: String, id: String, damaged: bool, where: String) -> Dictionary:
     var component: Dictionary = Catalog.component(uid(job, key), id)
     component["display_name"] = "Customer's " + str(Catalog.TYPE_LABELS[str(Catalog.part(id)["type"])]).to_lower()
-    component["details"] = [["Model", "%s (%s)" % [Catalog.part(id)["name"], Catalog.stat_text(id)]], ["Owner", "Customer's PC"],
-        ["Condition", "BROKEN" if broken else "working"], ["Where", where]]
+    component["details"] = [["Model", "%s (%s)" % [Catalog.part(id)["name"], Catalog.stat_text(id)]], ["Owner", "Customer's"], ["Where", where]]
+    if damaged: component["details"].append(["Condition", "DAMAGED (you broke it)"])
     return component
 
 
@@ -119,7 +125,7 @@ static func components(job: Dictionary) -> Array:
     if str(p["psu"]) != "": out.append(_customer_part(job, "psu", str(p["psu"]), false, "In the PC"))
     if (p["gpus"] as Array).size() > 1: out.append(_customer_part(job, "gpu_2", str(p["gpus"][1]), false, "In the PC (second card)"))
     var list: Array = loose(job)
-    for i in range(list.size()): out.append(_customer_part(job, "loose_" + str(i), str(list[i]["id"]), bool(list[i]["broken"]), "Out of the PC"))
+    for i in range(list.size()): out.append(_customer_part(job, "loose_" + str(i), str(list[i]["id"]), bool(list[i]["damaged"]), "Out of the PC" + (" (a part from your stock is in its place)" if str(list[i]["original_of"]) != "" else "")))
     for part: String in [Ids.GPU, Ids.COOLER]:
         out.append(service_component(job, part))
     return out
@@ -132,21 +138,34 @@ static func service_component(job: Dictionary, part: String) -> Dictionary:
     var replaced: bool = (job.get("service_replacements", {}) as Dictionary).has(part)
     var label: String = "GPU" if part == Ids.GPU else "cooler"
     component["display_name"] = ("Replacement " if replaced else "Customer's ") + label
-    var broken: bool = part in (job.get("broken_parts", []) as Array)
-    var details: Array = [["Model", model_name(job, part)], ["Owner", "Customer's PC" if not replaced else "Customer's PC (part from your stock)"], ["Condition", "BROKEN" if broken else "working"]]
+    var stock_backed: bool = part in (job.get("shop_custody", []) as Array)   # 0.46.2: still the shop's until collection
+    var details: Array = [["Model", model_name(job, part)], ["Owner", "Your stock, fitted until the customer collects" if stock_backed else ("Customer's" if not replaced else "Customer's (a replacement)")]]
+    if part in (job.get("damaged_parts", []) as Array): details.append(["Condition", "DAMAGED (you broke it)"])
     if part == Ids.GPU:
         details.append(["Screws", "tight" if int(job.get("gpu_screws", 2)) >= 2 else "NOT tight"])
     component["details"] = details
     return component
 
 
+# HIDDEN truth, for rules only (never for display or permissions).
 static func is_broken(job: Dictionary, part_uid: String) -> bool:
     var part: String = part_of(part_uid)
     if part == "loose":
         var i: int = int(part_uid.get_slice("_", part_uid.get_slice_count("_") - 1))
         var list: Array = loose(job)
         return i >= 0 and i < list.size() and bool(list[i]["broken"])
+    if part == "gpu_2": return PcBuild.dead_second_card(job)
     return part in (job.get("broken_parts", []) as Array)
+
+
+# VISIBLE damage the player caused (may be shown).
+static func is_damaged(job: Dictionary, part_uid: String) -> bool:
+    var part: String = part_of(part_uid)
+    if part == "loose":
+        var i: int = int(part_uid.get_slice("_", part_uid.get_slice_count("_") - 1))
+        var list: Array = loose(job)
+        return i >= 0 and i < list.size() and bool(list[i]["damaged"])
+    return part in (job.get("damaged_parts", []) as Array)
 
 
 # Where each customer part sits NOW: fitted parts on their slot; loose parts and a removed GPU/cooler in
@@ -206,24 +225,27 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         if kind in [Ids.GPU, Ids.COOLER]: continue
         var id: String = catalog_id(job, key)
         if id == "": continue
-        var broken: bool = is_broken(job, key)
+        var entry: Dictionary = {"id": id, "broken": is_broken(job, key), "damaged": is_damaged(job, key), "original_of": ""}
+        if kind == "loose":
+            var i: int = int(key.get_slice("_", key.get_slice_count("_") - 1))
+            entry["original_of"] = str(loose(job)[i]["original_of"])
         var location: String = str((snapshot[key] as Dictionary).get("location", "drawer"))
-        if location == "drawer": drawer.append({"id": id, "broken": broken})
+        if location == "drawer": drawer.append(entry)
         elif location == SLOT_OF[Ids.GPU] or location == SLOT_OF[Ids.COOLER]:
-            first[Ids.GPU if location == SLOT_OF[Ids.GPU] else Ids.COOLER] = {"id": id, "broken": broken}
-        else: slot_ids[location] = {"id": id, "broken": broken}
+            first[Ids.GPU if location == SLOT_OF[Ids.GPU] else Ids.COOLER] = entry
+        else: slot_ids[location] = entry
     var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"]}
-    # A broken loose part cannot be fitted: placement refuses it before this; if one slips through it stays loose.
+    var dead: Array = []
+    # D150 (0.46.2): a part that does not work CAN be fitted (nothing refuses it); it simply does not work.
     for slot: String in slot_ids:
         var entry: Dictionary = slot_ids[slot]
-        if bool(entry["broken"]):
-            drawer.append(entry)
-            continue
         if slot == CPU_SLOT: out["cpu"] = entry["id"]
         elif slot == PSU_SLOT: out["psu"] = entry["id"]
-        elif slot == GPU2_SLOT: (out["gpus"] as Array).append(entry["id"])
+        elif slot == GPU2_SLOT:
+            (out["gpus"] as Array).append(entry["id"])
+            if bool(entry["broken"]): dead.append(GPU2_SLOT)
     for slot: String in RAM_SLOTS:
-        if slot_ids.has(slot) and not bool(slot_ids[slot]["broken"]): (out["ram"] as Array).append(slot_ids[slot]["id"])
+        if slot_ids.has(slot): (out["ram"] as Array).append(slot_ids[slot]["id"])
     for slot: String in STORAGE_SLOTS:
-        if slot_ids.has(slot) and not bool(slot_ids[slot]["broken"]): (out["storage"] as Array).append(slot_ids[slot]["id"])
-    return {"parts": out, "loose_parts": drawer, "first": first}
+        if slot_ids.has(slot): (out["storage"] as Array).append(slot_ids[slot]["id"])
+    return {"parts": out, "loose_parts": drawer, "first": first, "dead_slots": dead}

@@ -76,7 +76,11 @@ func run_checks() -> void:
     view._game()
     check(view.output.text.contains("Boot FAILED") and not view.output.text.contains("simulated FPS"),"broken PC reports failure rather than a misleading benchmark")
     view._hardware()
-    check(view.output.text.contains("HARDWARE CHECK FAILED") and view.side_text.text.contains("[NO] Working PC"),"a broken part fails the hardware check")
+    check(view.output.text.contains("HARDWARE CHECK PASSED") and not view.output.text.contains("BROKEN"),"a hidden fault is not revealed by the hardware check (D150): everything is fitted")
+    gs.job["removed_parts"] = ["gpu"]
+    view._hardware()
+    check(view.output.text.contains("HARDWARE CHECK FAILED") and view.side_text.text.contains("[NO] Working PC"),"a part out of the PC fails the hardware check")
+    gs.job["removed_parts"] = []
     gs.job["broken_parts"] = []
     var unchanged: Dictionary = gs.job.duplicate(true)
     view._scan()

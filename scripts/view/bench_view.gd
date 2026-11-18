@@ -540,7 +540,7 @@ func _finish_part_drag(point: Vector2) -> void: parts._finish_part_drag(point)
 
 func _draw_pc() -> void:
     PCRenderer.draw_pc(self, str(GameState.job.get("layout", "tower")), Rect2(PC_ORIGIN, DustZones.AREA_SIZE), zones, case_angle, cooler_angle, _part_rects(), _part_poses(), false)
-    for id: String in GameState.job["broken_parts"]:
+    for id: String in GameState.job.get("damaged_parts", []):   # D150: only damage the player caused and can see
         var rect: Rect2 = access.current_rect(id)
         draw_rect(rect.grow(3), TONE_COLORS[3], false, 3)
         _text(rect.position + Vector2(5, 17), "DAMAGED", 14, TONE_COLORS[3])

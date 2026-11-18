@@ -42,6 +42,17 @@ static func signature(job: Dictionary) -> String:
     parts.sort()
     for part: Variant in parts:
         text += "%s:%s;" % [str(part), str(replaced[part])]
+    # Catalogue and temporary fitted hardware affect every live result too. Keep slot/part identity
+    # in the fingerprint, so swapping test parts cannot leave an old result certified as current.
+    text += "|build:" + JSON.stringify(PcBuild.sanitize(job.get("parts", {})))
+    var shop: Dictionary = job.get("shop_fitted", {})
+    var slots: Array = shop.keys()
+    slots.sort()
+    for slot: Variant in slots:
+        text += "|test:%s:%s:%s" % [str(slot), str(shop[slot].get("uid", "")), str(shop[slot].get("model", ""))]
+    var dead: Array = (job.get("dead_slots", []) as Array).duplicate()
+    dead.sort()
+    text += "|dead:" + ",".join(dead)
     var oc: Dictionary = Overclock.settings(job)
     text += "|%s|%s|%s|%s|%s|%d|%d|%s" % [str(job.get("paste_grade", "")), str(bool(job.get("paste_done", false))), str(job.get("paste_material", "")), ",".join(removed), ",".join(broken), int(oc["mult"]), int(oc["volt"]), Malware.strain(job)]
     return str(text.hash())
@@ -84,10 +95,11 @@ static func hardware_check(job: Dictionary) -> Dictionary:
     if PcBuild.missing(job).is_empty() and not bool(power["powered"]):
         ok = false
         lines.append("PSU: TOO SMALL - the parts need %d W, it gives %d W." % [int(power["draw_w"]), int(power["psu_w"])])
+    # D150 (0.46.2): the check sees what is fitted and how it is configured, never a part's hidden health.
     for part_id: String in ServiceParts.IDS:
         var s: Dictionary = PartStates.state(job, part_id)
-        if bool(s["fitted"]) and bool(s["working"]):
-            lines.append("%s: in place and working." % part_id.to_upper())
+        if bool(s["fitted"]):
+            lines.append("%s: in place." % part_id.to_upper())
         else:
             ok = false
             lines.append("%s: %s." % [part_id.to_upper(), str(s["text"])])
@@ -123,8 +135,7 @@ static func work_lines(job: Dictionary) -> Array:
     for part_id: String in ServiceParts.IDS:
         var s: Dictionary = PartStates.state(job, part_id)
         if not bool(s["fitted"]): lines.append("%s: taken out." % part_id.to_upper())
-        elif not bool(s["working"]): lines.append("%s: still broken." % part_id.to_upper())
-        elif str(s["tier"]) != "": lines.append("%s: replaced (%s)." % [part_id.to_upper(), str(s["tier"])])
+        elif str(s["tier"]) != "": lines.append("%s: replaced with a part from your stock (%s)." % [part_id.to_upper(), str(s["tier"]).trim_prefix("model:")])
     var cured: String = Malware.sanitize(job.get("cured", ""))
     if cured != "": lines.append("Anti-virus: removed %s." % str(Malware.STRAINS[cured]["label"]))
     var oc: Dictionary = Overclock.settings(job)

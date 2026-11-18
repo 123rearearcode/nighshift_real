@@ -1,6 +1,20 @@
-# Nightshift - Godot Foundation Trial (v0.46.1)
+# Nightshift - Godot Foundation Trial (v0.46.3)
 
-0.46.1 is a documentation-only handoff correction against merged 0.46.0; no gameplay changes.
+0.46.3 fixes the PR #57 cross-review findings: collection keeps the actual fitted build; damage to a
+shop test part stays with it rather than the customer's original; hardware changes invalidate old
+measurements; starter RAM/CPU work as test parts. A handed-over starter CPU is not recreated on load.
+The compatibility PR remains separate from the later diagnosis/manual feature work.
+
+0.46.2 is a compatibility patch (D150): no screen reveals a part's hidden health any more, and parts
+you fit stay yours until the customer collects. 0.46.1 was a documentation-only handoff correction.
+
+New in 0.46.2: **the game no longer tells you which part is faulty.** A part that does not work looks
+like any other; a boot shows only what you would see ("fans spin, but no image"). Parts that are OUT of
+the PC are still named, and damage you cause yourself (snapping a part with the pick) is still marked
+DAMAGED. Anything you own and that fits may go into an empty slot, whatever the customer's part's
+health. A part you fit stays **your stock** until the customer collects: take it out and it goes back
+to the drawer. At collection it goes home with the PC; if it replaced the customer's WORKING part, that
+original comes back to your stock (you paid for the new one). The morning report says what you kept.
 
 New in 0.46.0: **every part comes out at the hardware bench.** CPU, RAM, drives and the PSU can be
 dragged into the drawer and back (the cooler comes off before the CPU, as in a real PC). The board has a

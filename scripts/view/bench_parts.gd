@@ -227,13 +227,15 @@ func _open_replacements() -> void:
 
 
 func _refresh_replacements() -> void:
-    bv.replacement_summary.text = "PLAYER INVENTORY / cash $%d\nFit consumes one owned part. Buy adds to the same drawer shown in Hardware bench. Remove damaged part first.\nBudget = 65%% specification. Cooler downgrade: +8 C.\nDamaged: %s\nCustomer-owned broken parts are retained separately." % [GameState.money,str(GameState.job["broken_parts"])]
+    # D150 (0.46.2): fitting is a test until the customer collects: the part stays yours, the customer's
+    # original stays theirs. The panel never says which part is faulty.
+    bv.replacement_summary.text = "PLAYER INVENTORY / cash $%d\nTake the customer's part out first, then fit one of yours. It stays your stock until the customer collects; take it out again and it goes back to the drawer.\nBudget = 65%% specification. Cooler downgrade: +8 C." % [GameState.money]
     for item: Dictionary in bv.replacement_buttons:
         var id: String = item["id"]
         var choice: Dictionary = ServiceParts.option(id,item["tier"])
         var count: int = GameState.stock_count(id,item["tier"])
         item["button"].text = "Fit %s / owned %d" % [choice["label"],count]
-        item["button"].disabled = count == 0 or not id in GameState.job["broken_parts"] or not id in GameState.job["removed_parts"] or GameState.job["state"] == "done"
+        item["button"].disabled = count == 0 or not id in GameState.job["removed_parts"] or GameState.job["state"] == "done"
         item["buy"].disabled = GameState.money < int(choice["cost"])
 
 

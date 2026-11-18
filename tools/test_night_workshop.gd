@@ -41,7 +41,7 @@ func run_checks() -> void:
     gs.job["removed_parts"] = ["gpu"]
     check(gs.replace_service_part("gpu","similar"),"existing repair stock can be fitted to the second ticket")
     var remaining: int = gs.player_inventory.size()
-    check(remaining == stock.size()-1,"replacement consumes one canonical owned part")
+    check(remaining == stock.size() and gs.stock_count("gpu","similar") < stock.filter(func(r: Dictionary) -> bool: return r["kind"] == "gpu" and r["tier"] == "similar").size(),"a fitted replacement stays one owned record, marked fitted (D150: custody until collection)")
     check(night.switch_pc(gs,first),"unfinished PC can be selected again")
     check(gs.job["removed_parts"] == ["cooler"] and is_equal_approx(gs.job["dust"]["cooler"],0.42) and gs.job["scams"] == ["toothpaste"],"dust, removed parts and scams stay with the first PC")
     check(gs.job["hardware_trial"]["night_paste"] == {"test":"first-only"},"paste payload stays with the correct PC")

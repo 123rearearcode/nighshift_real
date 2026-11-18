@@ -76,6 +76,112 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.46.3 - 2026-11-18 - PR 57 review fixes: preserve the PC, component damage and test validity
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  No deployment id is invented; this limitation remains explicit against D51.
+- Based on: reviewed PR #57 head 07d7cb978befcf937cdd13b6e44a4bf4733e4266 (0.46.2), based on main 0.46.1.
+- Type: patch (user-authorized corrections to the compatibility patch; no new diagnosis/manual feature).
+
+### Execution status
+Godot 4.7.2 was run locally by Codex, headless. The expanded hardware suite reproduced 23 failing
+assertions against the original reviewed code, then passed all 67 checks after the fixes and the additional spare-CPU pickup guard. All 23 required
+suites passed (1,708 checks total, including the final hardware-suite rerun). No manual graphical playtest is claimed.
+
+### Added / Changed / Fixed / Removed
+- Collection writes fitted shop hardware into the permanent PC record before clearing custody;
+  effective build, morning card, reload and repeated settlement preserve the actual machine.
+- A damaged shop GPU/cooler stays damaged when removed. Clear the test-part flags before restoring
+  the customer's own state. Retain the damaged shop record across save/load and show known damage.
+- Fingerprint catalogue parts, temporary fitted-part identity and dead slots so changed hardware
+  invalidates prior hardware, FPS and temperature measurements.
+- Resolve existing starter RAM/CPU (and trial GPU/cooler) to catalogue models without replacing their
+  owned uid. Bench acceptance no longer depends on the stock record being catalogue-format.
+- Enforce cooler-before-CPU removal for shop test CPUs too. Persist a compatible one-time starter CPU
+  migration marker so handing it over cannot manufacture a free replacement on the next load.
+- Update handoff/work ownership for the user's bounded request that Codex fix PR #57; Claude resumes
+  the standing runtime assignment after reviewing/integrating this follow-up. No merge authorized here.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/game_state.gd` | M | Permanent handover, component damage restoration, damaged stock load, starter migration, legacy fitting |
+| `scripts/rules/pc_build.gd` | M | Resolve existing starter stock to its model |
+| `scripts/rules/work_report.gd` | M | Hardware-aware result signature |
+| `scripts/night/hardware_view.gd` | M | Format-independent fitting and shop CPU removal guard |
+| `tools/test_hardware_parts.gd` | M | Handover/reload/repeat, damaged swaps, stale results and real bench starter-part regressions |
+| `HANDOFF.md`, `docs/WORK_PLAN.md` | M | Current status and bounded Codex/Claude handback |
+| `DEVELOPMENT.md`, `docs/BUGS.md`, `docs/DECISIONS.md` | M | Additive save contract, B42–B47 and superseded trial-stock restriction |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version, release notes and validation |
+
+### Checks performed
+- Target import in Godot 4.7.2: passed.
+- Hardware parts: 67 checks, 0 failures (23 new regression assertions failed before the runtime fixes).
+- `python3 tools/test_ci_scope.py`: 9 tests passed.
+- All 23 required Godot suites passed: 1,708 checks, 0 failures (the final hardware-suite rerun
+  raised its count from 66 to 67; the other 22 suites were unchanged).
+- Scripted bench smoke diagnostics: Playtest finished, no script/parse errors.
+- `python3 -I tools/check_project.py`: passed, 0 problems. `git diff --check`: passed.
+
+### Decisions proposed (not approved)
+No new design. Existing trial prices/timings and D151's other proposed behaviour remain provisional.
+
+### Known issues and open items
+Identical customer-part identity is still slot-derived and orphan custody has no recovery UI, as
+already documented by Claude. No new diagnosis notebook/manual/cases, no manual visual acceptance.
+An old save lacking starter_cpu_seeded gets the existing one-time CPU migration; new saves persist it.
+
+### Next action
+Push to PR #57 for review; user controls merge. Claude then resumes 3.4 from the reconciled baseline,
+preserving these invariants. Codex retains manual/design content and cross-review responsibilities.
+
+## 0.46.2 - 2026-11-18 - Diagnosis compatibility patch: no hidden-health leaks, test-part custody (D150)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a chat session
+- Based on: 0.46.1 (main 39b1884, PR #56 merged)
+- Type: patch (compatibility with the approved diagnosis rules; no new diagnosis features; job gains optional `damaged_parts`, `shop_fitted`, `shop_custody`, `dead_slots`; stock records may carry `fitted_in`/`slot`)
+
+### Execution status
+Godot was NOT run by me. GitHub Actions run 44200267247: all required suites green and the full scripted bench diagnostics. The first run (44199925403) failed four checks: three tests still asserting the D149 behaviour, and one real bug (B41, Rearrange drawer pulled a fitted test part out). No interactive playtest is claimed. Codex cross-review requested; the user controls the merge.
+
+Correction — 18 November 2026, Codex (GPT-6; deployment id unavailable): cross-review found that
+hardware/test-part changes were NOT included in the measurement signature; the "No conflict found"
+audit statement below was incorrect. Collection and damage-return bugs were also found. See 0.46.3
+for the reproductions/fixes; the remainder below is the historical 0.46.2 report.
+
+### Audit (HANDOFF resume order step 2) and what changed
+Hidden-health leaks found in merged code (mostly Claude's own 0.38–0.46 work), all removed:
+- Hardware bench: red BROKEN tags and "Condition: BROKEN/working" on hover cards. Now only VISIBLE damage the player caused (pick snap, new `damaged_parts`) is labelled DAMAGED; hover cards show model, owner and where.
+- Boot check, hardware check, night diagnosis, final check: "GPU: BROKEN - replace at...". Now missing/out parts are named ("NOT FITTED"), visible damage is named, and a hidden fault only shows as an observation (`PartStates.boot_symptoms`: GPU "no image on the screen", cooler "switches itself off after a few seconds"). The hardware check reports presence and configuration only.
+- Ticket parts summary, Work tab ("still broken"), part lines ("not working or not fitted"), room card ("Needs repair"): presence only.
+- Fitting permissions as an oracle: stock tiers only over a BROKEN part, the repair bench's Replacement stock enabled only for broken parts, "broken: it cannot go back in", "the customer's GPU works", the pick refusing a hidden-broken part. Now only physical fit decides; a dead customer card can be fitted and simply adds nothing (`dead_slots`).
+Custody (D150 5.6 supersedes D149's transfer at fitting):
+- A fitted shop part (first GPU / cooler replacement or any catalogue part in another slot) stays a player stock record marked `fitted_in` until collection; taking it out returns it to the drawer; the customer's original stays theirs (loose, `original_of`).
+- `settle_custody()` at collection (morning) and at the legacy shop's paid final check: fitted shop parts go home with the PC (already paid when bought, no second charge); a working customer original that a shop part replaced enters player stock; others leave with the customer. The morning card lists what was kept.
+- The pickup score reads RAM and processing from what is actually in the PC (test parts included).
+No conflict found: hidden film/screw flags stay out of checks; measurements already go outdated on changes; the clock is the shared night clock (Findings timestamps are 3.4 work). Not changed, for Codex to rule on: the GPU's bracket screws are drawn loose/tight on the hardware bench (physical, D131).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/part_states.gd`, `scripts/rules/pc_build.gd`, `scripts/rules/customer_pc.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/work_report.gd` | M | Known vs hidden, observations, test parts in stats, dead slots |
+| `scripts/state/game_state.gd` | M | Visible damage, custody, return, settlement, load sanitizing |
+| `scripts/night/hardware_view.gd`, `scripts/view/bench_view.gd`, `scripts/view/bench_parts.gd`, `scripts/view/bench_cleaning.gd`, `scripts/storage/storage_sources.gd`, `scripts/night/morning_view.gd` | M | No health in UI or permissions; custody on the bench; morning "kept" line |
+| `tools/test_regressions.gd`, `tools/test_hardware_parts.gd`, `tools/test_software.gd`, `tools/test_night_workshop.gd` | M | D115-era and D149-era assertions rewritten to D150; custody, return, dead card, settlement |
+| `README.md`, `CHANGELOG.md`, `project.godot`, `docs/DECISIONS.md`, `docs/BUGS.md` | M | Docs, version, B41 |
+
+### Checks performed
+`python3 -I tools/check_project.py`: PASSED, 0 problems. CI: see Execution status.
+
+### Decisions proposed (not approved)
+D151: the symptom wording; visible damage named; settlement pairs a loose working original with a shop part of the same type; trial stock tiers only in the first GPU slot / cooler mount.
+
+### Known issues and open items
+Individual identity of identical customer parts is by slot order (not a per-part id). A stale `fitted_in` mark cannot be cleared from the UI if its ticket vanished. Not playtested.
+
+### Next action
+Codex cross-review; user merge. Then 3.4 (0.47.0) on this baseline.
+
 ## 0.46.1 - 2026-11-17 - Correct current handoff before parallel-work proposals
 
 - Author: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work
