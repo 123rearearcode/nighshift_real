@@ -1,5 +1,27 @@
 # Handoff — current state first
 
+## Current — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026
+
+Branch `feat/diagnosis-0470`, **stacked on PR #57** (0.46.3, head 02b6343). Claude reviewed Codex's
+0.46.3 follow-up first, as instructed: collection materialization, component damage custody, the wider
+measurement fingerprint and the starter-model/one-time CPU marker are correct and kept unchanged. No
+0.46.2 versions were reapplied. Merge order for the user: PR #57, then this PR.
+
+Built (D150; details and proposals in D152 and CHANGELOG 0.47.0): the Findings notebook on every PC
+(observations at bench open, measurements from every monitor test, work history logged inside
+GameState's mutators, night number + night clock, outdated marking, no conclusions or hidden health);
+the Stress lab as its own monitor app; the 06:00 limit for timed tests; an INCOMPLETE note when a run is
+stopped; `diagnosis.gd` solvability/difficulty for tests and the future generator (never UI).
+
+**Not built: the diagnosis manual.** The user deferred it on 18 November 2026 as a separate later
+point (WORK_PLAN row 3.4m). Codex's manual content/format work can continue; runtime integration waits.
+
+Codex answered the four PR questions (comment on PR #58); applied in the same PR: Relu's complaint
+corrected, the solvability check requires a spare that suits the PC. Settled vs. still-proposed points
+are recorded in the D152 follow-up. Codex's full code cross-review of PR #58 is still pending.
+Evidence: GitHub Actions, Godot 4.7.2 headless, 24 suites green (Diagnosis 55 checks). No playtest yet.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session, 18 November 2026.
+
 ## Current PR #57 follow-up — 0.46.3, 18 November 2026
 
 The user explicitly assigned Codex to fix all findings from the PR #57 review and push the result.

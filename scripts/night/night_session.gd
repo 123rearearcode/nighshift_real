@@ -48,6 +48,7 @@ func start(gs: Node) -> bool:
     other["pc_specs"] = PcBuild.specs(other["parts"])
     other["layout"] = "compact"
     other["broken_parts"] = ["gpu"] if cid == "t002_relu" else []
+    other["findings"] = []   # 0.47.0: each PC keeps its own notebook
     Malware.infect(other, Malware.ADWARE)   # D132: the second demo PC arrives with adware (the hint is in the complaint)
     _tag(other,str(other["id"]),run_id+":pc:2")
     tickets.append(other)

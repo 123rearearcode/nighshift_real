@@ -191,6 +191,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/pc_build.gd` | rules | A PC's six stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied (D148) |
 | `tools/test_real_hardware.gd` | tooling | Catalogue, stats, support rules, multi-GPU, names, unchanged demo performance, saves (D148) |
 | `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
+| `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
@@ -200,7 +201,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
 | `tools/test_tickets_pickup.gd` | tooling | Ticket rule, pickup flags on active and stored PCs, saves, native right-clicks in the room and on the ticket (D134) |
 | `scripts/rules/work_report.gd` | rules | Hardware check, work-done lines and the measured match to the customer's request (D133) |
-| `scripts/rules/night_clock.gd` | rules | Night clock label and how many night minutes timed tests take (D133) |
+| `scripts/rules/night_clock.gd` | rules | Night clock label, how many night minutes timed tests take (D133) and whether a test still ends by 06:00 (0.47.0) |
+| `scripts/rules/findings.gd` | rules | The Findings notebook (D150, 0.47.0): seen / measured / done entries on the night clock, outdated marking, bench inspection texts, part labels with owner |
+| `scripts/rules/stress_lab.gd` | rules | The Stress lab, the monitor's standalone long load test (D150, 0.47.0): temperature readings, loud fans, crash minute; observations only |
+| `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
 | `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |
@@ -720,3 +724,20 @@ SAVE_FORMAT remains 1 (additive optional flag, not an incompatible schema change
 
 Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
 18 November 2026, Europe/Bucharest.
+
+
+## Diagnosis contracts — 0.47.0 (session 3.4)
+
+`job.findings` is the Findings notebook (`scripts/rules/findings.gd`): an Array of
+`{kind, text, night, minute, until, sig, source, incomplete}`, kind `observation`/`measurement`/`work`,
+rebuilt by `Findings.sanitize` on load (unknown kinds, empty texts and malformed stamps are dropped;
+newest 150 kept). Old saves and manifests without the key simply start an empty notebook; SAVE_FORMAT
+stays 1. Write entries only through `GameState.note()` (no save) or `GameState.record_finding()` (saves);
+both stamp `night_number`, `night_minutes` and `WorkReport.signature(job)`. Hardware changes are logged
+inside GameState's own mutators (`_note_build` diffs `Findings.configuration` before/after), so views
+never write work history themselves. **Never put hidden health into a Findings text**: only what the
+player was shown. `scripts/rules/diagnosis.gd` reads hidden truth and must never be called from a view,
+the notebook or a future manual; it exists for tests and the 3.5 generator. Timed monitor tests check
+`NightClock.fits` before charging anything. The diagnosis manual is not built (deferred by the user).
+
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
