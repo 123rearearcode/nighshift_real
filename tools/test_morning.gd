@@ -5,6 +5,7 @@ const Morning = preload("res://scripts/rules/morning.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
+const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 
 func _initialize() -> void: call_deferred("run_checks")
 
@@ -53,9 +54,9 @@ func run_checks() -> void:
     check(relu["paid"] == 0 and not relu["boots"] and str(relu["reaction"]).begins_with("Furious") and relu["trust_change"] < 0, "a PC that does not start is not paid for and costs trust")
     check(gs.money == cash + payout and report["earned"] == payout, "the shop is paid once")
     check(gs.comebacks.size() == 1 and gs.comebacks[0]["faults"] == [InstallFaults.GPU_LOOSE] and gs.comebacks[0]["customer_id"] == first_customer, "the loose GPU screws are queued to come back")
-    check(of_kind(report, "new").size() == 2 and gs.night_number == 2 and gs.night_minutes == 0, "two new customers arrive and the clock resets")
+    check(of_kind(report, "new").size() == ShopRating.arrivals(float(report["rating"]), int(report["reputation"]), 0) and of_kind(report, "new").size() >= 1 and gs.night_number == 2 and gs.night_minutes == 0, "new customers arrive (0.48.0: as many as the rating and reputation bring) and the clock resets")
     var open: Array = night.jobs(gs).filter(func(j: Dictionary) -> bool: return j["state"] != "done")
-    check(open.size() == 2 and night.tickets.size() == 2 and gs.job["state"] == "open" and gs.job["id"] != first and gs.job["id"] != other, "collected PCs leave; the active PC is a new one")
+    check(open.size() == of_kind(report, "new").size() and night.tickets.size() == open.size() and gs.job["state"] == "open" and gs.job["id"] != first and gs.job["id"] != other, "collected PCs leave; the active PC is a new one")
     check(not open.any(func(j: Dictionary) -> bool: return bool(Ticket.flags(j)["called"])), "new tickets start uncalled")
     gs.save_game()
     check(gs.load_game() and gs.comebacks.size() == 1 and gs.night_number == 2, "the comeback and the night number survive save and load")
@@ -65,7 +66,7 @@ func run_checks() -> void:
     # Night two: nobody called. Both wait; the comeback is not due yet.
     var trust: int = int(gs.customer_view(first_customer)["trust"])
     report = night.end_night(gs)
-    check(report["ok"] and of_kind(report, "waiting").size() == 2 and of_kind(report, "waiting")[0]["nights"] == 1 and of_kind(report, "comeback").is_empty() and of_kind(report, "new").is_empty(), "uncalled PCs wait; no comeback yet")
+    check(report["ok"] and of_kind(report, "waiting").size() == open.size() and of_kind(report, "waiting")[0]["nights"] == 1 and of_kind(report, "comeback").is_empty() and of_kind(report, "new").size() == ShopRating.arrivals(float(report["rating"]), int(report["reputation"]), open.size()), "uncalled PCs wait; no comeback yet; new customers only as the rating brings and space allows")
     check(int(gs.customer_view(first_customer)["trust"]) == trust and gs.comebacks[0]["nights_left"] == 1, "nothing changes for the waiting customers")
 
     # Night three: the loose GPU screws bring the first customer back.

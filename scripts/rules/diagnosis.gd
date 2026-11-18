@@ -21,6 +21,8 @@ const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
+const Catalog = preload("res://scripts/data/hardware_catalog.gd")
+const Games = preload("res://scripts/data/games.gd")
 
 const EVIDENT: int = 1
 const TESTED: int = 2
@@ -31,6 +33,8 @@ const UNSOLVABLE: int = 99
 # What the player can use: {"stock": {kind: count of working, available owned parts},
 # "models": {kind: [catalogue ids of those parts]}, "games": [owned game ids], "money": shop cash}.
 # Built by GameState.diagnosis_capabilities(). Without "models", only the counts are checked.
+# "buy": true (user, 18 November 2026, D153 option B): a known-good part the shop can afford to buy from
+# the catalogue counts as a test part too, so owning a variety of parts matters but is not required.
 static func capabilities(stock: Dictionary, games: Array, money: int, models: Dictionary = {}) -> Dictionary:
     return {"stock": stock, "models": models, "games": games, "money": money}
 
@@ -45,6 +49,10 @@ static func conditions(job: Dictionary, load_temp: float) -> Array:
             out.append({"id": "dust:" + str(zone["id"]), "paths": [_path("inspect_repair_bench", EVIDENT)]})
     if str(job.get("paste_grade", "")) == "" or not bool(job.get("paste_done", false)):
         out.append({"id": "cooler_contact", "paths": [_path("inspect_repair_bench", EVIDENT), _path("hardware_check", EVIDENT)]})
+    var out_now: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
+    for kind: Variant in out_now:
+        # A part out of the PC (the customer's, lying beside it): seen on the repair bench, named by the boot.
+        out.append({"id": "out:" + str(kind), "paths": [_path("inspect_repair_bench", EVIDENT), _path("boot_check", EVIDENT)]})
     for line: String in PcBuild.missing(job):
         out.append({"id": "missing:" + line.get_slice(":", 0).to_lower(), "paths": [_path("inspect_hardware_bench", EVIDENT)]})
     var broken: Array = job.get("broken_parts", []) if job.get("broken_parts", []) is Array else []
@@ -96,20 +104,30 @@ static func suits(job: Dictionary, kind: String, model: String) -> bool:
     return true
 
 
+# D153 option B: can the shop buy a catalogue part of this kind that suits the PC, with the cash it has?
+static func _buyable(job: Dictionary, kind: String, caps: Dictionary) -> bool:
+    if not bool(caps.get("buy", false)) or job.is_empty(): return false
+    for id: String in Catalog.of_type(kind):
+        if int(Catalog.part(id)["price"]) <= int(caps.get("money", 0)) and suits(job, kind, id): return true
+    return false
+
+
 static func _open(path: Dictionary, caps: Dictionary, job: Dictionary = {}) -> bool:
     var needs: Dictionary = path["needs"]
-    if needs.has("stock") and int((caps.get("stock", {}) as Dictionary).get(str(needs["stock"]), 0)) <= 0: return false
+    if needs.has("stock") and int((caps.get("stock", {}) as Dictionary).get(str(needs["stock"]), 0)) <= 0 and not _buyable(job, str(needs["stock"]), caps): return false
     if needs.has("stock") and caps.get("models", {}) is Dictionary and (caps["models"] as Dictionary).has(str(needs["stock"])):
         var fits: Array = (caps["models"][str(needs["stock"])] as Array).filter(func(m: Variant) -> bool: return suits(job, str(needs["stock"]), str(m)))
-        if fits.is_empty(): return false
-    if needs.has("game") and (caps.get("games", []) as Array).is_empty(): return false
+        if fits.is_empty() and not _buyable(job, str(needs["stock"]), caps): return false
+    if needs.has("game") and (caps.get("games", []) as Array).is_empty():
+        # Option B for games too: buying the test game in Vapor is a way in when the shop can afford it.
+        if not bool(caps.get("buy", false)) or int(caps.get("money", 0)) < int(Games.game("counter_stroke_2").get("price", 0)): return false
     if needs.has("money") and int(caps.get("money", 0)) < int(needs["money"]): return false
     return true
 
 
 # Conditions that stop the PC from starting (everything a "boots" path waits for).
 static func _blocks_boot(id: String) -> bool:
-    return id.begins_with("missing:") or id == "psu_too_small" or id in ["faulty:gpu", "faulty:cooler", "damaged:gpu", "damaged:cooler"]
+    return id.begins_with("missing:") or id.begins_with("out:") or id == "psu_too_small" or id in ["faulty:gpu", "faulty:cooler", "damaged:gpu", "damaged:cooler"]
 
 
 # Per condition: {"id", "level"} where level is the cheapest open path, or UNSOLVABLE.

@@ -17,7 +17,9 @@ func _ready() -> void:
     report = NightSession.last_report
     var night: int = int(report.get("night",GameState.night_number-1))
     _label("MORNING AFTER NIGHT %d"%night,Vector2(60,28),Vector2(900,48),30)
-    _label("Cash earned this morning: $%d · shop cash now $%d"%[int(report.get("earned",0)),GameState.money],Vector2(60,80),Vector2(1160,32),19)
+    _label("Cash earned this morning: $%d · shop cash now $%d"%[int(report.get("earned",0)),GameState.money],Vector2(60,72),Vector2(1160,28),19)
+    # 0.48.0 (D153): why this many customers came in.
+    if str(report.get("arrivals","")) != "": _label(str(report["arrivals"]),Vector2(60,100),Vector2(880,24),15)
     var list: Array = report.get("cards",[])
     if list.is_empty():
         _label("Nothing to report.",Vector2(60,140),Vector2(600,32),18)

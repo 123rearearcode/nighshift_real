@@ -54,7 +54,7 @@ static func window(owner: Node, id: String, after: Callable = Callable()) -> Acc
     var buttons: Dictionary = {}
     var refresh := func() -> void:
         var current: Dictionary = job(owner, id)
-        dialog.dialog_text = Ticket.text(current, Customers.customer(str(current.get("customer_id", ""))), game_titles())
+        dialog.dialog_text = Ticket.text(current, _gs(owner).person(str(current.get("customer_id", ""))), game_titles())   # 0.48.0: story or generated
         for entry: Array in Ticket.menu(current):
             if buttons.has(entry[0]): buttons[entry[0]].text = str(entry[1])
     for entry: Array in Ticket.menu(job(owner, id)):

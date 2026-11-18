@@ -27,11 +27,14 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
 const Findings = preload("res://scripts/rules/findings.gd")
+const TicketRating = preload("res://scripts/rules/shop_rating.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
 const SETTINGS_PATH: String = "user://nightshift_settings.json"
 const HISTORY_KEEP: int = 10    # pickup history entries kept per customer (D106, proposal)
+const REVIEWS_KEEP: int = 20    # 0.48.0: pickup scores kept for the online rating (the latest 10 count)
+const PROFESSIONS: Array = ["regular", "gamer", "clueless"]
 # Bump only when the saved data changes shape incompatibly (and log it in CHANGELOG.md).
 const SAVE_FORMAT: int = 1
 const START_MONEY: int = 100
@@ -61,6 +64,10 @@ var upgrades: Dictionary = {}   # upgrade id -> true once bought
 var owned_games: Array = []     # game ids the shop bought to test with (D94); kept across tickets
 var customer_state: Dictionary = {}   # customer id -> {"trust": int, "history": Array}; what the shop EARNED (kept across tickets)
 var tickets_taken: int = 0      # how many tickets the shop has COMPLETED; picks the next customer (D104); kept across tickets
+var people: Dictionary = {}     # 0.48.0 (D153): generated customers by id ("p0001"...): who they are, their PC and needs; kept like customer_state
+var person_sequence: int = 1    # 0.48.0: the next generated customer's number
+var reviews: Array = []         # 0.48.0: pickup scores (0..100), newest last: the shop's online rating (ticket_generator.gd)
+var world_seed: int = 0         # 0.48.0: seeds every generated morning, so the same save always gets the same customers
 var sound_volume: float = 1.0   # master volume 0..1 (D107); lives in its own settings file, never in the game save
 var settings_path: String = SETTINGS_PATH # injectable for isolated regression tests
 
@@ -87,6 +94,8 @@ func new_game(persist: bool = true) -> void:
     inventory_sequence = 10
     upgrades = {}
     # owned_games and customer_state are NOT reset: the games and the relationships belong to the shop.
+    # 0.48.0: neither are the generated customers, the reviews or the world seed (one is made if missing).
+    if world_seed == 0: world_seed = _new_seed()
     if persist:
         save_game()
 
@@ -592,6 +601,10 @@ func save_game() -> void:
         "upgrades": upgrades,
         "owned_games": owned_games,
         "customer_state": customer_state,
+        "people": people,
+        "person_sequence": person_sequence,
+        "reviews": reviews,
+        "world_seed": world_seed,
         "tickets_taken": tickets_taken,
         "night_minutes": night_minutes,
         "night_number": night_number,
@@ -650,11 +663,27 @@ func load_game() -> bool:
     if raw_games is Array:
         for g: Variant in raw_games:
             if not Games.game(str(g)).is_empty() and not str(g) in owned_games: owned_games.append(str(g))
+    # 0.48.0: generated customers first, so their trust, history and tickets load like the story ones.
+    people = {}
+    var raw_people: Variant = data.get("people", {})
+    if raw_people is Dictionary:
+        for pid: Variant in raw_people:
+            var person_record: Dictionary = _person_from(str(pid), raw_people[pid])
+            if not person_record.is_empty(): people[str(pid)] = person_record
+    person_sequence = maxi(1, int(data.get("person_sequence", people.size() + 1))) if typeof(data.get("person_sequence", 1)) in [TYPE_INT, TYPE_FLOAT] else people.size() + 1
+    reviews = []
+    var raw_reviews: Variant = data.get("reviews", [])
+    if raw_reviews is Array:
+        for score: Variant in raw_reviews:
+            if typeof(score) in [TYPE_INT, TYPE_FLOAT] and is_finite(float(score)): reviews.append(clampi(int(score), 0, 100))
+    reviews = reviews.slice(maxi(0, reviews.size() - REVIEWS_KEEP))
+    world_seed = int(data.get("world_seed", 0)) if typeof(data.get("world_seed", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
+    if world_seed == 0: world_seed = _new_seed()
     customer_state = {}
     var raw_customers: Variant = data.get("customer_state", {})
     if raw_customers is Dictionary:
         for cid: Variant in raw_customers:
-            var record: Dictionary = Customers.customer(str(cid))
+            var record: Dictionary = person(str(cid))
             if record.is_empty(): continue
             var entry: Variant = raw_customers[cid]
             if not entry is Dictionary: continue
@@ -721,11 +750,11 @@ func load_game() -> bool:
     var specs: Variant = job.get("pc_specs", {})
     if not specs is Dictionary: specs = {}
     # D148 (0.45.0): the parts are the truth; pc_specs is derived from them. Old saves get the customer's PC.
-    var default_pc: Dictionary = Customers.customer(str(job.get("customer_id", ""))).get("pc", {})
+    var default_pc: Dictionary = person(str(job.get("customer_id", ""))).get("pc", {})
     job["parts"] = PcBuild.sanitize(job["parts"] if job.get("parts", null) is Dictionary else default_pc)
     job["pc_specs"] = PcBuild.specs(job["parts"])
     job["loose_parts"] = CustomerPC.loose(job)
-    if Customers.customer(str(job.get("customer_id", ""))).is_empty():
+    if person(str(job.get("customer_id", ""))).is_empty():
         job["customer_id"] = "t001_mara"
         job["customer"] = Customers.customer("t001_mara")["name"]
     job["pc_powered"] = bool(job.get("pc_powered", false))
@@ -789,7 +818,7 @@ func load_game() -> bool:
 
 # The shop's live view of a customer: the data-file person plus earned trust and history.
 func customer_view(id: String) -> Dictionary:
-    var who: Dictionary = Customers.customer(id)
+    var who: Dictionary = person(id)
     if who.is_empty(): return {}
     var state: Dictionary = customer_state.get(id, {})
     who["trust"] = clampi(int(state.get("trust", who.get("trust_start", 50))), 0, 100)
@@ -857,6 +886,8 @@ func _record_pickup(temp: float, faults: Variant = null, boots: bool = true) -> 
     var days: int = PickupScore.comeback_days(int(result["score"]))
     var trust: int = clampi(int(who["trust"]) + (Morning.NO_BOOT_TRUST if not boots else trust_step(int(result["score"]))), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)
+    reviews.append(int(result["score"]))   # 0.48.0: every pickup is a review; the latest ones make the online rating
+    while reviews.size() > REVIEWS_KEEP: reviews.pop_front()
     var entry: Dictionary = {"ticket": str(job["id"]), "score": int(result["score"]), "misses": result["misses"],
         "comeback_days": days, "scams": (job["scams"] as Array).duplicate()}
     var state: Dictionary = customer_state.get(str(who["id"]), {"trust": int(who["trust"]), "history": []})
@@ -919,7 +950,7 @@ func advance_comebacks() -> Array:
 func make_ticket_job(customer_id: String) -> Dictionary:
     ticket_sequence += 1
     var fresh: Dictionary = _make_job()
-    var who: Dictionary = Customers.customer(customer_id)
+    var who: Dictionary = person(customer_id)
     if who.is_empty(): return fresh
     fresh["customer_id"] = customer_id
     fresh["customer"] = str(who["name"])
@@ -1034,6 +1065,89 @@ func apply_bench(snapshot: Dictionary) -> bool:
     return changed
 
 
+# ----- 0.48.0: customers who are not in the data file (D153) -----
+
+# Anyone who can bring a ticket: a story customer from customers.gd or a generated one. {} when unknown.
+func person(id: String) -> Dictionary:
+    var who: Dictionary = Customers.customer(id)
+    if not who.is_empty(): return who
+    var made: Variant = people.get(id, {})
+    return (made as Dictionary).duplicate(true) if made is Dictionary else {}
+
+
+# Stores (or updates) a generated customer's record.
+func remember_person(record: Dictionary) -> void:
+    var clean: Dictionary = _person_from(str(record.get("id", "")), record)
+    if not clean.is_empty(): people[str(clean["id"])] = clean
+
+
+func next_person_id() -> String:
+    var id: String = "p%04d" % person_sequence
+    person_sequence += 1
+    return id
+
+
+# Every customer the shop knows: story ones first, then generated ones by id.
+func known_customers() -> Array:
+    var ids: Array = Customers.IDS.duplicate()
+    var made: Array = people.keys()
+    made.sort()
+    ids.append_array(made)
+    return ids
+
+
+# The online rating (stars) and the reputation (average trust of customers served).
+func shop_rating() -> float:
+    return TicketRating.rating(reviews)
+
+
+func shop_reputation() -> int:
+    var trusts: Array = []
+    for id: Variant in customer_state: trusts.append(int(customer_state[id].get("trust", 50)))
+    return TicketRating.reputation(trusts)
+
+
+static func _new_seed() -> int:
+    var value: int = 0
+    while value == 0: value = int(Crypto.new().generate_random_bytes(4).decode_u32(0)) & 0x3fffffff
+    return value
+
+
+# Rebuilds a saved generated customer from known fields only ({} when it cannot be trusted).
+func _person_from(id: String, raw: Variant) -> Dictionary:
+    if not raw is Dictionary or not id.begins_with("p") or id.length() > 12 or not Customers.customer(id).is_empty(): return {}
+    var r: Dictionary = raw
+    var name_text: String = str(r.get("name", "")).strip_edges().left(40)
+    var kind: String = str(r.get("profession", ""))
+    if name_text == "" or not kind in PROFESSIONS: return {}
+    var out: Dictionary = {"id": id, "name": name_text, "portrait": "", "scripted": false, "generated": true, "profession": kind}
+    for key: String in ["persona", "about", "uses", "habits", "patience", "complaint"]: out[key] = str(r.get(key, "")).left(400)
+    for key: String in ["trust_start", "budget", "payout"]:
+        out[key] = clampi(int(r.get(key, 50 if key == "trust_start" else 0)), 0, 100000) if typeof(r.get(key, 0)) in [TYPE_INT, TYPE_FLOAT] else (50 if key == "trust_start" else 0)
+    out["trust_start"] = clampi(int(out["trust_start"]), 0, 100)
+    out["pc"] = PcBuild.sanitize(r.get("pc", {}))
+    var needs: Variant = r.get("needs", {})
+    if kind == "clueless" and needs is Dictionary and (needs as Dictionary).has("real"):
+        out["needs"] = {"stated": _needs_from(needs.get("stated", {})), "real": _needs_from(needs.get("real", {}))}
+    else:
+        out["needs"] = _needs_from(needs)
+    return out
+
+
+static func _needs_from(raw: Variant) -> Dictionary:
+    var out: Dictionary = {"boots": true}
+    if not raw is Dictionary: return out
+    if bool((raw as Dictionary).get("quiet", false)): out["quiet"] = true
+    var games: Array = []
+    var raw_games: Variant = (raw as Dictionary).get("games", [])
+    if raw_games is Array:
+        for g: Variant in raw_games:
+            if g is Dictionary and not Games.game(str(g.get("game_id", ""))).is_empty() and typeof(g.get("min_fps", 0)) in [TYPE_INT, TYPE_FLOAT]:
+                games.append({"game_id": str(g["game_id"]), "min_fps": clampi(int(g["min_fps"]), 1, 500)})
+    if not games.is_empty(): out["games"] = games
+    return out
+
+
 # ----- 0.47.0: the Findings notebook (D150) -----
 
 # Writes one notebook entry on the active ticket, stamped with the night clock, the night number and
@@ -1070,7 +1184,8 @@ func diagnosis_capabilities() -> Dictionary:
         if model != "":
             if not models.has(kind): models[kind] = []
             (models[kind] as Array).append(model)
-    return {"stock": stock, "models": models, "games": owned_games.duplicate(), "money": money}
+    # D153 option B: what the shop can afford to buy counts too (diagnosis.gd).
+    return {"stock": stock, "models": models, "games": owned_games.duplicate(), "money": money, "buy": true}
 
 
 func _note_build(before: Array) -> void:

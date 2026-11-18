@@ -1,6 +1,100 @@
 # Handoff — current state first
 
-## Current — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026
+## Current — 0.48.0 integration: PR #60 (0.47.1) reconciled into PR #59, 18 November 2026
+
+The user asked Claude to reconcile the two open PRs per Codex's instructions and push the result.
+Branch `feat/generated-tickets-0480` (PR #59) now contains PR #60's commit 656221d through a normal
+merge commit (no force-push, no rebase). Neither PR is merged into main; merge stays user-controlled.
+Merging #59 brings both; merging #60 first and then #59 also works (no further conflicts).
+
+Done per Codex's 0.47.1 instructions: version stays 0.48.0 (0.47.1 is folded in, not overwritten);
+all suites kept and registered (Part lifecycle, Diagnosis, Generated tickets) plus the Python ledger
+checks; Codex's reconciled register adopted as is; Claude's former B48 row re-filed in the new format
+with an index row, a detail section and Verified/Automated evidence linked to
+`tools/test_generated_tickets.gd`; register checker and its malformed-ledger tests run before pushing.
+No runtime identity migration was started (instruction 5): L1/L2 stay Investigating. The 0.50.0
+structural review marker is unchanged. Both sections below remain current instructions.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Current work — 0.47.1 bug register and lifecycle safeguards, 18 November 2026
+
+User assignment: implement the bug-audit recommendations in a NEW PR and include resume instructions
+for other AIs. Base is merged main 0.47.0 (`ed64f21`): PRs #57 and #58 are already merged. Claude's
+PR #59 (0.48.0 generated tickets) is open and touches shared runtime state. This branch does not edit
+GameState, benches or the generator, and it does not merge any PR.
+
+Delivered here: one reconciled 47-bug index with details; explicit Fixed/Verified evidence types;
+current RC-1/RC-4 status, diagnosis-safe RC-2 wording, next checkpoint 0.50.0; Python ledger validation
+and malformed-ledger fixtures run in CI even for docs changes; required cross-PC Part lifecycle suite.
+Read docs/PART_LIFECYCLE.md for complete-journey invariants and the staged part-record direction.
+
+**Important boundary:** lifecycle tests pass for existing shop-stock uids/custody; a full stable
+customer-part registry and orphan recovery are NOT implemented here. L1/L2 are explicitly Investigating,
+not invented fixes or automatically promoted confirmed bugs. Do not infer their completion from green CI.
+
+### Instructions for Claude / any integrating AI
+
+1. Read this section, docs/BUGS.md filing rules, docs/PART_LIFECYCLE.md and the new 0.47.1 changelog.
+2. Check actual main and open PRs. This branch is independent of #59; reconcile whichever lands second.
+   Preserve the new bug checker/tests AND Diagnosis/Part lifecycle/Generated tickets workflow entries.
+   Do not overwrite 0.48.0 metadata or reuse a B-id allocated in another open PR. If a new ledger row is
+   added, add its matching detail section and explicit evidence status; run the checker before pushing.
+3. Keep Fixed separate from Verified; name Automated/Graphical/User evidence and link the regression
+   or recording. No claim of user acceptance from headless tests. Historical notes are not current rules.
+4. Before further ownership/save changes, run tools/test_part_lifecycle.gd and add the missing complete
+   journey. Same-model neighbours, returns after damage, inactive-PC reload and repeat collection matter.
+5. Coordinate ownership before the next runtime identity migration. Introduce stable physical customer
+   records incrementally behind existing projections; do not create a second writable PC database.
+   Satisfy the L1/L2 acceptance scenarios before marking them fixed. Never unlock or delete orphan
+   custody merely because the referenced ticket cannot be found.
+6. Read optional/external values once, validate the local value, then use it. Keep missing-key and
+   malformed nested-record fixtures (B8/B30/B34). Do not check get() then index the absent key.
+7. Reconcile current root causes at 0.50.0 and advance its review marker. Keep old review provenance.
+   Review/merge remains user-controlled. The deferred manual remains deferred.
+
+### Copyable resume prompt
+
+> Read HANDOFF.md's 0.47.1 section and PART_LIFECYCLE.md before continuing. This PR reconciles the
+> bug ledger and adds enforced ledger/evidence checks plus complete cross-PC lifecycle tests; it does
+> not migrate all customer-part identity or solve orphan recovery. Preserve all bug IDs and test suites
+> when reconciling with PR #59. Check version allocation and live hot-file ownership. For identity
+> work, stage one authoritative per-part model with separate actual/known condition and prove the
+> complete migration/rollback journeys before closing L1/L2. Do not treat historical notes or green CI
+> as user verification. Run the register checker and relevant lifecycle/native tests before pushing.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. Execution evidence is in CHANGELOG 0.47.1; no manual playtest claimed.
+
+## Current — 0.48.0 session 3.5 Generated tickets (Claude), 18 November 2026
+
+Main was 0.47.0 (ed64f21): the user merged PRs #57 and #58; archived as `archive/v0.47.0`. No new Codex
+commits or PRs were found after the pause; Codex's PR #58 answers are carried in D152's follow-up.
+Branch `feat/generated-tickets-0480`.
+
+The user answered the 3.5 talk-first questions (D153, approved): option B (a part the shop can buy
+counts as a test part; part variety matters); tickets arrive in the morning, as many as reputation and
+online rating bring; difficulty rises with the night; pool = existing problems + customer overclocks +
+the clueless customer; generated customers are parody names with a profession.
+
+Built: `shop_rating.gd` (rating, reputation, arrivals), `ticket_generator.gd` (people, PCs, problems,
+complaints, pay, seeded draws, and the offer-only-if proof: diagnosis.gd evidence with owned or
+affordable parts, difficulty within the night's cap, a like-for-like repair that can satisfy the real
+needs), saved generated customers/reviews/world seed, morning arrivals replacing the fixed two-customer
+loop, and B48 (manifest rejected bought first-slot parts after reload). Numbers are D154 proposals.
+
+For Codex's cross-review (D154 and the CHANGELOG "Known issues"): the arrival formula and caps; the
+level caps and pool levels; whether the proof meets your "suitability, workload, sequence" bar (PSU
+suitability, the repaired-PC pickup check and boot-masking are in; two purchases are not budgeted
+together); the "PC without any GPU still boots" gap; REPAIR_LOOP_DESIGN section 6 is yours to update.
+Evidence: GitHub Actions, Godot 4.7.2 headless, 25 suites green (Generated tickets 65). No playtest yet.
+Next in the plan: 3.6 testing bay (talk first). Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+## Previous delivery notes — historical snapshots, not current merge instructions
+
+The following version-specific statuses are retained as provenance. The current section above and
+the actual repository state supersede their old open/stacked/merge-order/ownership claims.
+
+## Previous — 0.47.0 session 3.4 Diagnosis (Claude), 18 November 2026 (merged)
 
 Branch `feat/diagnosis-0470`, **stacked on PR #57** (0.46.3, head 02b6343). Claude reviewed Codex's
 0.46.3 follow-up first, as instructed: collection materialization, component damage custody, the wider
