@@ -1,5 +1,30 @@
 # Nightshift — Decision Register
 
+### D157 — Standard Task Manajer accepted and game implementation requested (19 November 2026)
+
+The user reviewed two interactive anti-virus demos, rejected the fast disappearing/reordering version
+as too hard (possibly a future virus boss, not an implementation approval), and approved the calmer
+standard version: fixed rows, no hiding, no moving targets, one occasional advert, slow miner aliases,
+funny-word mainframe overrides. Typed text must visibly be UPPERCASE; SEND must work, with Enter as the
+same submission path. The accepted standard pauses its action while typing, without a countdown.
+The user then explicitly requested adding it to the game and updating Claude's handoff/resume plan.
+
+Implementation scope: the existing actual adware/miner strain plus its Zombie persistence watchdog;
+no invented simultaneous infections or scanner/store expansion. Stop both, disable auto-start, verify
+by reboot before cure. Aborting/failing retains infection and the existing pickup consequences. The
+native minigame does not call the customer, collect/pay a ticket, damage hardware or change reputation.
+Clock cost ten night minutes, eight-second aliases, twelve-second ads and five-second respawns are
+provisional tuning, not newly fixed campaign balance. Incomplete UI progress is session-local;
+canonical infection/cure and spent time save through the existing state, with no save-format change.
+
+Plan: 3.5 generated tickets are merged (#59 including #60); #61 is the pending 0.48.1 board/persistence
+predecessor. This anti-virus detour uses 0.49.0, not session 3.6. Claude resumes **3.6 Testing bay**, talk
+first, after cross-review/user-controlled integration. Next slots become bay 0.50.0 (including the
+structural review still due then), builds 0.51.0, elegance/reviews 0.52.0. Manual 3.4m stays deferred.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+This supersedes conflicting D156 proposal details; boss malware and the wider tool economy stay later.
+
 Version 1.15 · 14 November 2026
 
 This is a consolidated baseline, not a verbatim or individually timestamped transcript. All entries were consolidated on 12 November 2026. IDs are stable references for future tasks. Changes require recording what superseded the previous rule.

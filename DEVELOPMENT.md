@@ -97,7 +97,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
 | `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for Codex: design pass on the scam direction and the dust minigame purpose |
-| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | PROPOSAL for review (D156): "Task Manajer Panic", the anti-virus mini-game: scan as scouting, tells, virus types, scanners, power-ups, build steps, open questions; not built |
+| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | D157 approved standard Task Manajer, implemented controls/clock/interruptions; original unapproved D156 ideas are historical |
+| `scripts/rules/antivirus_round.gd` | rules | Session-local standard cleanup: actual strain + watchdog, stable rows, aliases/adverts, uppercase word verification, outcomes; no PC/save writes |
+| `scripts/night/antivirus_panel.gd` | view | Native stable Task Manajer controls inside the monitor, SEND/Enter/uppercase, typing/focus/shared pause, bounded advert |
+| `tools/test_antivirus.gd` | tooling | Standard cleanup, native button/key submission, real monitor/time/save/cancel/PC isolation journey |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
@@ -781,3 +784,23 @@ first. Code that rebuilds a parts dictionary must carry `board` (see `CustomerPC
 in `HardwareCatalog.PARTS`/`TYPES` on purpose: they are not bench drag pieces or order-panel stock.
 Save gains `vacuum_state` ({bin, hose: [[t, amount]]}, `VacuumState.sanitize`); the bench restores it in
 `_ready` and stores it on every dust save and when the bin is emptied. Recorded by Claude (Opus 5.5).
+
+## Standard anti-virus contract — 0.49.0 (D157)
+
+The monitor owns a session-local AntivirusRound and a native AntivirusPanel. The existing single
+`job.infection` remains the sole infection truth; round source/watchdog rows are its UI simulation,
+not another writable PC record. No saved field or SAVE_FORMAT change. A powered boot, deliberate scan,
+writable checkpoint and `NightClock.fits` gate entry. Spend ten night minutes once before play;
+record start/outcome on the actual clock. `Round.COST_MINUTES` is trial tuning. Interrupted attempts
+retain infection and cost, discard UI-only progress, and never generate a success measurement.
+
+Only a won round on the same scanned ticket and strain calls `GameState.clean_infection()`. Ordinary
+monitor/pickup ownership, cash and parts are untouched. Completion is resolved once. Power-off aborts;
+header navigation rejects while the panel exists, including completed results until Back to monitor.
+Application exit aborts without curing. Shared Pause stops the child process; focus loss pauses it
+unless a word prompt already freezes simulation. Native controls are built once; SEND and Enter
+share submission; text_changed normalizes uppercase with caret preservation. Never rebuild the input
+from a refresh tick. Tests use actual viewport events for both confirmations.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+19 November 2026, Europe/Bucharest.

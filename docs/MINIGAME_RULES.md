@@ -1,5 +1,14 @@
 # Nightshift — minigame rules
 
+## Current anti-virus addition — D157 / 0.49.0, 19 November 2026
+
+The user approved the calm Task Manajer demo and requested native game integration. Its canonical
+contract is ANTIVIRUS_MINIGAME_DESIGN.md: fixed rows, readable tells, sparse adverts, slow aliases,
+uppercase SEND/Enter, no typing countdown, actual infection plus its persistence watchdog, verification
+before cure. Stop/failed rounds retain infection and spent time; no payment/collection follows a win.
+The fast disappearing/reordering prototype is not normal gameplay. The dust/paste rules below are
+unchanged. Signed: Codex (GPT-6; exact deployment model id not exposed), ChatGPT Work.
+
 Design specification revision 1 · 13 November 2026 · docs patch 0.15.2.
 
 **Author:** Codex (GPT-6, model id not exposed by this session), ChatGPT Work. Exact deployment id unavailable; do not invent one. See D51 disclosure in the changelog.

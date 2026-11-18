@@ -77,6 +77,7 @@ Next structural review: **0.50.0**. An early focused review is recorded below fo
 | B47 | Verified | High | Migration | Handing over the starter CPU recreates a free one on reload | 0.46.3 | Automated: hardware lifecycle regressions |
 | B48 | Verified | High | Save | A bought GPU/cooler fitted in the first slot makes the night manifest invalid after a reload; PC switching locks | 0.48.0 | Automated: generated-tickets B48 regression |
 | B49 | Verified | Low | Layout | GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket | 0.48.1 | Automated: bracket screw geometry regression |
+| B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -676,3 +677,13 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: Open the night hardware bench with the GPU fitted: the two screw circles lie inside the PCIe 2 connector rectangle (confirmed with a geometry render from the game's own layout numbers).
 - Expected / actual: screws on the GPU bracket / screws on the second PCIe slot.
 - Regression / evidence: Automated Godot 4.7.2 geometry checks for both case sizes in `tools/test_board_and_bench_state.gd` (screws outside the board, inside the bracket, off every connector; hit test). No graphical playtest or user acceptance claimed yet.
+
+### B50 — Mainframe override confirmation failed in the review prototype
+
+- Found: in-chat fast anti-virus review prototype, 19 November 2026 (not a shipped Godot feature)
+- Reported by: user: "the send button doesnt actually work"; also requested visibly uppercase typing
+- Fixed in: 0.49.0 native integration; the subsequent standard in-chat demo was accepted by the user
+- Root cause: the original browser failure was not captured with an execution trace, so its exact cause remains unknown. The native implementation removes any browser/form dependency: stable SEND Button.pressed and LineEdit.text_submitted share a single explicit handler; text_changed uppercases input while preserving the caret. No controls are recreated during typing.
+- Reproduction: start a miner cleanup, click End on its protected source, type the displayed word, click SEND; repeat in a fresh attempt with Enter. A wrong word must show an error and allow correction. Let time pass during partial input; characters and control identity must survive.
+- Expected / actual: the correct word stops the process via either confirmation path / the user reported that SEND did nothing in the fast prototype.
+- Regression / evidence: Automated Godot 4.7.2 viewport mouse and keyboard input in `tools/test_antivirus.gd` proves native SEND, Enter, immediate uppercase, wrong-word retry and stable input. This verifies the native port, not a reproduced root cause in the old browser prototype. User accepted the standard in-chat version; graphical Godot acceptance remains pending.

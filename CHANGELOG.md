@@ -76,6 +76,91 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.49.0 - 2026-11-19 - Standard Task Manajer anti-virus and return to the Wave 3 plan
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work. No deployment id is invented.
+- Based on: 0.48.1 / PR #61 head 50d16027bac65d68ea4a5f99f1ec16d8f38d1751, stacked on merged main 0.48.0 (6c18522, #59 including #60).
+- Type: minor (user-approved new playable anti-virus activity, D157). This takes 0.49.0; later planned versions move by one.
+
+### Execution status
+Codex ran Godot 4.7.2 stable ed1daf0bf locally, headless: project import, all 28 required suites
+(1,959 checks, zero failures) and the representative bench smoke playtest (Playtest finished, no script
+errors). The new Antivirus suite has 50 checks, including real viewport mouse input and key events.
+The expected save-warning in its failed-write fixture is intentional. The user accepted the standard
+in-chat demo; no graphical Godot playtest or graphical acceptance is claimed for this native port.
+
+### Added / Changed / Fixed / Removed
+- Scan -> Remove threat now opens Task Manajer inside the existing monitor, rather than instantly
+  curing. Use the actual PC's adware/miner source and its Zombie persistence watchdog. Stop both,
+  disable auto-start and reboot to verify before canonical cure. One saved infection remains one.
+- Preserve six row/control identities, including ended tasks. No disappearing, moving or spawning
+  rows; one bounded occasional advert; only a miner slowly changes alias. Ordinary programs can be
+  closed without crashing; ending the critical desktop ends the attempt and switches the PC off.
+- Protected miner asks for a funny word. Typed input visibly uppercases with caret preservation;
+  native SEND and Enter share the handler. Wrong words permit retry; typing freezes simulation
+  indefinitely. No form-submission dependency, input recreation or typing countdown (B50 safeguard).
+- Trial attempt cost: 10 canonical night minutes, spent once on entry after boot/scan/save/time gates.
+  Failed/incomplete attempts retain cost and infection. Global/local/focus pause, power cancellation,
+  save/reload and stale-ticket binding are covered. No money, hardware, payment, pickup or trust change.
+- Findings records visible work/outcome on the actual night clock. Cure uses existing state and
+  NightSession saves. No GameState/hardware/tool hot-file edit, new saved field or schema migration.
+- Reconcile handoff, design and Wave 3 allocation: 3.5 is merged; #61 remains the predecessor;
+  anti-virus is a detour. Claude resumes 3.6 Testing bay, talk first, after review/integration.
+  Bay is now 0.50.0 with the structural review, builds 0.51.0, elegance/reviews 0.52.0. Manual deferred.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| scripts/rules/antivirus_round.gd | A | Isolated standard cleanup simulation and persistence/typing/verification rules |
+| scripts/night/antivirus_panel.gd | A | Native stable monitor panel and input/pause/advert feedback |
+| scripts/night/software_view.gd | M | Actual monitor start, paid attempt, completion binding, cancellation and guarded exits |
+| scripts/rules/malware.gd | M | Scan message explains the new removal route |
+| tools/test_antivirus.gd | A | Pure behaviours plus native SEND/Enter and full monitor/save/time/isolation journeys |
+| .github/workflows/tests.yml | M | Required Antivirus suite, retaining all prior suites |
+| project.godot | M | Version 0.49.0 |
+| README.md | M | Play instructions, branch dependency and resume/version allocation |
+| HANDOFF.md | M | Current state, exact Claude resume order and copyable prompt; old review request marked historical |
+| DEVELOPMENT.md | M | Module file map, native input and authoritative state/clock contracts |
+| docs/ANTIVIRUS_MINIGAME_DESIGN.md | M | Approved standard contract supersedes archived original proposals |
+| docs/DECISIONS.md | M | D157, accepted standard demo, implementation and deferred boundaries |
+| docs/WORK_PLAN.md | M | Correct 3.5 merge state, detour and remaining session/version table |
+| docs/CURRENT_STATE.md | M | Live branch/implementation facts supersede historical status paragraphs |
+| docs/DESIGN.md | M | Approved calm controls and canonical infection/verification scope |
+| docs/PROJECT_BRIEF.md | M | Current side-feature scope and resume point |
+| docs/ROADMAP.md | M | Remaining Wave 3 gates and shifted version slots |
+| docs/TESTING.md | M | Required native-input and complete cleanup journey policy |
+| docs/SOFTWARE_WAVE_2.md | M | Current monitor removal route supersedes the historical one-click app |
+| docs/MINIGAME_RULES.md | M | Link the approved standard anti-virus contract without changing dust/paste |
+| docs/BUGS.md | M | B50 user-reported review-prototype SEND failure; explicit native-port evidence and root-cause limit |
+| CHANGELOG.md | M | This signed delivery record |
+
+### Checks performed
+- Godot 4.7.2 project import passed. All 28 required suites passed, 1,959 total checks; Antivirus 50.
+- Native Antivirus checks cover actual SEND/Enter/uppercase, retry/stable input, typing/focus/global
+  pause, source/watchdog/reboot, 06:00/boot/save refusal, paid cancellation/reload, repeat completion
+  and same-strain stale-ticket isolation. Previous Part lifecycle 38 and Board and bench state 39 retained.
+- Godot bench smoke: Playtest finished; no SCRIPT ERROR or Parse Error.
+- Project checker passed (135 scripts, 681 resolved references, 197 mapped files, five core docs,
+  zero problems). CI-scope tests: 9 passed. Bug-register checker: zero problems; malformed-ledger
+  fixtures: 12 passed. `git diff --check` passed. The published tree is checked against the local commit.
+
+### Decisions proposed (not approved)
+Ten-minute attempt cost, eight-second alias, twelve-second advert, five-second watchdog return and
+overload rates are trial balance. Boss malware, new virus families, scanner/store/power-up economy,
+subscriptions and deeper persistence remain deferred; none is silently approved by the standard demo.
+
+### Known issues and open items
+No graphical native feel acceptance yet. Intermediate row activity is deliberately session-local;
+closing/reloading requires a fresh paid attempt, not a saved mid-round resume. The old browser SEND
+failure's exact root cause was not traced; B50 evidence verifies the native implementation. Existing
+L1/L2 customer-part identity/orphan custody limitations and no-GPU boot gap are not solved here.
+
+### Next action
+Claude cross-reviews #61 and this stacked feature; merges remain user-controlled. Integrate #61 first,
+retarget the feature to updated main, integrate after review, then resume 3.6 Testing bay with its
+required design discussion. Use 0.50.0 and do its structural review then; keep the manual deferred.
+Codex's software-view/anti-virus file reservation is released after this delivery/cross-review.
+
 ## 0.48.1 - 2026-11-18 - Motherboards, GPU bracket screws, vacuum and paste kept across screens
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

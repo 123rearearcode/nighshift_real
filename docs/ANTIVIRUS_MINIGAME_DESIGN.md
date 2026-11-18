@@ -1,4 +1,64 @@
-# PROPOSAL — "Task Manajer Panic": the anti-virus mini-game
+# Task Manajer — approved standard infection, implemented in 0.49.0
+
+19 November 2026 · D157 · Codex (GPT-6; exact deployment model id not exposed by this session),
+ChatGPT Work. This section supersedes revision 1's unapproved fast-round rules below. Original D156
+chose the Task Manager direction; after interactive reviews, the user approved the calmer demo and
+requested game integration. The disappearing/reordering experiment was too hard; a boss is an idea only.
+
+## Current player loop
+
+Boot the actual customer PC -> Anti-virus scan -> Remove threat -> Task Manajer inside the monitor.
+Inspect processes, end the malicious source and its Zombie watchdog, disable the visible auto-start
+entry, then Reboot & verify. Only verified victory cures the infection. No payment, ready sticker,
+collection, trust or reputation transaction belongs to this activity.
+
+Six rows stay in the same positions even when ended. No processes disappear, spawn, reorder or hide.
+Ordinary customer apps look silly but have readable publisher/location clues; ending one is a
+recoverable mistake. Ending the critical desktop crashes the attempt and switches the PC off; no
+hardware or file damage is invented. Failure leaves infection for another attempt/customer pickup.
+
+The existing save has one `job.infection`, adware or miner. Each round uses that actual strain plus
+its persistence watchdog. Do not invent a miner on an adware-only PC or claim multiple saved infections.
+
+| Behaviour | Standard implementation |
+| --- | --- |
+| Adware | One advert in a fixed bounded slot, never over controls. Twelve-second recurrence is trial tuning. |
+| Miner | Same row changes alias every eight seconds (trial tuning); publisher, location and identity stay consistent. Protected termination asks for a funny word. |
+| Zombie watchdog | Returns to its same row after five seconds (trial tuning) unless auto-start is disabled. Reboot catches forgotten persistence. |
+| Budget scan | In-round tags for source/watchdog; deliberate monitor scan still precedes cleanup. No shop purchase prerequisite. |
+
+## Current typing and transaction contract
+
+Typed letters immediately become UPPERCASE, preserving the caret. Native SEND `Button.pressed` and
+LineEdit `text_submitted` call one handler. Wrong words show an error and permit retry; success ends
+the protected task once. Cancel leaves it running. No typing countdown: elapsed simulation, aliases,
+adverts, respawns and overload pause during the prompt. Controls are built once, never recreated by
+updates. Shared Pause and focus-loss pause remain usable without trapping the typing prompt.
+
+Trial cost: ten canonical night minutes per attempt, spent/saved once on entry. Check powered boot,
+actual infection, writable PC and fit before 06:00 first. Incomplete attempts retain paid time;
+scan/notes remain uncharged as before. The round's animation time is not a separate night clock.
+
+Rounds are session-local. Stop cleanup, power-off or application exit leaves infection intact;
+a fresh attempt resets local progress and visibly costs time again. Navigation refuses while the
+panel is open. Cure and Findings use existing GameState/NightSession saves; no new save key or schema.
+Findings records visible actions/outcome on the real night clock. Completion binds the scanned ticket
+and strain; a stale panel cannot cure another PC. "Looks fine" exits cleanup only: actual pickup still
+uses the ordinary ticket workflow and existing infection consequences, with no invented fraud penalty.
+
+## Current boundaries and resume
+
+Deferred: boss speed/disappearance, new virus families, simultaneous saved infections, scanner tiers,
+subscriptions, tools/store economy and deeper persistence. The eight old questions below are historical
+proposals, not blockers or approval for this other work. Required suite: `tools/test_antivirus.gd`
+(Antivirus), covering native SEND/Enter/uppercase, fixed controls, typing pause, cancellation, reboot,
+clock/06:00, save and stale-ticket isolation. The in-chat acceptance is not a graphical Godot playtest.
+
+This is a detour after 3.5. Claude resumes **3.6 Testing bay, talk first**, after cross-review and
+user-controlled integration. Next slots: bay 0.50.0 with structural review, builds 0.51.0, elegance
+0.52.0. Manual remains deferred. HANDOFF and WORK_PLAN have the live branch/merge/resume instructions.
+
+## Historical revision 1 — proposals superseded by D157 where they conflict
 
 Revision 1 · 18 November 2026 · Claude (Opus 5.5, model id claude-opus-5-5) · **for review, not built**
 

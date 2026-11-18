@@ -10,6 +10,12 @@ const WorkReport = preload("res://scripts/rules/work_report.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
 const StressLab = preload("res://scripts/rules/stress_lab.gd")
 const Findings = preload("res://scripts/rules/findings.gd")
+const AntivirusRound = preload("res://scripts/rules/antivirus_round.gd")
+const AntivirusPanel = preload("res://scripts/night/antivirus_panel.gd")
+var antivirus_panel: Panel
+var antivirus_ticket: String = ""
+var antivirus_strain: String = ""
+var antivirus_resolved: bool = false
 var power_button: Button
 var boot_button: Button
 var hardware_button: Button
@@ -117,6 +123,9 @@ func _ready() -> void:
     if not ready_for_work: _show("No writable customer PC is selected. Return to the workshop.\n"+NightSession.status)
 
 func _navigate(path: String) -> bool:
+    if is_instance_valid(antivirus_panel):
+        message.text = "Close Task Manajer with Stop cleanup / Back to monitor before changing views."
+        return false
     if busy_left > 0.0:
         message.text = "A test is running. Finish it, or use the PC power button to cancel it before changing views."
         return false
@@ -136,7 +145,7 @@ func _refresh() -> void:
     status_label.text = "%s / %s · %s"%[GameState.job["customer"],"POWER ON" if _powered() else "POWER OFF · no live readings",Clock.line(GameState.night_minutes)]
     power_button.text = "Switch PC OFF" if _powered() else "Switch PC ON"
     power_button.disabled = not ready_for_work
-    for button: Button in app_buttons: button.disabled = not ready_for_work or not _powered() or busy_left > 0.0
+    for button: Button in app_buttons: button.disabled = not ready_for_work or not _powered() or busy_left > 0.0 or is_instance_valid(antivirus_panel)
     var owned: bool = GameState.owns_game("counter_stroke_2")
     var game: Dictionary = Games.game("counter_stroke_2")
     buy_button.text = "Vapor · Counter Stroke 2 · owned" if owned else "Vapor · buy Counter Stroke 2 · $%d"%game["price"]
@@ -194,7 +203,7 @@ func _process(delta: float) -> void:
         if done.is_valid(): done.call()
 
 func _guard() -> bool:
-    if not ready_for_work or busy_left > 0.0: return false
+    if not ready_for_work or busy_left > 0.0 or is_instance_valid(antivirus_panel): return false
     if not _powered():
         _show("Power is off. Use Switch PC ON before running live tests.")
         return false
@@ -202,6 +211,10 @@ func _guard() -> bool:
 
 func _power() -> void:
     if not ready_for_work: return
+    if is_instance_valid(antivirus_panel):
+        antivirus_panel.model.abort()
+        antivirus_panel.refresh()
+        _close_antivirus()
     if busy_left > 0.0:
         # D150: a stopped test is noted as incomplete, with no result: nothing was measured to the end.
         _measured("%s stopped: the PC was switched off before it finished. No result."%busy_what,-1,busy_start,true)
@@ -279,12 +292,64 @@ func _scan() -> void:
     _show(str(report["message"]))
 
 func _remove() -> void:
-    if not _guard() or not threat_found: return
-    var removed: bool = GameState.clean_infection()
-    threat_found = false
-    var saved: bool = NightSession.checkpoint(GameState) if removed else true
+    if not _guard() or not threat_found or _night_over(AntivirusRound.COST_MINUTES): return
+    var boot: Dictionary = Checks.boot(GameState.job)
+    if not bool(boot["ok"]):
+        _show(str(boot["message"]))
+        return
+    var strain: String = Malware.strain(GameState.job)
+    if strain == "" or str(GameState.job.get("state","open")) == "done": return
+    if not NightSession.checkpoint(GameState):
+        _show("Cleanup not started, nothing charged. Resolve the save error first.\n"+NightSession.status)
+        return
+    # A whole attempt is paid once BEFORE playing. Stopping, crashing, closing or reloading cannot
+    # grant a free attempt. Round seconds are not an independent night clock. No new save shape.
+    GameState.advance_night(AntivirusRound.COST_MINUTES)
+    GameState.record_finding(Findings.WORK,"Started Task Manajer cleanup; %d night minutes spent." % AntivirusRound.COST_MINUTES,"antivirus")
+    if not NightSession.checkpoint(GameState):
+        _show("Cleanup could not start: the checkpoint failed. Resolve the save error before retrying.\n"+NightSession.status)
+        return
+    antivirus_ticket = str(GameState.job["id"])
+    antivirus_strain = strain
+    antivirus_resolved = false
+    antivirus_panel = AntivirusPanel.new()
+    antivirus_panel.model = AntivirusRound.new(strain)
+    antivirus_panel.clock_text = "Night %d · %s" % [GameState.night_number,Clock.label(GameState.night_minutes)]
+    antivirus_panel.finished.connect(_antivirus_finished)
+    antivirus_panel.closed.connect(_close_antivirus)
+    add_child(antivirus_panel)
     _refresh()
-    _show(("Threat removed. Run the scan again to confirm." if removed else "Nothing to remove.")+("\n"+NightSession.status if not saved else ""))
+
+func _antivirus_finished() -> void:
+    if not is_instance_valid(antivirus_panel) or antivirus_resolved: return
+    antivirus_resolved = true
+    var round_model: RefCounted = antivirus_panel.model
+    # Bind completion to the actual scanned ticket/strain. A stale panel can never cure another PC.
+    if str(GameState.job.get("id","")) != antivirus_ticket or Malware.strain(GameState.job) != antivirus_strain:
+        antivirus_panel.note.text = "This PC changed. No removal was applied. Close and scan again."
+        return
+    var won: bool = round_model.outcome == "won" and bool(Checks.boot(GameState.job)["ok"])
+    GameState.record_finding(Findings.WORK,round_model.report(),"antivirus",-1,not won)
+    if round_model.outcome == "crashed": GameState.set_pc_powered(false)
+    if won:
+        GameState.clean_infection()
+        threat_found = false
+    var saved: bool = NightSession.checkpoint(GameState)
+    _refresh()
+    _show(("Threat removed after a clean reboot. Scan again to confirm." if won else "Cleanup not verified. The infection remains. The attempt's night time stays spent.")+("\n"+NightSession.status if not saved else ""))
+    if not saved: antivirus_panel.note.text = "Save failed: " + NightSession.status
+
+func _close_antivirus() -> void:
+    if not is_instance_valid(antivirus_panel): return
+    antivirus_panel.queue_free()
+    antivirus_panel = null
+    _refresh()
+
+func _exit_tree() -> void:
+    # The attempt cost was already saved. An interrupted round cannot become a completed cure.
+    if is_instance_valid(antivirus_panel) and antivirus_panel.model.outcome == "running":
+        antivirus_panel.model.abort()
+        _antivirus_finished()
 
 # D132: overclocker settings. Changing them re-saves the job; the PC is not rebooted by the monitor.
 func _oc_step(mult_delta: int,volt_delta: int) -> void:

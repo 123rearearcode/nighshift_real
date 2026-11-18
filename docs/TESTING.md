@@ -1,5 +1,14 @@
 # Test policy — 0.27.0
 
+## Current addition — 0.49.0 standard anti-virus
+
+Required `tools/test_antivirus.gd` prints Antivirus checks. Exercise real viewport mouse SEND and
+keyboard Enter, immediate uppercase with caret preservation, wrong-word retry, stable row coordinates,
+indefinite typing pause, source/watchdog/auto-start/reboot, canonical clock cost, 06:00 and boot refusal,
+power cancellation, reload, duplicate completion and stale-ticket isolation. Keep every prior suite.
+Only the in-chat standard demo has user acceptance; target-engine automated input is separate from a
+graphical Godot feel test. No boss-speed/hidden-row acceptance is implied. See D157 and HANDOFF.
+
 ## Current addition — 0.47.1 ledger and complete component journeys
 
 The original ten-suite counts below are historical; the current required list is in the workflow.

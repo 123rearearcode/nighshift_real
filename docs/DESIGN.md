@@ -1,5 +1,18 @@
 # Nightshift — Working Design
 
+## Current anti-virus contract — D157, 19 November 2026
+
+The user approved the standard in-chat Task Manajer and requested game integration. The chaotic
+disappearing/reordering version is rejected as normal play; a future boss is only an idea. Fixed rows,
+readable process evidence, one occasional advert, slow miner aliases, uppercase funny-word overrides
+and no typing countdown define this slice. Cure requires stopping the actual source and watchdog,
+disabling auto-start and a verified reboot; closing the activity cannot finish/pay a repair ticket.
+See ANTIVIRUS_MINIGAME_DESIGN.md for the current implemented contract and trial timing. The diagnosis
+contract below remains in force; its baseline-status paragraph is historical (diagnosis is merged).
+The manual stays deferred. Next planned session is still 3.6 Testing bay, talk first.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Diagnosis design update — approved 17–18 November 2026 (D150)
 
 Design contract, **not an implementation claim**. Verified main is 0.46.0 with 3.3b merged;
