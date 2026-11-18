@@ -11,6 +11,7 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const ToolRenderer = preload("res://scripts/view/tool_renderer.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
+const Findings = preload("res://scripts/rules/findings.gd")
 const SCREWDRIVER_TRAY := Rect2(430, 596, 270, 48)
 const ORDER_RECT := Rect2(60, 150, 650, 440)
 var screwdriver_held: bool = false
@@ -23,6 +24,8 @@ func _ready() -> void:
         if node is Label and node.position.y < 32: node.hide()
     Navigation.workbench(self,"hardware",_activities)
     _build_order_panel()
+    # D150 (0.47.0): looking over the PC at the hardware bench is an inspection; Findings keeps it.
+    GameState.record_finding(Findings.OBSERVATION, Findings.hardware_bench_observation(GameState.job), "hardware_bench")
 
 func _activities() -> void:
     _navigate(Navigation.ACTIVITIES)

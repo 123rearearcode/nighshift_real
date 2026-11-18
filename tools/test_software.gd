@@ -35,10 +35,10 @@ func run_checks() -> void:
     root.add_child(view)
     await process_frame
     check(view.boot_button.disabled and view.run_button.disabled and view.output.text.contains("off"),"desktop makes the initial power requirement clear")
-    check(view.showing_work and view.work_tab.disabled and view.side_text.text.contains("WORK DONE") and view.side_text.text.contains("[??] Working PC"),"Work + match is the main tab and starts with nothing measured")
-    view._show_tab(false)
+    check(view.tab == "work" and view.work_tab.disabled and view.side_text.text.contains("WORK DONE") and view.side_text.text.contains("[??] Working PC"),"Work + match is the main tab and starts with nothing measured")
+    view._show_tab("client")
     check(view.side_text.text.contains(str(gs.job["customer"])) and not view.side_text.text.contains("WORK DONE"),"client details are the second tab")
-    view._show_tab(true)
+    view._show_tab("work")
     # Real GUI hit testing, not a direct method-only assertion.
     var at: Vector2 = view.power_button.get_global_rect().get_center()
     for down: bool in [true,false]:
@@ -84,7 +84,11 @@ func run_checks() -> void:
     gs.job["broken_parts"] = []
     var unchanged: Dictionary = gs.job.duplicate(true)
     view._scan()
-    check(gs.job == unchanged and view.output.text.contains("no threats"),"a scan of a clean PC reports clean and changes nothing")
+    var scanned: Dictionary = gs.job.duplicate(true)
+    var notebook: Array = scanned["findings"]
+    scanned["findings"] = unchanged["findings"]
+    check(scanned == unchanged and view.output.text.contains("no threats"),"a scan of a clean PC reports clean and changes nothing but the notebook")
+    check(notebook.size() == (unchanged["findings"] as Array).size() + 1 and str(notebook.back()["text"]).begins_with("Anti-virus scan") and notebook.back()["kind"] == "measurement","the scan result is written into Findings as a measurement")
     view._power()
     check(not gs.job["pc_powered"] and view.output.text.contains("readings cleared"),"powering down clears the live report")
     check(night.switch_pc(gs,second) and not gs.job["pc_powered"],"other customer's PC retains its own off switch")

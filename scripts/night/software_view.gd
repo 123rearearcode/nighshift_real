@@ -8,16 +8,21 @@ const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
 const WorkReport = preload("res://scripts/rules/work_report.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
+const StressLab = preload("res://scripts/rules/stress_lab.gd")
+const Findings = preload("res://scripts/rules/findings.gd")
 var power_button: Button
 var boot_button: Button
 var hardware_button: Button
 var work_tab: Button
 var client_tab: Button
+var findings_tab: Button
+var tab: String = "work"     # 0.47.0: "work" (Work + match), "findings" (the notebook) or "client"
+var busy_what: String = ""   # the timed test that is running, for the notebook if it is stopped
+var busy_start: int = 0
 var side_text: Label
 var side_scroll: ScrollContainer
 var client_text: String = ""
 var needs: Dictionary = {}
-var showing_work: bool = true   # D133: "Work + match" is the main tab; client details are second
 var run_seconds: float = 3.0    # real seconds a timed test keeps the monitor busy (tests set 0)
 var busy_left: float = 0.0
 var busy_total: float = 0.0
@@ -51,15 +56,16 @@ func _ready() -> void:
     hardware_button = _app("Hardware check",Rect2(226,162,200,46),_hardware)
     scan_button = _app("Anti-virus · scan",Rect2(438,162,210,46),_scan)
     remove_button = _app("Remove threat",Rect2(660,162,218,46),_remove)
-    buy_button = _app("",Rect2(64,225,390,46),_buy)
-    run_button = _app("Run Counter Stroke 2",Rect2(466,225,412,46),_game)
+    buy_button = _app("",Rect2(64,225,300,46),_buy)
+    run_button = _app("Run Counter Stroke 2",Rect2(376,225,250,46),_game)
+    # D150 (0.47.0): the long load test is its own app, the Stress lab, no longer an overclocker button.
+    long_button = _app("Stress lab · %d min · $%d"%[Clock.LONG_STRESS_MINUTES,Overclock.LONG_TEST_COST],Rect2(638,225,240,46),_stress.bind(true))
     # D132: the overclocker. Heat is visible in every check; instability only shows in a stress test (or at pickup).
-    mult_down = _app("Multiplier −",Rect2(64,285,130,40),_oc_step.bind(-1,0))
-    mult_up = _app("Multiplier +",Rect2(202,285,130,40),_oc_step.bind(1,0))
-    volt_down = _app("Voltage −",Rect2(340,285,110,40),_oc_step.bind(0,-1))
-    volt_up = _app("Voltage +",Rect2(458,285,110,40),_oc_step.bind(0,1))
-    quick_button = _app("Quick stress",Rect2(578,285,130,40),_stress.bind(false))
-    long_button = _app("Long stress · $%d"%Overclock.LONG_TEST_COST,Rect2(716,285,162,40),_stress.bind(true))
+    mult_down = _app("Multiplier −",Rect2(64,285,150,40),_oc_step.bind(-1,0))
+    mult_up = _app("Multiplier +",Rect2(222,285,150,40),_oc_step.bind(1,0))
+    volt_down = _app("Voltage −",Rect2(380,285,150,40),_oc_step.bind(0,-1))
+    volt_up = _app("Voltage +",Rect2(538,285,150,40),_oc_step.bind(0,1))
+    quick_button = _app("Quick stress",Rect2(696,285,182,40),_stress.bind(false))
     oc_label = _label("",Vector2(64,332),Vector2(814,30),18)
     report_scroll = ScrollContainer.new()
     report_scroll.position = Vector2(64,368)
@@ -76,13 +82,16 @@ func _ready() -> void:
     power_button = _button("",Rect2(982,324,264,52),"")
     power_button.pressed.connect(_power)
     var who: Dictionary = GameState.customer_view(str(GameState.job["customer_id"]))
-    # D133: two tabs beside the monitor. Work + match first, client details second.
-    work_tab = _button("Work + match",Rect2(982,384,138,34),"")
+    # D133: tabs beside the monitor. Work + match first; 0.47.0 adds the Findings notebook; client last.
+    work_tab = _button("Work",Rect2(982,384,80,34),"")
     work_tab.add_theme_font_size_override("font_size",15)
-    work_tab.pressed.connect(_show_tab.bind(true))
-    client_tab = _button("Client",Rect2(1126,384,120,34),"")
+    work_tab.pressed.connect(_show_tab.bind("work"))
+    findings_tab = _button("Findings",Rect2(1066,384,96,34),"")
+    findings_tab.add_theme_font_size_override("font_size",15)
+    findings_tab.pressed.connect(_show_tab.bind("findings"))
+    client_tab = _button("Client",Rect2(1166,384,80,34),"")
     client_tab.add_theme_font_size_override("font_size",15)
-    client_tab.pressed.connect(_show_tab.bind(false))
+    client_tab.pressed.connect(_show_tab.bind("client"))
     side_scroll = ScrollContainer.new()
     side_scroll.position = Vector2(982,424)
     side_scroll.size = Vector2(264,180)
@@ -102,7 +111,7 @@ func _ready() -> void:
         targets.append("%s ≥ %d FPS"%[Games.game(str(target["game_id"])).get("title",target["game_id"]),int(target["min_fps"])])
     client_text = "%s\n%s\n\nUses: %s\nRequested: %s\nCollection request: %s"%[GameState.job["customer"],GameState.job["complaint"],who.get("uses","See ticket"),", ".join(targets) if not targets.is_empty() else "Working PC",who.get("patience","Not set")]
     cash_label = _label("",Vector2(982,610),Vector2(264,36),18)
-    message = _label("Game tests take %d night minutes, the long stress test %d. Reports only: no completion or payment."%[Clock.GAME_TEST_MINUTES,Clock.LONG_STRESS_MINUTES],Vector2(32,670),Vector2(1216,36),16)
+    message = _label("Game tests take %d night minutes, the Stress lab %d. Results go into Findings. Reports only: no completion or payment."%[Clock.GAME_TEST_MINUTES,Clock.LONG_STRESS_MINUTES],Vector2(32,670),Vector2(1216,36),16)
     _refresh()
     _show("PC is off. Turn it on using the case button on the right, then run Boot check." if not _powered() else "PC is on. Start with Boot check and Hardware check, then test the customer's games.")
     if not ready_for_work: _show("No writable customer PC is selected. Return to the workshop.\n"+NightSession.status)
@@ -138,22 +147,33 @@ func _refresh() -> void:
     oc_label.text = "Overclocker · CPU multiplier +%d / %d · voltage %d / %d · +%.0f°C · CPU power x%.2f"%[oc["mult"],Overclock.MAX_MULT,oc["volt"],Overclock.MAX_VOLT,Overclock.heat(GameState.job),Overclock.cpu_factor(GameState.job)]
     remove_button.disabled = remove_button.disabled or not threat_found or not Malware.infected(GameState.job)
     long_button.disabled = long_button.disabled or GameState.money < Overclock.LONG_TEST_COST
-    work_tab.disabled = showing_work
-    client_tab.disabled = not showing_work
-    side_text.text = WorkReport.text(GameState.job,needs,GameState.PASS_TEMP) if showing_work else client_text+"\n\nParts: "+Parts.summary(GameState.job)
+    work_tab.disabled = tab == "work"
+    findings_tab.disabled = tab == "findings"
+    client_tab.disabled = tab == "client"
+    if tab == "work": side_text.text = WorkReport.text(GameState.job,needs,GameState.PASS_TEMP)
+    elif tab == "findings": side_text.text = GameState.findings_text()
+    else: side_text.text = client_text+"\n\nParts: "+Parts.summary(GameState.job)
     queue_redraw()
 
 func _show(text: String) -> void:
     output.text = text
     report_scroll.scroll_vertical = 0
 
-func _show_tab(work: bool) -> void:
-    showing_work = work
+func _show_tab(which: String) -> void:
+    tab = which
     side_scroll.scroll_vertical = 0
     _refresh()
+    # The notebook is long: it also opens on the big screen. Reading it costs no night time.
+    if which == "findings": _show(GameState.findings_text())
+
+# D150 (0.47.0): a test result goes into Findings as a measurement, stamped with the night clock.
+func _measured(text: String,until: int = -1,minute: int = -1,incomplete: bool = false) -> void:
+    GameState.record_finding(Findings.MEASUREMENT,text,"monitor",until,incomplete,minute)
 
 # D133: a timed test keeps the monitor busy for `run_seconds`, then spends its night minutes and reports.
 func _run_timed(what: String,minutes: int,done: Callable) -> void:
+    busy_what = what
+    busy_start = GameState.night_minutes
     if run_seconds <= 0.0:
         done.call()
         return
@@ -182,6 +202,9 @@ func _guard() -> bool:
 
 func _power() -> void:
     if not ready_for_work: return
+    if busy_left > 0.0:
+        # D150: a stopped test is noted as incomplete, with no result: nothing was measured to the end.
+        _measured("%s stopped: the PC was switched off before it finished. No result."%busy_what,-1,busy_start,true)
     busy_left = 0.0   # switching the power cancels a running test; no night time is spent
     busy_done = Callable()
     GameState.set_pc_powered(not _powered())
@@ -190,13 +213,19 @@ func _power() -> void:
     _show(("Power ON. Run Boot check to diagnose startup." if _powered() else "Power OFF. Live readings cleared. Cleaning and repasting remain available at the repair bench.")+("\n"+NightSession.status if not saved else ""))
 
 func _boot() -> void:
-    if _guard(): _show(Checks.boot(GameState.job)["message"])
+    if not _guard(): return
+    var text: String = str(Checks.boot(GameState.job)["message"])
+    _measured("Boot check: "+text)
+    NightSession.checkpoint(GameState)
+    _refresh()
+    _show(text)
 
 # D133: only "is everything in place": parts fitted and working, cooler locked. No temperature here.
 func _hardware() -> void:
     if not _guard(): return
     var result: Dictionary = WorkReport.hardware_check(GameState.job)
     GameState.record_test("hardware",{"ok":bool(result["ok"])})
+    _measured(str(result["message"]).get_slice("\n\nThis check",0))
     var saved: bool = NightSession.checkpoint(GameState)
     _refresh()
     _show(str(result["message"])+("\n"+NightSession.status if not saved else ""))
@@ -209,24 +238,31 @@ func _buy() -> void:
     _show(("Counter Stroke 2 purchased for the shop. Its licence can test any customer's PC." if bought else "Purchase unavailable: already owned or not enough shop cash.")+("\n"+NightSession.status if not saved else ""))
 
 # D136 (0.44.0): at 06:00 the night is over; timed tests no longer fit in it.
-func _night_over() -> bool:
-    if not Clock.over(GameState.night_minutes): return false
-    _show("It is 06:00: the night is over. Go to Activities and end the night; called customers collect now.")
-    return true
+func _night_over(minutes: int = 0) -> bool:
+    if Clock.over(GameState.night_minutes):
+        _show("It is 06:00: the night is over. Go to Activities and end the night; called customers collect now.")
+        return true
+    # 0.47.0 (D150): a timed test must end by 06:00; nothing is charged for one that cannot.
+    if not Clock.fits(GameState.night_minutes,minutes):
+        _show("It is %s: this test takes %d minutes and would run past 06:00. Not started, nothing charged."%[Clock.label(GameState.night_minutes),minutes])
+        return true
+    return false
 
 func _game() -> void:
-    if not _guard() or _night_over(): return
+    if not _guard() or _night_over(Clock.GAME_TEST_MINUTES): return
     var report: Dictionary = Diagnostics.evaluate(GameState.job,GameState.owned_games)
     var result: Dictionary = Checks.game_test(GameState.job,GameState.owned_games,"counter_stroke_2",report["temp"])
     if not result["ok"]:
         _show(result["message"])
         return
-    _run_timed("Counter Stroke 2",Clock.GAME_TEST_MINUTES,_game_done.bind(result,float(report["temp"])))
+    _run_timed("The Counter Stroke 2 test",Clock.GAME_TEST_MINUTES,_game_done.bind(result,float(report["temp"])))
 
 func _game_done(result: Dictionary,temp: float) -> void:
+    var start: int = GameState.night_minutes
     GameState.advance_night(Clock.GAME_TEST_MINUTES)
     GameState.record_test("games",{"fps":int(result["fps"]),"temp":temp},"counter_stroke_2")
     GameState.record_test("temp",{"value":temp})
+    _measured("Game test: "+str(result["message"]),start+Clock.GAME_TEST_MINUTES,start)
     var saved: bool = NightSession.checkpoint(GameState)
     _refresh()
     _show(str(result["message"])+"\nThe test took %d night minutes."%Clock.GAME_TEST_MINUTES+("\n"+NightSession.status if not saved else ""))
@@ -236,6 +272,9 @@ func _scan() -> void:
     if not _guard(): return
     var report: Dictionary = Checks.antivirus(GameState.job)
     threat_found = bool(report.get("found",false))
+    if Checks.boot(GameState.job)["ok"]:
+        _measured("Anti-virus scan: "+str(report["message"]))
+        NightSession.checkpoint(GameState)
     _refresh()
     _show(str(report["message"]))
 
@@ -257,7 +296,7 @@ func _oc_step(mult_delta: int,volt_delta: int) -> void:
     _show("Settings changed. Run a stress test, then check the heat. A quick test cannot prove stability."+("\n"+NightSession.status if not saved else ""))
 
 func _stress(long_test: bool) -> void:
-    if not _guard() or (long_test and _night_over()): return
+    if not _guard() or (long_test and _night_over(StressLab.minutes())): return
     if not Checks.boot(GameState.job)["ok"]:
         _show(Checks.boot(GameState.job)["message"])
         return
@@ -266,18 +305,34 @@ func _stress(long_test: bool) -> void:
             _show("Not enough shop cash for the long test ($%d)."%Overclock.LONG_TEST_COST)
             return
         _refresh()
-        _run_timed("The long stress test",Clock.LONG_STRESS_MINUTES,_stress_done.bind(true))
+        _run_timed("The Stress lab run",StressLab.minutes(),_stress_done.bind(true))
     else:
         _stress_done(false)
 
 func _stress_done(long_test: bool) -> void:
     var report: Dictionary = Diagnostics.evaluate(GameState.job,GameState.owned_games)
-    var result: Dictionary = Checks.stress(GameState.job,report["temp"],long_test)
-    if long_test: GameState.advance_night(Clock.LONG_STRESS_MINUTES)
+    if long_test:
+        _lab_done(float(report["temp"]))
+        return
+    var result: Dictionary = Checks.stress(GameState.job,report["temp"],false)
     GameState.record_test("temp",{"value":float(report["temp"])})
+    _measured("Quick stress: "+str(result["message"]))
     var saved: bool = NightSession.checkpoint(GameState)
     _refresh()
-    _show(str(result["message"])+("\nElectricity: $%d. The test took %d night minutes."%[Overclock.LONG_TEST_COST,Clock.LONG_STRESS_MINUTES] if long_test else "")+("\n"+NightSession.status if not saved else ""))
+    _show(str(result["message"])+("\n"+NightSession.status if not saved else ""))
+
+# D150 (0.47.0): the Stress lab. Readings on the night clock; a crash ends the run early, and only the
+# minutes actually run are spent. The temperature is recorded only when the run reached its settled load.
+func _lab_done(load: float) -> void:
+    var start: int = GameState.night_minutes
+    var result: Dictionary = StressLab.run(GameState.job,load,start)
+    GameState.advance_night(int(result["minutes"]))
+    if int(result["minutes"]) >= StressLab.WARM_UP: GameState.record_test("temp",{"value":load})
+    var text: String = StressLab.message(result,start)
+    _measured(text,start+int(result["minutes"]),start)
+    var saved: bool = NightSession.checkpoint(GameState)
+    _refresh()
+    _show(text+"\nElectricity: $%d. The run took %d night minutes."%[Overclock.LONG_TEST_COST,int(result["minutes"])]+("\n"+NightSession.status if not saved else ""))
 
 func _draw() -> void:
     super._draw()

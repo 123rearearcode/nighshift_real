@@ -47,6 +47,7 @@ func _select_stage(which: int) -> void:
     if navigation_ready: Navigation.Memory.set_repair_stage(GameState,which)
 
 const PasteSnapshot = preload("res://scripts/night/paste_snapshot.gd")
+const Findings = preload("res://scripts/rules/findings.gd")
 func _ready() -> void:
     super._ready()
     if PasteSnapshot.restore(paste,GameState.job["hardware_trial"].get("night_paste",{})):
@@ -56,6 +57,8 @@ func _ready() -> void:
         _refresh_paste_image()
     _select_stage(Navigation.Memory.repair_stage(GameState))
     navigation_ready = true
+    # D150 (0.47.0): opening the case is an inspection; Findings keeps what it shows.
+    GameState.record_finding(Findings.OBSERVATION, Findings.repair_bench_observation(GameState.job), "repair_bench")
 func _save_dust() -> void:
     if loaded_job_id == str(GameState.job["id"]):
         GameState.job["hardware_trial"]["night_paste"] = PasteSnapshot.capture(paste)

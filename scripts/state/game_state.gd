@@ -26,6 +26,7 @@ const Morning = preload("res://scripts/rules/morning.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
+const Findings = preload("res://scripts/rules/findings.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -130,6 +131,7 @@ func _make_job() -> Dictionary:
         "pc_specs": PcBuild.specs(who.get("pc", {})),   # derived from "parts" (processing, RAM) for the fps simulation (D94)
         "ticket": {"request": "repair", "ready": false, "called": false, "nights": 0},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
         "cured": "",              # D133: strain the anti-virus removed on this ticket (for the work report)
+        "findings": [],           # D150 (0.47.0): the Findings notebook (findings.gd): seen / measured / done, on the night clock
         "tests": {},              # D133: what the monitor MEASURED (work_report.gd): hardware check, game fps, temperature
         "infection": "",          # D132: malware strain id (malware.gd) or "" when clean; felt only at pickup unless cured
         "overclock": {"mult": 0, "volt": 0},   # D132: CPU overclock steps (overclock.gd); heat is visible, instability is felt at pickup
@@ -150,10 +152,22 @@ func dust_fraction(zone_id: String) -> float:
 
 # Store the removed share for every part at once: {zone id: fraction}. Recomputes "cleaned".
 func set_dust(fractions: Dictionary, physics: Dictionary = {}) -> void:
+    var was_clean: Array = _clean_zone_labels()
     job["dust"] = fractions.duplicate()
     job["dust_state"] = physics
     _refresh_cleaned()
+    var now_clean: Array = _clean_zone_labels()
+    var newly: Array = now_clean.filter(func(label: String) -> bool: return not label in was_clean)
+    if not newly.is_empty() and job["state"] != "done":
+        note(Findings.WORK, "Cleaned: %s (%d of %d parts clean)." % [", ".join(newly), now_clean.size(), DustZones.zones(str(job.get("layout", "tower"))).size()], "repair_bench")
     save_game()
+
+
+func _clean_zone_labels() -> Array:
+    var out: Array = []
+    for zone: Dictionary in DustZones.zones(str(job.get("layout", "tower"))):
+        if dust_fraction(str(zone["id"])) >= DustZones.CLEAN_AT: out.append(str(zone["label"]))
+    return out
 
 
 func _refresh_cleaned() -> void:
@@ -180,6 +194,7 @@ func damage_service_part(part_id: String) -> bool:
         return false
     job["broken_parts"].append(part_id)
     if not part_id in job["damaged_parts"]: job["damaged_parts"].append(part_id)   # D150: the player saw it happen
+    note(Findings.WORK, "%s visibly damaged while handling it." % part_id.to_upper(), "repair_bench")
     save_game()
     return true
 
@@ -196,6 +211,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
         if player_inventory[i]["uid"] == uid: index = i
     if index < 0 or not stock_available(uid): return false
     var record: Dictionary = player_inventory[index]
+    var before: Array = Findings.configuration(job)
     # D150 (0.46.2): fitting is a TEST until the customer collects. Any owned, suitable part may go in
     # whatever the customer's part's health (no health oracle); it stays the shop's; the customer's
     # original stays theirs, lying in the drawer. Collection settles it (settle_custody).
@@ -221,6 +237,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
         job["paste_overflow"] = 0.0
         job["paste_done"] = false
         job["scams"].erase("toothpaste")
+    _note_build(before)
     save_game()
     return true
 
@@ -359,12 +376,14 @@ func set_service_part_fitted(part_id: String, fitted: bool) -> bool:
         return false
     if not fitted and part_id in job["shop_custody"]:
         return return_replacement(part_id)
+    var before: Array = Findings.configuration(job)
     if fitted:
         job["removed_parts"].erase(part_id)
     else:
         job["removed_parts"].append(part_id)
         if part_id == Ids.GPU:
             job["gpu_screws"] = 0
+    _note_build(before)
     save_game()
     return true
 
@@ -384,6 +403,7 @@ func clean_infection() -> bool:
         return false
     job["cured"] = Malware.strain(job)
     job["infection"] = ""
+    note(Findings.WORK, "Anti-virus removed: %s." % str(Malware.STRAINS[job["cured"]]["label"]), "monitor")
     save_game()
     return true
 
@@ -410,7 +430,10 @@ func advance_night(minutes: int) -> void:
 # D132: the overclocker's two settings, clamped to their ranges.
 func set_overclock(mult: int, volt: int) -> bool:
     if job["state"] == "done": return false
+    var was: Dictionary = Overclock.settings(job)
     job["overclock"] = Overclock.sanitize({"mult": mult, "volt": volt})
+    if job["overclock"] != was:
+        note(Findings.WORK, "Overclocker set to CPU multiplier +%d, voltage %d." % [int(job["overclock"]["mult"]), int(job["overclock"]["volt"])], "monitor")
     save_game()
     return true
 
@@ -464,6 +487,7 @@ func complete_repaste(material: String) -> Dictionary:
     job["scams"].erase("toothpaste")
     if bool(kind["scam"]):
         job["scams"].append("toothpaste")
+    note(Findings.WORK, "Repaste completed: %s, cooler contact %s." % [str(kind.get("label", material)), str(job["paste_grade"])], "repair_bench")
     save_game()
     return {"ok": true, "cost": cost, "message": ""}
 
@@ -709,6 +733,7 @@ func load_game() -> bool:
     job["cured"] = Malware.sanitize(job.get("cured", ""))
     job["ticket"] = Ticket.sanitize(job.get("ticket", {}))
     job["tests"] = WorkReport.sanitize_tests(job.get("tests", {}))
+    job["findings"] = Findings.sanitize(job.get("findings", []))
     job["overclock"] = Overclock.sanitize(job.get("overclock", {}))
     if not str(job["paste_material"]) in PasteMaterials.IDS: job["paste_material"] = "thermal"
     var valid_scams: Array = []
@@ -955,11 +980,13 @@ func fit_catalog_stock(uid: String, slot: String) -> bool:
     elif slot in CustomerPC.STORAGE_SLOTS: free = type == Catalog.STORAGE and (p["storage"] as Array).size() + shop.keys().filter(func(k: String) -> bool: return k in CustomerPC.STORAGE_SLOTS).size() < CustomerPC.STORAGE_SLOTS.size()
     elif slot == CustomerPC.GPU2_SLOT: free = type == Catalog.GPU and (p["gpus"] as Array).size() < 2
     if not free: return false
+    var before: Array = Findings.configuration(job)
     shop[slot] = {"uid": uid, "model": model}
     job["shop_fitted"] = shop
     record["fitted_in"] = str(job["id"])
     record["slot"] = slot
     inventory_layout.erase(uid)
+    _note_build(before)
     save_game()
     return true
 
@@ -969,6 +996,7 @@ func fit_catalog_stock(uid: String, slot: String) -> bool:
 func apply_bench(snapshot: Dictionary) -> bool:
     if job["state"] == "done": return false
     var before: String = str([job.get("parts", {}), job.get("loose_parts", []), job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", [])])
+    var configured: Array = Findings.configuration(job)
     var result: Dictionary = CustomerPC.apply(job, snapshot)
     var loose: Array = result["loose_parts"]
     var p: Dictionary = result["parts"]
@@ -1000,8 +1028,47 @@ func apply_bench(snapshot: Dictionary) -> bool:
     job["loose_parts"] = loose
     job["dead_slots"] = result.get("dead_slots", [])
     var changed: bool = before != str([job["parts"], job["loose_parts"], job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", [])])
-    if changed: save_game()
+    if changed:
+        _note_build(configured)
+        save_game()
     return changed
+
+
+# ----- 0.47.0: the Findings notebook (D150) -----
+
+# Writes one notebook entry on the active ticket, stamped with the night clock, the night number and
+# the PC's current fingerprint. Does NOT save (callers save once). Only text the player was shown.
+func note(kind: String, text: String, source: String = "", until: int = -1, incomplete: bool = false, minute: int = -1) -> bool:
+    if job["state"] == "done" or text.strip_edges() == "": return false
+    var notes: Array = Findings.sanitize(job.get("findings", []))
+    var at: int = night_minutes if minute < 0 else minute
+    var added: bool = Findings.add(notes, Findings.entry(kind, text, night_number, at, WorkReport.signature(job), source, until, incomplete))
+    job["findings"] = notes
+    return added
+
+
+# The same, saved. For the monitor's tests and the benches' inspections.
+func record_finding(kind: String, text: String, source: String = "", until: int = -1, incomplete: bool = false, minute: int = -1) -> bool:
+    var added: bool = note(kind, text, source, until, incomplete, minute)
+    if added: save_game()
+    return added
+
+
+func findings_text() -> String:
+    return Findings.text(job, WorkReport.signature(job))
+
+
+# For solvability checks only (diagnosis.gd): what the shop can test with right now.
+func diagnosis_capabilities() -> Dictionary:
+    var stock: Dictionary = {}
+    for record: Dictionary in player_inventory:
+        if stock_available(str(record["uid"])): stock[str(record["kind"])] = int(stock.get(str(record["kind"]), 0)) + 1
+    return {"stock": stock, "games": owned_games.duplicate(), "money": money}
+
+
+func _note_build(before: Array) -> void:
+    var change: String = Findings.change_text(before, Findings.configuration(job))
+    if change != "": note(Findings.WORK, change, "hardware")
 
 
 # ----- 0.46.2: custody of test parts and settlement at collection (D150) -----
@@ -1016,6 +1083,7 @@ func _record(uid: String) -> Dictionary:
 # the slot is empty, and the customer's original (lying in the drawer) is again "the part that is out".
 func return_replacement(part_id: String) -> bool:
     if job["state"] == "done" or not part_id in job["shop_custody"]: return false
+    var before: Array = Findings.configuration(job)
     var record: Dictionary = _record(str(job["service_replacement_ids"].get(part_id, "")))
     if not record.is_empty():
         # Damage belongs to the removed shop component, not the original waiting in the drawer.
@@ -1040,6 +1108,7 @@ func return_replacement(part_id: String) -> bool:
     if not part_id in job["removed_parts"]: job["removed_parts"].append(part_id)
     if part_id == Ids.GPU: job["gpu_screws"] = 0
     job["pc_specs"] = PcBuild.specs(job["parts"])
+    _note_build(before)
     save_game()
     return true
 
@@ -1059,10 +1128,12 @@ func fitted_components() -> Array:
 func unfit_catalog_stock(uid: String) -> bool:
     for slot: String in (job.get("shop_fitted", {}) as Dictionary).keys():
         if str(job["shop_fitted"][slot]["uid"]) == uid:
+            var before: Array = Findings.configuration(job)
             job["shop_fitted"].erase(slot)
             var record: Dictionary = _record(uid)
             record.erase("fitted_in")
             record.erase("slot")
+            _note_build(before)
             save_game()
             return true
     return false

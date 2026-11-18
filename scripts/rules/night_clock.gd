@@ -20,3 +20,8 @@ static func over(elapsed: int) -> bool:
 
 static func line(elapsed: int) -> String:
     return "Night clock %s" % label(elapsed) + (" · past 06:00" if over(elapsed) else "")
+
+
+# 0.47.0 (D150): a timed test may only start when it ends by 06:00. No result is made up past it.
+static func fits(elapsed: int, minutes: int) -> bool:
+    return elapsed + maxi(0, minutes) <= SHIFT_MINUTES

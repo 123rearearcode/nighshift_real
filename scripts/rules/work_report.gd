@@ -108,7 +108,7 @@ static func hardware_check(job: Dictionary) -> Dictionary:
         lines.append("COOLER LOCK: not locked. At the repair bench: paste, mount the cooler and click its lever.")
     else:
         lines.append("COOLER LOCK: locked.")
-    var head: String = "HARDWARE CHECK PASSED: everything is in place." if ok else "HARDWARE CHECK FAILED: something is missing, broken or not locked."
+    var head: String = "HARDWARE CHECK PASSED: everything is in place." if ok else "HARDWARE CHECK FAILED: something is missing, too small or not locked."
     return {"ok": ok, "lines": lines, "message": head + "\n\n" + "\n".join(lines) + "\n\nThis check says nothing about temperature or performance: run a game or a stress test for those."}
 
 
