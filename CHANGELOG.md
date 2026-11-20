@@ -83,8 +83,8 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (session 3.6, D158 user approved) plus the scheduled structural review.
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 29
-suites passed, including the new Testing bay suite. No graphical playtest yet.
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 30
+suites passed, including the new Testing bay suite (52 checks). No graphical playtest yet.
 
 ### Added
 - **Testing bay** (Activities > Testing bay): every stock part in the drawer. Click spots on the part to
@@ -131,7 +131,7 @@ suites passed, including the new Testing bay suite. No graphical playtest yet.
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems; register fixture tests pass.
-- GitHub Actions on Godot 4.7.2 (headless): 29 suites, 0 failures.
+- GitHub Actions on Godot 4.7.2 (headless): 30 suites, 0 failures (Testing bay 52, Part lifecycle 38, Menu navigation 33).
 
 ### Known issues and open items
 - L3: a shop part delivered inside a customer's PC loses its condition at collection (models only).
