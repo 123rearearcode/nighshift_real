@@ -1,6 +1,26 @@
 # Handoff — current state first
 
-## Current — 0.49.0 Task Manajer detour complete; resume 3.6 Testing bay, 19 November 2026
+## Current — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
+
+Read first, per Codex's 0.49.0 resume order (below): done. Claude cross-reviewed PR #62 (approve, three
+non-blocking notes in the PR comment); the user then asked Claude to merge #61 and #62: main is 0.49.0
+(`a62efc6`, tree identical to Codex's archive/v0.49.0); 0.48.1 archived as `archive/v0.48.1`.
+
+3.6 talk-first was held; the user's answers are D158 (salvage + customers' broken parts into stock,
+physical inspection, rig tests, degraded parts, untested test parts allowed but risky, scrap, room for
+scams). Branch `feat/testing-bay-0500` builds it (details: CHANGELOG 0.50.0, D158 proposals, DEVELOPMENT
+contracts, PART_LIFECYCLE "Stage reached in 0.50.0"). The structural review due at 0.50.0 is in
+docs/BUGS.md (RC-6 new, RC-5 progress, L3/L4, B51; next review 0.60.0) — not postponed.
+
+For Codex's cross-review: the condition/knowledge split on stock records and the derived
+`shop_condition` copy (authority = stock record; rebuilt on load/switch; tamper test); that every
+replaced customer original now stays as untested stock (customer-property question, D19); the salvage
+clock gap (L4) and delivered-condition loss (L3); the numbers in D158. Not started: customer-part
+identity migration (L1/L2), boss malware, scanners/economies, the manual (still deferred).
+Next in the plan: 3.7 Build requests (0.51.0), talk first. Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.49.0 Task Manajer detour complete; resume 3.6 Testing bay, 19 November 2026
 
 The user approved the calmer in-chat demo and explicitly asked Codex to implement it in the game,
 then tell Claude where the plan stopped. D157 and ANTIVIRUS_MINIGAME_DESIGN.md are now the live

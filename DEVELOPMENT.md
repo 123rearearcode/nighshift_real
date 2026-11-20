@@ -809,3 +809,19 @@ from a refresh tick. Tests use actual viewport events for both confirmations.
 
 Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
 19 November 2026, Europe/Bucharest.
+
+
+
+## Part condition and testing bay contracts — 0.50.0
+
+Stock records may carry `condition` (working | degraded | broken), `defect` (only when degraded; one per
+kind, `PcBuild.DEFECTS`) and `known` ({label, notes, tests, source}, `PartCondition.sanitize_known`).
+Created and reloaded records must have the same shape (B51). Never show `condition`/`defect`: views use
+`PartCondition.label_text`/`describe`; `stock_available` uses `PartCondition.usable` (the player's
+knowledge). `GameState.diagnosis_capabilities` counts only `known_good` spares. A fitted shop part's
+condition is copied into `job.shop_condition` by `_carry_condition` at fit time and rebuilt by
+`refresh_shop_condition()` on load and PC switch; the stock record is the authority. A dead first-slot
+GPU/cooler is also mirrored into `broken_parts` so the existing symptoms and return path apply. Bay
+actions (`inspect_part`, `test_part`, `label_part`, `scrap_part`) spend night minutes through
+`advance_night` after a `NightClock.fits` check; `receive_salvage` takes `[{uid, kind, condition}]`.
+Recorded by Claude (Opus 5.5).

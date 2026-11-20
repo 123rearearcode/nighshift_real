@@ -141,7 +141,7 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.5 Generated tickets | 0.48.0 | morning arrivals from rating and reputation; generated and returning customers; problems by night; each case proven solvable (buying a test part counts) and repairable | answered (D153) | merged in #59, including #60's safeguards; earlier cross-review notes remain in D154 |
 | 0.48.1 user requests | 0.48.1 | motherboard as a PC part (remove everything first), GPU bracket screws (B49), vacuum and paste kept across screens (D155) | answered (D155) | built by Claude in open #61; predecessor of the detour |
 | Anti-virus detour | 0.49.0 | approved standard Task Manajer in the monitor; native uppercase SEND/Enter, fixed rows, calm pacing | answered through in-chat demos (D157) | implemented by Codex; cross-review/user-controlled integration after #61 |
-| 3.6 Testing bay | 0.50.0 | test salvaged parts to learn their real condition; required 0.50.0 structural review | yes: how the bay works | **Claude resumes here next, discussion first** |
+| 3.6 Testing bay | 0.50.0 | untested parts from salvage and customers; physical inspection and rig tests; degraded parts; the player's mark; scrap; required 0.50.0 structural review | answered (D158) | built by Claude; awaiting Codex cross-review and the user's merge |
 | 3.7 Build requests | 0.51.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection | yes: uses table numbers | after 3.6 |
 | 3.8 Elegance and reviews | 0.52.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | after 3.7 |
 

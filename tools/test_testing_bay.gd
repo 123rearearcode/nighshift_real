@@ -179,12 +179,21 @@ func run_checks() -> void:
     check(gs.stock_record("bay_ram").is_empty() and not bay.list_buttons.has("bay_ram"), "scrapping removes it from the list")
     bay.queue_free()
     await process_frame
-    var acts: Node = load("res://scenes/activities.tscn").instantiate()
-    root.add_child(acts)
-    await process_frame
-    check(acts.activity_buttons.any(func(b: Button) -> bool: return b.text.begins_with("TESTING BAY")), "Activities offers the testing bay")
-    acts.queue_free()
-    await process_frame
+    # Native navigation: Activities -> Testing bay -> back, through real clicks.
+    change_scene_to_file("res://scenes/activities.tscn")
+    for f in range(3): await process_frame
+    var bay_entry: Array = current_scene.activity_buttons.filter(func(b: Button) -> bool: return b.text.begins_with("TESTING BAY"))
+    check(bay_entry.size() == 1 and not bay_entry[0].disabled, "Activities offers the testing bay")
+    if bay_entry.size() == 1:
+        await press(bay_entry[0])
+        for f in range(3): await process_frame
+        check(current_scene.scene_file_path == "res://scenes/night_bay.tscn", "clicking it opens the testing bay")
+        var back: Button = current_scene.get_node_or_null("BackButton")
+        check(back != null and back.text == "← Activities" and current_scene.get_node_or_null("ActivitiesButton") != null, "the bay has the standard back and Activities buttons")
+        if back != null:
+            await press(back)
+            for f in range(3): await process_frame
+            check(current_scene.scene_file_path == "res://scenes/activities.tscn", "← Activities returns to the hub")
 
     _remove_save_files(manifest)
     restore_save(gs)
