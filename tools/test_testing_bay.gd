@@ -28,6 +28,19 @@ func _part(gs: Node, uid: String, kind: String, model: String, condition: String
     return record
 
 
+# A real mouse click through the viewport (as Codex's anti-virus suite does), not a direct callback.
+func press(button: Button) -> void:
+    for down: bool in [true, false]:
+        var event := InputEventMouseButton.new()
+        event.button_index = MOUSE_BUTTON_LEFT
+        event.pressed = down
+        event.position = button.get_global_rect().get_center()
+        event.global_position = event.position
+        root.push_input(event, true)
+        await process_frame
+    await process_frame
+
+
 func _leaks(text: String) -> Array:
     return SECRET.filter(func(w: String) -> bool: return text.to_lower().contains(w))
 
@@ -154,12 +167,9 @@ func run_checks() -> void:
     check(bay.list_buttons.has("bay_ram") and bay.list_buttons.size() == gs.bay_parts().size(), "the bay lists every stock part in the drawer")
     bay._select("bay_ram")
     var first: Button = bay.spot_buttons[0]
-    var at: Vector2 = first.get_global_rect().get_center()
-    click(bay, MOUSE_BUTTON_LEFT, true, at)
-    click(bay, MOUSE_BUTTON_LEFT, false, at)
-    await process_frame
+    await press(first)
     check(gs.night_minutes == 31 and first.text.begins_with("✓"), "clicking a spot on the part inspects it (one night minute) and ticks it off")
-    bay.quick_button.emit_signal("pressed")
+    await press(bay.quick_button)
     check(gs.night_minutes == 36 and str(bay.message.text).to_lower().contains("memory test"), "the quick test runs from its button")
     check(_leaks(bay.card_text.text).is_empty() and bay.card_text.text.contains("Untested"), "the part card shows what you know, never the real condition")
     bay.label_buttons["degraded"].emit_signal("pressed")
