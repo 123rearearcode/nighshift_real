@@ -83,8 +83,9 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (session 3.7, D159 user approved).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; results are
-recorded under Checks performed. No graphical playtest yet (the playtest gate after 3.7 is the user's).
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 31
+suites passed (2,201 checks), including the new Build requests suite (190 checks), and the bench smoke
+playtest finished. No graphical playtest yet (the playtest gate after 3.7 is the user's).
 
 ### Added
 - **Build requests** (from night 4; night 5's first new customer always brings one): a use from the
@@ -128,7 +129,7 @@ recorded under Checks performed. No graphical playtest yet (the playtest gate af
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless), run 44775665191 on `d4a6efe`: 31 suites, 2,201 checks, 0 failures (Build requests 190, Testing bay 52, Menu navigation 33, Morning report 27); bench smoke playtest finished.
 
 ### Decisions proposed (not approved)
 - Every number in D159's implementation proposals (cases, minutes, wish rules, scoring, budgets, odds).
