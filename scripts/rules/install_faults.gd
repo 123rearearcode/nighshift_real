@@ -107,10 +107,18 @@ static func pickup_faults(recorded: Array, gpu_fitted: bool, gpu_turns: int) -> 
     return faults
 
 
-# The GPU's two bracket screws, drawn big enough to click, on the board row just below its slot.
+# The GPU's two bracket screws, on its metal I/O bracket at the rear of the case (the left end of the card,
+# just outside the board), one above the other: the card's row and the row above it. 0.48.1 (user report):
+# until then they were drawn on the row below the card, which is the second PCIe slot.
 static func gpu_screw_centers(slot: Rect2, cell: float) -> Array:
-    var y: float = slot.end.y + cell * 0.55
-    return [Vector2(slot.position.x + cell * 1.0, y), Vector2(slot.position.x + cell * 2.6, y)]
+    var x: float = slot.position.x - cell * 0.5
+    var y: float = slot.position.y + slot.size.y * 0.5
+    return [Vector2(x, y), Vector2(x, y - cell)]
+
+
+# The bracket plate the screws sit on (drawn under them).
+static func gpu_bracket_rect(slot: Rect2, cell: float) -> Rect2:
+    return Rect2(slot.position.x - cell * 0.95, slot.position.y - cell * 1.05, cell * 0.9, slot.size.y + cell * 1.1)
 
 
 static func gpu_screw_radius(cell: float) -> float:

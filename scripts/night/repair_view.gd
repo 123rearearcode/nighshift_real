@@ -14,6 +14,13 @@ func _return_to(path: String) -> bool:
         return false
     Navigation.Memory.set_repair_stage(GameState,stage)
     return Navigation.commit(self,path)
+# 0.48.1: closing the game on the bench is leaving it too: an unlocked press is cancelled (no result),
+# the paste stays as pressed and is saved with the PC, and the vacuum keeps its contents.
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_WM_CLOSE_REQUEST and loaded_job_id == str(GameState.job["id"]):
+        _cancel_unlocked_mount()
+        _save_dust()
+        NightSession.checkpoint(GameState)
 func _new_ticket() -> void:
     _on_back_pressed() # never destroy the selected customer's PC from a practice/reset button
 func _build_ui() -> void:

@@ -76,6 +76,7 @@ Next structural review: **0.50.0**. An early focused review is recorded below fo
 | B46 | Verified | Medium | Input | A fitted shop CPU can be removed through the cooler | 0.46.3 | Automated: hardware lifecycle regressions |
 | B47 | Verified | High | Migration | Handing over the starter CPU recreates a free one on reload | 0.46.3 | Automated: hardware lifecycle regressions |
 | B48 | Verified | High | Save | A bought GPU/cooler fitted in the first slot makes the night manifest invalid after a reload; PC switching locks | 0.48.0 | Automated: generated-tickets B48 regression |
+| B49 | Verified | Low | Layout | GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket | 0.48.1 | Automated: bracket screw geometry regression |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -665,3 +666,13 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: Buy a catalogue GPU, take the customer's GPU out at the repair bench and fit the bought one as a test part (`service_replacements.gpu` becomes "model:<id>"); switch to another open PC; save and reload; `NightSession.ensure()` rejects the manifest and PC switching is locked.
 - Expected / actual: switching stays available after reload / manifest rejected, read-only protection.
 - Regression / evidence: Automated Godot 4.7.2 regression in `tools/test_generated_tickets.gd` (section "B48"), GitHub Actions on PR #59. Not reproduced on the pre-fix build in CI (found by reading code); no graphical or user verification claimed.
+
+### B49 — GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket
+
+- Found: 0.48.0 (present since the hardware-bench screws of 0.39/0.40; made visible by the second PCIe slot of 0.46.0)
+- Reported by: User, 18 November 2026 ("the screws on the GPUs on the hardware board are at the wrong place")
+- Fixed in: 0.48.1
+- Root cause: `InstallFaults.gpu_screw_centers` placed both screws on the board row just below the GPU slot; since 0.46.0 that row is the second PCIe slot (`pcie_2`), so the screws sat on that slot or on a second card. Fix: both screws on the card's metal I/O bracket at the rear of the case (left end of the card, just outside the board), drawn on a bracket plate.
+- Reproduction: Open the night hardware bench with the GPU fitted: the two screw circles lie inside the PCIe 2 connector rectangle (confirmed with a geometry render from the game's own layout numbers).
+- Expected / actual: screws on the GPU bracket / screws on the second PCIe slot.
+- Regression / evidence: Automated Godot 4.7.2 geometry checks for both case sizes in `tools/test_board_and_bench_state.gd` (screws outside the board, inside the bracket, off every connector; hit test). No graphical playtest or user acceptance claimed yet.

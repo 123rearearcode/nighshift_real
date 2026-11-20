@@ -4,6 +4,7 @@
 # names, so callers and tests are unchanged.
 extends RefCounted
 
+const VacuumState = preload("res://scripts/bench/vacuum_state.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
 const TableBody = preload("res://scripts/bench/table_body.gd")
@@ -49,7 +50,10 @@ func _dust_fractions() -> Dictionary:
 
 
 func _save_dust() -> void:
+    # 0.48.1: the vacuum is the shop's tool; its bin and hose contents are saved with every dust save.
+    GameState.set_vacuum(bv.bin.fill, VacuumState.capture(bv.tools.flow))
     if bv.zones.is_empty() or bv.loaded_job_id != str(GameState.job["id"]):
+        GameState.save_game()
         return
     bv._save_service_positions()
     GameState.set_dust(_dust_fractions(),DustSnapshot.capture(bv.dust))
@@ -256,6 +260,8 @@ func _refresh_vacuum_status() -> void:
 func _empty_bin() -> void:
     var had: float = bv.bin.empty()
     if had > 0.0: bv._sound("bin.empty",{"units":had})
+    GameState.set_vacuum(bv.bin.fill, VacuumState.capture(bv.tools.flow))
+    GameState.save_game()
     bv.bin_notified = false
     _refresh_vacuum_status()
     if had <= 0.0:

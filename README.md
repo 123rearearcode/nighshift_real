@@ -1,4 +1,10 @@
-# Nightshift - Godot Foundation Trial (v0.48.0)
+# Nightshift - Godot Foundation Trial (v0.48.1)
+
+0.48.1 adds the **motherboard** as one of the PC's parts: it shows on the hardware bench under its model
+name and can come out of the case only after every other part is out (fit it back before anything goes
+in). The GPU's bracket screws now sit on the card's rear bracket instead of on the second PCIe slot. The
+vacuum keeps its bin and hose contents across screens and reloads, and paste pressed before leaving the
+repair bench (or closing the game) stays as pressed.
 
 0.48.0 is session 3.5, **generated tickets**. After the first night (Mara and Relu), new customers walk
 in every morning: how many depends on the shop's **online rating** (stars from recent pickups) and its

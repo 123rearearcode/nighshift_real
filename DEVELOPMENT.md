@@ -97,6 +97,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
 | `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for Codex: design pass on the scam direction and the dust minigame purpose |
+| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | PROPOSAL for review (D156): "Task Manajer Panic", the anti-virus mini-game: scan as scouting, tells, virus types, scanners, power-ups, build steps, open questions; not built |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
@@ -198,6 +199,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
+| `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
@@ -213,6 +215,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
+| `scripts/bench/vacuum_state.gd` | state | The vacuum's saved bin fill and hose clumps: sanitize, capture, restore (0.48.1; kept across screens and reloads) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
 | `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |
@@ -765,3 +768,16 @@ never preload the generator (rating maths live in `shop_rating.gd` for that reas
 `TicketGenerator.check()` before it is offered; the proof reads hidden truth and is never shown.
 
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
+
+
+## Motherboard and saved-tool contracts — 0.48.1
+
+`job.parts.board` is a board id from `HardwareCatalog.BOARDS` or "" (= the case's default board; old
+saves). Read it through `PcBuild.board_model(job)`, never directly. `job.board_out` (bool) is true only
+after `GameState.take_out_board()`, which requires `board_blocker() == ""` (every part out, no shop test
+parts fitted). While it is true, `fit_inventory_part`, `fit_catalog_stock`, `set_service_part_fitted(...,
+true)` and `apply_bench` with anything on a slot all refuse, and `PcBuild.missing()` lists the board
+first. Code that rebuilds a parts dictionary must carry `board` (see `CustomerPC.apply`). Boards are not
+in `HardwareCatalog.PARTS`/`TYPES` on purpose: they are not bench drag pieces or order-panel stock.
+Save gains `vacuum_state` ({bin, hose: [[t, amount]]}, `VacuumState.sanitize`); the bench restores it in
+`_ready` and stores it on every dust save and when the bin is emptied. Recorded by Claude (Opus 5.5).

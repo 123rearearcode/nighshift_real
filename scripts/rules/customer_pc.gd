@@ -234,7 +234,7 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         elif location == SLOT_OF[Ids.GPU] or location == SLOT_OF[Ids.COOLER]:
             first[Ids.GPU if location == SLOT_OF[Ids.GPU] else Ids.COOLER] = entry
         else: slot_ids[location] = entry
-    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"]}
+    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"], "board": p["board"]}   # 0.48.1: the board stays
     var dead: Array = []
     # D150 (0.46.2): a part that does not work CAN be fitted (nothing refuses it); it simply does not work.
     for slot: String in slot_ids:

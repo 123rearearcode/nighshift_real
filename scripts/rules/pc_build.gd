@@ -13,7 +13,7 @@ const BASE_WATTS: int = 50              # board, fans and drives
 const EXTRA_GPU_SHARE: float = 0.5      # each further GPU adds half of what the one before it added
 const HEAT_PER_EXCESS_WATT: float = 0.5 # degrees C per watt of CPU heat the cooler cannot remove
 # Shown when an old save or a broken record names no parts: the 0.44 demo PC.
-const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"}
+const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box", "board": ""}
 # Service replacement tiers (repair-bench stock) as catalogue models. "similar" = the same model as the
 # demo PCs' parts, "budget" = the cheaper one below it (0.44 numbers kept).
 # Board slots (the same ids as component_data.gd and customer_pc.gd).
@@ -66,7 +66,24 @@ static func sanitize(raw: Variant) -> Dictionary:
         "ram": _many(r.get("ram", null), Catalog.RAM, FALLBACK["ram"], 3),
         "storage": _many(r.get("storage", null), Catalog.STORAGE, FALLBACK["storage"], 2),
         "psu": _one(r.get("psu", null), Catalog.PSU, FALLBACK["psu"]),
-        "cooler": _one(r.get("cooler", null), Catalog.COOLER, FALLBACK["cooler"])}
+        "cooler": _one(r.get("cooler", null), Catalog.COOLER, FALLBACK["cooler"]),
+        # 0.48.1: the motherboard. "" (also for old saves and records without one) = the case's original
+        # board, i.e. the default model for the job's layout (board_model()).
+        "board": str(r.get("board", "")) if Catalog.is_board(str(r.get("board", ""))) else ""}
+
+
+# 0.48.1: the motherboard model in this job's case. A board of the wrong form for the case, or none
+# recorded, reads as the case's default board.
+static func board_model(job: Dictionary) -> String:
+    var layout: String = "compact" if str(job.get("layout", "tower")) == "compact" else "tower"
+    var id: String = str(sanitize(job.get("parts", {}))["board"])
+    if id != "" and str(Catalog.BOARDS[id]["form"]) == layout: return id
+    return str(Catalog.DEFAULT_BOARD[layout])
+
+
+# 0.48.1: is the motherboard out of the case (only possible once every other part is out)?
+static func board_out(job: Dictionary) -> bool:
+    return job.get("board_out", false) is bool and bool(job.get("board_out", false))
 
 
 # The catalogue model a service replacement tier stands for: "similar"/"budget" (the two stock tiers)
@@ -88,6 +105,7 @@ static func missing(job: Dictionary) -> Array:
         if slot in RAM_SLOTS: (p["ram"] as Array).append(shop[slot])
         if slot in STORAGE_SLOTS: (p["storage"] as Array).append(shop[slot])
     var lines: Array = []
+    if board_out(job): lines.append("MOTHERBOARD: NOT IN THE CASE - fit it back at the hardware bench before anything else")
     if str(p["cpu"]) == "": lines.append("CPU: MISSING - fit a processor in the socket at the hardware bench")
     if (p["ram"] as Array).is_empty(): lines.append("RAM: MISSING - fit at least one memory stick at the hardware bench")
     if (p["storage"] as Array).is_empty(): lines.append("STORAGE: MISSING - fit a drive at the hardware bench: there is no system to start")
@@ -201,6 +219,7 @@ static func part_lines(job: Dictionary) -> Array:
     var replaced: Dictionary = job.get("service_replacements", {}) if job.get("service_replacements", {}) is Dictionary else {}
     var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
     var lines: Array = []
+    lines.append("Motherboard: %s%s" % [Catalog.board(board_model(job))["name"], " (out of the case)" if board_out(job) else ""])
     lines.append("CPU: %s" % ("%s (%s)" % [Catalog.part(p["cpu"])["name"], Catalog.stat_text(p["cpu"])] if str(p["cpu"]) != "" else "none fitted"))
     # D150: list what is fitted by model; a part that does not work is listed like any other.
     var first: String = model_of(str(replaced.get(Ids.GPU, "")), Ids.GPU, str(original["gpus"][0])) if replaced.has(Ids.GPU) else str(original["gpus"][0])
