@@ -1,5 +1,20 @@
 # Nightshift — Current State and Technical Handoff
 
+## Current — 0.49.0 Task Manajer detour, 19 November 2026
+
+Main is verified at 0.48.0 (`6c18522`, #59 including #60 merged). This 0.49.0 feature is stacked on
+open #61 (`50d1602`, 0.48.1 boards/persistence) and preserves that work; neither new PR is auto-merged.
+Task Manajer now replaces one-click removal in the actual monitor. Stable native rows, occasional
+advert, slow miner alias, uppercase SEND/Enter, typing pause and verified source/watchdog cleanup.
+The actual adware/miner record remains authoritative. Failed/stopped rounds retain infection and
+paid time; successful cure saves through existing GameState/NightSession. No new save schema.
+
+Claude resumes session 3.6 Testing bay, discussion first, after user-controlled integration.
+Version slots: bay 0.50.0 with structural review, builds 0.51.0, elegance/reviews 0.52.0. Manual remains
+deferred. Native execution results: CHANGELOG 0.49.0. Older current/merged paragraphs below are historical.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Integration note — 0.48.0 branch, 18 November 2026 (Claude)
 
 PR #59's branch now includes this 0.47.1 work (PR #60) through a merge commit and carries version

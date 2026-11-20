@@ -1,5 +1,23 @@
 # Nightshift — Roadmap
 
+## Current resume point — 19 November 2026
+
+Sessions through 3.5 Generated tickets are built/merged (3.4 Diagnosis 0.47.0; 3.5 0.48.0, #59 with
+#60). Claude has pending 0.48.1 board/persistence work in #61. The user-approved anti-virus detour is
+0.49.0 stacked on that branch, not a replacement for the remaining Wave 3 plan. After cross-review
+and user-controlled integration, Claude resumes 3.6 Testing bay with its design conversation.
+
+| Next session | Version slot | Gate |
+| --- | --- | --- |
+| 3.6 Testing bay | 0.50.0 | Bay interaction/condition/custody discussion; structural review due at 0.50.0 |
+| 3.7 Build requests | 0.51.0 | Workload uses/needs/wants numbers discussion |
+| 3.8 Elegance/reviews | 0.52.0 | Elegance/progression discussion |
+
+Diagnosis manual 3.4m remains deferred. Boss viruses, new scanner economies and identity migration
+are not added to the immediate queue. HANDOFF and WORK_PLAN supersede old status paragraphs below.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 **Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
 Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
 measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules

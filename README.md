@@ -1,4 +1,16 @@
-# Nightshift - Godot Foundation Trial (v0.48.1)
+# Nightshift - Godot Foundation Trial (v0.49.0)
+
+0.49.0 adds the approved calmer **Task Manajer** anti-virus minigame. On a booted infected PC, run
+Anti-virus scan, then Remove threat. Stop the source and its Zombie watchdog, disable auto-start and
+Reboot & verify. Rows stay fixed, only a miner changes its alias slowly, and adware shows one occasional
+advert. Protected miners ask for a silly override word: typing is automatically UPPERCASE and either
+SEND or Enter submits it. The action pauses while typing, with no countdown. A cleanup attempt spends
+10 night minutes on entry (trial tuning); failures, stopping and power-off retain the infection.
+
+This is a detour after session 3.5, not the testing bay. Claude resumes **3.6 Testing bay** next, with
+its design conversation first. The remaining release slots shift to 0.50.0 (bay + structural review),
+0.51.0 (build requests), 0.52.0 (elegance/reviews). The diagnosis manual stays deferred. See HANDOFF.md.
+This branch is stacked on PR #61 (0.48.1); review/merge #61 first, then this feature. No automatic merge.
 
 0.48.1 adds the **motherboard** as one of the PC's parts: it shows on the hardware bench under its model
 name and can come out of the case only after every other part is out (fit it back before anything goes

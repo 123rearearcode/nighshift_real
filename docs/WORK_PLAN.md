@@ -117,6 +117,12 @@ Phases 2 and 4, features must not touch `bench_view.gd`, `tool_rig.gd` or `game_
 features land in the per-tool scripts.
 
 ## Wave 3 — closing the repair loop (user approved the plan, 16 November 2026)
+Current resume, 19 November 2026 (D157): generated tickets 3.5 are merged in #59 with #60's safeguards.
+PR #61 adds the 0.48.1 requests. Codex's user-approved anti-virus detour is 0.49.0 stacked on #61;
+after cross-review and user-controlled integration, Claude resumes **3.6 Testing bay, talk first**.
+This consumes the old 0.49.0 reservation: later versions shift by one; the structural review stays
+at 0.50.0 (now the bay release). Manual 3.4m remains deferred. See HANDOFF for exact resume order.
+
 Design: docs/REPAIR_LOOP_DESIGN.md (D134 to D141). One session = one release the user can playtest.
 Version 0.42.0 is taken by the parallel menu-navigation work (Codex, PR #46), so session 3.0 shipped as 0.41.2.
 Session 3.3 was split in two on 17 November 2026 (D148): the hardware model (0.45.0) and the hardware bench
@@ -132,11 +138,12 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.3b Hardware bench parts | 0.46.0 | CPU, RAM, storage, PSU in and out at the hardware bench; a second PCIe slot; buy any catalogue part | no | done (0.46.0) |
 | 3.4 Diagnosis | 0.47.0 | D150: complaint/evidence separation; Findings on real night clock; standalone stress app (Stress lab); owned temporary test parts; collection settlement (0.46.2/0.46.3) | core approved; detailed presentation/taxonomy still proposed | merged in PR #58 after #57; manual playtest still not recorded |
 | 3.4m Diagnosis manual | later (unassigned version) | optional manual: explanations and graduated guidance, read-only, never reads hidden faults (D150) | yes: Codex's content format first | **deferred by the user on 18 November 2026** as a separate later point; not part of 0.47.0 |
-| 3.5 Generated tickets | 0.48.0 | morning arrivals from rating and reputation; generated and returning customers; problems by night; each case proven solvable (buying a test part counts) and repairable | answered (D153) | built by Claude; awaiting Codex cross-review and the user's merge |
-| 0.48.1 user requests | 0.48.1 | motherboard as a PC part (remove everything first), GPU bracket screws (B49), vacuum and paste kept across screens (D155) | answered (D155) | built by Claude; the anti-virus mini-game is under discussion (D155 item 5) |
-| 3.6 Testing bay | 0.49.0 | test salvaged parts to learn their real condition | yes: how the bay works | — |
-| 3.7 Build requests | 0.50.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection; 0.50.0 structural review | yes: uses table numbers | — |
-| 3.8 Elegance and reviews | 0.51.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | — |
+| 3.5 Generated tickets | 0.48.0 | morning arrivals from rating and reputation; generated and returning customers; problems by night; each case proven solvable (buying a test part counts) and repairable | answered (D153) | merged in #59, including #60's safeguards; earlier cross-review notes remain in D154 |
+| 0.48.1 user requests | 0.48.1 | motherboard as a PC part (remove everything first), GPU bracket screws (B49), vacuum and paste kept across screens (D155) | answered (D155) | built by Claude in open #61; predecessor of the detour |
+| Anti-virus detour | 0.49.0 | approved standard Task Manajer in the monitor; native uppercase SEND/Enter, fixed rows, calm pacing | answered through in-chat demos (D157) | implemented by Codex; cross-review/user-controlled integration after #61 |
+| 3.6 Testing bay | 0.50.0 | test salvaged parts to learn their real condition; required 0.50.0 structural review | yes: how the bay works | **Claude resumes here next, discussion first** |
+| 3.7 Build requests | 0.51.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection | yes: uses table numbers | after 3.6 |
+| 3.8 Elegance and reviews | 0.52.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | after 3.7 |
 
 Playtest gates proposed: after 3.2, 3.4 and 3.7. Later, not in Wave 3: personas and lore, the upsell, the
 wrong self-diagnosis, upgrades.

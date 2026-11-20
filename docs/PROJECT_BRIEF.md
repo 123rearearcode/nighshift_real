@@ -1,5 +1,20 @@
 # Nightshift — Project Brief
 
+## Current scope — 0.49.0 anti-virus detour, 19 November 2026
+
+The approved standard Task Manajer now gives software cleanup a goofy hands-on activity inside the
+customer monitor: stable processes, occasional adverts, slow disguises, uppercase mainframe words,
+and removing persistence before verification. It uses the existing actual infection and pickup
+consequences, without new payment/collection, hardware damage or save-schema systems. The frantic
+prototype was rejected for standard play. Detailed contract: ANTIVIRUS_MINIGAME_DESIGN.md / D157.
+
+The project was at 3.5 Generated tickets (merged 0.48.0) plus pending 0.48.1 boards/persistence (#61).
+This 0.49.0 side feature preserves them. Claude resumes 3.6 Testing bay, discussion first, after
+review/integration; manual remains deferred. Next release slots are 0.50.0 bay + structural review,
+0.51.0 builds, 0.52.0 elegance. Older version-status notes below are historical.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 **Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
 Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
 measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules

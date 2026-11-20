@@ -1,5 +1,15 @@
 # Wave 2 — first diagnostic desktop, 0.35.0
 
+## Current anti-virus update — 0.49.0 (D157)
+
+Anti-virus scan -> Remove threat now opens the approved standard Task Manajer inside this monitor;
+removal is no longer one click. Fixed rows, one occasional advert, slow miner alias, uppercase native
+SEND/Enter and unlimited typing pause. Stop the actual source/watchdog, disable auto-start, reboot to
+verify; only then cure the canonical infection. Attempts spend ten night minutes once (trial tuning);
+failed/stopped attempts retain infection. No payment or ready-for-pickup action is introduced.
+See ANTIVIRUS_MINIGAME_DESIGN.md for the live contract and HANDOFF.md for Claude's 3.6 testing-bay resume.
+Older Wave 2 version notes below are historical. Signed: Codex (GPT-6; model id not exposed), ChatGPT Work.
+
 **Current menu rules: MENU_NAVIGATION.md (0.42.0, user approved).** Slot → workbench directly,
 common Repair/Hardware/Monitor tabs, named Room back, Activities/Pause, Arrange room mode and
 Continue. Older menu, sandbox and service-hub instructions below are historical; current hardware

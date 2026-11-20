@@ -1,6 +1,70 @@
 # Handoff — current state first
 
-## Review request — anti-virus mini-game design (for Codex / ChatGPT), 18 November 2026
+## Current — 0.49.0 Task Manajer detour complete; resume 3.6 Testing bay, 19 November 2026
+
+The user approved the calmer in-chat demo and explicitly asked Codex to implement it in the game,
+then tell Claude where the plan stopped. D157 and ANTIVIRUS_MINIGAME_DESIGN.md are now the live
+contract; the original D156 review request below is historical, not a prohibition on this assignment.
+The fast disappearing/reordering demo was rejected as too hard (possibly a future boss idea, NOT
+approved for implementation). Do not restore it as normal difficulty.
+
+### Where we were, and what this delivery changes
+
+- Main verified at 0.48.0 / `6c18522`: PR #59 (generated tickets, session 3.5) merged with #60's bug
+  ledger/lifecycle safeguards inside. Session 3.4 diagnosis is merged; 3.4m manual remains deferred.
+- Claude's PR #61 / `feat/board-persistence-0481`, head `50d1602`, is still open: boards, bracket
+  screws B49, vacuum persistence and close-on-bench paste save. This feature starts from that exact
+  head and preserves it. PR #19 is an old design proposal; do not implement it wholesale or merge it.
+- This branch `feat/task-manajer-standard` adds 0.49.0, the anti-virus side feature. It is NOT session
+  3.6 and does not start testing-bay, build-request, elegance or identity-migration work.
+- Scan -> Remove threat -> native Task Manajer inside the same monitor. Six stable rows; no hiding,
+  spawning or moving rows; one advert at a time; miner alias changes every eight seconds. SEND and
+  Enter share one handler, typed characters become uppercase immediately, typing pauses the action.
+- Each actual `job.infection` (adware or miner) supplies its own source plus a Zombie watchdog;
+  the watchdog is that infection's persistence, not a fabricated extra infection or a new save model.
+  Cure only follows source/watchdog stopped, auto-start disabled and a clean verification reboot.
+- Ten night minutes per attempt are trial tuning, spent/saved once before play. Stopping, crashes,
+  power-off or closing the application retain infection and spent time. Unfinished UI progress resets
+  on a fresh attempt. No payment, ready sticker, collection or reputation is applied by the minigame.
+- No GameState, hardware/bench/tool hot-file or save-schema edits. Findings logs visible actions on
+  the real night clock. New required suite: `test_antivirus.gd` (Antivirus); preserve all other suites.
+
+### Claude: resume in this order
+
+1. Read this section, D157, ANTIVIRUS_MINIGAME_DESIGN.md and WORK_PLAN's current Wave 3 table.
+2. Check live main/open PRs. Cross-review this feature against the approved standard demo, including
+   native SEND + Enter, clock/cancel/06:00, stale-ticket isolation and save failures. Review/merge is
+   the user's decision: #61 first, then retarget this stacked PR from #61's branch to updated main.
+   Do not merge this into #61 or rewrite/force-push another contributor's branch without instruction.
+3. After user-controlled integration, base new work on that integrated main. The next planned work
+   is still **session 3.6 Testing bay**: talk with the user about bay interaction/rules before coding.
+   Scope: discover the actual condition of salvaged parts through testing, keeping actual versus
+   known condition and part identity/custody separate. Salvage campaign stock integration is not
+   magically completed by the anti-virus feature; inspect the existing boundary before designing it.
+4. Version allocation: 0.49.0 is now this detour. Use 0.50.0 for the testing bay, with the already-due
+   structural bug/root-cause review in that release; then 3.7 builds 0.51.0 and 3.8 elegance/reviews
+   0.52.0, checking live reservations first. Do NOT postpone the 0.50.0 review to build requests.
+5. Keep the manual deferred. Do not implement boss malware, scanners/store/subscriptions/power-up
+   economies, more virus families or wholesale part-identity migration as incidental follow-ups.
+   L1/L2 remain Investigating. The old engineering phases are not automatically resumed instead of 3.6.
+6. Preserve the board/persistence work, ledger checks, Part lifecycle, Diagnosis, Generated tickets,
+   Board and bench state and Antivirus suites. Run native navigation tests for new bay routing.
+
+### Copyable resume prompt
+
+> Read HANDOFF.md's 0.49.0 section before continuing. We finished 3.5 Generated tickets in merged
+> #59 (including #60), then your 0.48.1 PR #61, then took the user-approved Task Manajer detour.
+> Cross-review and integrate #61 then the stacked anti-virus PR only under the user's merge direction.
+> After that resume 3.6 Testing bay, starting with its talk-first design questions, not build requests.
+> 0.49.0 is used; bay is now 0.50.0 and must include the structural review, builds 0.51.0, elegance
+> 0.52.0. Keep the manual deferred and the approved calm anti-virus controls; preserve all tests and
+> canonical PC/condition/custody boundaries. Check live branch ownership before touching shared files.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+19 November 2026, Europe/Bucharest. Target-engine execution evidence is in CHANGELOG 0.49.0;
+in-chat demo acceptance is not a claim of a graphical Godot playtest.
+
+## Historical review request — anti-virus mini-game design, 18 November 2026
 
 The user chose option D, a **Task Manager panic** (D156), for the anti-virus mini-game and asked that
 Claude's first design ideas go to chat for review through this handoff. Read
@@ -349,7 +413,7 @@ The established hot files are scripts/view/bench_view.gd, scripts/bench/tool_rig
 scripts/state/game_state.gd. Other shared files can collide too. One open PR per hot file;
 cross-review before merge. No WORK_PLAN edit here.
 
-### Remaining Wave 3 work (planned, not implemented by this correction)
+### Historical Wave 3 allocation (superseded by the current 0.49.0 section)
 
 | Session | Planned version | Scope | Design conversation still needed? |
 | --- | --- | --- | --- |
