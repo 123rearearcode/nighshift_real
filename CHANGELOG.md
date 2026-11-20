@@ -83,8 +83,9 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (session 3.8, D160 user approved; replaces the planned elegance score).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
-is recorded under Checks performed. No graphical playtest yet.
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 32
+suites passed (2,239 checks), including the new Trust and reviews suite (38 checks, real input on the
+phone), and the bench smoke playtest finished. No graphical playtest yet.
 
 ### Added
 - **Reviews**: every pickup leaves a star review with a comment on the shop's FixFindr page. About a third
@@ -119,7 +120,7 @@ is recorded under Checks performed. No graphical playtest yet.
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless), run 44788341331 on `a0f44d7`: 32 suites, 2,239 checks, 0 failures (Trust and reviews 38, Build requests 190, Generated tickets 65, Morning report 27); bench smoke playtest finished.
 
 ### Decisions proposed (not approved)
 - Every number in D160's implementation proposals; the phone lives on the Activities screen only.
