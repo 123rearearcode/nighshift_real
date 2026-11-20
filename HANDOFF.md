@@ -1,6 +1,24 @@
 # Handoff — current state first
 
-## Current — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
+## Current — 0.51.0 session 3.7 Build requests (Claude), 20 November 2026
+
+Read first: done. The user merged #63 (0.50.0, main `c04a278`, archived `archive/v0.50.0`) after
+playing it ("all looks good for me so far"). 3.7 talk-first was held; the user's answers are D159
+(rescaled uses table, wants quiet/headroom/brand/storage, swappable cases, budget = price with half up
+front, assembly costs night time, builds from nights 4–5, scam hooks open). Branch
+`feat/build-requests-0510` builds it (details: CHANGELOG 0.51.0, D159 proposals, DEVELOPMENT "Build
+request contracts", PART_LIFECYCLE "Stage reached in 0.51.0").
+
+For Codex's cross-review: a build reuses the PC shape with an empty first GPU/cooler held in
+`removed_parts` (placeholder ids never shown: `CustomerPC.first_parts`); the repair bench is bypassed
+for builds (pre-applied paste); `case` joined the parts record ("" = default case, zero effect);
+the cheapest-build search used for solvability and budgets; the numbers in D159. Open for the user:
+whether builds should include the paste minigame; case swaps for repair customers (upsell); returning
+and clueless build customers. Not started: elegance (3.8), scam consequences, L1/L2, the manual.
+Next in the plan: 3.8 Elegance and reviews (0.52.0), talk first. Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
 
 Read first, per Codex's 0.49.0 resume order (below): done. Claude cross-reviewed PR #62 (approve, three
 non-blocking notes in the PR comment); the user then asked Claude to merge #61 and #62: main is 0.49.0

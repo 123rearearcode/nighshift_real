@@ -73,4 +73,5 @@ static func window(owner: Node, id: String, after: Callable = Callable()) -> Acc
 # Header text for the workbench identity: customer · ticket · case · status badge.
 static func identity_text(current: Dictionary) -> String:
     var badge: String = Ticket.badge(current)
-    return "%s · %s · %s PC%s" % [current.get("customer", ""), current.get("id", ""), str(current.get("layout", "tower")).capitalize(), ("  [" + badge + "]") if badge != "" else ""]
+    var kind: String = " build" if str(Ticket.flags(current)["request"]) == Ticket.BUILD else ""   # 0.51.0
+    return "%s · %s · %s PC%s%s" % [current.get("customer", ""), current.get("id", ""), str(current.get("layout", "tower")).capitalize(), kind, ("  [" + badge + "]") if badge != "" else ""]

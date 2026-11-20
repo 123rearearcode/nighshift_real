@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.50.0)
+# Nightshift - Godot Foundation Trial (v0.51.0)
+
+0.51.0 is session 3.7, **build requests**. From night 4 some customers ask the shop to build them a new
+PC: a use (office work, a kid's PC, gaming, video editing, mining, …), a few wishes (quiet, room to grow,
+a favourite brand, extra storage) and a budget. They pay half up front and the rest when they collect;
+whatever the parts did not cost is your profit. The build starts as an empty basic case with a cheap
+motherboard; swap the case or board while it is empty, order parts and fit them at the hardware bench.
+Every part you fit costs night time. The pickup checks the needs (hard) and the wishes (soft).
 
 0.50.0 is session 3.6, the **testing bay** (Activities > Testing bay). Salvage finds and customers'
 replaced parts now land in your stock as **untested**: nobody knows if they work. At the bay you look

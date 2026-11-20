@@ -76,6 +76,74 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.51.0 - 2026-11-20 - Build requests (session 3.7)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.50.0 (main c04a278: PR #63 merged by the user; archived as archive/v0.50.0).
+- Type: minor (session 3.7, D159 user approved).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; results are
+recorded under Checks performed. No graphical playtest yet (the playtest gate after 3.7 is the user's).
+
+### Added
+- **Build requests** (from night 4; night 5's first new customer always brings one): a use from the
+  approved table, up to two wishes (quiet, room to grow, a favourite CPU or GPU brand, extra storage) and
+  a budget. Half is paid when they arrive, the rest on collection; the profit is what the parts did not cost.
+- **The empty build**: the basic case of its size with the cheapest motherboard, both paid from the
+  deposit. Order parts and fit them at the hardware bench; each fit costs night minutes (CPU 5, RAM 3,
+  drive 4, PSU 8, GPU 5, cooler 10, motherboard 10, case 15). The cooler goes on with pre-applied paste.
+- **Cases**: five parody cases (basic tower and compact, a mesh tower that runs cooler, two
+  sound-dampened ones). Swap the case or the motherboard from the new **Case and motherboard** panel while
+  the case is empty (the old one is refunded; a case of the other size takes a board of its size).
+- **Pickup for builds**: each missed need costs 40 points, each missed wish 10, on top of the usual
+  temperature and fault rules (loose GPU screws and crashing untested parts still come back).
+- Every PC now lists its case; a repair PC sits in the default case of its size, which changes nothing.
+
+### Changed
+- A build opens at the hardware bench; the Repair tab is off for builds (nothing to clean or repaste).
+- The ticket of a build shows its needs, wishes, budget and what the parts in it cost so far.
+- Scam hooks (left open on purpose, D159): a collected build keeps its value at new prices next to the
+  budget and counts its parts by what the shop knew (new, untested, tested, salvaged). No consequence yet.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/build_request.gd` | A | Uses table, needs and wants, cheapest catalogue build, the empty build, assembly minutes, pickup review, ticket texts, delivery record |
+| `tools/test_build_requests.gd` | A | Build requests suite |
+| `scripts/data/hardware_catalog.gd` | M | Cases; cheapest board |
+| `scripts/data/games.gd` | M | Install size |
+| `scripts/rules/pc_build.gd` | M | `case` in the parts record, case model and heat, `is_build`, build part lines |
+| `scripts/rules/ticket_generator.gd` | M | `draw_build` |
+| `scripts/night/night_session.gd` | M | Build arrivals and their deposit |
+| `scripts/state/game_state.gd` | M | Build record on save/load, assembly minutes, case/board swaps, deposit, build pickup review, delivery record, the customer's new PC |
+| `scripts/rules/customer_pc.gd` | M | No phantom first GPU/cooler in a build; the case kept |
+| `scripts/night/hardware_view.gd` | M | Case and motherboard panel, build texts, assembly refusals |
+| `scripts/rules/ticket.gd`, `scripts/night/ticket_menu.gd`, `scripts/rules/part_states.gd`, `scripts/rules/findings.gd` | M | Build ticket and wording |
+| `scripts/night/night_diagnostics.gd` | M | Case airflow; no repair-only notes for builds |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/workshop_hub.gd`, `scripts/night/repair_view.gd` | M | Builds go to the hardware bench |
+| `tools/test_data_schemas.gd`, `.github/workflows/tests.yml` | M | Game schema key; suite registered |
+| `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `docs/PART_LIFECYCLE.md`, `DEVELOPMENT.md`, `HANDOFF.md` | M | D159, the approved uses table, plan, lifecycle stage, contracts, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.51.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- Every number in D159's implementation proposals (cases, minutes, wish rules, scoring, budgets, odds).
+- Builds skip the paste minigame (pre-applied paste); case swaps exist for builds only, not repairs.
+- Build customers are new people (not returning ones) and never the clueless profession, for now.
+
+### Known issues and open items
+- L3 applies to builds: a delivered degraded or dead part loses its condition at collection.
+- The scam hooks are recorded but have no consequence; elegance (3.8) does not read builds yet.
+- A build handed back unfinished pays nothing and the customer does not keep it as their PC record.
+
+### Next action
+Codex cross-reviews; the user playtests the 3.7 gate and decides the merge. Then 3.8 Elegance and
+reviews (0.52.0), talk first.
+
 ## 0.50.0 - 2026-11-20 - Testing bay (session 3.6) and the 0.50.0 structural review
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

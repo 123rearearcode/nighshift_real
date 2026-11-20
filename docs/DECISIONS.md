@@ -584,3 +584,39 @@ test 5 minutes (finds dead, heat, weak output, slow drives), long test 20 minute
 memory errors); scrap $2–8; a degraded spare fitted in a customer PC is weak, hot or crashes (Stress lab
 at minute 8/12, game test messages) and a crashing part left in a PC brings the customer back
 (delayed fault). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D159 — Build requests (user, 20 November 2026)
+
+The user's answers to the session 3.7 talk-first questions:
+1. **Uses table:** the rescaled table (catalogue scale) is approved: light office 10/0/8 GB/250 GB, medium
+   office 20/0/16/500, heavy office 30/10/32/1000, school or kid's PC 15/10/8/500, music production
+   30/0/32/1000, video editing 40/30/32/2000, crypto mining 10/60/8/250 (processing / graphics / RAM /
+   storage); gaming from the game and the customer's FPS (storage = the game's size); streaming = the
+   game +15 processing, +16 GB RAM, +500 GB storage.
+2. **Wants:** quiet, headroom, a favourite brand, extra storage.
+3. **Cases are also something swappable.**
+4. **Price:** the customer pays their budget; the shop's profit is the budget minus the parts' cost; no
+   charging over the budget; half up front, half on collection.
+5. **Assembly costs night time.**
+6. **Build requests start on nights 4–5.**
+7. **Scam hooks** agreed and left open: salvaged or untested parts at new prices; a cheaper part than
+   asked for; charging the full budget for a much cheaper PC.
+Approved design. Implementation proposals (Claude, 0.51.0, for Codex's cross-review and the user's
+playtest): five parody cases (basic tower and compact cases with no effect, so repair PCs are unchanged;
+a mesh tower −6 °C; two sound-dampened cases that hide one loud fan); a build starts as the basic case
+of its size with the cheapest motherboard fitted, both paid from the deposit; the case and board are
+swapped only while the case is empty (old one refunded; a case of the other size swaps the board too);
+assembly minutes: CPU 5, RAM 3, drive 4, PSU 8, GPU 5, cooler 10, motherboard 10, case 15 (taking parts
+out is free); a build cooler goes on with pre-applied paste (no repair-bench work; the Repair tab is off
+for builds); every PC needs a graphics card and a cooler to start (graphics 0 = any card); wants:
+headroom = a third more processing / graphics / FPS, extra storage = twice the need, quiet = no cooler
+above 75% or PSU above 80% of its capacity (a dampened case hides one), brand = CPU or GPU maker;
+pickup: −40 per missed need, −10 per missed want, on top of the usual temperature and fault rules;
+budget = the cheapest build that meets the needs × 1.15–1.5 (a quarter of customers: × 1.0–1.1, a tight
+budget) plus 40–100% of what the wants add; a request is offered only when that cheapest build exists
+and the shop's cash plus the deposit covers it; from night 4 each arrival has a 30% chance, night 5's
+first arrival is always a build; nights 4–5 offer light / medium office, school and gaming (60 or 90
+FPS); every use from night 6 (gaming up to 144 FPS); mining needs a tower (two cards). Scam hooks are
+recorded, not punished: the collected build keeps its value at new prices next to the budget and counts
+its parts by what the shop knew (new / untested / tested / salvaged). Recorded by Claude (Opus 5.5,
+model id claude-opus-5-5).

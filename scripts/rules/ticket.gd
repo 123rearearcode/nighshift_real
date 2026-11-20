@@ -1,6 +1,6 @@
 # RULES ONLY (pure): a customer's ticket as one record (D135, Wave 3 session 3.1), and its pickup state
 # (D134). A ticket is opened whenever a customer makes a request. Today every ticket is a repair; the
-# build request is designed (D140) but not built. The record is DERIVED from the job each time, so it can
+# build request is built in 0.51.0 (D159, build_request.gd). The record is DERIVED from the job each time, so it can
 # never disagree with the PC; only the pickup flags are stored, in job["ticket"].
 #   ready  = the player's own "ready for pickup" sticker. A note: it changes no rule.
 #   called = the customer was called and collects NEXT MORNING (night_session.gd end_night, 0.44.0).
@@ -9,6 +9,7 @@ extends RefCounted
 
 const PartStates = preload("res://scripts/rules/part_states.gd")
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
+const BuildRequest = preload("res://scripts/rules/build_request.gd")
 
 const REPAIR := "repair"
 const BUILD := "build"
@@ -95,6 +96,7 @@ static func requirement_text(needs: Dictionary, games: Dictionary) -> String:
 # Plain text of the whole ticket, for the ticket window.
 static func text(job: Dictionary, customer: Dictionary, games: Dictionary) -> String:
     var r: Dictionary = record(job, customer)
+    if r["request"] == BUILD: return build_text(job, r)
     var lines: Array = [
         "TICKET %s · %s" % [r["id"], "PC repair" if r["request"] == REPAIR else "PC build"],
         "Status: %s" % status_text(job),
@@ -115,6 +117,20 @@ static func text(job: Dictionary, customer: Dictionary, games: Dictionary) -> St
         # optional lines are "" when absent; keep the two deliberate blank separators (index 2 and 9)
         if str(lines[i]) != "" or i in [2, 9]: kept.append(lines[i])
     return "\n".join(kept)
+
+
+# 0.51.0 (session 3.7, D159): a build request's ticket. Needs, wants, budget and what is in it so far.
+static func build_text(job: Dictionary, r: Dictionary) -> String:
+    var lines: Array = ["TICKET %s · PC build" % r["id"], "Status: %s" % status_text(job), "",
+        "Customer: %s%s" % [r["customer"]["name"], (" (" + str(r["customer"]["profession"]) + ")") if str(r["customer"]["profession"]) != "" else ""],
+        "What they say: %s" % r["symptoms"]]
+    lines.append_array(BuildRequest.ticket_lines(job))
+    if str(r["terms"]["collection"]) != "": lines.append("Collection: %s" % r["terms"]["collection"])
+    lines.append("")
+    lines.append("Machine: %s case · %s" % [str(r["machine"]["layout"]).capitalize(), r["machine"]["parts"]])
+    lines.append("Specs now: " + PcBuild.summary_line(job))
+    lines.append_array(PcBuild.part_lines(job))
+    return "\n".join(lines)
 
 
 # The right-click menu: [[action, label], ...]. Empty for a collected ticket.

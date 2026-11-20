@@ -10,6 +10,7 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 
 const MISSING_TEXT: String = "NOT FITTED - it is out of the PC; refit it or fit a part from your stock"
+const BUILD_MISSING_TEXT: String = "NOT FITTED YET - fit one from your stock at the hardware bench"
 # What a boot attempt shows when a fitted part does not work (D150: observation, never the cause).
 const SLOT_SYMPTOMS: Dictionary = {
     "psu": "Nothing happens when you press the power button: no fans, no lights.",
@@ -28,7 +29,8 @@ static func state(job: Dictionary, part_id: String) -> Dictionary:
     var working: bool = not part_id in job.get("broken_parts", [])
     var damaged: bool = part_id in job.get("damaged_parts", [])
     var tier: String = str(job.get("service_replacements", {}).get(part_id, ""))
-    var text: String = MISSING_TEXT if not fitted else ("fitted" + (" (replacement from your stock)" if tier != "" else ""))
+    var missing: String = BUILD_MISSING_TEXT if PcBuild.is_build(job) else MISSING_TEXT   # 0.51.0: a build has no original to refit
+    var text: String = missing if not fitted else ("fitted" + (" (from your stock)" if PcBuild.is_build(job) else (" (replacement from your stock)" if tier != "" else "")))
     if damaged and fitted: text += ", visibly DAMAGED"
     return {"fitted": fitted, "working": working, "damaged": damaged, "tier": tier, "text": text}
 

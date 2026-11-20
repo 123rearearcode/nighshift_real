@@ -34,7 +34,11 @@ static func resume_path(gs: Node) -> String:
     var path: Variant = _read(gs).get("scene",ACTIVITIES)
     if not path is String or not path in PATHS: return ACTIVITIES
     if path in [REPAIR,HARDWARE,MONITOR] and gs.job.get("hardware_trial",{}).get("night_session",{}).get("pc","") == "": return ROOM
+    if path == REPAIR and _build(gs): return HARDWARE   # 0.51.0: a build has no repair bench work
     return path
+static func _build(gs: Node) -> bool:
+    var t: Variant = gs.job.get("ticket",{})
+    return t is Dictionary and str(t.get("request","")) == "build"
 static func repair_stage(gs: Node) -> int:
     var stages: Variant = _read(gs).get("repair_stages",{})
     return 1 if stages is Dictionary and stages.get(str(gs.job.get("id","")),0) == 1 else 0
@@ -51,7 +55,9 @@ static func set_repair_stage(gs: Node,stage: int) -> bool:
     return _write(gs,data)
 
 static func workbench_path(gs: Node) -> String:
+    var first: String = HARDWARE if _build(gs) else REPAIR   # 0.51.0: a build opens at the hardware bench
     var views: Variant = _read(gs).get("workbench_views",{})
-    if not views is Dictionary: return REPAIR
-    var path: Variant = views.get(str(gs.job.get("id","")),REPAIR)
-    return path if path in [REPAIR,HARDWARE,MONITOR] else REPAIR
+    if not views is Dictionary: return first
+    var path: Variant = views.get(str(gs.job.get("id","")),first)
+    if path == REPAIR and _build(gs): return HARDWARE
+    return path if path in [REPAIR,HARDWARE,MONITOR] else first

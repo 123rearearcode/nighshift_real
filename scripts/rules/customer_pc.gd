@@ -126,9 +126,17 @@ static func components(job: Dictionary) -> Array:
     if (p["gpus"] as Array).size() > 1: out.append(_customer_part(job, "gpu_2", str(p["gpus"][1]), false, "In the PC (second card)"))
     var list: Array = loose(job)
     for i in range(list.size()): out.append(_customer_part(job, "loose_" + str(i), str(list[i]["id"]), bool(list[i]["damaged"]), "Out of the PC" + (" (a part from your stock is in its place)" if str(list[i]["original_of"]) != "" else "")))
-    for part: String in [Ids.GPU, Ids.COOLER]:
+    for part: String in first_parts(job):
         out.append(service_component(job, part))
     return out
+
+
+# 0.51.0: the first-slot parts (GPU, cooler) that physically exist for this job. A repair PC always has
+# both (out of the PC or in it). A build has no customer original: an empty first slot holds nothing.
+static func first_parts(job: Dictionary) -> Array:
+    var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
+    if not PcBuild.is_build(job): return [Ids.GPU, Ids.COOLER]
+    return [Ids.GPU, Ids.COOLER].filter(func(part: String) -> bool: return not part in removed)
 
 
 static func service_component(job: Dictionary, part: String) -> Dictionary:
@@ -137,7 +145,7 @@ static func service_component(job: Dictionary, part: String) -> Dictionary:
     if component.is_empty(): component = ServiceParts.component(uid(job, part), part, "similar")
     var replaced: bool = (job.get("service_replacements", {}) as Dictionary).has(part)
     var label: String = "GPU" if part == Ids.GPU else "cooler"
-    component["display_name"] = ("Replacement " if replaced else "Customer's ") + label
+    component["display_name"] = ("The build's " if PcBuild.is_build(job) else ("Replacement " if replaced else "Customer's ")) + label   # 0.51.0
     var stock_backed: bool = part in (job.get("shop_custody", []) as Array)   # 0.46.2: still the shop's until collection
     var details: Array = [["Model", model_name(job, part)], ["Owner", "Your stock, fitted until the customer collects" if stock_backed else ("Customer's" if not replaced else "Customer's (a replacement)")]]
     if part in (job.get("damaged_parts", []) as Array): details.append(["Condition", "DAMAGED (you broke it)"])
@@ -182,7 +190,7 @@ static func placements(job: Dictionary, saved: Dictionary) -> Dictionary:
     if (p["gpus"] as Array).size() > 1: out[uid(job, "gpu_2")] = {"location": GPU2_SLOT, "cell": [0, 0], "rotation": 0}
     var keys: Array = []
     for i in range(loose(job).size()): keys.append(uid(job, "loose_" + str(i)))
-    for part: String in [Ids.GPU, Ids.COOLER]:
+    for part: String in first_parts(job):
         if part in (job.get("removed_parts", []) as Array): keys.append(uid(job, part))
         else: out[uid(job, part)] = {"location": SLOT_OF[part], "cell": [0, 0], "rotation": 0}
     for key: String in keys:
@@ -234,7 +242,7 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         elif location == SLOT_OF[Ids.GPU] or location == SLOT_OF[Ids.COOLER]:
             first[Ids.GPU if location == SLOT_OF[Ids.GPU] else Ids.COOLER] = entry
         else: slot_ids[location] = entry
-    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"], "board": p["board"]}   # 0.48.1: the board stays
+    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"], "board": p["board"], "case": p["case"]}   # 0.48.1: the board stays (0.51.0: and the case)
     var dead: Array = []
     # D150 (0.46.2): a part that does not work CAN be fitted (nothing refuses it); it simply does not work.
     for slot: String in slot_ids:

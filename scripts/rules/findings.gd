@@ -107,7 +107,8 @@ static func configuration(job: Dictionary) -> Array:
     var replaced: Dictionary = job.get("service_replacements", {}) if job.get("service_replacements", {}) is Dictionary else {}
     var ids: Dictionary = job.get("service_replacement_ids", {}) if job.get("service_replacement_ids", {}) is Dictionary else {}
     var out: Array = []
-    if not PcBuild.board_out(job): out.append("Motherboard: %s (customer's)" % str(Catalog.board(PcBuild.board_model(job))["name"]))   # 0.48.1
+    var owner: String = "for the build" if PcBuild.is_build(job) else "customer's"   # 0.51.0
+    if not PcBuild.board_out(job): out.append("Motherboard: %s (%s)" % [str(Catalog.board(PcBuild.board_model(job))["name"]), owner])   # 0.48.1
     if str(p["cpu"]) != "": out.append("CPU: %s (customer's)" % _name(p["cpu"]))
     for id: Variant in p["ram"]: out.append("RAM: %s (customer's)" % _name(str(id)))
     for id: Variant in p["storage"]: out.append("Storage: %s (customer's)" % _name(str(id)))
@@ -187,7 +188,7 @@ static func hardware_bench_observation(job: Dictionary) -> String:
     if Ids.GPU in removed: empty.append("GPU slot")
     if Ids.COOLER in removed: empty.append("cooler mount")
     if not empty.is_empty(): lines.append("Empty: " + ", ".join(empty))
-    if PcBuild.board_out(job): lines.append("Customer's motherboard beside the case: " + str(Catalog.board(PcBuild.board_model(job))["name"]))
+    if PcBuild.board_out(job): lines.append(("The build's" if PcBuild.is_build(job) else "Customer's") + " motherboard beside the case: " + str(Catalog.board(PcBuild.board_model(job))["name"]))
     var loose: Array = job.get("loose_parts", []) if job.get("loose_parts", []) is Array else []
     var drawer: Array = []
     for item: Variant in loose:

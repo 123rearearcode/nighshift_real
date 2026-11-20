@@ -27,6 +27,12 @@ func _build_ui() -> void:
     super._build_ui()
     title_label.hide()
     Navigation.workbench(self,"repair",_return_to.bind(Navigation.ACTIVITIES))
+    # 0.51.0 (D159): a build has nothing to clean or repaste; an old link or preference lands here only by
+    # mistake. Leave for the hardware bench without saving anything from this bench.
+    if str(GameState.job.get("ticket",{}).get("request","")) == "build":
+        set_process(false)
+        set_process_input(false)
+        call_deferred("_leave_build")
     for node: Node in get_children():
         if node is Button and node.text == "Back to shop": node.hide()
         elif node is Button and node.text.contains("dirty PC"): node.hide()
@@ -77,3 +83,5 @@ func _pause_activity() -> void:
     holding = false
     tools.active = false
     AudioFeedback.stop_owner(self)
+func _leave_build() -> void:
+    if is_inside_tree(): Navigation.commit(self,Navigation.HARDWARE)
