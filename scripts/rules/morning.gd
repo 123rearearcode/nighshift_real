@@ -6,11 +6,12 @@ extends RefCounted
 
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
+const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 
 # Felt only after a few days at home. Everything else is felt at pickup.
-const DELAYED: Array = [InstallFaults.GPU_LOOSE, Overclock.UNSTABLE, Overclock.CRASHING]
+const DELAYED: Array = [InstallFaults.GPU_LOOSE, Overclock.UNSTABLE, Overclock.CRASHING, PartCondition.UNSTABLE_FAULT]   # 0.50.0: a crashing part left in
 const COMEBACK_NIGHTS: int = 2          # a delayed fault brings the customer back after this many mornings
 const COMEBACK_TRUST_PER_10: int = 1    # trust lost per 10 annoyance points of the faults that came back
 const NO_BOOT_TRUST: int = -10          # handed back a PC that does not even start
@@ -26,13 +27,13 @@ static func split(faults: Array) -> Dictionary:
 
 
 static func annoyance(faults: Array) -> float:
-    return InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults)
+    return InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults) + PartCondition.annoyance(faults)
 
 
 static func complaints(faults: Array) -> Array:
     var out: Array = []
     for f: Variant in faults:
-        var text: String = InstallFaults.complaint(str(f)) + Malware.complaint(str(f)) + Overclock.complaint(str(f))
+        var text: String = InstallFaults.complaint(str(f)) + Malware.complaint(str(f)) + Overclock.complaint(str(f)) + PartCondition.complaint(str(f))
         if text != "": out.append(text)
     return out
 

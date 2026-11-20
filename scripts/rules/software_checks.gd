@@ -21,7 +21,8 @@ static func boot(job: Dictionary) -> Dictionary:
     var s: Dictionary = PcBuild.effective(job)   # D148: the PSU must cover what the parts draw
     if not bool(s["powered"]):
         return {"ok":false,"message":"Boot FAILED: the power supply cannot run this PC (it needs %d W, the PSU gives %d W). Fit a bigger PSU."%[int(s["draw_w"]),int(s["psu_w"])]}
-    return {"ok":true,"message":"Boot OK: the PC starts. This alone does not confirm temperatures or game performance."}
+    var slow: String = "\nStarting took unusually long, and the drive clicked a few times." if "slow" in PcBuild.defects(job) else ""   # 0.50.0
+    return {"ok":true,"message":"Boot OK: the PC starts. This alone does not confirm temperatures or game performance."+slow}
 
 static func game_test(job: Dictionary,owned: Array,game_id: String,temp: float) -> Dictionary:
     var game: Dictionary = Games.game(game_id)
@@ -33,7 +34,12 @@ static func game_test(job: Dictionary,owned: Array,game_id: String,temp: float) 
     # D132: the overclock adds CPU power; a hidden miner takes a share of it.
     var cpu: float = float(s["processing"]) * Overclock.cpu_factor(job) * Malware.cpu_share(job)
     var fps: int = Frames.fps(float(s["graphics"]),cpu,float(s["ram_gb"]),game,temp)
-    return {"ok":true,"fps":fps,"message":"%s: %d simulated FPS at %.1f°C. Trial simulation, not a real benchmark."%[game["title"],fps,temp]}
+    var message: String = "%s: %d simulated FPS at %.1f°C. Trial simulation, not a real benchmark."%[game["title"],fps,temp]
+    # 0.50.0: what a degraded shop part does during a long game session (observations, no cause named).
+    var found: Array = PcBuild.defects(job)
+    if "artifacts" in found: message += "\nDuring the match, flickering coloured blocks appeared on the screen."
+    if PcBuild.unstable_minute(job) >= 0: message += "\nThe game crashed to the desktop after %d minutes." % PcBuild.unstable_minute(job)
+    return {"ok":true,"fps":fps,"message":message}
 
 
 # D132: the anti-virus. Needs a booted PC like every live test.

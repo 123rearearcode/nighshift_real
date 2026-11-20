@@ -38,6 +38,7 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     for id: String in job.get("service_replacements",{}):
         var replacement: Dictionary = Parts.option(id,str(job["service_replacements"][id]))
         if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
+    temp += PcBuild.defect_heat(job)   # 0.50.0: a degraded shop CPU runs hot (hidden cause, visible degrees)
     var cooling: float = PcBuild.cooling_heat(job)
     if cooling > 0.0:
         temp += cooling

@@ -218,6 +218,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
+| `scripts/rules/part_condition.gd` | rules | What the shop KNOWS about its parts (label, notes, tests done) apart from their hidden condition; inspection spots and tells; quick/long rig test results; scrap values; the delayed 'crashing part' fault (0.50.0, D158) |
+| `scripts/rules/salvage_stock.gd` | rules | A salvage find becomes one untested stock part (older model, hidden real condition) or scrap (0.50.0) |
 | `scripts/bench/vacuum_state.gd` | state | The vacuum's saved bin fill and hose clumps: sanitize, capture, restore (0.48.1; kept across screens and reloads) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |

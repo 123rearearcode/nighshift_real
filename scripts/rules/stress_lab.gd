@@ -10,6 +10,7 @@ const Overclock = preload("res://scripts/rules/overclock.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
+const PcBuild = preload("res://scripts/rules/pc_build.gd")
 
 const READING_EVERY: int = 5      # minutes between temperature readings
 const WARM_UP: int = 10           # minutes until the temperature settles at its load value
@@ -38,6 +39,8 @@ static func run(job: Dictionary, load: float, start: int) -> Dictionary:
     var crash_at: int = -1
     if int(Overclock.settings(job)["mult"]) > 0:
         crash_at = int(CRASH_MINUTE.get(Overclock.state(job, load), -1))
+    var part_crash: int = PcBuild.unstable_minute(job)   # 0.50.0: a degraded shop part crashes under load
+    if part_crash >= 0 and (crash_at < 0 or part_crash < crash_at): crash_at = part_crash
     var ran: int = length if crash_at < 0 else mini(crash_at, length)
     var idle: float = idle_temp(job, load)
     var readings: Array = []

@@ -186,6 +186,7 @@ func switch_pc(gs: Node,id: String) -> bool:
     if not checkpoint(gs): return false
     var previous: Dictionary = gs.job
     gs.job = target.duplicate(true)
+    gs.refresh_shop_condition()   # 0.50.0: fitted test parts behave as their stock record says
     gs.save_game()
     var written: Variant = Store.read(gs.save_path)
     if not written is Dictionary or written.get("job",{}).get("hardware_trial",{}).get("night_session",{}).get("ticket","") != id:
