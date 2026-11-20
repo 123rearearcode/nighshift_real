@@ -44,6 +44,7 @@ static func stock_for(find: Dictionary, seed: int, uid: String) -> Dictionary:
     var pile_condition: String = str(find.get("condition", ""))
     var dead: bool = pile_condition == "broken" if pile_condition in ["working", "broken"] else r.randf() < DEAD_CHANCE
     var condition: String = PcBuild.BROKEN if dead else (PcBuild.DEGRADED if r.randf() < DEGRADED_CHANCE else PcBuild.WORKING)
-    return {"uid": uid, "kind": type, "tier": "model", "model": model, "owner": "player", "condition": condition,
-        "defect": str(PcBuild.DEFECTS.get(type, "")) if condition == PcBuild.DEGRADED else "",
+    var record: Dictionary = {"uid": uid, "kind": type, "tier": "model", "model": model, "owner": "player", "condition": condition,
         "known": PartCondition.fresh(PartCondition.UNTESTED, "Found at the salvage dump")}
+    if condition == PcBuild.DEGRADED: record["defect"] = str(PcBuild.DEFECTS.get(type, ""))
+    return record

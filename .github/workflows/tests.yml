@@ -102,7 +102,8 @@ jobs:
           test_diagnosis|Diagnosis
           test_generated_tickets|Generated tickets
           test_board_and_bench_state|Board and bench state
-          test_antivirus|Antivirus"
+          test_antivirus|Antivirus
+          test_testing_bay|Testing bay"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

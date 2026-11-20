@@ -1088,8 +1088,11 @@ func apply_bench(snapshot: Dictionary) -> bool:
 
 # ----- 0.50.0: real condition, knowledge and the testing bay (D158) -----
 
+# Loads a record's hidden defect and the player's knowledge. Same shape as freshly made records (a
+# defect key only on a degraded part), so a reload never makes stock look different.
 func _with_knowledge(clean: Dictionary, raw: Dictionary) -> Dictionary:
-    clean["defect"] = PartCondition.sanitize_defect(str(clean["kind"]), str(clean["condition"]), raw.get("defect", ""))
+    var defect: String = PartCondition.sanitize_defect(str(clean["kind"]), str(clean["condition"]), raw.get("defect", ""))
+    if defect != "": clean["defect"] = defect
     clean["known"] = PartCondition.sanitize_known(raw.get("known", null), str(clean["condition"]))
     return clean
 
