@@ -620,3 +620,35 @@ FPS); every use from night 6 (gaming up to 144 FPS); mining needs a tower (two c
 recorded, not punished: the collected build keeps its value at new prices next to the budget and counts
 its parts by what the shop knew (new / untested / tested / salvaged). Recorded by Claude (Opus 5.5,
 model id claude-opus-5-5).
+
+### D160 — Trust, shop level and reviews instead of elegance (user, 20 November 2026)
+
+The user's answers to the session 3.8 talk-first questions:
+1. **No elegance mechanic**: it does not work well with the scamminess of the game. (Supersedes D140's
+   elegance score.)
+2. A **trustworthiness level** that ties into the **shop level**, which rises with good work. The shop
+   level gives **upgrades**, defined later. It can go down, but **only when customers find out** what
+   happened (they go online and write a review).
+3. Finding out: a delayed discovery a few nights after pickup, likelier for customers who open the case:
+   yes. **Honest mistakes and scams found out both hurt** trustworthiness.
+4. A disappointed customer at pickup **also leaves a review**; customers should give the player a reason
+   to feel justified in scamming.
+5. Reviews are a **star rating with comments**, on **the player's phone** (an app): all reviews, and a
+   button to **buy fake reviews** (the user likes buying fake reviews).
+6. Later (design doc, not built): more interactive reviews — reply to reviews, pay a customer to take a
+   review down.
+Approved design. Implementation proposals (Claude, 0.52.0, for Codex's cross-review): reviews are
+records (stars, comment, kind, night, author), 40 kept, the latest 10 make the rating (the site's notice
+never counts); pickup stars 5/4/3/2/1 from scores 90/70/50/30, a no-start PC 1 star, and 30% of
+customers knock a star off for a petty reason (night work, the smell of coffee, no discount); trust
+points: +3 / +2 / +1 for a 5 / 4 / 3-star job (before pettiness), nothing for a poor pickup; −5 per honest
+mistake found out (the existing delayed faults), −12 toothpaste, −10 second-hand parts handed over as if
+new, −10 a build worth under 60% of its budget, −8 a customer's working part kept; −25 when bought
+reviews are caught; levels at 0 / 15 / 40 / 80 / 140 / 220 points (1–6), no upgrades yet; discovery
+chances 50% / 30% / 35% / 20% (toothpaste / used parts / overpriced / kept part), ×1.5 for a customer
+who opens the case, watches temperatures or reads reviews, ×0.5 for one who never opens it, found out
+2–5 mornings later with a one-star review (a mistake: two stars); the review site is "FixFindr";
+ReviewBoost sells 3 five-star reviews for $45; each morning after a purchase the site may catch them
+(12%, +8% per further order in three nights, +20% when most recent reviews are bought); caught: all
+bought reviews removed, a notice on the page, −25 trust. The phone is a button on the Activities screen.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

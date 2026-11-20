@@ -6,8 +6,9 @@ const Navigation = preload("res://scripts/night/night_navigation.gd")
 const WorkReport = preload("res://scripts/rules/work_report.gd")
 const PartStates = preload("res://scripts/rules/part_states.gd")
 const CARD_SIZE := Vector2(282,170)
-const COLORS: Dictionary = {"collected":Color("6fcf97"),"comeback":Color("eb5757"),"waiting":Color("f2c94c"),"new":Color("8eafc3")}
-const TITLES: Dictionary = {"collected":"COLLECTED","comeback":"CAME BACK","waiting":"STILL HERE","new":"NEW TICKET"}
+const Reviews = preload("res://scripts/rules/reviews.gd")
+const COLORS: Dictionary = {"collected":Color("6fcf97"),"comeback":Color("eb5757"),"waiting":Color("f2c94c"),"new":Color("8eafc3"),"notice":Color("bb6bd9")}
+const TITLES: Dictionary = {"collected":"COLLECTED","comeback":"CAME BACK","waiting":"STILL HERE","new":"NEW TICKET","notice":"REVIEW SITE"}
 var report: Dictionary = {}
 var cards: Array[Panel] = []
 var detail: Label
@@ -20,6 +21,10 @@ func _ready() -> void:
     _label("Cash earned this morning: $%d · shop cash now $%d"%[int(report.get("earned",0)),GameState.money],Vector2(60,72),Vector2(1160,28),19)
     # 0.48.0 (D153): why this many customers came in.
     if str(report.get("arrivals","")) != "": _label(str(report["arrivals"]),Vector2(60,100),Vector2(880,24),15)
+    # 0.52.0 (D160): trustworthiness and the shop level, and whether the level changed overnight.
+    if str(report.get("standing","")) != "":
+        var change: int = int(report.get("level",1)) - int(report.get("level_before",report.get("level",1)))
+        _label(str(report["standing"])+(" · LEVEL UP!" if change > 0 else (" · the shop lost a level" if change < 0 else "")),Vector2(960,72),Vector2(300,50),14)
     var list: Array = report.get("cards",[])
     if list.is_empty():
         _label("Nothing to report.",Vector2(60,140),Vector2(600,32),18)
@@ -78,6 +83,10 @@ static func card_text(card: Dictionary) -> String:
     if kind == "collected": lines.append("Paid $%d · trust %+d (now %d)"%[int(card.get("paid",0)),int(card.get("trust_change",0)),int(card.get("trust",0))])
     for name: Variant in card.get("kept",[]): lines.append("Kept in your stock: their working %s (you replaced it, so you paid for the new one)"%str(name))   # D150
     if kind == "comeback": lines.append("Trust %+d (now %d)"%[int(card.get("trust_change",0)),int(card.get("trust",0))])
+    var review: Variant = card.get("review",{})   # 0.52.0: what they wrote online
+    if review is Dictionary and not (review as Dictionary).is_empty():
+        lines.append("Review: %s “%s”"%[Reviews.stars_text(int(review.get("stars",3))),str(review.get("text",""))])
+    if int(card.get("points",0)) != 0: lines.append("Trustworthiness %+d"%int(card.get("points",0)))
     for miss: Variant in card.get("misses",[]): lines.append("· "+str(miss))
     return "\n".join(lines)
 

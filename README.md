@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.51.0)
+# Nightshift - Godot Foundation Trial (v0.52.0)
+
+0.52.0 is session 3.8, **trust and reviews** (no elegance score). Every customer who collects writes a
+review on your shop's page, stars plus a comment, and some are petty about it. Good work raises your
+shop's **trustworthiness** and with it the **shop level** (upgrades come later). It only drops when a
+customer **finds out** something a few mornings later: toothpaste under the cooler, a "new" part that was
+second-hand, a build worth half its price, a loose GPU, and they say so online. Open your **Phone** on the
+Activities screen to read every review, and to buy five-star ones from ReviewBoost. The review site
+checks each morning, and if it catches them, it removes them all and flags your shop.
 
 0.51.0 is session 3.7, **build requests**. From night 4 some customers ask the shop to build them a new
 PC: a use (office work, a kid's PC, gaming, video editing, mining, …), a few wishes (quiet, room to grow,

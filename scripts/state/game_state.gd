@@ -33,12 +33,13 @@ const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const SalvageStock = preload("res://scripts/rules/salvage_stock.gd")
 const NightClock = preload("res://scripts/rules/night_clock.gd")
 const BuildRequest = preload("res://scripts/rules/build_request.gd")
+const Reviews = preload("res://scripts/rules/reviews.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
 const SETTINGS_PATH: String = "user://nightshift_settings.json"
 const HISTORY_KEEP: int = 10    # pickup history entries kept per customer (D106, proposal)
-const REVIEWS_KEEP: int = 20    # 0.48.0: pickup scores kept for the online rating (the latest 10 count)
+const REVIEWS_KEEP: int = 40    # 0.52.0: reviews kept (the phone lists them; the latest 10 make the rating)
 const PROFESSIONS: Array = ["regular", "gamer", "clueless"]
 # Bump only when the saved data changes shape incompatibly (and log it in CHANGELOG.md).
 const SAVE_FORMAT: int = 1
@@ -71,7 +72,9 @@ var customer_state: Dictionary = {}   # customer id -> {"trust": int, "history":
 var tickets_taken: int = 0      # how many tickets the shop has COMPLETED; picks the next customer (D104); kept across tickets
 var people: Dictionary = {}     # 0.48.0 (D153): generated customers by id ("p0001"...): who they are, their PC and needs; kept like customer_state
 var person_sequence: int = 1    # 0.48.0: the next generated customer's number
-var reviews: Array = []         # 0.48.0: pickup scores (0..100), newest last: the shop's online rating (ticket_generator.gd)
+var reviews: Array = []         # 0.52.0 (D160): review records {stars, text, kind, night, ticket, author}, newest last (reviews.gd); 0.48.0 saves held plain scores
+var trust_points: int = 0       # 0.52.0 (D160): the shop's trustworthiness: up with good work, down only when customers find out; sets the shop level
+var fake_orders: Array = []     # 0.52.0: nights on which fake reviews were bought (the review site's checks read them)
 var vacuum_state: Dictionary = {"bin": 0.0, "hose": []}   # 0.48.1 (user): the vacuum keeps its bin and hose contents across screens and reloads (a shop tool, not per PC)
 var world_seed: int = 0         # 0.48.0: seeds every generated morning, so the same save always gets the same customers
 var sound_volume: float = 1.0   # master volume 0..1 (D107); lives in its own settings file, never in the game save
@@ -637,6 +640,8 @@ func save_game() -> void:
         "people": people,
         "person_sequence": person_sequence,
         "reviews": reviews,
+        "trust_points": trust_points,
+        "fake_orders": fake_orders,
         "world_seed": world_seed,
         "vacuum_state": vacuum_state,
         "tickets_taken": tickets_taken,
@@ -706,12 +711,15 @@ func load_game() -> bool:
             var person_record: Dictionary = _person_from(str(pid), raw_people[pid])
             if not person_record.is_empty(): people[str(pid)] = person_record
     person_sequence = maxi(1, int(data.get("person_sequence", people.size() + 1))) if typeof(data.get("person_sequence", 1)) in [TYPE_INT, TYPE_FLOAT] else people.size() + 1
-    reviews = []
-    var raw_reviews: Variant = data.get("reviews", [])
-    if raw_reviews is Array:
-        for score: Variant in raw_reviews:
-            if typeof(score) in [TYPE_INT, TYPE_FLOAT] and is_finite(float(score)): reviews.append(clampi(int(score), 0, 100))
+    reviews = Reviews.sanitize(data.get("reviews", []))   # 0.52.0: records; an old plain score becomes a pickup review
     reviews = reviews.slice(maxi(0, reviews.size() - REVIEWS_KEEP))
+    trust_points = maxi(0, int(data.get("trust_points", 0))) if typeof(data.get("trust_points", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
+    fake_orders = []
+    var raw_orders: Variant = data.get("fake_orders", [])
+    if raw_orders is Array:
+        for n: Variant in raw_orders:
+            if typeof(n) in [TYPE_INT, TYPE_FLOAT]: fake_orders.append(maxi(1, int(n)))
+    fake_orders = fake_orders.slice(maxi(0, fake_orders.size() - 10))
     world_seed = int(data.get("world_seed", 0)) if typeof(data.get("world_seed", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
     vacuum_state = VacuumState.sanitize(data.get("vacuum_state", {}))
     if world_seed == 0: world_seed = _new_seed()
@@ -932,8 +940,11 @@ func _record_pickup(temp: float, faults: Variant = null, boots: bool = true) -> 
     var days: int = PickupScore.comeback_days(int(result["score"]))
     var trust: int = clampi(int(who["trust"]) + (Morning.NO_BOOT_TRUST if not boots else trust_step(int(result["score"]))), 0, 100)
     tickets_taken += 1   # the NEXT ticket goes to the next customer in the rotation (D104)
-    reviews.append(int(result["score"]))   # 0.48.0: every pickup is a review; the latest ones make the online rating
-    while reviews.size() > REVIEWS_KEEP: reviews.pop_front()
+    # 0.52.0 (D160): every pickup is a written review (customers are not always fair), and good work earns trust.
+    var review: Dictionary = Reviews.pickup_review(world_seed, str(job["id"]), str(who["name"]), night_number, int(result["score"]), result["misses"], boots, not build.is_empty())
+    _add_review(review)
+    var earned: int = Reviews.pickup_points(int(result["score"]), boots)
+    trust_points += earned
     var entry: Dictionary = {"ticket": str(job["id"]), "score": int(result["score"]), "misses": result["misses"],
         "comeback_days": days, "scams": (job["scams"] as Array).duplicate()}
     # 0.51.0 scam hook: what a build cost at new prices next to what the customer paid (no consequence yet).
@@ -944,7 +955,8 @@ func _record_pickup(temp: float, faults: Variant = null, boots: bool = true) -> 
     while (state["history"] as Array).size() > HISTORY_KEEP:
         (state["history"] as Array).pop_front()
     customer_state[str(who["id"])] = state
-    return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust, "trust_before": int(who["trust"])}
+    return {"score": int(result["score"]), "misses": result["misses"], "comeback_days": days, "trust": trust, "trust_before": int(who["trust"]),
+        "review": review, "points": earned}
 
 
 # ----- the morning (D136, Wave 3 session 3.2) -----
@@ -962,21 +974,30 @@ func collect_active() -> Dictionary:
     var paid: int = Morning.pay(int(job["payout"]), boots)
     money += paid
     var is_build: bool = PcBuild.is_build(job)
+    var handed: Array = _build_records()
     if is_build and job["build"] is Dictionary and not (job["build"] as Dictionary).is_empty():
-        job["build"]["delivered"] = BuildRequest.delivered(job, _build_records())   # scam hook: what was handed over, by what the shop knew
+        job["build"]["delivered"] = BuildRequest.delivered(job, handed)   # scam hook: what was handed over, by what the shop knew
+    var hidden: Array = _hidden_deceptions(handed)
+    var stock_before: Array = player_inventory.map(func(r: Dictionary) -> String: return str(r["uid"]))
     var kept: Array = settle_custody()   # D150: test parts become the customer's; needlessly replaced originals become yours
     if is_build and boots: _deliver_build()
+    # 0.52.0 (D160): a working part of theirs kept by the shop is a deception they may find out about.
+    if player_inventory.any(func(r: Dictionary) -> bool: return not str(r["uid"]) in stock_before and str(r.get("condition", "")) == PcBuild.WORKING): hidden.append("kept_part")
+    var found: Array = Reviews.discoveries(world_seed, str(job["id"]), customer_view(str(job["customer_id"])), hidden)
     job["state"] = "done"
     job["temp"] = temp
     if not (faults["later"] as Array).is_empty():
         comebacks.append({"customer_id": str(job["customer_id"]), "customer": str(job["customer"]), "ticket": str(job["id"]),
             "faults": faults["later"], "nights_left": Morning.COMEBACK_NIGHTS})
+    for f: Dictionary in found:   # each deception they will find out comes back on its own morning
+        comebacks.append({"customer_id": str(job["customer_id"]), "customer": str(job["customer"]), "ticket": str(job["id"]),
+            "faults": [str(f["fault"])], "nights_left": int(f["nights"])})
     save_game()
     var score: int = int(pickup.get("score", 0))
     return {"kind": "collected", "ticket": str(job["id"]), "customer": str(job["customer"]), "customer_id": str(job["customer_id"]),
         "paid": paid, "boots": boots, "score": score, "reaction": Morning.reaction(score, boots).replace("repair", "build") if is_build else Morning.reaction(score, boots), "misses": pickup.get("misses", []),
         "trust": int(pickup.get("trust", 0)), "trust_change": int(pickup.get("trust", 0)) - int(pickup.get("trust_before", 0)),
-        "temp": temp, "kept": kept, "job": job.duplicate(true)}
+        "temp": temp, "kept": kept, "job": job.duplicate(true), "review": pickup.get("review", {}), "points": int(pickup.get("points", 0))}
 
 
 # One morning passes for every queued comeback. Due ones cost trust and become report cards.
@@ -991,9 +1012,16 @@ func advance_comebacks() -> Array:
         var state: Dictionary = customer_state.get(str(who["id"]), {"trust": int(who["trust"]), "history": []})
         state["trust"] = clampi(int(who["trust"]) + change, 0, 100)
         customer_state[str(who["id"])] = state
+        # 0.52.0 (D160): they found something out and went online. Honest mistakes and scams both cost trustworthiness.
+        var complaints: Array = Morning.complaints(entry["faults"])
+        var review: Dictionary = Reviews.found_review(entry["faults"], complaints, night_number, str(entry["ticket"]), str(entry["customer"]))
+        _add_review(review)
+        var lost: int = Reviews.found_points(entry["faults"])
+        trust_points = maxi(0, trust_points - lost)
+        var scam: bool = (entry["faults"] as Array).any(func(f: Variant) -> bool: return Reviews.is_found(str(f)))
         cards.append({"kind": "comeback", "ticket": str(entry["ticket"]), "customer": str(entry["customer"]), "customer_id": str(entry["customer_id"]),
-            "misses": Morning.complaints(entry["faults"]), "trust": int(state["trust"]), "trust_change": change,
-            "reaction": "Came back about the repair of ticket %s." % entry["ticket"]})
+            "misses": complaints, "trust": int(state["trust"]), "trust_change": change, "review": review, "points": -lost,
+            "reaction": ("Found out what you did on ticket %s, and wrote about it." if scam else "Came back about the repair of ticket %s.") % entry["ticket"]})
     save_game()
     return cards
 
@@ -1434,6 +1462,58 @@ func known_customers() -> Array:
 # The online rating (stars) and the reputation (average trust of customers served).
 func shop_rating() -> float:
     return TicketRating.rating(reviews)
+
+
+# ----- 0.52.0: reviews, trustworthiness, the shop level, fake reviews (D160) -----
+
+func _add_review(review: Dictionary) -> void:
+    reviews.append(review)
+    while reviews.size() > REVIEWS_KEEP: reviews.pop_front()
+
+
+func shop_level() -> int:
+    return Reviews.level(trust_points)
+
+
+func standing_text() -> String:
+    return Reviews.standing_text(trust_points)
+
+
+# The deceptions in the active PC as it leaves the shop (before custody settles): toothpaste, shop parts
+# that were not new, a build sold far above its parts' worth. `handed` = the shop parts' stock records.
+func _hidden_deceptions(handed: Array) -> Array:
+    var out: Array = []
+    if "toothpaste" in job.get("scams", []): out.append("toothpaste")
+    if handed.any(func(r: Dictionary) -> bool: return str(PartCondition.known(r)["label"]) != PartCondition.NEW): out.append("used_parts")
+    var b: Dictionary = BuildRequest.record(job) if PcBuild.is_build(job) else {}
+    if not b.is_empty() and float(BuildRequest.value(job)) < float(b["budget"]) * Reviews.OVERPRICED_SHARE: out.append("overpriced")
+    return out
+
+
+# The phone's ReviewBoost button: three five-star reviews for cash. Returns false when unaffordable.
+func buy_fake_reviews() -> bool:
+    if money < Reviews.FAKE_PRICE: return false
+    money -= Reviews.FAKE_PRICE
+    for review: Dictionary in Reviews.fake_reviews(world_seed, night_number, fake_orders.size()): _add_review(review)
+    fake_orders.append(night_number)
+    fake_orders = fake_orders.slice(maxi(0, fake_orders.size() - 10))
+    save_game()
+    return true
+
+
+# The review site's morning check (`night` = the night that just ended). Caught: every bought review is
+# removed, the site posts a notice and the shop loses trustworthiness. Returns a morning card or {}.
+func check_fake_reviews(night: int) -> Dictionary:
+    var chance: float = Reviews.catch_chance(fake_orders, night, reviews)
+    if chance <= 0.0 or not Reviews.caught(world_seed, night, chance): return {}
+    var removed: int = reviews.filter(func(r: Variant) -> bool: return r is Dictionary and str(r.get("kind", "")) == Reviews.FAKE).size()
+    reviews = reviews.filter(func(r: Variant) -> bool: return not (r is Dictionary and str(r.get("kind", "")) == Reviews.FAKE))
+    var text: String = "%s removed %d review%s it believes were bought, and flagged the shop's page." % [Reviews.SITE, removed, "" if removed == 1 else "s"]
+    _add_review(Reviews.record(1, text, Reviews.NOTICE, night, "", Reviews.SITE))
+    trust_points = maxi(0, trust_points - Reviews.CAUGHT_FAKES_POINTS)
+    fake_orders = []
+    save_game()
+    return {"kind": "notice", "ticket": "", "customer": Reviews.SITE, "customer_id": "", "reaction": text, "points": -Reviews.CAUGHT_FAKES_POINTS}
 
 
 func shop_reputation() -> int:

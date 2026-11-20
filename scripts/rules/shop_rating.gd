@@ -4,19 +4,18 @@
 # The elegance score of session 3.8 will feed the rating later. Numbers are trial proposals (D154).
 extends RefCounted
 
+const Reviews = preload("res://scripts/rules/reviews.gd")
+
 const MAX_OPEN: int = 4              # customer PCs the shop holds at once (storage tie-in later)
 const MAX_ARRIVALS: int = 3
 const DEFAULT_RATING: float = 3.0    # stars before the first review
 const REVIEWS_COUNTED: int = 10      # the online rating averages the latest reviews
 
 
-# The online rating in stars (1..5) from the latest pickup scores (0..100).
+# The online rating in stars (1..5) from the latest reviews. 0.52.0: one rule, in reviews.gd (review
+# records with stars; plain pickup scores 0..100 still work for old saves).
 static func rating(reviews: Array) -> float:
-    var recent: Array = reviews.slice(maxi(0, reviews.size() - REVIEWS_COUNTED))
-    if recent.is_empty(): return DEFAULT_RATING
-    var total: float = 0.0
-    for score: Variant in recent: total += clampf(float(score), 0.0, 100.0)
-    return snappedf(1.0 + 4.0 * total / (100.0 * recent.size()), 0.1)
+    return Reviews.rating(reviews)
 
 
 # The shop's reputation: the average trust of the customers it has served (50 before any).

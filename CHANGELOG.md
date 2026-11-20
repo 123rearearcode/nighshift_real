@@ -76,6 +76,63 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.52.0 - 2026-11-20 - Trust and reviews (session 3.8)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.51.0 (PR #64, open; this branch is stacked on it).
+- Type: minor (session 3.8, D160 user approved; replaces the planned elegance score).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
+is recorded under Checks performed. No graphical playtest yet.
+
+### Added
+- **Reviews**: every pickup leaves a star review with a comment on the shop's FixFindr page. About a third
+  of customers knock a star off for a petty reason. Customers who find something out post a one-star review
+  (a two-star one for an honest mistake).
+- **Trustworthiness and the shop level**: good pickups earn trust points; the level (1–6) follows them.
+  Points are only lost when customers find out, or when bought reviews are caught. Upgrades come later.
+- **Finding out**: at collection the game notes what was hidden (toothpaste, second-hand parts handed
+  over as new, a build sold far above its worth, a working part of theirs kept); some customers find out
+  2–5 mornings later, more often those who open the case. The existing delayed faults count too.
+- **The phone** (Activities > Phone): the rating, every review, trustworthiness and the shop level, and
+  ReviewBoost: three five-star reviews for $45. The review site may catch them the next morning: it removes
+  them all, flags the page and the shop loses trust.
+- The morning report shows each review and the shop's standing, and says when the level changed.
+
+### Changed
+- Reviews are records instead of plain scores (old saves migrate); the rating averages review stars.
+- No elegance score (D160 supersedes that part of D140).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/reviews.gd` | A | Reviews, rating, trust points and levels, finding out, fake reviews |
+| `scripts/night/phone_panel.gd` | A | The phone app |
+| `tools/test_trust_and_reviews.gd` | A | Trust and reviews suite |
+| `scripts/state/game_state.gd` | M | Review records, trust points, fake orders; pickup reviews; deceptions found out; the site's check |
+| `scripts/rules/shop_rating.gd`, `scripts/rules/morning.gd` | M | One rating rule; found-out comebacks |
+| `scripts/night/night_session.gd`, `scripts/night/morning_view.gd`, `scripts/night/activities_view.gd` | M | The morning check and standing; reviews on cards; the phone button |
+| `tools/test_generated_tickets.gd`, `.github/workflows/tests.yml` | M | Saved reviews now migrate to records; suite registered |
+| `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `DEVELOPMENT.md`, `HANDOFF.md` | M | D160, design 7c (with the later interactive reviews), plan, contracts, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.52.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- Every number in D160's implementation proposals; the phone lives on the Activities screen only.
+- A disappointed pickup lowers the star rating but not trustworthiness (nothing was hidden).
+- Second-hand parts count as a deception whenever a non-new shop part is handed over (no disclosure option yet).
+
+### Known issues and open items
+- Shop level upgrades are not defined; the level changes nothing yet.
+- Interactive reviews (replying, paying for removal) are design only (7c).
+
+### Next action
+Codex cross-reviews; the user decides #64 then this PR. The Wave 3 plan is complete after this.
+
 ## 0.51.0 - 2026-11-20 - Build requests (session 3.7)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

@@ -10,6 +10,7 @@ const Generator = preload("res://scripts/rules/ticket_generator.gd")
 const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const BuildRequest = preload("res://scripts/rules/build_request.gd")
+const Reviews = preload("res://scripts/rules/reviews.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -287,7 +288,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
         cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":str(fresh["customer_id"]),
             "returning":returning,"reaction":("Back again. " if returning else "New customer. ")+"New ticket: %s"%str(fresh["complaint"]),"job":fresh.duplicate(true)})
     gs.save_game()
-    return {"cards":cards,"summary":ShopRating.summary(stars,gs.reviews.size(),rep,count),"rating":stars,"reputation":rep,"count":count}
+    return {"cards":cards,"summary":ShopRating.summary(stars,Reviews.counted(gs.reviews),rep,count),"rating":stars,"reputation":rep,"count":count}
 
 # Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
 # night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
@@ -295,6 +296,7 @@ func end_night(gs: Node) -> Dictionary:
     if not ensure(gs): return {"ok":false,"message":status}
     if not checkpoint(gs): return {"ok":false,"message":status}
     var night: int = int(gs.night_number)
+    var level_before: int = gs.shop_level()   # 0.52.0: the report says when the shop level changed
     var cards: Array = gs.advance_comebacks()
     var collected: Array = []
     for entry: Dictionary in _open_tickets():
@@ -312,6 +314,9 @@ func end_night(gs: Node) -> Dictionary:
         cards.append({"kind":"waiting","ticket":str(entry["id"]),"customer":str(entry["customer"]),"customer_id":str(entry["customer_id"]),
             "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"],
             "job":entry.duplicate(true)})
+    # 0.52.0 (D160): the review site checks the shop's new reviews before the morning's customers read them.
+    var notice: Dictionary = gs.check_fake_reviews(night)
+    if not notice.is_empty(): cards.append(notice)
     # 0.48.0: new tickets come in with the morning, as many as the rating and reputation bring.
     var arrivals: Dictionary = _arrivals(gs,night+1)
     cards.append_array(arrivals["cards"])
@@ -325,5 +330,5 @@ func end_night(gs: Node) -> Dictionary:
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
     last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money),"arrivals":arrivals["summary"],
-        "rating":arrivals["rating"],"reputation":arrivals["reputation"]}
+        "rating":arrivals["rating"],"reputation":arrivals["reputation"],"standing":gs.standing_text(),"level":gs.shop_level(),"level_before":level_before}
     return last_report

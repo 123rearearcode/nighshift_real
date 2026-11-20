@@ -1,6 +1,23 @@
 # Handoff — current state first
 
-## Current — 0.51.0 session 3.7 Build requests (Claude), 20 November 2026
+## Current — 0.52.0 session 3.8 Trust and reviews (Claude), 20 November 2026
+
+Read first: done. 0.51.0 (#64, build requests) is open and unmerged; this branch
+`feat/trust-reviews-0520` is stacked on it (review/merge #64 first, then retarget this PR to main).
+3.8 talk-first was held; the user's answers are D160: no elegance mechanic; a trustworthiness level
+feeding the shop level (up with good work, down only when customers find out; honest mistakes and scams
+both hurt; upgrades later); every pickup leaves a review and some customers are petty ("a reason to feel
+justified in scamming"); star reviews with comments on the player's phone, with a button to buy fake
+reviews. Later (design doc 7c): more interactive reviews (replying, paying for a review to be removed).
+
+For Codex's cross-review: review records replaced the plain score list (old saves migrate; one 0.48.0
+assertion updated to the new shape); `Reviews.rating` is the single rating rule; the deceptions found out
+at collection (`_hidden_deceptions`) and their `found:` comebacks; the review site's morning check; the
+numbers in D160. Not started: shop level upgrades, interactive reviews, L1/L2, the manual.
+Wave 3's plan ends here; what comes next is the user's call. Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.51.0 session 3.7 Build requests (Claude), 20 November 2026
 
 Read first: done. The user merged #63 (0.50.0, main `c04a278`, archived `archive/v0.50.0`) after
 playing it ("all looks good for me so far"). 3.7 talk-first was held; the user's answers are D159

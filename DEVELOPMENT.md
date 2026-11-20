@@ -203,6 +203,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
 | `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
+| `tools/test_trust_and_reviews.gd` | tooling | Star reviews with comments and pettiness, the rating, trust points and levels, finding out (scams and honest mistakes), fake reviews and the site's check, save/load, the phone (real input), the morning standing (0.52.0) |
 | `tools/test_build_requests.gd` | tooling | Cases, the uses table, wants and budgets, cheapest-build solvability for every use, the empty build, assembly minutes and 06:00, case/board swaps, save/load, collection pay and scoring, scam-hook records, morning arrivals from night 5, the bench with a build (0.51.0) |
 | `tools/test_testing_bay.gd` | tooling | Condition vs knowledge, salvage and customer parts into stock, inspection/tests/clock/mark/scrap, untested test parts behaving as they really are, reload rebuild, the bay screen (0.50.0) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
@@ -221,6 +222,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
 | `scripts/rules/part_condition.gd` | rules | What the shop KNOWS about its parts (label, notes, tests done) apart from their hidden condition; inspection spots and tells; quick/long rig test results; scrap values; the delayed 'crashing part' fault (0.50.0, D158) |
+| `scripts/rules/reviews.gd` | rules | Reviews (D160): pickup and found-out reviews with comments, the star rating, trust points and the shop level, hidden deceptions customers find out, fake reviews and the review site's check (0.52.0) |
+| `scripts/night/phone_panel.gd` | view | The phone (Activities > Phone): FixFindr reviews, trustworthiness and shop level, the ReviewBoost button (0.52.0) |
 | `scripts/rules/build_request.gd` | rules | Build requests (D159): uses table, needs and wants, cheapest catalogue build (solvability and budget), the empty build job, assembly minutes, pickup review, ticket texts, scam-hook delivery record (0.51.0) |
 | `scripts/rules/salvage_stock.gd` | rules | A salvage find becomes one untested stock part (older model, hidden real condition) or scrap (0.50.0) |
 | `scripts/night/testing_bay_view.gd` | view | Activities > Testing bay: stock list, part drawing with inspection spots, quick/long rig tests, the player's mark, scrap; shows known state only (0.50.0) |
@@ -845,3 +848,16 @@ temperature checks. Case and board swaps (`choose_build_case`, `choose_build_boa
 and refund the old model. Arrival: `take_build_deposit` adds the deposit minus `BuildRequest.starter_cost`;
 collection pays `job.payout` (= budget − deposit) and `BuildRequest.adjust` applies the review. History
 entries may carry `build {budget, value}` (kept by the loader). Recorded by Claude (Opus 5.5).
+
+## Trust and review contracts — 0.52.0
+
+`GameState.reviews` holds review records `{stars 1..5, text, kind (pickup | found_out | fake | notice),
+night, ticket, author}`, newest last, at most 40 (`Reviews.sanitize` turns a 0.48.0 plain score into a
+pickup review). `Reviews.rating` is the one rating rule (ShopRating delegates); notices never count.
+`trust_points` (never below 0) sets `shop_level()`; only `_record_pickup` adds (good work) and only
+`advance_comebacks` (found out: `Reviews.found_points`) and `check_fake_reviews` (caught) subtract.
+Collection lists the hidden deceptions (`_hidden_deceptions`: toothpaste, non-new shop parts handed
+over, an overpriced build; plus a working original kept) and queues `Reviews.discoveries` as comebacks
+with `found:<kind>` faults, which `Morning.sanitize_pending` keeps. `fake_orders` holds purchase nights;
+the review site's check runs in `end_night` before arrivals. Every roll is seeded from `world_seed`.
+Recorded by Claude (Opus 5.5).
