@@ -76,6 +76,69 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.50.0 - 2026-11-20 - Testing bay (session 3.6) and the 0.50.0 structural review
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.49.0 (main a62efc6: PR #61 then PR #62 merged by the user; archived as archive/v0.48.1 and archive/v0.49.0).
+- Type: minor (session 3.6, D158 user approved) plus the scheduled structural review.
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 30
+suites passed, including the new Testing bay suite (52 checks). No graphical playtest yet.
+
+### Added
+- **Testing bay** (Activities > Testing bay): every stock part in the drawer. Click spots on the part to
+  look closely (1 night minute each): scorch marks, domed capacitors, burnt smells, or nothing unusual.
+  Quick test (5 min) and long test (20 min) on the rig per part type; some faults only show in the long
+  test. Mark the part working, degraded or dead (your call, free), or sell it for scrap ($2–8).
+- **Untested stock:** salvage unloading now puts finds into stock as untested parts (things the shop
+  cannot stock are scrapped for $1), and every customer original replaced by a shop part stays with the
+  shop as untested stock, faulty or not.
+- **Degraded parts:** a GPU with artifacts, memory with errors, a hot CPU, a weak cooler, a weak power
+  supply, a slow drive. Fitted as a test part they behave so: the Stress lab crashes, games flicker or
+  crash, temperatures rise, the PSU gives about 70%. A dead spare gives the same symptoms as a faulty
+  original. A crashing part left in a customer's PC brings them back two mornings later.
+
+### Changed
+- Stock shows what the shop knows (New / Untested / Marked …) everywhere; the real condition is never
+  shown. A part leaves use only when you mark it dead (or damage it yourself).
+- The solvability proof for generated tickets counts only new or marked-working spares.
+- Activities has a third activity button row slot: Workshop room, Salvage dump, Testing bay.
+
+### Structural review (scheduled for 0.50.0)
+- docs/BUGS.md: review entry, new root-cause rule RC-6 (one rule, several hand-written copies), RC-5
+  progress, new limitations L3 (condition lost at delivery) and L4 (salvage clock, drawer overflow),
+  B51 filed. Next review: 0.60.0.
+
+### Fixed
+- B51: stock records changed shape on reload (caught by CI before release).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/part_condition.gd` | A | Knowledge vs condition, inspection spots and tells, rig test results, scrap, the crashing-part fault |
+| `scripts/rules/salvage_stock.gd` | A | A salvage find becomes untested stock or scrap |
+| `scripts/night/testing_bay_view.gd`, `scenes/night_bay.tscn` | A | The testing bay screen |
+| `tools/test_testing_bay.gd` | A | The bay journey, fitted-part behaviour, reload rebuild, screen and navigation |
+| `scripts/state/game_state.gd` | M | Records with condition/defect/knowledge; availability by knowledge; bay actions; salvage intake; originals kept untested; fitted test parts carry their condition |
+| `scripts/rules/pc_build.gd` | M | Defects and their effects; dead fitted shop parts contribute nothing |
+| `scripts/rules/part_states.gd`, `scripts/rules/software_checks.gd`, `scripts/rules/stress_lab.gd`, `scripts/night/night_diagnostics.gd` | M | Symptoms of dead and degraded shop parts |
+| `scripts/rules/morning.gd` | M | The delayed crashing-part fault |
+| `scripts/night/salvage_view.gd`, `scripts/night/activities_view.gd`, `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/night_session.gd`, `scripts/storage/storage_sources.gd` | M | Unload into stock, bay route, resume, refresh on switch, known label in the room |
+| `.github/workflows/tests.yml` | M | Suite registered |
+| `docs/BUGS.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/PART_LIFECYCLE.md`, `DEVELOPMENT.md`, `HANDOFF.md` | M | Review, D158, plan, lifecycle stage, contracts, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.50.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems; register fixture tests pass.
+- GitHub Actions on Godot 4.7.2 (headless): 30 suites, 0 failures (Testing bay 52, Part lifecycle 38, Menu navigation 33).
+
+### Known issues and open items
+- L3: a shop part delivered inside a customer's PC loses its condition at collection (models only).
+- L4: the salvage outing still uses its own demo clock; a full drawer can hide stock on the hardware bench (the bay lists all).
+- Boards are not testable or stockable yet; whole PCs and add-in cards from salvage are scrapped.
+- Scam hooks left open on purpose: the mark can disagree with the evidence; customers' old parts can be reused.
+
 ## 0.49.0 - 2026-11-19 - Standard Task Manajer anti-virus and return to the Wave 3 plan
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work. No deployment id is invented.

@@ -11,6 +11,11 @@ const Ids = preload("res://scripts/data/ids.gd")
 
 const MISSING_TEXT: String = "NOT FITTED - it is out of the PC; refit it or fit a part from your stock"
 # What a boot attempt shows when a fitted part does not work (D150: observation, never the cause).
+const SLOT_SYMPTOMS: Dictionary = {
+    "psu": "Nothing happens when you press the power button: no fans, no lights.",
+    "ram": "The PC powers on, beeps three times and shows nothing.",
+    "storage": "The PC starts, then stops on a black screen: 'No boot device found'.",
+}
 const SYMPTOMS: Dictionary = {
     Ids.GPU: "The PC powers on and the fans spin, but there is no image on the screen.",
     Ids.COOLER: "The PC powers on, then switches itself off after a few seconds.",
@@ -45,6 +50,14 @@ static func boot_symptoms(job: Dictionary) -> Array:
     for part_id: String in ServiceParts.IDS:
         var s: Dictionary = state(job, part_id)
         if bool(s["fitted"]) and not bool(s["working"]) and not SYMPTOMS[part_id] in lines: lines.append(SYMPTOMS[part_id])
+    # 0.50.0: a dead shop part in a hardware-bench slot (testing bay, D158): fitted, so not "missing",
+    # but it does nothing. What the player sees, never which part. A dead PSU hides everything else.
+    if PcBuild.missing(job).is_empty():
+        var e: Dictionary = PcBuild.effective_parts(job)
+        if str(e["psu"]) == "": return [SLOT_SYMPTOMS["psu"]]
+        if str(e["cpu"]) == "" and not SYMPTOMS[Ids.GPU] in lines: lines.append(SYMPTOMS[Ids.GPU])
+        if (e["ram"] as Array).is_empty(): lines.append(SLOT_SYMPTOMS["ram"])
+        if (e["storage"] as Array).is_empty(): lines.append(SLOT_SYMPTOMS["storage"])
     return lines   # a dead SECOND card does not stop the boot: the first card still drives the screen
 
 

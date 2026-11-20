@@ -26,6 +26,15 @@ This protects existing supported journeys. It does not turn customer slot-derive
 ids or make orphan custody recovery safe. L1/L2 in BUGS.md remain Investigating. New scenarios which
 fail must get their own reproduction and bug entry, not weakened assertions or silent data cleanup.
 
+## Stage reached in 0.50.0 (Claude, testing bay)
+
+Shop stock records now carry the fields this plan asked for, for SHOP parts: uid, model, owner,
+location (drawer / `fitted_in` + slot), actual condition (`condition`, `defect`) and known condition /
+evidence (`known`: label, notes, tests, source). Availability and every visible text read `known` only.
+A fitted shop test part behaves by its actual condition through a derived job copy (`shop_condition`),
+rebuilt from the stock record on load and PC switch. Customer parts are still slot-derived (L1), and a
+delivered shop part loses its condition at collection (L3). Do not read this stage as L1/L2 resolved.
+
 ## Next stage — before expanding physical customer-part manipulation
 
 Agree a small part-record contract with fields for uid, model, owner, location/slot, actual condition

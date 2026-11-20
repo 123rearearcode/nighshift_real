@@ -559,3 +559,28 @@ Of four options (zapper arena, current on the board, light-cycle duel, Task Mana
 Claude's first design ideas are in `docs/ANTIVIRUS_MINIGAME_DESIGN.md` (proposal, for Codex's review and
 the user's answers to its open questions); nothing is built. Recorded by Claude (Opus 5.5, model id
 claude-opus-5-5).
+
+### D158 — Testing bay (user, 20 November 2026)
+
+The user's answers to the session 3.6 talk-first questions:
+1. **Where untested parts come from:** (a) the salvage runs, connected to the shop's stock, and broken
+   parts from customers. In the testing bay you physically inspect the components.
+2. **The bay** is a station where parts are inspected and tested on a rig per part type, on the night
+   clock: yes.
+3. **What testing reveals:** working, dead, and also **degraded**.
+4. **Untested parts as diagnosis test parts:** allowed, and risky (a bad part misleads): fully agreed.
+5. **Dead parts** are scrapped for a little cash.
+6. **Honesty:** leave room for the scam options (e.g. fitting or selling untested parts as "tested").
+   The user asked Claude to keep flagging such hooks in future designs.
+Approved design. Implementation proposals (Claude, 0.50.0, for Codex's cross-review): stock records keep
+the real condition (working / degraded with one defect per kind / broken) apart from the shop's
+knowledge (label new / untested / marked working / degraded / dead, notes, tests done, source); the
+label is the player's call; availability and every visible text read knowledge only; solvability counts
+only new or marked-working spares (plus buyable ones); every replaced customer original stays with the
+shop as untested stock (customers leave replaced parts); salvage finds keep the pile's dead/working roll
+plus a 30% chance that a working find is degraded; non-stockable finds are $1 scrap; inspection 1 minute
+per spot (a tell shows on 70% of dead, 55% of degraded and red herrings on 20% of working parts); quick
+test 5 minutes (finds dead, heat, weak output, slow drives), long test 20 minutes (also GPU artifacts and
+memory errors); scrap $2–8; a degraded spare fitted in a customer PC is weak, hot or crashes (Stress lab
+at minute 8/12, game test messages) and a crashing part left in a PC brings the customer back
+(delayed fault). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

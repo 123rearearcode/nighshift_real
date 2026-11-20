@@ -29,6 +29,9 @@ const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
 const Findings = preload("res://scripts/rules/findings.gd")
 const TicketRating = preload("res://scripts/rules/shop_rating.gd")
 const VacuumState = preload("res://scripts/bench/vacuum_state.gd")
+const PartCondition = preload("res://scripts/rules/part_condition.gd")
+const SalvageStock = preload("res://scripts/rules/salvage_stock.gd")
+const NightClock = preload("res://scripts/rules/night_clock.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -133,6 +136,7 @@ func _make_job() -> Dictionary:
         "paste_graded_units": 0.0, # paste on the CPU when the grade was given (0 = no graded mount this session)
         "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
         "damaged_parts": [],      # D150 (0.46.2): parts the player VISIBLY damaged (a subset of broken_parts; may be shown)
+        "shop_condition": {},     # 0.50.0: DERIVED copy of fitted shop parts' real condition (authority: the stock record)
         "shop_fitted": {},        # D150: slot -> {uid, model}: shop parts fitted for a test; still the shop's until collection
         "shop_custody": [],       # D150: "gpu"/"cooler" whose first-slot replacement is still the shop's until collection
         "dead_slots": [],         # D150: slots holding a customer part that does not work (hidden; today only "pcie_2")
@@ -244,6 +248,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
         job["gpu_screws"] = 0   # D131: a new card is not screwed in yet
     job["service_replacements"][part_id] = tier
     job["service_replacement_ids"][part_id] = uid
+    _carry_condition(part_id, record)   # 0.50.0: the test part behaves as it really is
     if part_id == Ids.COOLER:
         job["paste_grade"] = ""
         job["paste_coverage"] = 0.0
@@ -265,14 +270,14 @@ func start_repair_ticket() -> void:
     save_game()
 
 func _starter_inventory() -> Array:
-    return [{"uid":"trial_ram_a","kind":"ram","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"trial_ram_b","kind":"ram","tier":"similar","owner":"player","condition":"working"},
-        {"uid":"trial_gpu","kind":Ids.GPU,"tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_gpu_budget","kind":Ids.GPU,"tier":"budget","owner":"player","condition":"working"},
-        {"uid":"stock_cooler_similar","kind":Ids.COOLER,"tier":"similar","owner":"player","condition":"working"},
-        {"uid":"stock_cooler_budget","kind":Ids.COOLER,"tier":"budget","owner":"player","condition":"working"},
+    return [{"uid":"trial_ram_a","kind":"ram","tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
+        {"uid":"trial_ram_b","kind":"ram","tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
+        {"uid":"trial_gpu","kind":Ids.GPU,"tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
+        {"uid":"stock_gpu_budget","kind":Ids.GPU,"tier":"budget","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
+        {"uid":"stock_cooler_similar","kind":Ids.COOLER,"tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
+        {"uid":"stock_cooler_budget","kind":Ids.COOLER,"tier":"budget","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")},
         # Last on purpose: the drawer packs in list order, and everything before keeps its cells.
-        {"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"}]
+        {"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")}]
 
 # The player's stock as bench components. Parts fitted in a customer PC for a test are left out
 # (the hardware bench shows the current PC's fitted ones on their slots: fitted_components()).
@@ -291,8 +296,8 @@ func inventory_components() -> Array:
             component = ComponentData.cpu_chip()
             component["id"] = record["uid"]
         else: component = ServiceParts.component(record["uid"],record["kind"],record["tier"])
-        if str(record.get("condition", "working")) == "broken":
-            component["details"].append(["Condition", "DAMAGED (you broke it)"])
+        # 0.50.0 (D158): what the shop KNOWS, never the hidden condition.
+        component["details"].append(["Known", PartCondition.describe(record, 1)])
         stock.append(component)
     return stock
 
@@ -301,7 +306,8 @@ func stock_available(uid: String) -> bool:
         if record["uid"] == uid:
             var placement: Variant = inventory_layout.get(uid,{})
             if str(record.get("fitted_in","")) != "": return false   # D150: fitted in a customer PC for a test
-            return record["condition"] == "working" and record["owner"] == "player" and (not placement is Dictionary or str(placement.get("location","drawer")) == "drawer")
+            # 0.50.0: usable unless the player marked it dead (or damaged it); hidden condition is not read.
+            return PartCondition.usable(record) and record["owner"] == "player" and (not placement is Dictionary or str(placement.get("location","drawer")) == "drawer")
     return false
 
 func stock_count(kind: String, tier: String) -> int:
@@ -326,7 +332,7 @@ func buy_service_stock(kind: String, tier: String) -> bool:
     if not grid.can_store(new_index,grid.items[new_index]["cell"]): return false
     money -= int(option["cost"])
     inventory_sequence += 1
-    player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working"})
+    player_inventory.append({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")})
     inventory_layout = grid.snapshot()
     save_game()
     return true
@@ -408,6 +414,7 @@ func pickup_faults(temp: float = -1.0) -> Array:
     var faults: Array = InstallFaults.pickup_faults(job.get("install_faults", []), not Ids.GPU in job["removed_parts"], int(job.get("gpu_screws", 2)))
     faults.append_array(Malware.pickup_faults(job))      # D132
     faults.append_array(Overclock.pickup_faults(job, at))
+    faults.append_array(PartCondition.pickup_faults(job))   # 0.50.0: a crashing shop part left in the PC
     return faults
 
 
@@ -641,20 +648,21 @@ func load_game() -> bool:
             var uid: String = str(record.get("uid",""))
             var kind: String = str(record.get("kind",""))
             var tier: String = str(record.get("tier",""))
-            var condition: String = str(record.get("condition", "working"))
-            if str(record.get("owner","player")) != "player" or not condition in ["working", "broken"]: continue
+            var raw_condition: String = str(record.get("condition", "working"))
+            if str(record.get("owner","player")) != "player" or not raw_condition in [PcBuild.WORKING, PcBuild.DEGRADED, PcBuild.BROKEN]: continue
+            var condition: String = raw_condition
             if tier == "model":   # D149: a part bought from the catalogue
                 var model: String = str(record.get("model",""))
                 if uid == "" or seen_stock.has(uid) or not Catalog.is_type(model,kind): continue
-                player_inventory.append(_custody({"uid":uid,"kind":kind,"tier":"model","model":model,"owner":"player","condition":condition}, record))
+                player_inventory.append(_custody(_with_knowledge({"uid":uid,"kind":kind,"tier":"model","model":model,"owner":"player","condition":condition}, record), record))
                 seen_stock[uid] = true
                 continue
             if uid == "" or seen_stock.has(uid) or not kind in ["ram", "cpu", Ids.GPU, Ids.COOLER] or not tier in ["similar","budget"]: continue
-            player_inventory.append(_custody({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":condition}, record))
+            player_inventory.append(_custody(_with_knowledge({"uid":uid,"kind":kind,"tier":tier,"owner":"player","condition":condition}, record), record))
             seen_stock[uid] = true
     # Saves from before the CPU existed gain the demo CPU once (D116); later loads keep it.
     if not bool(data.get("starter_cpu_seeded", false)) and raw_stock is Array and not (raw_stock as Array).is_empty() and not seen_stock.has("stock_cpu_demo"):
-        player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working"})
+        player_inventory.append({"uid":"stock_cpu_demo","kind":"cpu","tier":"similar","owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")})
     var saved_layout: Variant = data.get("inventory_layout",{})
     inventory_layout = saved_layout if saved_layout is Dictionary else {}
     var saved_up: Variant = data.get("upgrades", {})
@@ -804,6 +812,7 @@ func load_game() -> bool:
             var entry: Variant = raw_shop[slot]
             if entry is Dictionary and str(slot) in PcBuild.shop_fitted({"shop_fitted": {str(slot): entry}}): shop[str(slot)] = {"uid": str(entry.get("uid", "")), "model": str(entry["model"])}
     job["shop_fitted"] = shop
+    _refresh_shop_condition()   # 0.50.0: rebuilt from the stock records, never trusted from the save
     job["dust_schema"] = 2
     # Never trust old or malformed containers/grades as proof of completed work.
     if not str(job["layout"]) in ["tower", "compact"]:
@@ -994,7 +1003,7 @@ func buy_catalog_part(id: String) -> bool:
     if not grid.can_store(new_index,grid.items[new_index]["cell"]): return false
     money -= int(p["price"])
     inventory_sequence += 1
-    player_inventory.append({"uid":uid,"kind":str(p["type"]),"tier":"model","model":id,"owner":"player","condition":"working"})
+    player_inventory.append({"uid":uid,"kind":str(p["type"]),"tier":"model","model":id,"owner":"player","condition":"working","known":PartCondition.fresh(PartCondition.NEW,"Bought new")})
     inventory_layout = grid.snapshot()
     save_game()
     return true
@@ -1021,6 +1030,7 @@ func fit_catalog_stock(uid: String, slot: String) -> bool:
     if not free: return false
     var before: Array = Findings.configuration(job)
     shop[slot] = {"uid": uid, "model": model}
+    _carry_condition(slot, _record(uid))   # 0.50.0
     job["shop_fitted"] = shop
     record["fitted_in"] = str(job["id"])
     record["slot"] = slot
@@ -1074,6 +1084,153 @@ func apply_bench(snapshot: Dictionary) -> bool:
         _note_build(configured)
         save_game()
     return changed
+
+
+# ----- 0.50.0: real condition, knowledge and the testing bay (D158) -----
+
+# Loads a record's hidden defect and the player's knowledge. Same shape as freshly made records (a
+# defect key only on a degraded part), so a reload never makes stock look different.
+func _with_knowledge(clean: Dictionary, raw: Dictionary) -> Dictionary:
+    var defect: String = PartCondition.sanitize_defect(str(clean["kind"]), str(clean["condition"]), raw.get("defect", ""))
+    if defect != "": clean["defect"] = defect
+    clean["known"] = PartCondition.sanitize_known(raw.get("known", null), str(clean["condition"]))
+    return clean
+
+
+# Copies a fitted shop part's real condition into the job (rules read it from there). A dead
+# first-slot GPU/cooler also counts as broken there, so the existing symptoms and return path apply.
+func _carry_condition(key: String, record: Dictionary) -> void:
+    if not job.get("shop_condition", {}) is Dictionary: job["shop_condition"] = {}
+    if record.is_empty():
+        (job["shop_condition"] as Dictionary).erase(key)
+        return
+    var condition: String = PartCondition.sanitize_condition(record.get("condition", "working"))
+    job["shop_condition"][key] = {"condition": condition, "defect": str(record.get("defect", ""))}
+    if condition == PcBuild.BROKEN and key in [Ids.GPU, Ids.COOLER] and not key in job["broken_parts"]: job["broken_parts"].append(key)
+
+
+# Rebuilds the derived copy from the stock records (load, PC switch).
+func _refresh_shop_condition() -> void:
+    job["shop_condition"] = {}
+    for kind: String in [Ids.GPU, Ids.COOLER]:
+        if kind in job.get("shop_custody", []): _carry_condition(kind, _record(str(job["service_replacement_ids"].get(kind, ""))))
+    var shop: Variant = job.get("shop_fitted", {})
+    if shop is Dictionary:
+        for slot: Variant in shop: _carry_condition(str(slot), _record(str((shop[slot] as Dictionary).get("uid", ""))))
+
+
+func refresh_shop_condition() -> void:
+    _refresh_shop_condition()
+
+
+# Stock parts the testing bay can work on: the shop's, in the drawer, not fitted in a PC.
+func bay_parts() -> Array:
+    var out: Array = []
+    for record: Dictionary in player_inventory:
+        if str(record.get("fitted_in", "")) != "" or str(record["owner"]) != "player": continue
+        var placement: Variant = inventory_layout.get(str(record["uid"]), {})
+        if placement is Dictionary and str(placement.get("location", "drawer")) != "drawer": continue
+        out.append(str(record["uid"]))
+    return out
+
+
+func stock_record(uid: String) -> Dictionary:
+    return _record(uid).duplicate(true)
+
+
+func _bay_kind(record: Dictionary) -> String:
+    var kind: String = str(record.get("kind", ""))
+    return "storage" if kind in ["storage", "sto"] else kind
+
+
+func _note_part(record: Dictionary, text: String, test_id: String = "") -> void:
+    var k: Dictionary = PartCondition.known(record)
+    (k["notes"] as Array).append("Night %d · %s · %s" % [night_number, NightClock.label(night_minutes), text])
+    if test_id != "" and not test_id in k["tests"]: (k["tests"] as Array).append(test_id)
+    record["known"] = PartCondition.sanitize_known(k, str(record["condition"]))
+
+
+# Looks closely at one spot of a stock part. The first look at a spot costs a minute; looking again
+# only repeats what was seen. Returns {ok, text, message}.
+func inspect_part(uid: String, spot: String) -> Dictionary:
+    var record: Dictionary = _record(uid)
+    if record.is_empty() or not uid in bay_parts(): return {"ok": false, "message": "That part is not on the testing bay."}
+    if not spot in PartCondition.spots(_bay_kind(record)): return {"ok": false, "message": "Nothing to look at there."}
+    var text: String = PartCondition.spot_text(_view_record(record), spot)
+    var test_id: String = "inspect:" + spot
+    if test_id in PartCondition.known(record)["tests"]: return {"ok": true, "text": text, "message": "%s: %s (already noted)" % [spot, text]}
+    if not NightClock.fits(night_minutes, PartCondition.INSPECT_MINUTES): return {"ok": false, "message": "It is too close to 06:00 to start anything."}
+    advance_night(PartCondition.INSPECT_MINUTES)
+    _note_part(record, "Looked at the %s: %s" % [spot.to_lower(), text], test_id)
+    save_game()
+    return {"ok": true, "text": text, "message": "%s: %s" % [spot, text]}
+
+
+# Runs the rig test on a stock part (quick or long), on the night clock. Returns {ok, message}.
+func test_part(uid: String, long_test: bool) -> Dictionary:
+    var record: Dictionary = _record(uid)
+    if record.is_empty() or not uid in bay_parts(): return {"ok": false, "message": "That part is not on the testing bay."}
+    var minutes: int = PartCondition.LONG_MINUTES if long_test else PartCondition.QUICK_MINUTES
+    if not NightClock.fits(night_minutes, minutes): return {"ok": false, "message": "This test takes %d minutes and would run past 06:00. Not started." % minutes}
+    var name_text: String = PartCondition.test_name(_bay_kind(record), long_test)
+    var result: String = PartCondition.test_result(_view_record(record), long_test)
+    advance_night(minutes)
+    _note_part(record, "%s (%d min): %s" % [name_text, minutes, result], "long" if long_test else "quick")
+    save_game()
+    return {"ok": true, "message": "%s · %d night minutes\n%s" % [name_text, minutes, result]}
+
+
+# The player's own call on a part. Free: it is a sticker, not a test. (Scam hook: it may disagree with
+# the evidence; the tests list stays the honest record.)
+func label_part(uid: String, label: String) -> bool:
+    var record: Dictionary = _record(uid)
+    if record.is_empty() or not label in PartCondition.PLAYER_LABELS or not uid in bay_parts(): return false
+    var k: Dictionary = PartCondition.known(record)
+    if str(k["label"]) == PartCondition.NEW and label == PartCondition.WORKING: return true
+    k["label"] = label
+    record["known"] = PartCondition.sanitize_known(k, str(record["condition"]))
+    _note_part(record, "You marked it %s." % label)
+    save_game()
+    return true
+
+
+# Sells a stock part for scrap. Returns the cash (0 when it could not be scrapped).
+func scrap_part(uid: String) -> int:
+    var record: Dictionary = _record(uid)
+    if record.is_empty() or not uid in bay_parts(): return 0
+    var cash: int = PartCondition.scrap_value(_bay_kind(record))
+    player_inventory = player_inventory.filter(func(r: Dictionary) -> bool: return str(r["uid"]) != uid)
+    inventory_layout.erase(uid)
+    money += cash
+    save_game()
+    return cash
+
+
+# A stock record as the rules see it (the bay's catalogue kind for storage records).
+func _view_record(record: Dictionary) -> Dictionary:
+    var view: Dictionary = record.duplicate(true)
+    view["kind"] = _bay_kind(record)
+    return view
+
+
+# Salvage finds unloaded at the shop (0.50.0, user D158: "connect salvage runs to stock"). Each find
+# becomes one untested stock part with a hidden real condition, or scrap when the shop cannot stock
+# that kind. `finds` = [{uid, kind, site}]. Deterministic per find uid and the world seed.
+func receive_salvage(finds: Array) -> Dictionary:
+    var added: Array = []
+    var scrap_cash: int = 0
+    for find: Variant in finds:
+        if not find is Dictionary: continue
+        var made: Dictionary = SalvageStock.stock_for(find as Dictionary, world_seed, "salvage_%d" % inventory_sequence)
+        if made.is_empty():
+            scrap_cash += PartCondition.JUNK_SCRAP
+            continue
+        inventory_sequence += 1
+        player_inventory.append(made)
+        added.append(made)
+    money += scrap_cash
+    save_game()
+    return {"added": added, "scrap_cash": scrap_cash}
 
 
 # ----- 0.48.1: the motherboard (user, 18 November 2026) -----
@@ -1230,7 +1387,7 @@ func diagnosis_capabilities() -> Dictionary:
     var stock: Dictionary = {}
     var models: Dictionary = {}
     for record: Dictionary in player_inventory:
-        if not stock_available(str(record["uid"])): continue
+        if not stock_available(str(record["uid"])) or not PartCondition.known_good(record): continue   # 0.50.0: untested spares prove nothing
         var kind: String = str(record["kind"])
         stock[kind] = int(stock.get(kind, 0)) + 1
         var model: String = PcBuild.stock_model(record)
@@ -1263,11 +1420,17 @@ func return_replacement(part_id: String) -> bool:
     if not record.is_empty():
         # Damage belongs to the removed shop component, not the original waiting in the drawer.
         if part_id in job["broken_parts"]: record["condition"] = "broken"
+        if part_id in job["damaged_parts"]:   # the player saw it happen: they know (0.50.0)
+            var k: Dictionary = PartCondition.known(record)
+            k["label"] = PartCondition.DEAD
+            (k["notes"] as Array).append("Damaged while you handled it in %s's PC." % str(job.get("customer", "a customer")))
+            record["known"] = PartCondition.sanitize_known(k, str(record["condition"]))
         record.erase("fitted_in")
         record.erase("slot")
     job["shop_custody"].erase(part_id)
     job["service_replacements"].erase(part_id)
     job["service_replacement_ids"].erase(part_id)
+    (job["shop_condition"] as Dictionary).erase(part_id)
     job["broken_parts"].erase(part_id)
     job["damaged_parts"].erase(part_id)
     var loose: Array = CustomerPC.loose(job)
@@ -1305,6 +1468,7 @@ func unfit_catalog_stock(uid: String) -> bool:
         if str(job["shop_fitted"][slot]["uid"]) == uid:
             var before: Array = Findings.configuration(job)
             job["shop_fitted"].erase(slot)
+            (job["shop_condition"] as Dictionary).erase(slot)
             var record: Dictionary = _record(uid)
             record.erase("fitted_in")
             record.erase("slot")
@@ -1348,15 +1512,24 @@ func settle_custody() -> Array:
         if not replaced and int(types_fitted.get(type, 0)) > 0:
             replaced = true
             types_fitted[type] = int(types_fitted[type]) - 1
-        if replaced and not bool(entry["broken"]) and not bool(entry["damaged"]):
+        # 0.50.0 (user, D158): every replaced original stays with the shop, faulty or not, as UNTESTED
+        # stock with its real condition hidden: the testing bay finds out. (Scam hook: reusing or
+        # reselling a customer's old part.) Other loose customer parts leave with the customer.
+        if replaced:
             var uid: String = "player_stock_%d" % inventory_sequence
             inventory_sequence += 1
-            player_inventory.append({"uid":uid,"kind":type,"tier":"model","model":str(entry["id"]),"owner":"player","condition":"working"})
+            var actual: String = PcBuild.BROKEN if bool(entry["broken"]) or bool(entry["damaged"]) else PcBuild.WORKING
+            var known_now: Dictionary = PartCondition.fresh(PartCondition.UNTESTED, "Taken out of %s's PC (%s)" % [str(job.get("customer", "")), str(job.get("id", ""))])
+            if bool(entry["damaged"]):
+                known_now["label"] = PartCondition.DEAD
+                (known_now["notes"] as Array).append("You damaged it while working on it.")
+            player_inventory.append({"uid":uid,"kind":type,"tier":"model","model":str(entry["id"]),"owner":"player","condition":actual,"known":known_now})
             kept.append(str(Catalog.part(str(entry["id"]))["name"]))
     job["parts"] = permanent
     job["pc_specs"] = PcBuild.specs(permanent)
     job["shop_custody"] = []
     job["shop_fitted"] = {}
+    job["shop_condition"] = {}
     job["loose_parts"] = []
     return kept
 

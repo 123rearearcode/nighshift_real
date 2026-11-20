@@ -166,8 +166,10 @@ static func effective_parts(job: Dictionary) -> Dictionary:
     if Ids.GPU in removed or Ids.GPU in broken: gpus.remove_at(0)
     if Ids.COOLER in removed or Ids.COOLER in broken: p["cooler"] = ""
     # 0.46.2 (D150): shop parts fitted for a test count while they are in the PC, but stay the shop's.
+    # 0.50.0: a dead one (actual condition, never shown) is in the slot but contributes nothing.
     for slot: String in shop_fitted(job):
         var model: String = str(shop_fitted(job)[slot])
+        if str(shop_condition(job, slot)["condition"]) == BROKEN: continue
         if slot == CPU_SLOT and str(p["cpu"]) == "": p["cpu"] = model
         elif slot == PSU_SLOT and str(p["psu"]) == "": p["psu"] = model
         elif slot in RAM_SLOTS: (p["ram"] as Array).append(model)
@@ -189,6 +191,60 @@ static func shop_fitted(job: Dictionary) -> Dictionary:
     return out
 
 
+# ---- 0.50.0: real condition of the shop's own parts fitted for a test (testing bay, D158) ----
+# Hidden truth: read by rules only, never shown. The stock record is the authority; the job carries a
+# derived copy ("shop_condition": key -> {condition, defect}) written when the part is fitted and
+# rebuilt from the record on load. Keys: Ids.GPU / Ids.COOLER for the first-slot replacements, or a
+# hardware-bench slot id (cpu, ram_1.., m2_1.., psu_bay, pcie_2) for shop_fitted parts.
+const WORKING := "working"
+const DEGRADED := "degraded"
+const BROKEN := "broken"
+# One degraded behaviour per part kind (trial proposal). Effects below; texts in part_condition.gd.
+const DEFECTS: Dictionary = {"gpu": "artifacts", "ram": "errors", "cpu": "hot", "cooler": "weak", "psu": "weak", "storage": "slow"}
+const UNSTABLE_MINUTE: Dictionary = {"artifacts": 12, "errors": 8}   # under load, in the Stress lab / a game
+const HOT_CPU_DEGREES: float = 15.0
+const WEAK_PSU_SHARE: float = 0.7
+const WEAK_COOLER_SHARE: float = 0.5
+
+
+static func shop_condition(job: Dictionary, key: String) -> Dictionary:
+    var raw: Variant = job.get("shop_condition", {})
+    var entry: Variant = (raw as Dictionary).get(key, {}) if raw is Dictionary else {}
+    var condition: String = str(entry.get("condition", WORKING)) if entry is Dictionary else WORKING
+    if not condition in [WORKING, DEGRADED, BROKEN]: condition = WORKING
+    var defect: String = str(entry.get("defect", "")) if entry is Dictionary else ""
+    if condition != DEGRADED or not defect in DEFECTS.values(): defect = ""
+    return {"condition": condition, "defect": defect}
+
+
+# Defects of the degraded shop parts fitted now (a dead or removed part has none).
+static func defects(job: Dictionary) -> Array:
+    var out: Array = []
+    var keys: Array = []
+    var replaced: Dictionary = job.get("service_replacements", {}) if job.get("service_replacements", {}) is Dictionary else {}
+    var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
+    for kind: String in [Ids.GPU, Ids.COOLER]:
+        if replaced.has(kind) and not kind in removed: keys.append(kind)
+    keys.append_array(shop_fitted(job).keys())
+    for key: Variant in keys:
+        var d: String = str(shop_condition(job, str(key))["defect"])
+        if d != "": out.append(d)
+    return out
+
+
+# The earliest minute under load at which a degraded part crashes the PC (-1 = none).
+static func unstable_minute(job: Dictionary) -> int:
+    var at: int = -1
+    for d: Variant in defects(job):
+        var m: int = int(UNSTABLE_MINUTE.get(str(d), -1))
+        if m >= 0 and (at < 0 or m < at): at = m
+    return at
+
+
+static func defect_heat(job: Dictionary) -> float:
+    return HOT_CPU_DEGREES if "hot" in defects(job) and str(effective_parts(job)["cpu"]) != "" else 0.0
+
+
 # The customer's second card is dead (hidden truth; it simply adds nothing).
 static func dead_second_card(job: Dictionary) -> bool:
     return GPU2_SLOT in (job.get("dead_slots", []) if job.get("dead_slots", []) is Array else [])
@@ -196,7 +252,18 @@ static func dead_second_card(job: Dictionary) -> bool:
 
 static func effective(job: Dictionary) -> Dictionary:
     var p: Dictionary = effective_parts(job)
-    return _stats(p["cpu"], p["gpus"], p["ram"], p["storage"], p["psu"], p["cooler"])
+    var s: Dictionary = _stats(p["cpu"], p["gpus"], p["ram"], p["storage"], p["psu"], p["cooler"])
+    # 0.50.0: a degraded shop PSU gives less power; a degraded shop cooler takes less heat away.
+    var found: Array = defects(job)
+    var psu_weak: bool = str(shop_condition(job, PSU_SLOT)["defect"]) == "weak"
+    var cooler_weak: bool = "weak" in found and str(shop_condition(job, Ids.COOLER)["defect"]) == "weak"
+    if psu_weak:
+        s["psu_w"] = int(float(s["psu_w"]) * WEAK_PSU_SHARE)
+        s["powered"] = int(s["psu_w"]) >= int(s["draw_w"])
+    if cooler_weak and str(p["cooler"]) != "":
+        s["cooler_w"] = int(float(s["cooler_w"]) * WEAK_COOLER_SHARE)
+        s["excess_heat_w"] = maxi(0, int(s["cpu_heat_w"]) - int(s["cooler_w"]))
+    return s
 
 
 # Extra degrees from a cooler too small for the CPU (0 when it copes).

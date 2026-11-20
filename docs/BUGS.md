@@ -1,8 +1,9 @@
 # Nightshift — Bug register
 
-Current ledger reconciliation: **0.47.1**, 18 November 2026. This ledger distinguishes a recorded fix
-from verification. It is not a claim that every historical fix has been replayed on the current build.
-Next structural review: **0.50.0**. An early focused review is recorded below for the 0.47.1 work.
+Current ledger reconciliation: **0.50.0**, 20 November 2026 (scheduled structural review, below). This
+ledger distinguishes a recorded fix from verification. It is not a claim that every historical fix has
+been replayed on the current build.
+Next structural review: **0.60.0**.
 
 ## Filing and verification rules
 
@@ -77,6 +78,7 @@ Next structural review: **0.50.0**. An early focused review is recorded below fo
 | B47 | Verified | High | Migration | Handing over the starter CPU recreates a free one on reload | 0.46.3 | Automated: hardware lifecycle regressions |
 | B48 | Verified | High | Save | A bought GPU/cooler fitted in the first slot makes the night manifest invalid after a reload; PC switching locks | 0.48.0 | Automated: generated-tickets B48 regression |
 | B49 | Verified | Low | Layout | GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket | 0.48.1 | Automated: bracket screw geometry regression |
+| B51 | Verified | Medium | Save | Stock records changed shape on reload (an empty defect key), so a menu path looked as if it altered the stock | 0.50.0 | Automated: menu navigation stock-equality regression |
 | B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
 
 ## Known limitations and design debt (not closed bugs)
@@ -85,6 +87,8 @@ Next structural review: **0.50.0**. An early focused review is recorded below fo
 | --- | --- | --- | --- | --- |
 | L1 | Investigating | High | Customer part identity is slot/order-derived; identical parts lack a complete stable physical record | Stage the per-part model described in PART_LIFECYCLE.md; reproduce swaps of identical customer components before migrating |
 | L2 | Investigating | High | Orphan fitted_in custody marks have no recovery UI | Establish a safe reproduction/recovery policy; never clear an unknown mark just to make stock available |
+| L3 | Open | Medium | A shop part delivered inside a customer's PC loses its real condition at collection: the permanent PC record holds models only | Covered for now by the pickup check and the delayed "crashing part" fault; carry condition per part when L1's part records exist |
+| L4 | Open | Low | The salvage outing still runs on its own demo clock, not the night clock; a full drawer can hide extra stock on the hardware bench (the testing bay lists all) | Design talk: how long a dump visit takes in night minutes; drawer overflow handling |
 
 L1/L2 were already listed in HANDOFF. This PR tests supported shop-part journeys; it does not claim
 to have migrated all customer-part identity or solved orphan recovery. Neither is an excuse to bypass
@@ -122,8 +126,38 @@ Retain native sort/add/select/drop/exit tests; call-only tests missed this failu
 B41–B47 show that successful fitting is not enough: removal, damage, collection and reload must agree.
 A model name or slot is not a physical identity. See PART_LIFECYCLE.md for the accepted staged direction,
 current coverage, invariants, migration boundaries and the parts still awaiting implementation.
+0.50.0 progress (shop stock only): every stock record now keeps actual condition (+ defect) apart from
+the shop's knowledge (label, notes, tests done) — invariant 7 for shop parts. A fitted test part behaves
+as its record says through a derived job copy (`shop_condition`) that is rebuilt from the records on load
+and PC switch, never trusted from the save. Customer parts are still slot-derived (L1); see L3.
+
+### RC-6 — One rule, several hand-written copies: NEW prevention rule (0.50.0)
+
+B48 (the night manifest validated replacement tiers with its own list while the loader used
+`ServiceParts.option`), B51 (a record created in one shape and reloaded in another) and B49 (screw
+positions assumed the row under the GPU was free, until a later slot used it) are one pattern: a rule
+copied by hand drifts from its source. Prevention: validate with the same function that defines the
+shape (`ServiceParts.option`, the record sanitizers), make created and reloaded records identical, and
+test positions against the real connector rectangles. A deliberate derived copy (such as
+`shop_condition`) must name its authority, be rebuilt from it at load/switch, and have a test that
+tampers with the copy.
 
 ## Reviews (newest first)
+
+### 0.50.0 — scheduled structural review, 20 November 2026
+
+Scope: B48–B51 and the 0.48.0–0.50.0 changes (generated tickets, motherboards and saved tools, the Task
+Manajer, the testing bay). Findings: (1) RC-6 is new — three of the four new bugs were hand-copied rules
+drifting from their source; (2) RC-5 advanced for shop stock (actual vs known condition; fitted test
+parts derive from the stock record) but L1/L2 stay Investigating, and L3 (condition lost at delivery) is
+recorded instead of being silently accepted; (3) RC-2 held: B49 and B50 were caught and are now covered by
+geometry and real-input tests; the bay's tests click through the viewport and check that no hidden
+condition reaches visible text; (4) RC-3 held: the new saved shapes (`people`, `vacuum_state`, part
+knowledge) have sanitizers with malformed-data checks. Actions taken: RC-6 rule; L3/L4 recorded; B51
+filed; the bay journey is covered end to end (arrival, inspection, tests, mark, scrap, fitting, return,
+settlement, reload). Next scheduled structural review: 0.60.0.
+
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session, 20 November 2026.
 
 ### 0.47.1 — focused ledger and lifecycle review, 18 November 2026
 
@@ -687,3 +721,13 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: start a miner cleanup, click End on its protected source, type the displayed word, click SEND; repeat in a fresh attempt with Enter. A wrong word must show an error and allow correction. Let time pass during partial input; characters and control identity must survive.
 - Expected / actual: the correct word stops the process via either confirmation path / the user reported that SEND did nothing in the fast prototype.
 - Regression / evidence: Automated Godot 4.7.2 viewport mouse and keyboard input in `tools/test_antivirus.gd` proves native SEND, Enter, immediate uppercase, wrong-word retry and stable input. This verifies the native port, not a reproduced root cause in the old browser prototype. User accepted the standard in-chat version; graphical Godot acceptance remains pending.
+
+### B51 — Stock records changed shape on reload, so a menu path looked as if it altered the stock
+
+- Found: 0.50.0 development, GitHub Actions (Menu navigation suite)
+- Reported by: CI, failing check "menu paths do not charge, restock or finish repairs"
+- Fixed in: 0.50.0 (before release)
+- Root cause: the new stock-record loader always added an empty `defect` key, while freshly created records had none; after a reload the inventory compared unequal, as if a navigation had changed it (RC-6). Fix: a `defect` key only on degraded parts, in both creation and load.
+- Reproduction: start a new game, take the menu path Title → Continue → workbench → room, compare `player_inventory` with the value before the path.
+- Expected / actual: identical stock / stock unequal after the reload inside the path.
+- Regression / evidence: Automated Godot 4.7.2 `tools/test_menu_navigation.gd` (unchanged check now passes) and the reload checks in `tools/test_testing_bay.gd`. No user verification claimed.

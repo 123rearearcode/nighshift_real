@@ -6,7 +6,7 @@ const ROOM := "res://scenes/storage.tscn"
 const REPAIR := "res://scenes/night_bench.tscn"
 const HARDWARE := "res://scenes/night_hardware.tscn"
 const MONITOR := "res://scenes/software.tscn"
-const PATHS: Array = [ACTIVITIES,ROOM,REPAIR,HARDWARE,MONITOR,"res://scenes/night_salvage.tscn","res://scenes/night_shop.tscn"]
+const PATHS: Array = [ACTIVITIES,ROOM,REPAIR,HARDWARE,MONITOR,"res://scenes/night_salvage.tscn","res://scenes/night_shop.tscn","res://scenes/night_bay.tscn"]
 static func _run(gs: Node) -> String:
     return str(gs.job.get("hardware_trial",{}).get("night_session",{}).get("run",""))
 static func _read(gs: Node) -> Dictionary:

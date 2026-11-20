@@ -1,5 +1,6 @@
 # Read-only adapter. These are references/projections, never a second owned-item database.
 extends RefCounted
+const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Data = preload("res://scripts/storage/storage_data.gd")
 
 static func collect(gs: Node) -> Dictionary:
@@ -19,7 +20,7 @@ static func collect(gs: Node) -> Dictionary:
         var fitted: bool = layout is Dictionary and layout.get("location","drawer") != "drawer"
         var uid: String = "part:"+raw_uid
         items[uid] = {"id":uid,"source_uid":raw_uid,"category":"part","kind":kind,"label":kind.to_upper() if kind in ["ram","gpu","cpu"] else kind.capitalize(),
-            "model":str(component["display_name"]),"size":component["footprint"],"owner":"Shop property","condition":str(record.get("condition","working")),
+            "model":str(component["display_name"]),"size":component["footprint"],"owner":"Shop property","condition":PartCondition.label_text(record),   # 0.50.0: what the shop knows, not the hidden condition
             "reserved":fitted,"note":"Fitted on the hardware bench; this shelf space is reserved." if fitted else "Loose stock. Available to the hardware bench and replacement drawer."}
     for kind: String in Data.TOOL_SIZES:
         var uid: String = "tool:kit:"+kind

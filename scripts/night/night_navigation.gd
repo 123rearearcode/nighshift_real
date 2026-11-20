@@ -8,6 +8,7 @@ const ROOM := "res://scenes/storage.tscn"
 const REPAIR := "res://scenes/night_bench.tscn"
 const HARDWARE := "res://scenes/night_hardware.tscn"
 const MONITOR := "res://scenes/software.tscn"
+const BAY := "res://scenes/night_bay.tscn"   # 0.50.0: Activities > Testing bay
 const RECT := Rect2(1100,20,152,42)
 static func commit(owner: Node,path: String) -> bool:
     if path == "res://scenes/night_workshop.tscn": path = REPAIR # legacy link, no service-menu detour

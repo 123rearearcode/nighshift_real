@@ -203,6 +203,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
 | `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
+| `tools/test_testing_bay.gd` | tooling | Condition vs knowledge, salvage and customer parts into stock, inspection/tests/clock/mark/scrap, untested test parts behaving as they really are, reload rebuild, the bay screen (0.50.0) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
 | `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
@@ -218,6 +219,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
+| `scripts/rules/part_condition.gd` | rules | What the shop KNOWS about its parts (label, notes, tests done) apart from their hidden condition; inspection spots and tells; quick/long rig test results; scrap values; the delayed 'crashing part' fault (0.50.0, D158) |
+| `scripts/rules/salvage_stock.gd` | rules | A salvage find becomes one untested stock part (older model, hidden real condition) or scrap (0.50.0) |
+| `scripts/night/testing_bay_view.gd` | view | Activities > Testing bay: stock list, part drawing with inspection spots, quick/long rig tests, the player's mark, scrap; shows known state only (0.50.0) |
+| `scenes/night_bay.tscn` | scene | Testing bay scene (0.50.0) |
 | `scripts/bench/vacuum_state.gd` | state | The vacuum's saved bin fill and hose clumps: sanitize, capture, restore (0.48.1; kept across screens and reloads) |
 | `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
 | `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
@@ -804,3 +809,19 @@ from a refresh tick. Tests use actual viewport events for both confirmations.
 
 Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
 19 November 2026, Europe/Bucharest.
+
+
+
+## Part condition and testing bay contracts — 0.50.0
+
+Stock records may carry `condition` (working | degraded | broken), `defect` (only when degraded; one per
+kind, `PcBuild.DEFECTS`) and `known` ({label, notes, tests, source}, `PartCondition.sanitize_known`).
+Created and reloaded records must have the same shape (B51). Never show `condition`/`defect`: views use
+`PartCondition.label_text`/`describe`; `stock_available` uses `PartCondition.usable` (the player's
+knowledge). `GameState.diagnosis_capabilities` counts only `known_good` spares. A fitted shop part's
+condition is copied into `job.shop_condition` by `_carry_condition` at fit time and rebuilt by
+`refresh_shop_condition()` on load and PC switch; the stock record is the authority. A dead first-slot
+GPU/cooler is also mirrored into `broken_parts` so the existing symptoms and return path apply. Bay
+actions (`inspect_part`, `test_part`, `label_part`, `scrap_part`) spend night minutes through
+`advance_night` after a `NightClock.fits` check; `receive_salvage` takes `[{uid, kind, condition}]`.
+Recorded by Claude (Opus 5.5).

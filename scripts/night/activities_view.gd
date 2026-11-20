@@ -11,8 +11,10 @@ func _ready() -> void:
     NightSession.ensure(GameState)
     _label("NIGHTSHIFT / AFTER HOURS",Vector2(60,72),Vector2(1160,60),32)
     _label("Choose your next activity. Your PCs stay where you left them.",Vector2(60,140),Vector2(1160,40),20)
-    activity_buttons.append(_button("WORKSHOP ROOM\nDrag a PC into the workshop slot",Rect2(60,235,550,150),"res://scenes/storage.tscn"))
-    activity_buttons.append(_button("SALVAGE DUMP\nDrive out and search the pile",Rect2(670,235,550,150),"res://scenes/night_salvage.tscn"))
+    activity_buttons.append(_button("WORKSHOP ROOM\nDrag a PC into the workshop slot",Rect2(60,235,356,150),"res://scenes/storage.tscn"))
+    activity_buttons.append(_button("SALVAGE DUMP\nDrive out and search the pile",Rect2(462,235,356,150),"res://scenes/night_salvage.tscn"))
+    # 0.50.0 (D158): look at and test the shop's own parts.
+    activity_buttons.append(_button("TESTING BAY\nInspect and test your stock",Rect2(864,235,356,150),Navigation.BAY))
     activity_buttons.append(_button("SHOP\nBuy tool upgrades",Rect2(60,430,550,140),"res://scenes/night_shop.tscn"))
     # D136 (0.44.0): ending the night is tonight's last activity. At 06:00 it is the only one left.
     end_button = _button("",Rect2(670,430,550,140),"")

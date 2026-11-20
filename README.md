@@ -1,4 +1,11 @@
-# Nightshift - Godot Foundation Trial (v0.49.0)
+# Nightshift - Godot Foundation Trial (v0.50.0)
+
+0.50.0 is session 3.6, the **testing bay** (Activities > Testing bay). Salvage finds and customers'
+replaced parts now land in your stock as **untested**: nobody knows if they work. At the bay you look
+closely at each part's spots for burn marks, bulging capacitors and smells, then run a quick or a long
+test on the rig (night minutes). Some faults only show in the long test. Then make your own call: mark it
+working, degraded or dead, or sell it for scrap. An untested spare used as a test part behaves as it
+really is, so a bad spare can mislead a diagnosis. This release also holds the 0.50.0 structural review.
 
 0.49.0 adds the approved calmer **Task Manajer** anti-virus minigame. On a booted infected PC, run
 Anti-virus scan, then Remove threat. Stop the source and its Zombie watchdog, disable auto-start and
