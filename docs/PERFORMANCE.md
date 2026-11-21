@@ -1,5 +1,8 @@
 # Bench performance — 0.22.1
 
+Since 21 November 2026 performance reviews are the scheduled Code checker's (every 2 days, see
+`docs/CODE_CHECKER.md`); it appends dated sections under "Scheduled performance reviews" at the end.
+
 Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 13 November 2026.
 User-authorised performance pass based on main 0.22.0, commit
 9d9be8ec868ae1f02bfdf1c5e38b292309df257e. Await Claude cross-review and human playtest.
@@ -74,3 +77,7 @@ This branch makes narrow integration edits to bench_view.gd under the user's exp
 instruction; it does not edit tool_rig.gd, game_state.gd, the hand-state machine or WORK_PLAN.md.
 Claude retains Phase 2 ownership. Cross-review this PR before step 7 so the view split preserves the
 new cache invalidation and static-layer contracts. No gameplay design or balance decision was added.
+
+## Scheduled performance reviews
+
+None yet. The Code checker adds the newest review directly below this line.

@@ -13,8 +13,9 @@ Project rules:
    engineering and code health. Hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) have one owner
    at a time; check the plan's Status table and the newest changelog "Next action" before editing them.
 6. Every bug — user-reported, CI-caught or review-found — gets a row in `docs/BUGS.md` when it is
-   found, with its root cause filled in when fixed. Every 10 versions (0.30.0, 0.40.0, …) the
-   integrating AI runs the structural review described at the top of that file.
+   found, with its root cause filled in when fixed. The structural review every 10 versions and the
+   performance reviews belong to the scheduled **Code checker** only (`docs/CODE_CHECKER.md`, user
+   decision 21 November 2026); other AIs do not run them and answer its findings in their PRs.
    Follow its one-index/detail format and Fixed versus Verified evidence rules. Run
    `python3 -I tools/check_bug_register.py` and `python3 -B tools/test_bug_register.py`.
    Read `docs/PART_LIFECYCLE.md` before changing ownership, fitting, collection or save migration;

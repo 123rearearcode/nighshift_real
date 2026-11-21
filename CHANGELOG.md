@@ -37,6 +37,22 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled Code checker role — 2026-11-21 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.50.0 (c04a278). Open PRs #64–#67 are untouched; the integrator assigns the version.
+- Added: `docs/CODE_CHECKER.md`. User decision: a scheduled Claude session is the code checker. Every
+  6 hours it reviews new main commits and changed PRs (comment-only), files bugs through small docs PRs,
+  runs the every-10-versions structural review in BUGS.md, and every 2 days a performance review in
+  PERFORMANCE.md. It never edits game code, approves or merges. Other AIs no longer run these reviews.
+- Changed: AGENTS.md rule 6, BUGS.md filing rules, WORK_PLAN.md roles, PERFORMANCE.md (review log
+  section), DEVELOPMENT.md file map, HANDOFF.md note.
+- Files changed: docs/CODE_CHECKER.md (A), AGENTS.md (M), docs/BUGS.md (M), docs/WORK_PLAN.md (M),
+  docs/PERFORMANCE.md (M), DEVELOPMENT.md (M), HANDOFF.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, no runtime, test or CI change.
+- Checks: `python3 -I tools/check_project.py`, bug-register checker and its tests (results in the PR).
+- Next action: the user merges this PR; the scheduled tasks are already active and read this file.
+
 ### Approved diagnosis/manual design and coordinated resume — 2026-11-18 (documentation only)
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
@@ -75,6 +91,62 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
+
+## 0.54.2 - 2026-11-21 - Integrate dedicated Code checker role
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), original PR #68; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.54.1 / 7861de7 and PR #68 head 5feb8e7.
+- Type: patch (documentation and version-only metadata; no runtime or save change).
+
+### Execution status
+
+No new Godot run. Runtime remains identical to tested 0.54.0; this patch integrates documentation
+only. It does not create or verify Claude's external scheduled tasks or claim graphical acceptance.
+
+### Added / Changed / Fixed / Removed
+
+- Integrate PR #68's dedicated Code checker contract and pointers: six-hourly change review,
+  structural reviews at the BUGS marker and performance reviews every two days. The checker reports;
+  code owners implement fixes and the user controls merges. Authors retain testing/bug-filing duties.
+- Resolve the old-baseline handoff conflict while preserving integrated releases and historical
+  proposals. Refresh the current Claude resume prompt and assign a delivery version under project rules.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/CODE_CHECKER.md | A | Original dedicated review-role contract from Claude's PR #68 |
+| AGENTS.md | M | Scheduled review ownership pointer |
+| docs/BUGS.md | M | Structural review owner pointer; marker unchanged |
+| docs/PERFORMANCE.md | M | Review ownership and empty log section |
+| docs/WORK_PLAN.md | M | Dedicated checker role alongside standing author split |
+| DEVELOPMENT.md | M | Register checker contract in file map |
+| HANDOFF.md | M | Reconcile current integrated state and copyable resume prompt |
+| docs/CURRENT_STATE.md | M | Current checker integration status |
+| README.md | M | Version and integration note |
+| project.godot | M | Version only, 0.54.2 |
+| CHANGELOG.md | M | Original Unreleased provenance and this signed delivery record |
+
+### Checks performed
+
+- Project checker passed: 154 scripts, 806 references, 226 mapped files, five core docs, zero problems.
+- Bug checker passed with zero problems; 12 bug-register fixtures and 9 CI-scope fixtures passed.
+- Whitespace against main passed; only Markdown and config/version differ from main 0.54.1.
+  All game code, scenes, tests, tools and CI are unchanged from tested 0.54.0.
+
+### Decisions proposed (not approved)
+
+None added by integration; retain the checker-role decision recorded in PR #68. No new automation
+is configured by this merge.
+
+### Known issues and open items
+
+L1/L2 open; L4/L5 separate; deferred features unchanged. External schedules are outside this
+integration's verification. Next structural review marker remains 0.60.0.
+
+### Next action
+
+Claude pulls current main, reads HANDOFF 0.54.2 and CODE_CHECKER, resumes Rooms/art/playtesting and
+coordinates the next runtime owner. The dedicated checker handles scheduled reviews.
 
 ## 0.54.1 - 2026-11-21 - Integrate release chain and archive historical PC-model proposals
 

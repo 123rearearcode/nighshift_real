@@ -1,5 +1,13 @@
 # Nightshift — Current State and Technical Handoff
 
+## Checker-role integration — 0.54.2, 21 November 2026
+
+PR #68 adds the dedicated Code checker contract, integrated after main 0.54.1 / 7861de7. Runtime is
+still identical to tested 0.54.0. HANDOFF 0.54.2 is the current resume prompt: Claude continues Rooms/
+art/playtesting; the separate checker owns scheduled reviews. This docs integration does not verify
+external schedule setup. All lifecycle limitations, deferred features and the 0.60.0 review marker remain.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Integration — 0.54.1, 21 November 2026
 
 PRs #64–#67 are merged; main 0.54.0 / d8ecf6a contains builds, trust/reviews, Rooms and delivered-part

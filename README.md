@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.54.1)
+# Nightshift - Godot Foundation Trial (v0.54.2)
+
+0.54.2 integrates the dedicated Code checker documentation from PR #68. Game code remains identical to 0.54.0; see docs/CODE_CHECKER.md and HANDOFF.md.
 
 0.54.1 integrates all pending PRs and archives the old PC-model proposals as historical reference. Runtime is identical to 0.54.0; see HANDOFF.md for the current Claude resume prompt.
 

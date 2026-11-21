@@ -23,6 +23,7 @@ Next structural review: **0.60.0**.
   A state needing a surface does not authorize a new fault-revealing label (D150).
 - Run `python3 -I tools/check_bug_register.py` and `python3 -B tools/test_bug_register.py` after changes.
   At every tenth minor version, reconcile current root-cause status, add a review and advance the marker.
+  Since 21 November 2026 the scheduled Code checker runs this review, not the integrating AI (docs/CODE_CHECKER.md).
 - Known design limitations below are not silently classified as fixed bugs; investigate/reproduce first.
 
 ## Bug index

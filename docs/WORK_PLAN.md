@@ -29,6 +29,9 @@ the scripted playtest tables (`tools/playtest_bench.gd`) identical.
 **Codex — game design and gameplay features:** design documents and decisions (scams, customers, the
 dust minigame purpose, the PC/owned-part model design), new gameplay features and their tests, feel
 tuning from the user's playtests.
+**Code checker — reviews (user decision, 2026-11-21):** a scheduled Claude session reviews every change
+(6-hourly), runs the every-10-versions structural bug review and a performance review every 2 days. It
+reports and files bugs; it does not edit game code or merge. See `docs/CODE_CHECKER.md`.
 **Claude — engineering and code health:** steps 1–15 and 17 below; the build half of step 16 on top of
 Codex's design; investigating unclear bugs with the scripted playtest.
 

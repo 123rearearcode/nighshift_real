@@ -1,6 +1,34 @@
 # Handoff — current state first
 
-## Current — 0.54.1 integration and historical proposal archive, 21 November 2026
+## Current — 0.54.2 dedicated Code checker integration, 21 November 2026
+
+PRs #19 and #64–#67 are merged (main 0.54.1 / 7861de7). PR #68 appeared during that integration;
+this patch resolves its handoff conflict, retains all current game code and assigns version 0.54.2.
+The two older PC-model proposals remain historical; the 0.54.0 delivered-part contracts remain current.
+
+**Code checker (user decision recorded by Claude, 21 November 2026):** reviews belong to a separate
+scheduled Claude session — change review every six hours, structural review when the BUGS marker is
+reached (next 0.60.0), and performance review every two days. Read docs/CODE_CHECKER.md for the full
+contract. It reports and opens small docs PRs; it never edits runtime/tests/tools/CI or merges. Other
+AIs still test their changes and file bugs found in their own work, but do not take over those scheduled
+reviews. This integration records the role only; it does not create, inspect or verify external schedules.
+
+### Copyable Claude resume prompt
+
+> Pull main and read HANDOFF's 0.54.2 section and docs/CODE_CHECKER.md first. All previously open
+> release PRs and the historical #19 archive are integrated; #68 adds the separate checker role.
+> Resume Rooms/art/playtesting from the current room navigation, not old Wave 3 steps. Preserve
+> delivered UID/condition/defect/knowledge, bags, comeback receipts and every required suite. L1/L2
+> remain open, L4 clock and L5 overflow are separate. No runtime hot file is reserved by this
+> integration; coordinate the next owner. Manual/boss malware/interactive reviews/shop upgrades
+> stay deferred. The dedicated checker owns scheduled structural/performance reviews; authors
+> still verify their work and file bugs. Next structural marker remains 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/version integration only; no new Godot run. See CHANGELOG 0.54.2.
+
+
+## Previous — 0.54.1 integration and historical proposal archive, 21 November 2026
 
 The user authorized merging everything. PRs #64 (builds), #65 (trust/reviews), #66 (Rooms) and
 #67 (delivered physical records) are now merged in order. Their integrated main baseline is
