@@ -129,6 +129,13 @@ static func spots(kind: String) -> Array:
     return SPOTS.get(kind, ["Surface"])
 
 
+# 0.56.0 (D162): whether a spot is looked at through the magnifying glass. The user: "depends on the
+# faults; there will be multiple types". Today every spot needs the lens; a later fault type that shows to
+# the bare eye (a smell, a dented casing) can return false here and be inspected another way.
+static func needs_lens(_kind: String, _spot: String) -> bool:
+    return true
+
+
 # Whether this particular part shows its tell at all (fixed per part: looking twice changes nothing).
 static func _shows_tell(uid: String, condition: String) -> bool:
     var r := RandomNumberGenerator.new()
