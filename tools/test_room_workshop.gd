@@ -104,7 +104,7 @@ func run_checks() -> void:
     DirAccess.remove_absolute(manifest+".tmp")
     # 0.53.0 (D161): every close-up has one way back, in the same place, to the room it belongs to.
     var parents: Dictionary = {"res://scenes/night_bench.tscn": Nav.WORKSHOP, "res://scenes/night_hardware.tscn": Nav.WORKSHOP, "res://scenes/software.tscn": Nav.WORKSHOP,
-        "res://scenes/night_salvage.tscn": Nav.OUTSIDE, "res://scenes/storage.tscn": Nav.WORKSHOP, "res://scenes/night_shop.tscn": Nav.COUNTER, "res://scenes/night_bay.tscn": Nav.WORKSHOP}
+        "res://scenes/night_salvage.tscn": Nav.OUTSIDE, "res://scenes/storage.tscn": Nav.WORKSHOP, "res://scenes/night_shop.tscn": Nav.OUTSIDE, "res://scenes/night_bay.tscn": Nav.WORKSHOP, "res://scenes/under_counter.tscn": Nav.COUNTER}
     for path: String in parents:
         await scene(path)
         var exit: Button = current_scene.get_node_or_null("BackButton")

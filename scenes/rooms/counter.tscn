@@ -116,17 +116,16 @@ label = "Your phone"
 art_hint = "Your phone lying on the counter. Opens the review app."
 placeholder_color = Color(0.184, 0.239, 0.290, 1)
 
-[node name="Catalogue" type="Button" parent="Hotspots"]
-offset_left = 660.0
-offset_top = 440.0
-offset_right = 840.0
-offset_bottom = 550.0
+[node name="UnderCounter" type="Button" parent="Hotspots"]
+offset_left = 420.0
+offset_top = 565.0
+offset_right = 860.0
+offset_bottom = 650.0
 script = ExtResource("2")
-action = "go:shop"
-label = "Tool catalogue"
-art_hint = "A catalogue or old computer for ordering tool upgrades."
-placeholder_color = Color(0.290, 0.247, 0.361, 1)
-closed_at_dawn = true
+action = "go:under_counter"
+label = "Under the counter: storage"
+art_hint = "Shelves or cubbies under the counter window, below the customers' line of sight. Keeps parts, tools and PCs close at hand (a 20 x 10 grid)."
+placeholder_color = Color(0.29, 0.247, 0.188, 1)
 
 [node name="Bin" type="Button" parent="Hotspots"]
 offset_left = 880.0

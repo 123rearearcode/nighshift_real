@@ -686,3 +686,26 @@ drawing, the close-ups keep one named back exit, the morning report became the c
 counter. Interpretation recorded for the user to confirm: "the day is not timed" is read as the morning
 visits having no clock; the night clock and the time that work costs (D-earlier, D159) are unchanged.
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D162 — After the rooms playtest: the store, under-counter storage, the lens, part tests, a livelier anti-virus (user, 21 November 2026)
+
+The user played 0.53.0 and asked for these changes; the follow-up answers are the user's own words where quoted.
+1. **No "Tool catalogue" on the counter**: it becomes a store, **(a) down the street**, "a different thing than
+   the parts supplier". "I want to keep store upgrades separate from buying parts and tools." Claude's
+   reading for 0.55.0, for the user to confirm: the store outside sells the tool upgrades that were in the
+   catalogue; ordering parts stays on the hardware bench; the parts supplier stays its own later spot.
+2. **Storage slots under the counter window** for parts, tools, PCs waiting for pickup, anything ("all of
+   these"): "create a 10x20 grid for now" (built 20 wide × 10 high, under the window). Scam hook: "the
+   police will be a thing in this game".
+3. **The testing bay's magnifying glass**: you look at components with it to identify faults ("will be
+   properly working when graphics are implemented; but implement the tool itself"). Whether a fault needs
+   the lens "depends on the faults; there will be multiple types".
+4. **A test per part type**, goofy versions of the real-life test; they **replace the quick and long tests**;
+   **short, but failing one loses you time**. Whether skill affects what a test reveals is a balance question
+   for later. Scam hook: skipping a test but labelling the part "tested" — yes. Later in the game a
+   **relabeler tool** can relabel parts, restricted to similar ones.
+5. **Anti-virus dynamism**, agreed: garbled mixed-script text and mojibake (preferred over "Russian/Chinese"
+   characters), rapidly changing text, rainbow-coloured and italic rows, and similar effects, without moving
+   rows or controls (the 0.49.0 calm-demo boundary still holds). A **reduce-flashing setting** will exist.
+6. Work split: Claude builds 1–3 (0.55.0 counter and store, 0.56.0 lens); **Codex builds 5 (0.57.0) and
+   4 (0.58.0)**. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

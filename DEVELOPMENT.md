@@ -294,12 +294,15 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `scripts/rooms/counter_room.gd` | view | The counter, the main screen: doors, till, ticket clipboard, phone, catalogue, shutter (end night), the morning's customers one by one |
 | `scripts/rooms/workshop_room.gd` | view | The workshop: repair bench, hardware board, monitor, testing bay, stock room door |
 | `scripts/rooms/outside_room.gd` | view | Outside: the shop door, the van (salvage), later spots |
+| `scripts/rooms/under_counter_view.gd` | view | Under the counter: a 20 × 10 grid for parts, tools and PCs, shared with the stock room's layout (0.55.0, D162) |
+| `scenes/under_counter.tscn` | scene | Under the counter |
 | `scripts/rooms/legacy_redirect.gd` | view | Retired screens (Activities hub, morning report) continue at the counter |
 | `scenes/rooms/counter.tscn` | scene | The counter: Background + hotspots (edit in the Godot editor; docs/ROOM_ART_GUIDE.md) |
 | `scenes/rooms/workshop.tscn` | scene | The workshop: Background + hotspots |
 | `scenes/rooms/outside.tscn` | scene | Outside: Background + hotspots |
 | `art/rooms/README.md` | art | Where room pictures go (counter.png, workshop.png, outside.png) |
 | `art/customers/README.md` | art | Where customer portraits go (by person id or profession) |
+| `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
 | `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |
 | `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |

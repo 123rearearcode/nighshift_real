@@ -92,6 +92,52 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.55.0 - 2026-11-21 - The store down the street and storage under the counter
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.54.2 (main 2b346c1).
+- Type: minor (user playtest of 0.53.0, D162).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
+is recorded under Checks performed. No graphical playtest yet.
+
+### Added
+- **Storage under the counter window**: a 20 × 10 grid for anything (parts, tools, PCs waiting for pickup).
+  Bring things from the stock room, drag to arrange, turn with R / Q / E, send back. It shares the stock
+  room's layout file, so nothing is copied; auto-packing the stock room leaves it alone.
+- **The store** outside, down the street: the tool upgrades that were the counter's catalogue. It is a
+  separate place from the parts supplier (still a "later" spot).
+- Briefs for Codex: `docs/PART_TESTS_DESIGN.md` (0.58.0) and the 0.57.0 section at the top of
+  `docs/ANTIVIRUS_MINIGAME_DESIGN.md`.
+
+### Changed
+- The counter no longer has a tool catalogue. The stock room's summary counts what is under the counter.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/under_counter_view.gd`, `scenes/under_counter.tscn` | A | Under the counter |
+| `docs/PART_TESTS_DESIGN.md` | A | Part tests brief (Codex) |
+| `scripts/storage/storage_data.gd`, `scripts/storage/storage_model.gd`, `scripts/storage/storage_view.gd` | M | The fixed under-counter unit; place_first, to_room, in_unit; arrange keeps it |
+| `scenes/rooms/counter.tscn`, `scenes/rooms/outside.tscn`, `scripts/rooms/counter_room.gd` | M | Under-counter spot replaces the catalogue; the store outside |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/shop_activity_view.gd` | M | The new place; the store's exit to the street |
+| `tools/test_rooms.gd`, `tools/test_morning.gd`, `tools/test_room_workshop.gd` | M | Store and under-counter coverage |
+| `docs/DECISIONS.md`, `docs/MENU_NAVIGATION.md`, `docs/ROOM_ART_GUIDE.md`, `docs/ANTIVIRUS_MINIGAME_DESIGN.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | D162, places, art guide, the anti-virus brief, file map, handoff, version |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- "Keep store upgrades separate from buying parts and tools" read as: the store sells the tool upgrades;
+  parts are still ordered on the hardware bench. To be confirmed by the user.
+- The grid is 20 wide by 10 high (wide, under the window); trial size.
+
+### Next action
+Claude: the magnifying glass in the testing bay (0.56.0). Codex: the anti-virus effects (0.57.0), then the
+part tests (0.58.0) after 0.56.0 merges. Merges stay with the user.
+
 ## 0.54.2 - 2026-11-21 - Integrate dedicated Code checker role
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), original PR #68; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

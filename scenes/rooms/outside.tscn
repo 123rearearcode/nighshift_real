@@ -41,12 +41,24 @@ placeholder_color = Color(0.310, 0.353, 0.235, 1)
 closed_at_dawn = true
 
 [node name="Supplier" type="Button" parent="Hotspots"]
-offset_left = 560.0
-offset_top = 190.0
-offset_right = 840.0
+offset_left = 530.0
+offset_top = 210.0
+offset_right = 710.0
 offset_bottom = 430.0
 script = ExtResource("2")
 action = "later:supplier"
 label = "Parts supplier"
 art_hint = "A shop down the street (later: buying parts in person)."
 placeholder_color = Color(0.227, 0.227, 0.275, 1)
+
+[node name="Store" type="Button" parent="Hotspots"]
+offset_left = 730.0
+offset_top = 170.0
+offset_right = 950.0
+offset_bottom = 450.0
+script = ExtResource("2")
+action = "go:shop"
+label = "The store"
+art_hint = "A store down the street with a lit window: tools and their upgrades. Not the parts supplier (that is the other spot)."
+placeholder_color = Color(0.29, 0.353, 0.29, 1)
+closed_at_dawn = true

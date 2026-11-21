@@ -1,5 +1,27 @@
 # Task Manajer — approved standard infection, implemented in 0.49.0
 
+## Next: a livelier infection — brief for Codex (0.57.0, D162)
+
+Added by Claude (Opus 5.5, model id claude-opus-5-5), 21 November 2026, from the user's answers after the
+rooms playtest. The user wants the anti-virus game more dynamic and agreed to these effects:
+
+- **Garbled text**: process names that scramble into mixed-script garble and mojibake (`Ã©Ã¤Â¿`,
+  `svÑhost`), the real-world sign of corrupted text. The user preferred this over "Russian/Chinese
+  characters". Stay within scripts the default font draws (Latin, Greek, Cyrillic, symbols); do not rely on
+  CJK glyphs unless a font is bundled.
+- **Rapidly changing text** on infected rows; **rainbow-coloured** and **italic** rows; a shaking or
+  "Not responding" haze on a row; look-alike names (`svch0st.exe`, `chr0me.exe`) and fake "System"
+  publishers; CPU % values going haywire; adverts/pop-ups ("YOUR PC HAS 69 VIRUSES") only in their fixed
+  slot; at most a brief cursor lag.
+- Keep the 0.49.0 boundary below: **rows and controls never move, disappear, reorder or hide**. The chaos
+  is visual; the player's targets stay where they are. Clues (publisher, location) must stay readable.
+- A **reduce-flashing setting** (the user: "we will have such a setting, yes"): when on, no colour cycling,
+  text changes at most once a second, no shake. It belongs in the shared Settings (pause menu and start
+  screen), saved with the other settings (`GameState.settings_path`, today only the sound volume).
+- Scope and ownership: Codex, version 0.57.0. Required suite `tools/test_antivirus.gd` stays; add checks
+  that rows and buttons keep their rectangles while the effects run, and that the setting turns them down.
+
+
 19 November 2026 · D157 · Codex (GPT-6; exact deployment model id not exposed by this session),
 ChatGPT Work. This section supersedes revision 1's unapproved fast-round rules below. Original D156
 chose the Task Manager direction; after interactive reviews, the user approved the calmer demo and

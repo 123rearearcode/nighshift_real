@@ -7,6 +7,11 @@ const Nav = preload("res://scripts/night/night_navigation.gd")
 const Memory = preload("res://scripts/night/navigation_state.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const Hotspot = preload("res://scripts/rooms/hotspot.gd")
+const StorageData = preload("res://scripts/storage/storage_data.gd")
+const StorageModel = preload("res://scripts/storage/storage_model.gd")
+const StorageSources = preload("res://scripts/storage/storage_sources.gd")
+const StorageStore = preload("res://scripts/storage/storage_store.gd")
+const UnderView = preload("res://scripts/rooms/under_counter_view.gd")
 const ROOMS: Array = ["res://scenes/rooms/counter.tscn", "res://scenes/rooms/workshop.tscn", "res://scenes/rooms/outside.tscn"]
 
 func _initialize() -> void:
@@ -95,12 +100,20 @@ func run_checks() -> void:
     await press(current_scene.hotspot("CounterDoor"))
     await process_frame
     check(current_scene.scene_file_path == Nav.COUNTER, "the workshop door leads back to the counter")
-    await press(current_scene.hotspot("Catalogue"))
+    # 0.55.0 (D162): no tool catalogue on the counter; the store is down the street, apart from the supplier.
+    check(current_scene.hotspot("Catalogue") == null, "the counter has no tool catalogue any more")
+    await press(current_scene.hotspot("FrontDoor"))
     await process_frame
-    check(current_scene.scene_file_path == Nav.SHOP, "the catalogue opens the tool shop")
+    check(current_scene.hotspot("Store") != null and current_scene.hotspot("Store").action == "go:shop" and current_scene.hotspot("Supplier").action.begins_with("later:"), "outside, the store and the parts supplier are two different places")
+    await press(current_scene.hotspot("Store"))
+    await process_frame
+    check(current_scene.scene_file_path == Nav.SHOP and current_scene.get_node("BackButton").text == "← Outside", "the store sells the tool upgrades and leads back out to the street")
     await press(current_scene.get_node("BackButton"))
     await process_frame
-    check(current_scene.scene_file_path == Nav.COUNTER, "← Counter returns to the counter")
+    check(current_scene.scene_file_path == Nav.OUTSIDE, "← Outside returns to the street")
+    await press(current_scene.hotspot("ShopDoor"))
+    await process_frame
+    check(current_scene.scene_file_path == Nav.COUNTER, "and the shop door back in to the counter")
     check(Memory.resume_path(gs) == Nav.COUNTER, "Continue resumes at the room you were in")
 
     # ---- things on the counter ----
@@ -157,6 +170,62 @@ func run_checks() -> void:
     await press(counter.next_button)
     check(not counter.visiting() and not night.visits_pending and not counter.slip.visible and not counter.hotspot("BackDoor").disabled, "after the last customer the counter opens for the night")
     check(counter.message.text.contains("Still waiting for their PCs: Bo Test") and counter.message.text.contains("Your phone buzzes"), "who is still waiting and the review site's notice are told after the visits")
+
+    # ---- 0.55.0 (D162): storage under the counter window ----
+    var layout_path: String = "user://nightshift_storage.json"
+    var had_layout: bool = FileAccess.file_exists(layout_path)
+    var old_layout: PackedByteArray = FileAccess.get_file_as_bytes(layout_path) if had_layout else PackedByteArray()
+    var sources: Dictionary = StorageSources.collect(gs)
+    var m := StorageModel.new()
+    m.setup(sources, {})
+    check(not m.unit(StorageData.COUNTER_ID).is_empty() and m.units.all(func(u: Dictionary) -> bool: return u["id"] != StorageData.COUNTER_ID) and StorageData.COUNTER["size"] == Vector2i(20, 10), "the under-counter grid is 20 x 10 and is not stock-room furniture")
+    check(m.in_unit(StorageData.COUNTER_ID).is_empty(), "nothing is put under the counter on its own")
+    var keep: String = str(m.items.keys()[0])
+    check(m.place_first(keep, StorageData.COUNTER_ID) and keep in m.in_unit(StorageData.COUNTER_ID), "anything can be kept under the counter")
+    m.arrange()
+    check(keep in m.in_unit(StorageData.COUNTER_ID), "auto-packing the stock room leaves what is under the counter alone")
+    var reloaded := StorageModel.new()
+    reloaded.setup(sources, m.snapshot())
+    check(keep in reloaded.in_unit(StorageData.COUNTER_ID), "it stays under the counter across saves")
+    check(m.to_room(keep) and not keep in m.in_unit(StorageData.COUNTER_ID), "and can go back to the stock room")
+    await scene(Nav.COUNTER)
+    check(current_scene.hotspot("UnderCounter") != null and not current_scene.hotspot("UnderCounter").closed_at_dawn, "the counter has storage under its window, usable at any hour")
+    await press(current_scene.hotspot("UnderCounter"))
+    await process_frame
+    var under: Node = current_scene
+    check(under.scene_file_path == Nav.UNDER_COUNTER and under.get_node("BackButton").text == "← Counter", "it opens under the counter, with the way back")
+    var rows: int = under.list_box.get_child_count()
+    check(rows == under.model.items.size() - under.here().size(), "the stock room's things are listed to bring over")
+    await press(under.list_box.get_child(0))
+    await process_frame
+    var brought: String = under.selected
+    check(brought != "" and brought in under.here(), "clicking one brings it under the counter")
+    var saved_model := StorageModel.new()
+    saved_model.setup(StorageSources.collect(gs), StorageStore.new().read())
+    check(brought in saved_model.in_unit(StorageData.COUNTER_ID), "the choice is saved")
+    var from: Vector2 = under.item_rect(brought).position + Vector2(5, 5)
+    var to: Vector2 = UnderView.GRID.end - under.item_rect(brought).size
+    for step: Array in [[true, from], [false, to]]:
+        var drag := InputEventMouseButton.new()
+        drag.button_index = MOUSE_BUTTON_LEFT
+        drag.pressed = step[0]
+        drag.position = step[1]
+        drag.global_position = step[1]
+        root.push_input(drag, true)
+        await process_frame
+    check(under.model.placements[brought]["cell"] != Vector2i.ZERO and brought in under.here(), "dragging rearranges it on the grid")
+    await press(under.send_button)
+    await process_frame
+    check(not brought in under.here(), "Back to the stock room sends it back")
+    await press(under.get_node("BackButton"))
+    await process_frame
+    check(current_scene.scene_file_path == Nav.COUNTER, "← Counter returns to the counter")
+    if had_layout:
+        var f := FileAccess.open(layout_path, FileAccess.WRITE)
+        f.store_buffer(old_layout)
+        f.close()
+    else:
+        _remove_save_files(layout_path)
 
     # ---- retired screens land at the counter ----
     await scene("res://scenes/activities.tscn")

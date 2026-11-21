@@ -8,12 +8,12 @@ the clickable spots up with it. You never need to touch code for this.
 
 | Place | Scene file (open in Godot) | Picture file | What is on it |
 | --- | --- | --- | --- |
-| The counter (main screen) | `scenes/rooms/counter.tscn` | `art/rooms/counter.png` | front door, customer window, shutter, back door, till, ticket clipboard, phone, catalogue, bin, wall board |
+| The counter (main screen) | `scenes/rooms/counter.tscn` | `art/rooms/counter.png` | front door, customer window, shutter, back door, till, ticket clipboard, phone, storage under the window, bin, wall board |
 | The workshop | `scenes/rooms/workshop.tscn` | `art/rooms/workshop.png` | door to the counter, stock room door, repair bench, hardware board, monitor, testing bay |
-| Outside | `scenes/rooms/outside.tscn` | `art/rooms/outside.png` | the shop door, your van (salvage dump), the parts supplier (later) |
+| Outside | `scenes/rooms/outside.tscn` | `art/rooms/outside.png` | the shop door, your van (salvage dump), the store (tools and upgrades), the parts supplier (later, a different place) |
 
 The close-up screens (repair bench, hardware board, monitor, stock room, testing bay, salvage dump, tool
-shop) are separate and keep their current look for now.
+shop, under the counter) are separate and keep their current look for now.
 
 ## 1. Paint the picture
 
@@ -50,7 +50,7 @@ Tip: in the game, press **F3** to see the outline of every spot at once.
 | **Placeholder Color** | Only used while there is no art |
 
 Actions: `go:<place>` walks somewhere (`counter`, `workshop`, `outside`, `stock`, `repair`, `hardware`,
-`monitor`, `bay`, `salvage`, `shop`), `open:<thing>` opens something in that room (the counter knows
+`monitor`, `bay`, `salvage`, `shop` (the store), `under_counter`), `open:<thing>` opens something in that room (the counter knows
 `phone`, `tickets`, `till`, `board`, `customer`), `end_night` is the shutter, and `later:<idea>` makes a
 spot that says "coming later" (good for objects you paint before their feature exists).
 

@@ -96,7 +96,7 @@ func run_checks() -> void:
     await process_frame
     await process_frame
     var acts: Node = current_scene
-    check(acts.hotspot("BackDoor").disabled and acts.hotspot("FrontDoor").disabled and acts.hotspot("Catalogue").disabled and not acts.hotspot("Shutter").disabled and acts.hotspot("Shutter").badge.contains("06:00"), "at 06:00 only closing the shutter remains")
+    check(acts.hotspot("BackDoor").disabled and acts.hotspot("FrontDoor").disabled and not acts.hotspot("Shutter").disabled and acts.hotspot("Shutter").badge.contains("06:00"), "at 06:00 only closing the shutter remains")
     acts._ask_end_night()
     check(acts.end_dialog.dialog_text.contains("Nobody was called"), "the shutter's question says who collects")
     acts.end_dialog.hide()

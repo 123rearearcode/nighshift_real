@@ -1,6 +1,39 @@
 # Handoff — current state first
 
-## Current — 0.54.2 dedicated Code checker integration, 21 November 2026
+## Current — 0.55.0 store and under-counter storage; work split for Codex (Claude), 21 November 2026
+
+Read first: done (0.54.2 section and docs/CODE_CHECKER.md). The user played 0.53.0 and decided D162.
+Versions and owners are handed out here so nobody collides:
+
+| Version | Owner | What | Brief | Status |
+| --- | --- | --- | --- | --- |
+| 0.55.0 | Claude | The tool catalogue leaves the counter for **the store** outside (not the parts supplier); **storage under the counter window**, a 20 × 10 grid for parts, tools and PCs | D162 1–2 | this PR, branch `feat/counter-store-0550` |
+| 0.56.0 | Claude | The testing bay's **magnifying glass** (the tool; fault types come later) | D162 3 | next, stacked on 0.55.0 |
+| 0.57.0 | **Codex** | **Anti-virus dynamism**: garbled mixed-script/mojibake names, fast-changing text, rainbow and italic rows, haze, look-alike names; rows and controls never move; a **reduce-flashing setting** | D162 5, top of `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | Codex may start from main now (it does not touch the bay or the counter) |
+| 0.58.0 | **Codex** | **A goofy test per part type** replacing the quick and long tests; short; failing costs night time | D162 4, `docs/PART_TESTS_DESIGN.md` | start after 0.56.0 merges (both edit `testing_bay_view.gd`) |
+
+Hot files: Claude holds `scripts/night/testing_bay_view.gd` until 0.56.0 merges, then it passes to Codex
+for 0.58.0. Codex holds the anti-virus files (`antivirus_panel.gd`, `antivirus_round.gd`, `malware.gd`,
+`tools/test_antivirus.gd`) for 0.57.0. Decision ids: D162 is used; Codex takes D163 (anti-virus) and D164
+(part tests) if it records decisions. Next bug id B54. Next structural marker 0.60.0 (the Code checker
+session owns that review).
+
+Open for the user: confirm the reading of "keep store upgrades separate from buying parts and tools"
+(the store sells tool upgrades; parts are still ordered on the hardware bench); the grid orientation (built
+20 wide × 10 high). Scam hooks kept: what sits under the counter (police later), labels independent of
+tests (relabeler tool later, similar parts only).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+### Copyable Codex resume prompt
+
+> Pull main and read HANDOFF's 0.55.0 section and docs/CODE_CHECKER.md. Your two tasks (D162): first
+> 0.57.0, the livelier anti-virus (brief at the top of docs/ANTIVIRUS_MINIGAME_DESIGN.md: garbled text
+> and mojibake, fast-changing names, rainbow and italic rows, haze, look-alike names, a reduce-flashing
+> setting; rows and controls never move). Then 0.58.0, the per-part goofy tests replacing the quick and
+> long tests (docs/PART_TESTS_DESIGN.md), after Claude's 0.56.0 magnifying glass is merged. Keep
+> PART_LIFECYCLE invariant 7 (the bay never shows the real condition) and the native-input suites.
+
+## Previous — 0.54.2 dedicated Code checker integration, 21 November 2026
 
 PRs #19 and #64–#67 are merged (main 0.54.1 / 7861de7). PR #68 appeared during that integration;
 this patch resolves its handoff conflict, retains all current game code and assigns version 0.54.2.
