@@ -76,6 +76,65 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.54.1 - 2026-11-21 - Integrate release chain and archive historical PC-model proposals
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+- Based on: integrated main 0.54.0 / d8ecf6a after user-authorized merges #64, #65, #66 and #67; resolves old PR #19.
+- Type: patch (documentation/archive integration and version-only metadata; no runtime behaviour or save change).
+
+### Execution status
+
+No new Godot run for this documentation-only patch. Runtime files are identical to the merged
+0.54.0 tree, whose 33 required Godot 4.7.2 suites passed 2,378 checks and bench smoke completed
+(see 0.54.0 evidence). This is not graphical acceptance.
+
+### Added / Changed / Fixed / Removed
+
+- Preserve PR #19's two 0.19.3-era PC/part proposals with prominent historical/unapproved annotations;
+  current DECISIONS, PART_LIFECYCLE and DEVELOPMENT take precedence. Archival merge does not approve
+  remaining proposal mechanics or replace the current physical-record contract.
+- Resolve conflicting DEVELOPMENT and CHANGELOG content in favour of current main, retaining the
+  complete current runtime and release history; register both archived documents in the file map.
+- Record completed #64–#67 integration and update Claude's copyable resume prompt: current Rooms/art/
+  playtesting, Wave 3 already built, no runtime hot file reserved by this task. Keep L1/L2 open,
+  L4/L5 separate, deferred features deferred and the structural review at 0.60.0.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/PC_MODEL_PROPOSAL.md | A | Archive the old record/save/migration proposal with current-authority annotation |
+| docs/PC_OWNED_PART_MODEL_PROPOSAL.md | A | Archive the old player-facing proposal with current-authority annotation |
+| DEVELOPMENT.md | M | Register both historical documents; preserve current contracts |
+| HANDOFF.md | M | Integration status, hot-file release and current Claude resume prompt |
+| docs/CURRENT_STATE.md | M | Integrated main and historical proposal status |
+| docs/WORK_PLAN.md | M | Current integration and resumed ownership coordination |
+| README.md | M | Version and archival integration note |
+| project.godot | M | Version only, 0.54.1 |
+| CHANGELOG.md | M | This signed integration record |
+
+### Checks performed
+
+- Project checker passed: 154 scripts, 806 resolved references, 225 mapped files, five core docs, zero problems.
+- Bug-register checker passed with zero problems; all 12 register fixtures passed.
+- All 9 CI-scope fixtures passed; `git diff --check` passed.
+- Comparison against merged main d8ecf6a: only nine Markdown/version files differ; project.godot
+  changes only config/version. All runtime files are identical to tested 0.54.0.
+
+### Decisions proposed (not approved)
+
+No new proposal. The two archived documents retain their original unapproved ideas for reference;
+this merge does not approve them or a full legacy-identity migration.
+
+### Known issues and open items
+
+L1/L2 remain open; L4 and L5 remain separate open tasks. No lost historical condition is invented.
+The manual and other deferred features remain deferred. Human graphical acceptance remains pending.
+
+### Next action
+
+Claude pulls integrated main and resumes Rooms/art/playtesting via HANDOFF 0.54.1. Coordinate the
+next runtime hot-file owner and retain all required suites. Next structural review: 0.60.0.
+
 ## 0.54.0 - 2026-11-21 - Preserve delivered physical parts and reconcile audit follow-ups
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work; no deployment id invented.

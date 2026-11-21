@@ -90,6 +90,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
 | `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |
 | `tools/test_delivered_parts.gd` | tooling | Same-model identity/health, collection, comeback receipts, undo/refit, return to stock, all six kinds and reload |
 | `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoloads `GameState` and `AudioFeedback` |

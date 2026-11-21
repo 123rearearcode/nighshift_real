@@ -1,5 +1,15 @@
 # Nightshift — Current State and Technical Handoff
 
+## Integration — 0.54.1, 21 November 2026
+
+PRs #64–#67 are merged; main 0.54.0 / d8ecf6a contains builds, trust/reviews, Rooms and delivered-part
+preservation. This docs-only patch resolves and archives PR #19's two old 0.19.3 proposals without
+changing gameplay or the current save contracts. Their annotations mark all old baseline/ownership
+claims as historical; current lifecycle/design docs take precedence. HANDOFF's 0.54.1 section is the
+current Claude resume prompt: Rooms/art/playtesting, not old Wave 3 work. No runtime hot file is
+reserved by this integration. L1/L2 remain open, L4/L5 separate, manual deferred, next review 0.60.0.
+Older branch-status notes below are historical. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current audit follow-up — 0.54.0, 21 November 2026
 
 Codex's user-authorized follow-up preserves individual delivered shop parts through collection,

@@ -1,6 +1,46 @@
 # Handoff — current state first
 
-## Current — 0.54.0 delivered physical records and audit follow-up (Codex), 21 November 2026
+## Current — 0.54.1 integration and historical proposal archive, 21 November 2026
+
+The user authorized merging everything. PRs #64 (builds), #65 (trust/reviews), #66 (Rooms) and
+#67 (delivered physical records) are now merged in order. Their integrated main baseline is
+0.54.0 / d8ecf6a. This final documentation patch resolves PR #19 against that baseline, retaining
+its two 0.19.3-era proposals as prominently labelled historical reference. Current runtime, save
+contracts, tests and all five core design documents are retained; only config/version changes.
+Merging #19 does not authorize implementing its remaining proposed rules. Current DECISIONS,
+PART_LIFECYCLE and DEVELOPMENT supersede its illustrative fields and old work assignments.
+Older sections below preserve history; their open-PR/integration instructions are superseded.
+
+### Claude's next action
+
+1. Pull current main and read this section, the 0.54.0 lifecycle stage and newest changelog first.
+   Start new work from integrated main, not the old stacked feature branches or PR #19 baseline.
+2. Resume the latest Rooms/art/playtest follow-up from 0.53.0: replaceable room art, actual player
+   feedback and the pending day-timing clarification. Wave 3 through 3.8 is already built; do not
+   restart the testing bay, build requests or trust/reviews, and do not reintroduce the old menus.
+3. Preserve the Delivered parts suite and all earlier tests. Cross-review the delivered-part path
+   when extending it. L1 legacy originals/bench aliases and L2 orphan recovery remain open; L4
+   salvage-clock integration and L5 drawer overflow are separate tasks. Do not unlock orphan stock.
+4. The bounded Codex runtime patch is complete; no hot file is reserved by this merge-only task.
+   Coordinate the next runtime owner before editing GameState/bench hot files. The standing split
+   remains Codex design/gameplay and Claude engineering/code health. This patch requires no runtime
+   compatibility patch; audit any newly assigned work against current contracts before implementing.
+5. Manual, boss malware, interactive reviews and shop upgrades remain deferred. Next scheduled
+   structural review is 0.60.0. Green headless tests are not graphical acceptance.
+
+### Copyable Claude resume prompt
+
+> Pull main and read HANDOFF's 0.54.1 section before continuing. The user authorized all merges:
+> #64/#65/#66/#67 are integrated; #19 is preserved only as historical 0.19.3 design reference.
+> Resume current Rooms/art/playtesting from the shipped 0.53.0 navigation, not old Wave 3 steps.
+> Preserve 0.54.0's delivered UID/condition/defect/knowledge, bag and comeback receipt contracts
+> and every required suite. L1/L2 remain open, L4 clock and L5 overflow are separate. Coordinate
+> hot-file ownership for the next task; keep deferred features deferred and the 0.60.0 review.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/version integration only; evidence in CHANGELOG 0.54.1.
+
+## Previous — 0.54.0 delivered physical records and audit follow-up (Codex), 21 November 2026
 
 User assignment: implement the recommendations from the bug-register review: preserve delivered
 condition through collection/comeback/reload, continue stable identity incrementally, split the two

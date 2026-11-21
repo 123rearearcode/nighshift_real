@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current integration — 0.54.1, 21 November 2026
+
+User-authorized merges #64–#67 are complete. PR #19 is being resolved as historical proposal archival,
+not a new implementation assignment. Current main/runtime contracts supersede its old baseline and
+phase ownership. Codex's bounded delivery patch and this documentation integration are complete;
+no runtime hot file remains reserved by this task. Claude resumes Rooms/art/playtesting from the
+current main after reading HANDOFF's 0.54.1 resume prompt. Coordinate ownership for the next edit;
+retain the standing split, all lifecycle tests, deferred features and the 0.60.0 structural review.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current bounded audit follow-up — 0.54.0, 21 November 2026
 
 The user assigned Codex the delivery-condition/identity correction and ledger split. Codex owns the
