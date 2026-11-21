@@ -1,4 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.54.2)
+# Nightshift - Godot Foundation Trial (v0.55.0)
+
+0.55.0: the tool catalogue left the counter; tool upgrades are sold at **the store** down the street
+(outside, next to the parts supplier, which is a different place still to come). Under the counter window
+there is now **storage**: a 20 × 10 grid where you can keep parts, tools and PCs close at hand.
 
 0.54.2 integrates the dedicated Code checker documentation from PR #68. Game code remains identical to 0.54.0; see docs/CODE_CHECKER.md and HANDOFF.md.
 

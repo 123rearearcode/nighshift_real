@@ -3,6 +3,7 @@ extends RefCounted
 const Data = preload("res://scripts/storage/storage_data.gd")
 var items: Dictionary = {}
 var units: Array = []
+var fixed_units: Array = [{"id":Data.COUNTER_ID,"model":Data.COUNTER_ID,"room_cell":Vector2i(-1,-1)}]   # 0.55.0: not in the room
 var placements: Dictionary = {}
 var next_unit: int = 1
 var held: String = ""
@@ -21,7 +22,7 @@ func setup(sources: Dictionary, saved: Dictionary = {}) -> void:
             if not raw is Dictionary or units.size() >= Data.MAX_UNITS: continue
             var uid: String = str(raw.get("id",""))
             var kind: String = str(raw.get("model",""))
-            if uid == "" or uid.length()>80 or seen.has(uid) or not Data.MODELS.has(kind): continue
+            if uid == "" or uid.length()>80 or seen.has(uid) or uid == Data.COUNTER_ID or not Data.MODELS.has(kind): continue
             units.append({"id":uid,"model":kind,"room_cell":Vector2i(-1,-1)})
             var rc: Variant = raw.get("room_cell",null)
             if rc is Array and rc.size() == 2 and _integer(rc[0]) and _integer(rc[1]):
@@ -46,7 +47,7 @@ static func _integer(value: Variant) -> bool:
     return typeof(value) in [TYPE_INT,TYPE_FLOAT] and is_finite(float(value)) and absf(float(value))<=2147483647 and float(value) == floorf(float(value))
 
 func unit(id: String) -> Dictionary:
-    for entry: Dictionary in units:
+    for entry: Dictionary in units + fixed_units:
         if entry["id"] == id: return entry
     return {}
 
@@ -94,7 +95,7 @@ func can_place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotatio
     if not items.has(uid): return false
     var furniture: Dictionary = unit(unit_id)
     if furniture.is_empty(): return false
-    var spec: Dictionary = Data.MODELS[furniture["model"]]
+    var spec: Dictionary = Data.spec(str(furniture["model"]))
     if not items[uid]["category"] in spec["accepts"] or shelf<0 or shelf>=int(spec["shelves"]): return false
     var area := Rect2i(cell,Data.footprint(items[uid],rotation))
     if not Rect2i(Vector2i.ZERO,spec["size"]).encloses(area): return false
@@ -156,8 +157,31 @@ func fill_unplaced() -> void:
 
 func arrange() -> void:
     cancel()
-    placements.clear()
+    for uid: String in placements.keys():   # 0.55.0: what you keep under the counter stays there
+        if placements[uid]["unit"] != Data.COUNTER_ID: placements.erase(uid)
     fill_unplaced()
+
+# 0.55.0: the first free spot in one unit (either rotation). False when it does not fit.
+func place_first(uid: String, unit_id: String) -> bool:
+    var furniture: Dictionary = unit(unit_id)
+    if furniture.is_empty() or not items.has(uid): return false
+    var spec: Dictionary = Data.spec(str(furniture["model"]))
+    for shelf in range(int(spec["shelves"])):
+        for rotation in [0,1]:
+            for y in range(spec["size"].y):
+                for x in range(spec["size"].x):
+                    if place(uid,unit_id,shelf,Vector2i(x,y),rotation): return true
+    return false
+
+# 0.55.0: back to the stock room: off the counter, onto the first free room shelf (or "waiting for space").
+func to_room(uid: String) -> bool:
+    if held != "" or not placements.has(uid): return false
+    placements.erase(uid)
+    fill_unplaced()
+    return true
+
+func in_unit(unit_id: String) -> Array:
+    return placements.keys().filter(func(uid: String) -> bool: return placements[uid]["unit"] == unit_id)
 
 func snapshot() -> Dictionary:
     var result: Dictionary = {}

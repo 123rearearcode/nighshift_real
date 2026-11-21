@@ -17,10 +17,11 @@ const HARDWARE := "res://scenes/night_hardware.tscn"
 const MONITOR := "res://scenes/software.tscn"
 const BAY := "res://scenes/night_bay.tscn"             # 0.50.0 testing bay (a corner of the workshop)
 const SALVAGE := "res://scenes/night_salvage.tscn"
-const SHOP := "res://scenes/night_shop.tscn"           # tool upgrades (the catalogue on the counter)
+const SHOP := "res://scenes/night_shop.tscn"           # 0.55.0: the store down the street (tools and upgrades)
+const UNDER_COUNTER := "res://scenes/under_counter.tscn"  # 0.55.0: storage under the counter window
 # Hotspot "go:<place>" names (scripts/rooms/hotspot.gd).
 const PLACES: Dictionary = {"counter": COUNTER, "workshop": WORKSHOP, "outside": OUTSIDE, "stock": ROOM, "repair": REPAIR,
-    "hardware": HARDWARE, "monitor": MONITOR, "bay": BAY, "salvage": SALVAGE, "shop": SHOP}
+    "hardware": HARDWARE, "monitor": MONITOR, "bay": BAY, "salvage": SALVAGE, "shop": SHOP, "under_counter": UNDER_COUNTER}
 const BACK_RECT := Rect2(24,20,170,42)
 static func commit(owner: Node,path: String) -> bool:
     if path == "res://scenes/night_workshop.tscn": path = REPAIR # legacy link, no service-menu detour

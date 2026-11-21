@@ -1,7 +1,8 @@
 # The shop counter: the main screen (0.53.0, D161). You stand behind the counter; customers come to the
 # window. The front door (left) goes outside, the back door goes to the workshop. On the counter: the
-# till, the ticket clipboard, your phone and the tool catalogue; on the wall, the board with the night and
-# the clock, and the shutter that closes the shop for the night.
+# till, the ticket clipboard and your phone; on the wall, the board with the night and
+# the clock, and the shutter that closes the shop for the night. 0.55.0 (D162): the tool catalogue left the
+# counter (tools are bought at the store down the street); storage under the counter window took its place.
 #
 # Mornings (user, 21 November 2026): every customer walks in at the start of the day, one at a time, and
 # the board shows how many came in. There is no clock on this; it is about their stories. Their visit is

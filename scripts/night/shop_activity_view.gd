@@ -1,14 +1,15 @@
-# The counter > catalogue (0.53.0; was Activities > Shop): every TOOL upgrade is sold here and nowhere else (D131). Parts stock is bought at
-# the repair bench's Replacement stock panel.
+# Outside > the store down the street (0.55.0, D162; the counter's "tool catalogue" in 0.53.0; Activities >
+# Shop before that): every TOOL upgrade is sold here and nowhere else (D131). It is not the parts supplier
+# (a separate "later" spot outside). Parts stock is still bought on the hardware bench (Order parts).
 extends "res://scripts/night/night_screen.gd"
 const Upgrades = preload("res://scripts/data/upgrades.gd")
 var cash_label: Label
 var upgrade_buttons: Dictionary = {}
 func _ready() -> void:
     NightSession.ensure(GameState)
-    _label("SHOP / TOOL UPGRADES",Vector2(210,24),Vector2(760,38),28)
-    _label("All tool upgrades are sold here. Spare parts are bought at the repair bench (Replacement stock).",Vector2(32,84),Vector2(1100,40),18)
-    Navigation.exit(self,"Counter",Navigation.COUNTER)   # 0.53.0: the catalogue on the counter
+    _label("THE STORE / TOOLS AND UPGRADES",Vector2(210,24),Vector2(760,38),28)
+    _label("Tool upgrades are sold here. Spare parts are ordered on the hardware bench (Order parts).",Vector2(32,84),Vector2(1100,40),18)
+    Navigation.exit(self,"Outside",Navigation.OUTSIDE)   # 0.55.0: the store is down the street
     cash_label = _label("",Vector2(32,136),Vector2(600,40),24)
     var y: float = 200
     for upgrade: Dictionary in Upgrades.LIST:

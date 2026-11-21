@@ -14,14 +14,15 @@ Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
 
 | Place | Scene | Reached from | Leads to |
 | --- | --- | --- | --- |
-| **Counter** (main screen) | `scenes/rooms/counter.tscn` | New game, Continue fallback, morning | front door → Outside; back door → Workshop; catalogue → Tool shop; shutter → end of night |
+| **Counter** (main screen) | `scenes/rooms/counter.tscn` | New game, Continue fallback, morning | front door → Outside; back door → Workshop; under the window → Under the counter; shutter → end of night |
 | **Workshop** | `scenes/rooms/workshop.tscn` | Counter back door | repair bench, hardware board, monitor (the PC on the bench), testing bay, stock room door, door to Counter |
-| **Outside** | `scenes/rooms/outside.tscn` | Counter front door | van → Salvage dump; shop door → Counter; parts supplier (later) |
+| **Outside** | `scenes/rooms/outside.tscn` | Counter front door | van → Salvage dump; the store → Store; shop door → Counter; parts supplier (later, a separate place) |
 | Stock room (close-up) | `scenes/storage.tscn` | Workshop | ← Workshop; Resume work → a bench |
 | Repair bench / Hardware board / Diagnostic monitor (close-ups) | `night_bench` / `night_hardware` / `software` | Workshop stations | ← Workshop |
 | Testing bay (close-up) | `scenes/night_bay.tscn` | Workshop | ← Workshop |
 | Salvage dump (close-up) | `scenes/night_salvage.tscn` | Outside (the van) | ← Outside (Drive home keeps its time cost) |
-| Tool shop (close-up) | `scenes/night_shop.tscn` | Counter (catalogue) | ← Counter |
+| Store (close-up, 0.55.0) | `scenes/night_shop.tscn` | Outside (the store down the street) | ← Outside |
+| Under the counter (close-up, 0.55.0) | `scenes/under_counter.tscn` | Counter | ← Counter |
 
 There is no hub screen, no workbench tab row and no morning report screen. `scenes/activities.tscn` and
 `scenes/morning.tscn` only redirect old links and preferences to the counter.
@@ -35,8 +36,8 @@ There is no hub screen, no workbench tab row and no morning report screen. `scen
   `later:` spots say "coming later". Rooms never decide game rules; they call GameState/NightSession.
 - Hovering lights a hotspot and names it; F3 shows every outline. Pause sits top-right on every place;
   the place's name top-left; messages along the bottom.
-- At 06:00 hotspots marked "closed at dawn" (doors to work, the van, the catalogue) close; the shutter,
-  phone, till, clipboard and board stay.
+- At 06:00 hotspots marked "closed at dawn" (doors to work, the van, the store) close; the shutter,
+  phone, till, clipboard, board and the storage under the counter stay.
 - Workbench stations need a PC on the bench; without one they say "bring one from the stock room".
   A build's repair-bench click opens the hardware board (D159).
 
