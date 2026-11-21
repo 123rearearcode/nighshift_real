@@ -99,8 +99,8 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (D162 point 3).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
-is recorded under Checks performed. No graphical playtest yet; the lens is placeholder drawing.
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2 and they
+passed (run 44857272678). No graphical playtest yet; the lens is placeholder drawing.
 
 ### Added
 - **The magnifying glass** in the testing bay: pick it up, hold it over a spot on the part, and after a
@@ -124,7 +124,9 @@ is recorded under Checks performed. No graphical playtest yet; the lens is place
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless), run 44857272678 on `83095a0` (0.56.0 with 0.55.0 merged in):
+  passed. 34 required suites, 2,403 checks, 0 failures (Testing bay 57, including the lens flow by native
+  mouse motion; Rooms 71). The style report and diagnostics lanes are non-blocking.
 
 ### Decisions proposed (not approved)
 - Dwell 0.6 seconds, lens radius 58 px, spots marked faintly until the parts have art.
