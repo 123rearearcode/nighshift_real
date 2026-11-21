@@ -11,7 +11,6 @@ const StorageData = preload("res://scripts/storage/storage_data.gd")
 const StorageModel = preload("res://scripts/storage/storage_model.gd")
 const StorageSources = preload("res://scripts/storage/storage_sources.gd")
 const StorageStore = preload("res://scripts/storage/storage_store.gd")
-const UnderView = preload("res://scripts/rooms/under_counter_view.gd")
 const ROOMS: Array = ["res://scenes/rooms/counter.tscn", "res://scenes/rooms/workshop.tscn", "res://scenes/rooms/outside.tscn"]
 
 func _initialize() -> void:
@@ -204,7 +203,10 @@ func run_checks() -> void:
     saved_model.setup(StorageSources.collect(gs), StorageStore.new().read())
     check(brought in saved_model.in_unit(StorageData.COUNTER_ID), "the choice is saved")
     var from: Vector2 = under.item_rect(brought).position + Vector2(5, 5)
-    var to: Vector2 = UnderView.GRID.end - under.item_rect(brought).size
+    # B54: never preload a view script from a test (autoloads such as GameState do not exist yet when the
+    # test script compiles); read the constant from the running scene's script instead.
+    var grid: Rect2 = under.get_script().get_script_constant_map()["GRID"]
+    var to: Vector2 = grid.end - under.item_rect(brought).size
     for step: Array in [[true, from], [false, to]]:
         var drag := InputEventMouseButton.new()
         drag.button_index = MOUSE_BUTTON_LEFT

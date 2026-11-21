@@ -113,7 +113,9 @@ jobs:
             file="$(echo "$file" | xargs)"
             log="$GITHUB_WORKSPACE/$file.log"
             echo "::group::$name ($file.gd)"
-            if godot --headless --path . --script "res://tools/$file.gd" 2>&1 | tee "$log"; then :; else bad=1; fi
+            # B54: a suite that hangs (an error inside a coroutine never reaches finish()) fails after 10 minutes
+            # instead of stalling the job for hours.
+            if timeout 600 godot --headless --path . --script "res://tools/$file.gd" 2>&1 | tee "$log"; then :; else bad=1; fi
             echo "::endgroup::"
             if ! grep -q "$name checks: .*failures: 0" "$log"; then echo "::error::$name failed or printed no summary"; bad=1; fi
             if grep -qE "SCRIPT ERROR|Parse Error" "$log"; then echo "::error::$name had a script error"; bad=1; fi
