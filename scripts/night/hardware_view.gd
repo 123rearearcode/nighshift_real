@@ -19,6 +19,12 @@ var order_panel: Panel
 var order_buttons: Dictionary = {}   # catalogue id -> Buy button (D149)
 var board_button: Button              # 0.48.1: take the motherboard out / fit it back
 const BOARD_BUTTON := Rect2(60, 112, 320, 34)
+const BuildRequest = preload("res://scripts/rules/build_request.gd")
+const NightClock = preload("res://scripts/rules/night_clock.gd")
+const CASE_BUTTON := Rect2(390, 112, 250, 34)
+var case_button: Button               # 0.51.0: a build's case and motherboard (D159)
+var case_panel: Panel
+var case_rows: VBoxContainer
 
 func _ready() -> void:
     super._ready()
@@ -27,6 +33,7 @@ func _ready() -> void:
     Navigation.workbench(self,"hardware",_activities)
     _build_order_panel()
     _build_board_button()
+    _build_case_panel()
     # D150 (0.47.0): looking over the PC at the hardware bench is an inspection; Findings keeps it.
     GameState.record_finding(Findings.OBSERVATION, Findings.hardware_bench_observation(GameState.job), "hardware_bench")
 
@@ -54,9 +61,10 @@ func _button(text: String,pos: Vector2,size: Vector2,callback: Callable) -> void
 
 func _components() -> Array:
     var mine: Array = CustomerPC.components(GameState.job)
-    var tail: Array = mine.slice(mine.size() - 2)   # GPU and cooler last, so loose ones never push the shop stock around
+    var first: int = CustomerPC.first_parts(GameState.job).size()   # 0.51.0: a build may have neither yet
+    var tail: Array = mine.slice(mine.size() - first)   # GPU and cooler last, so loose ones never push the shop stock around
     # 0.46.2 (D150): shop parts fitted in this PC for a test come right after the customer's fitted parts.
-    return mine.slice(0, mine.size() - 2) + GameState.fitted_components() + GameState.inventory_components() + tail
+    return mine.slice(0, mine.size() - first) + GameState.fitted_components() + GameState.inventory_components() + tail
 
 func _bench_memory() -> Dictionary:
     var trial: Variant = GameState.job.get("hardware_trial", {})
@@ -74,9 +82,13 @@ func _saved_layout() -> Dictionary:
     return layout
 
 func _title_text() -> String:
+    if PcBuild.is_build(GameState.job):
+        return "NIGHTSHIFT / HARDWARE BENCH - ticket %s: a new build for %s\nFit parts from your stock into the empty case (Order parts to buy). Every part you fit costs night time; taking one out is quick. Case and board: swap them while the case is empty. The GPU's bracket screws need the screwdriver." % [str(GameState.job.get("id", "")), str(GameState.job.get("customer", ""))]
     return "NIGHTSHIFT / HARDWARE BENCH - ticket %s: %s's own PC, as it stands on the repair bench\nEvery part can come out: drag it to the drawer and back. Fit parts from your stock into empty slots (Order parts to buy). The GPU's bracket screws need the screwdriver (tray under the case). The motherboard comes out only once every other part is out." % [str(GameState.job.get("id", "")), str(GameState.job.get("customer", ""))]
 
 func _intro_text() -> String:
+    if PcBuild.is_build(GameState.job):
+        return "Build %s · %s · night clock %s. %s" % [str(GameState.job.get("id", "")), BuildRequest.needs_text(BuildRequest.record(GameState.job)), NightClock.label(GameState.night_minutes), PcBuild.summary_line(GameState.job)]
     return "Ticket %s. %s" % [str(GameState.job.get("id", "")), PcBuild.summary_line(GameState.job)]
 
 # Every bench move is written back: the first GPU and cooler through their service state, every other
@@ -143,9 +155,10 @@ func _remember_ids() -> void:
 func _configure_layout() -> void:
     super._configure_layout()
     # 0.48.1: the board drawn is the customer's own motherboard model.
-    board["display_name"] = "%s · customer's motherboard" % str(Catalog.board(PcBuild.board_model(GameState.job))["name"])
+    board["display_name"] = "%s · %s" % [str(Catalog.board(PcBuild.board_model(GameState.job))["name"]), "the build's motherboard" if PcBuild.is_build(GameState.job) else "customer's motherboard"]
     _remember_ids()
     _refresh_board_button()
+    _refresh_case_panel()
 
 # ---- the motherboard (0.48.1; user: every part must be out before it can come out) ----
 
@@ -162,7 +175,7 @@ func _refresh_board_button() -> void:
     if not is_instance_valid(board_button): return
     if PcBuild.board_out(GameState.job):
         board_button.text = "Fit the motherboard back"
-        board_button.tooltip_text = "Put the customer's motherboard back in the case. Parts can only go in once it is back."
+        board_button.tooltip_text = ("Fit the build's motherboard in the case (%d night minutes). Parts can only go in once it is in." % BuildRequest.minutes("board")) if PcBuild.is_build(GameState.job) else "Put the customer's motherboard back in the case. Parts can only go in once it is back."
     else:
         var blocker: String = GameState.board_blocker()
         board_button.text = "Take out the motherboard"
@@ -177,6 +190,7 @@ func _board_pressed() -> void:
             NightSession.checkpoint(GameState)
             _configure_layout()
             _set_status("%s is back in the case. Parts can go in again." % name_text)
+        elif GameState.assembly_blocker("board") != "": _set_status(GameState.assembly_blocker("board"), true)
         return
     var blocker: String = GameState.board_blocker()
     if blocker != "":
@@ -214,7 +228,14 @@ func _fit_stock(part_uid: String, slot: String) -> bool:
     if slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]]:
         _fit_replacement(part_uid)
         return true
+    var kind: String = str(Catalog.part(PcBuild.stock_model(record)).get("type", ""))
+    if GameState.assembly_blocker(kind) != "":   # 0.51.0: assembly costs night time
+        _set_status(GameState.assembly_blocker(kind), true)
+        return true
     if GameState.fit_catalog_stock(part_uid, slot):
+        if PcBuild.is_build(GameState.job):
+            _set_status("%s fitted (%d night minutes). It is yours until %s collects the build." % [Catalog.part(PcBuild.stock_model(record)).get("name", "Part"), BuildRequest.minutes(kind), str(GameState.job.get("customer", "the customer"))])
+            return true
         _set_status("%s fitted for a test. It stays yours: take it out again and it goes back to the drawer. If it is still in when %s collects, it goes home with the PC." % [Catalog.part(str(record.get("model", ""))).get("name", "Part"), str(GameState.job.get("customer", "the customer"))])
         return true
     _set_status("That part does not fit this slot.", true)
@@ -224,6 +245,18 @@ func _fit_replacement(part_uid: String) -> void:
     var record: Dictionary = _stock_record(part_uid)
     if record.is_empty(): return
     var kind: String = str(record["kind"])
+    var build: bool = PcBuild.is_build(GameState.job)
+    if build and GameState.fit_inventory_part(kind, part_uid):   # 0.51.0
+        _configure_layout()
+        _set_status(("Graphics card fitted (%d night minutes). Tighten both bracket screws with the screwdriver." if kind == Ids.GPU
+            else "Cooler fitted with its pre-applied paste (%d night minutes).") % BuildRequest.minutes(kind))
+        return
+    if build:
+        _configure_layout()
+        if GameState.assembly_blocker(kind) != "": _set_status(GameState.assembly_blocker(kind), true)
+        elif kind == Ids.COOLER: _set_status("The cooler sits on the CPU: fit the processor first.", true)
+        else: _set_status("That stock part does not fit this build.", true)
+        return
     if GameState.fit_inventory_part(kind, part_uid):
         _configure_layout()
         _set_status(("Graphics card fitted. Its bracket screws are loose: pick up the screwdriver and tighten both." if kind == Ids.GPU
@@ -442,3 +475,102 @@ func _buy(id: String) -> void:
         _set_status("Not bought: not enough cash, or no room left in the drawer.", true)
     _refresh_order()
 
+# ---- 0.51.0 (session 3.7, D159): a build's case and motherboard ----
+
+func _build_case_panel() -> void:
+    case_button = Button.new()
+    case_button.name = "CaseButton"
+    case_button.position = CASE_BUTTON.position
+    case_button.size = CASE_BUTTON.size
+    case_button.text = "Case and motherboard"
+    case_button.pressed.connect(_toggle_case_panel)
+    add_child(case_button)
+    case_panel = Panel.new()
+    case_panel.name = "CasePanel"
+    case_panel.position = ORDER_RECT.position
+    case_panel.size = ORDER_RECT.size
+    case_panel.hide()
+    add_child(case_panel)
+    var title := Label.new()
+    title.position = Vector2(14, 8)
+    title.add_theme_font_size_override("font_size", 18)
+    title.text = "CASE AND MOTHERBOARD · swapped while the case is empty"
+    case_panel.add_child(title)
+    var close := Button.new()
+    close.text = "Close"
+    close.position = Vector2(ORDER_RECT.size.x - 96, 6)
+    close.size = Vector2(84, 30)
+    close.pressed.connect(_toggle_case_panel)
+    case_panel.add_child(close)
+    var scroll := ScrollContainer.new()
+    scroll.position = Vector2(10, 44)
+    scroll.size = ORDER_RECT.size - Vector2(20, 54)
+    scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    case_panel.add_child(scroll)
+    case_rows = VBoxContainer.new()
+    case_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(case_rows)
+    _refresh_case_panel()
+
+# The rows are rebuilt only from the panel's own toggle/refresh, never inside a row button's signal.
+func _refresh_case_panel() -> void:
+    if not is_instance_valid(case_button): return
+    var build: bool = PcBuild.is_build(GameState.job)
+    case_button.visible = build
+    if not build:
+        case_panel.hide()
+        return
+    case_button.tooltip_text = "Swap the build's case or motherboard. Only while the case is empty: take every part out, then the motherboard."
+    for child: Node in case_rows.get_children(): child.queue_free()
+    var empty: bool = PcBuild.board_out(GameState.job)
+    var note := Label.new()
+    note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    note.custom_minimum_size = Vector2(ORDER_RECT.size.x - 40, 0)
+    note.add_theme_font_size_override("font_size", 14)
+    note.text = ("The case is empty: choose freely. The old one goes back to the supplier (refunded). A case of the other size takes a motherboard of its size. Swapping the case takes %d night minutes; fitting the motherboard back takes %d." % [BuildRequest.minutes("case"), BuildRequest.minutes("board")]) if empty else "Take every part out, then the motherboard (button above), before swapping the case or the board."
+    case_rows.add_child(note)
+    var now_case: String = PcBuild.case_model(GameState.job)
+    var head := Label.new()
+    head.text = "CASES"
+    head.add_theme_font_size_override("font_size", 15)
+    case_rows.add_child(head)
+    for id: String in Catalog.CASES:
+        case_rows.add_child(_choice_row(id, "%s · %s · $%d" % [Catalog.case_model(id)["name"], Catalog.case_text(id), int(Catalog.CASES[id]["price"])], id == now_case, not empty, true))
+    var head_b := Label.new()
+    head_b.text = "MOTHERBOARDS for this case"
+    head_b.add_theme_font_size_override("font_size", 15)
+    case_rows.add_child(head_b)
+    var now_board: String = PcBuild.board_model(GameState.job)
+    for id: String in Catalog.boards_for("compact" if str(GameState.job["layout"]) == "compact" else "tower"):
+        case_rows.add_child(_choice_row(id, "%s · %s · $%d" % [Catalog.board(id)["name"], str(Catalog.BOARDS[id]["form"]), int(Catalog.BOARDS[id]["price"])], id == now_board, not empty, false))
+
+func _choice_row(id: String, text: String, current: bool, locked: bool, is_case: bool) -> HBoxContainer:
+    var row := HBoxContainer.new()
+    var pick := Button.new()
+    pick.custom_minimum_size = Vector2(110, 28)
+    pick.text = "In the build" if current else "Choose"
+    pick.disabled = current or locked
+    pick.pressed.connect(_choose.bind(id, is_case))
+    row.add_child(pick)
+    var label := Label.new()
+    label.text = text
+    label.add_theme_font_size_override("font_size", 14)
+    row.add_child(label)
+    return row
+
+func _toggle_case_panel() -> void:
+    case_panel.visible = not case_panel.visible
+    if case_panel.visible:
+        order_panel.hide()
+        _refresh_case_panel()
+
+func _choose(id: String, is_case: bool) -> void:
+    if inventory.held >= 0 or screwdriver_held: return
+    _save_inventory()
+    var result: Dictionary = GameState.choose_build_case(id) if is_case else GameState.choose_build_board(id)
+    if bool(result["ok"]):
+        NightSession.checkpoint(GameState)
+        profile_id = str(GameState.job.get("layout", "tower"))
+        _configure_layout()
+    _set_status(str(result["message"]), not bool(result["ok"]))
+    call_deferred("_refresh_case_panel")

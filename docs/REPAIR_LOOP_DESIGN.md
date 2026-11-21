@@ -246,19 +246,26 @@ runtime integration. This document update implements no runtime feature, case or
 - DECIDED: salvaged parts need a **testing bay** to learn their real condition.
 - DECIDED: **mining customers** will be a persona.
 - LATER (user): the upsell temptation; the wrong self-diagnosis (may be added later); new uses (not yet).
-- PROPOSED uses table (numbers to tune, not confirmed):
+- DECIDED (D159, 20 November 2026): the uses table on the catalogue scale. Built in 0.51.0
+  (`scripts/rules/build_request.gd`). The old-scale table (before the 0.45.0 catalogue) is superseded.
 
 | Use | Processing | Graphics | RAM GB | Storage GB |
 | --- | --- | --- | --- | --- |
-| Light office | 60 | 0 | 8 | 250 |
-| Medium office | 90 | 0 | 16 | 500 |
-| Heavy office | 130 | 20 | 32 | 1000 |
-| Gaming | set by the game | set by the game | set by the game | the game's size |
-| Video editing | 150 | 80 | 32 | 2000 |
-| Crypto mining | 40 | 200 | 8 | 250 |
-| Streaming | game + 50 | game | game + 16 | game + 500 |
-| Music production | 120 | 0 | 32 | 1000 |
-| School / kid's PC | 70 | 30 | 8 | 500 |
+| Light office | 10 | 0 | 8 | 250 |
+| Medium office | 20 | 0 | 16 | 500 |
+| Heavy office | 30 | 10 | 32 | 1000 |
+| School / kid's PC | 15 | 10 | 8 | 500 |
+| Music production | 30 | 0 | 32 | 1000 |
+| Video editing | 40 | 30 | 32 | 2000 |
+| Crypto mining | 10 | 60 | 8 | 250 |
+| Gaming | from the game and the customer's FPS | | | the game's size |
+| Streaming | game + 15 | game | game + 16 | game + 500 |
+
+- DECIDED (D159): wants are quiet, headroom, a favourite brand and extra storage; cases are swappable
+  parts; the customer pays the budget (half up front, half on collection), profit = budget − parts, never
+  more than the budget; assembly costs night time; build requests start on nights 4–5; scam hooks
+  (untested parts at new prices, a cheaper part than asked, full budget for a much cheaper PC) are left
+  open. Implementation numbers: D159 proposals.
 
 ## 7a-bis. Real hardware (D148) — model BUILT in 0.45.0
 The six stats, support rules, several GPUs and the catalogue: docs/HARDWARE_CATALOG.md. The build request

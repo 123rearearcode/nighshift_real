@@ -77,3 +77,7 @@ static func workbench(owner: Node,selected: String,activities_action: Callable) 
         button.toggle_mode = true
         button.set_pressed_no_signal(selected == entry[0])
         button.disabled = selected == entry[0]
+        # 0.51.0 (D159): a new build has nothing to clean or repaste: its cooler goes on at the hardware bench.
+        if entry[0] == "repair" and str(gs.job.get("ticket",{}).get("request","")) == "build":
+            button.disabled = true
+            button.tooltip_text = "A new build: nothing to clean or repaste. Coolers go on with their pre-applied paste at the hardware bench."

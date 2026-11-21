@@ -9,6 +9,7 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Generator = preload("res://scripts/rules/ticket_generator.gd")
 const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const BuildRequest = preload("res://scripts/rules/build_request.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -248,7 +249,27 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
         var who: Dictionary = {}
         var pc: Dictionary = {}
         var returning: bool = false
-        if r.randf() < Generator.RETURN_CHANCE:
+        # 0.51.0 (session 3.7, D159): from night 4 some arrivals are build requests. A separate generator
+        # decides, so a repair arrival draws exactly the case it drew before builds existed.
+        var fresh_job: Dictionary = gs.make_ticket_job("")
+        if BuildRequest.wanted(Generator.rng_for(int(gs.world_seed),night,slot+100),night,slot):
+            who = Generator.new_person(r,gs.next_person_id())
+            var order: Dictionary = Generator.draw_build(fresh_job,who,int(gs.money),night,r)
+            if not order.is_empty():
+                gs.remember_person(order["person"])
+                var build_job: Dictionary = order["job"]
+                _tag(build_job,str(build_job["id"]),run_id+":pc:"+str(build_job["id"]))
+                var net: int = gs.take_build_deposit(build_job)
+                tickets.append(build_job)
+                present.append(str(build_job["customer_id"]))
+                var spec: Dictionary = order["build"]
+                cards.append({"kind":"new","ticket":str(build_job["id"]),"customer":str(build_job["customer"]),"customer_id":str(build_job["customer_id"]),
+                    "returning":false,"paid":net,"build":true,
+                    "reaction":"New customer. Build request: %s. %s Budget $%d: they paid $%d up front; the basic case and motherboard ($%d) came out of it."%[
+                        str(BuildRequest.USES[spec["use"]]["label"]),str(build_job["complaint"]),int(spec["budget"]),int(spec["deposit"]),BuildRequest.starter_cost(str(build_job["layout"]))],
+                    "job":build_job.duplicate(true)})
+                continue
+        if r.randf() < Generator.RETURN_CHANCE and who.is_empty():
             var known: Array = []
             for id: String in gs.known_customers():
                 if not id in present and gs.customer_state.has(id) and int(gs.customer_view(id).get("trust",0)) >= Generator.RETURN_MIN_TRUST: known.append(id)
@@ -257,7 +278,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
                 pc = who.get("pc",{})
                 returning = true
         if who.is_empty(): who = Generator.new_person(r,gs.next_person_id())
-        var drawn: Dictionary = Generator.draw_case(gs.make_ticket_job(""),who,pc,caps,night,r)
+        var drawn: Dictionary = Generator.draw_case(fresh_job,who,pc,caps,night,r)
         if not bool(drawn["person"].get("scripted",false)): gs.remember_person(drawn["person"])
         var fresh: Dictionary = drawn["job"]
         _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))

@@ -13,7 +13,7 @@ const BASE_WATTS: int = 50              # board, fans and drives
 const EXTRA_GPU_SHARE: float = 0.5      # each further GPU adds half of what the one before it added
 const HEAT_PER_EXCESS_WATT: float = 0.5 # degrees C per watt of CPU heat the cooler cannot remove
 # Shown when an old save or a broken record names no parts: the 0.44 demo PC.
-const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box", "board": ""}
+const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box", "board": "", "case": ""}
 # Service replacement tiers (repair-bench stock) as catalogue models. "similar" = the same model as the
 # demo PCs' parts, "budget" = the cheaper one below it (0.44 numbers kept).
 # Board slots (the same ids as component_data.gd and customer_pc.gd).
@@ -69,7 +69,28 @@ static func sanitize(raw: Variant) -> Dictionary:
         "cooler": _one(r.get("cooler", null), Catalog.COOLER, FALLBACK["cooler"]),
         # 0.48.1: the motherboard. "" (also for old saves and records without one) = the case's original
         # board, i.e. the default model for the job's layout (board_model()).
-        "board": str(r.get("board", "")) if Catalog.is_board(str(r.get("board", ""))) else ""}
+        "board": str(r.get("board", "")) if Catalog.is_board(str(r.get("board", ""))) else "",
+        # 0.51.0: the case model. "" (old saves, repair PCs) = the default case of the job's layout.
+        "case": str(r.get("case", "")) if Catalog.is_case(str(r.get("case", ""))) else ""}
+
+
+# 0.51.0: the case model of this job. A case of the wrong form for the layout reads as the default.
+static func case_model(job: Dictionary) -> String:
+    var layout: String = "compact" if str(job.get("layout", "tower")) == "compact" else "tower"
+    var id: String = str(sanitize(job.get("parts", {}))["case"])
+    if id != "" and str(Catalog.CASES[id]["form"]) == layout: return id
+    return str(Catalog.DEFAULT_CASE[layout])
+
+
+# Degrees the case adds to the CPU temperature (0 for the default cases).
+static func case_heat(job: Dictionary) -> float:
+    return float(Catalog.CASES[case_model(job)]["heat"])
+
+
+# 0.51.0: a build request's PC (the shop assembles it; there is no customer original of any part).
+static func is_build(job: Dictionary) -> bool:
+    var t: Variant = job.get("ticket", {})
+    return t is Dictionary and str((t as Dictionary).get("request", "")) == "build"
 
 
 # 0.48.1: the motherboard model in this job's case. A board of the wrong form for the case, or none
@@ -290,7 +311,9 @@ static func part_lines(job: Dictionary) -> Array:
     lines.append("CPU: %s" % ("%s (%s)" % [Catalog.part(p["cpu"])["name"], Catalog.stat_text(p["cpu"])] if str(p["cpu"]) != "" else "none fitted"))
     # D150: list what is fitted by model; a part that does not work is listed like any other.
     var first: String = model_of(str(replaced.get(Ids.GPU, "")), Ids.GPU, str(original["gpus"][0])) if replaced.has(Ids.GPU) else str(original["gpus"][0])
-    if Ids.GPU in removed: lines.append("GPU: %s (not fitted)" % Catalog.part(first)["name"])
+    var build: bool = is_build(job)   # 0.51.0: a build has no customer original behind an empty first slot
+    if Ids.GPU in removed and build: lines.append("GPU: none fitted yet")
+    elif Ids.GPU in removed: lines.append("GPU: %s (not fitted)" % Catalog.part(first)["name"])
     else: lines.append("GPU: %s (%s)" % [Catalog.part(first)["name"], Catalog.stat_text(first)])
     var others: Array = (original["gpus"] as Array).slice(1)
     for slot: String in shop_fitted(job):
@@ -302,8 +325,10 @@ static func part_lines(job: Dictionary) -> Array:
     if (p["storage"] as Array).is_empty(): lines.append("Storage: none fitted")
     lines.append("PSU: %s" % ("%s (%s)" % [Catalog.part(p["psu"])["name"], Catalog.stat_text(p["psu"])] if str(p["psu"]) != "" else "none fitted"))
     var cooler: String = model_of(str(replaced.get(Ids.COOLER, "")), Ids.COOLER, str(original["cooler"])) if replaced.has(Ids.COOLER) else str(original["cooler"])
-    if Ids.COOLER in removed: lines.append("Cooler: %s (not fitted)" % Catalog.part(cooler)["name"])
+    if Ids.COOLER in removed and build: lines.append("Cooler: none fitted yet")
+    elif Ids.COOLER in removed: lines.append("Cooler: %s (not fitted)" % Catalog.part(cooler)["name"])
     else: lines.append("Cooler: %s (%s)" % [Catalog.part(cooler)["name"], Catalog.stat_text(cooler)])
+    lines.append("Case: %s (%s)" % [Catalog.case_model(case_model(job))["name"], Catalog.case_text(case_model(job))])   # 0.51.0
     return lines
 
 

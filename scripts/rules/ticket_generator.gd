@@ -25,6 +25,8 @@ const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Diagnosis = preload("res://scripts/rules/diagnosis.gd")
 const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
 const Legacy = preload("res://scripts/state/game_state.gd")
+const BuildRequest = preload("res://scripts/rules/build_request.gd")
+const DustZones = preload("res://scripts/data/dust_zones.gd")
 
 const RETURN_CHANCE: float = 0.35    # an arrival is a returning customer rather than a new one
 const RETURN_MIN_TRUST: int = 40     # who still trusts the shop enough to come back
@@ -311,6 +313,58 @@ static func draw_case(job: Dictionary, person: Dictionary, pc: Dictionary, caps:
     var simple: Dictionary = person.duplicate(true)
     if not bool(person.get("scripted", false)): simple["needs"] = {"boots": true}
     return _finish(plain, simple, base_pc, ["dust"], Diagnosis.EVIDENT, true)
+
+
+# ---- 0.51.0 (session 3.7, D159): build requests ----
+
+# Draws a build request for a NEW person onto `job` (a fresh job). `money` = the shop's cash now. Returns
+# {job, person, build, cost} or {} when no request the shop can afford fits tonight (the caller then draws
+# a repair). Offered only when the cheapest catalogue build that meets the needs exists and the shop can pay
+# for it with its cash plus the deposit (so every request can end well).
+static func draw_build(job: Dictionary, person: Dictionary, money: int, night: int, r: RandomNumberGenerator) -> Dictionary:
+    var uses: Array = BuildRequest.uses_for(night)
+    for attempt in range(DRAWS):
+        var use: String = "light_office" if attempt == DRAWS - 1 else str(_pick(r, uses))
+        var fps: int = int(_pick(r, BuildRequest.FPS_EARLY if night <= BuildRequest.SURE_NIGHT else BuildRequest.FPS_LATER))
+        var needs: Dictionary = BuildRequest.needs_for(use, fps)
+        var form: String = "tower" if bool(BuildRequest.USES[use].get("tower", false)) or r.randf() < 0.5 else "compact"
+        var base: Dictionary = BuildRequest.cheapest(needs, form)
+        if base.is_empty(): continue
+        var wants: Array = []
+        var pool: Array = BuildRequest.WANTS.duplicate()
+        for i in range(r.randi_range(0, 2)):
+            var id: String = str(_pick(r, pool))
+            pool.erase(id)
+            var w: Dictionary = {"id": id}
+            if id == BuildRequest.BRAND:
+                var part: String = "cpu" if r.randf() < 0.5 else "gpu"
+                w = {"id": id, "part": part, "brand": str(_pick(r, BuildRequest.BRANDS[part]))}
+            wants.append(w)
+        var full: Dictionary = BuildRequest.cheapest(needs, form, wants)
+        if full.is_empty():
+            wants = []
+            full = base
+        # Budget: the cheapest build that does the job, times a margin, plus part of what the wants add.
+        # A quarter of customers bring a tight budget (little profit unless the shop uses its own stock).
+        var margin: float = r.randf_range(1.0, 1.1) if r.randf() < 0.25 else r.randf_range(1.15, 1.5)
+        var budget: int = int(ceil((float(base["cost"]) * margin + float(int(full["cost"]) - int(base["cost"])) * r.randf_range(0.4, 1.0)) / 5.0)) * 5
+        var deposit: int = int(round(float(budget) * BuildRequest.DEPOSIT_SHARE))
+        if int(base["cost"]) > money + deposit: continue   # the shop must be able to pay for it (case and board included)
+        var spec: Dictionary = BuildRequest.sanitize({"use": use, "needs": needs, "wants": wants, "budget": budget, "deposit": deposit})
+        var who: Dictionary = person.duplicate(true)
+        who["profession"] = "gamer" if use in BuildRequest.GAME_USES else "regular"
+        who["uses"] = str(BuildRequest.USES[use]["label"]) + "."
+        who["needs"] = {"boots": true}
+        var fresh: Dictionary = job.duplicate(true)
+        BuildRequest.setup(fresh, spec, form, DustZones.zones())
+        fresh["customer_id"] = str(who["id"])
+        fresh["customer"] = str(who["name"])
+        who["pc"] = {}
+        who["complaint"] = fresh["complaint"]
+        who["payout"] = fresh["payout"]
+        who["budget"] = budget
+        return {"job": fresh, "person": who, "build": spec, "cost": int(base["cost"])}
+    return {}
 
 
 static func _finish(job: Dictionary, person: Dictionary, pc: Dictionary, events: Array, level: int, fallback: bool) -> Dictionary:

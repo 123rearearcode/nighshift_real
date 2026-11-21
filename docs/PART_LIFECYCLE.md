@@ -35,6 +35,16 @@ A fitted shop test part behaves by its actual condition through a derived job co
 rebuilt from the stock record on load and PC switch. Customer parts are still slot-derived (L1), and a
 delivered shop part loses its condition at collection (L3). Do not read this stage as L1/L2 resolved.
 
+## Stage reached in 0.51.0 (Claude, build requests)
+
+A build (D159) is a PC made only of shop parts: no customer original exists, so nothing is set aside in
+the drawer and nothing is kept at collection. Every part goes through the existing custody paths
+(`shop_fitted`, first-slot `shop_custody`) and `settle_custody` hands them to the customer at collection,
+like a test part left in a repair PC. The empty first GPU slot and cooler mount use the existing
+`removed_parts` record with placeholder ids that no view, stat or settlement reads (`CustomerPC.first_parts`).
+L3 applies to builds too: a delivered degraded or dead part loses its condition at collection. Not a
+step towards L1/L2.
+
 ## Next stage — before expanding physical customer-part manipulation
 
 Agree a small part-record contract with fields for uid, model, owner, location/slot, actual condition
