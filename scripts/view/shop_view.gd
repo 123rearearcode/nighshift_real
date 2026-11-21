@@ -1,15 +1,27 @@
 # VIEW for the shop screen: shows the repair ticket and cash, and links to the other screens.
 # This is a stand-in for the future day/night loop, kept deliberately plain.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 
 const COLOR_BG := Color(0.11, 0.12, 0.15)
 const COLOR_CARD := Color(0.17, 0.19, 0.24)
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const PartStates = preload("res://scripts/rules/part_states.gd")
+const Customers = preload("res://scripts/data/customers.gd")
+const Games = preload("res://scripts/data/games.gd")
 
 var title_label: Label
 var cash_label: Label
 var ticket_label: Label
+var ticket_scroll: ScrollContainer
 var result_label: Label
+var result_scroll: ScrollContainer
+var customer_label: Label
+var customer_scroll: ScrollContainer
+var tab_check: Button
+var tab_customer: Button
+var tab_upgrades: Button
+var upgrade_panel: Control
 var note_label: Label
 var version_label: Label
 var upgrade_button: Button
@@ -20,21 +32,64 @@ func _ready() -> void:
     title_label = _make_label(Vector2(40, 16), Vector2(900, 70), 20)
     title_label.text = "NIGHTSHIFT - shop (foundation trial)\nA plain stand-in for the future day/night loop. One repair ticket to complete."
     cash_label = _make_label(Vector2(940, 20), Vector2(300, 40), 28)
-    ticket_label = _make_label(Vector2(60, 125), Vector2(560, 300), 19)
-    result_label = _make_label(Vector2(60, 470), Vector2(560, 190), 18)
+    ticket_scroll = _make_scroll(Vector2(60, 125), Vector2(560, 270))
+    ticket_label = _make_scroll_label(ticket_scroll, 16)
+    # The lower card has two tabs: the final-check result, and what the shop knows about the customer.
+    var tabs := ButtonGroup.new()
+    tab_check = _make_button("Final check", Vector2(60, 432), Vector2(130, 32), _show_tab.bind(0))
+    tab_customer = _make_button("Customer", Vector2(196, 432), Vector2(130, 32), _show_tab.bind(1))
+    tab_upgrades = _make_button("Upgrades", Vector2(332, 432), Vector2(130, 32), _show_tab.bind(2))
+    for t: Button in [tab_check, tab_customer, tab_upgrades]:
+        t.toggle_mode = true
+        t.button_group = tabs
+    tab_check.set_pressed_no_signal(true)
+    # Both tabs live in fixed ScrollContainers so long text scrolls instead of spilling over
+    # the card and the footer (Codex's 0.25.0 cross-review, finding 1; user screenshot).
+    result_scroll = _make_scroll(Vector2(60, 470), Vector2(560, 195))
+    result_label = _make_scroll_label(result_scroll, 17)
+    customer_scroll = _make_scroll(Vector2(60, 470), Vector2(560, 195))
+    customer_label = _make_scroll_label(customer_scroll, 14)
+    customer_scroll.visible = false
+    # All tool upgrades live together under the Upgrades tab (user request, 0.29.0).
+    upgrade_panel = Control.new()
+    upgrade_panel.position = Vector2(60, 470)
+    upgrade_panel.size = Vector2(560, 195)
+    upgrade_panel.visible = false
+    add_child(upgrade_panel)
     note_label = _make_label(Vector2(700, 490), Vector2(520, 170), 15)
-    note_label.text = "Fix the ticket: vacuum the dust out of the whole PC, apply paste, then run the final check. The check estimates temperature from your work. All numbers are demo values. Progress and cash are saved automatically."
+    note_label.text = "Fix the ticket: clean, repaste, replace what is broken, then run the final check. Dust is not a blocker: it only adds temperature. The PC passes while it stays under the limit and every part works. All numbers are demo values. Progress and cash are saved automatically."
 
-    _make_button("Open repair bench (clean + paste)", Vector2(700, 110), Vector2(420, 50), _go.bind("res://scenes/bench.tscn"))
-    _make_button("Hardware bench (shaped board trial)", Vector2(700, 180), Vector2(420, 50), _go.bind("res://scenes/main.tscn"))
+    _make_button("Open repair bench (clean + paste + replacements)", Vector2(700, 110), Vector2(420, 50), _go.bind("res://scenes/bench.tscn"))
+    _make_button("Spare-part bench (shop stock, not the customer's PC)", Vector2(700, 180), Vector2(420, 50), _go.bind("res://scenes/main.tscn"))
     _make_button("Run final check", Vector2(700, 250), Vector2(420, 50), _on_check_pressed)
-    upgrade_button = _make_button("Buy square cloth", Vector2(700, 320), Vector2(420, 44), _on_upgrade_pressed)
-    hose_button = _make_button("Buy longer hose", Vector2(700, 372), Vector2(420, 44), _on_hose_pressed)
-    _make_button("Main menu", Vector2(700, 424), Vector2(420, 44), _on_main_menu_pressed)
+    _make_button("Main menu", Vector2(700, 320), Vector2(420, 44), _on_main_menu_pressed)
+    upgrade_button = _make_button("Buy square cloth", Vector2(0, 10), Vector2(420, 44), _on_upgrade_pressed)
+    hose_button = _make_button("Buy longer hose", Vector2(0, 62), Vector2(420, 44), _on_hose_pressed)
+    upgrade_button.reparent(upgrade_panel, false)
+    hose_button.reparent(upgrade_panel, false)
     version_label = _make_label(Vector2(40, 686), Vector2(900, 24), 13)
     version_label.text = "Nightshift foundation trial v%s  |  save format %d" % [GameState.game_version(), GameState.SAVE_FORMAT]
     version_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.7))
     _refresh()
+
+
+func _make_scroll(pos: Vector2, size: Vector2) -> ScrollContainer:
+    var sc := ScrollContainer.new()
+    sc.position = pos
+    sc.size = size
+    sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    add_child(sc)
+    return sc
+
+
+func _make_scroll_label(parent: ScrollContainer, font_size: int) -> Label:
+    var l := Label.new()
+    l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    l.custom_minimum_size = Vector2(540, 0)
+    l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    l.add_theme_font_size_override("font_size", font_size)
+    parent.add_child(l)
+    return l
 
 
 func _make_label(pos: Vector2, size: Vector2, font_size: int) -> Label:
@@ -61,6 +116,24 @@ func _make_button(text: String, pos: Vector2, size: Vector2, callback: Callable)
 
 func _go(path: String) -> void:
     get_tree().change_scene_to_file(path)
+
+
+# One line, first in the dossier, saying what THIS customer needs (user request). A clueless
+# customer's line shows only what they SAY (the stated decoy, D93) - the shop cannot read minds.
+func _needs_text(who: Dictionary) -> String:
+    var needs: Dictionary = who.get("needs", {})
+    if str(who.get("profession", "")) == "clueless":
+        needs = needs.get("stated", {})
+    var wants: Array = []
+    if bool(needs.get("boots", false)):
+        wants.append("boots up")
+    for entry: Variant in needs.get("games", []):
+        if entry is Dictionary:
+            var game: Dictionary = Games.game(str((entry as Dictionary).get("game_id", "")))
+            wants.append("%s at %d fps" % [str(game.get("title", "?")), int((entry as Dictionary).get("min_fps", 0))])
+    if bool(needs.get("quiet", false)):
+        wants.append("runs quiet")
+    return "NEEDS: " + (", ".join(wants) if not wants.is_empty() else "a working PC")
 
 
 func _check_mark(done: bool) -> String:
@@ -90,15 +163,35 @@ func _refresh() -> void:
     var temp: float = float(job["temp"])
     var paste_text: String = "(no result yet)" if grade == "" else "(result: %s)" % grade
     var check_text: String = "(not run yet)" if temp <= 0.0 else "(last: %d C, limit %d C)" % [roundi(temp), roundi(GameState.PASS_TEMP)]
-    ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nStatus: %s" % [
+    var who: Dictionary = GameState.customer_view(str(job.get("customer_id", "")))
+    if not who.is_empty():
+        var history: Array = who.get("history", [])
+        var last_entry: Dictionary = history.back() if (not history.is_empty() and history.back() is Dictionary) else {}
+        var last: String = "No past visits." if last_entry.is_empty() else "Last visit: scored %d/100%s." % [int(last_entry.get("score", 0)),
+            "" if int(last_entry.get("comeback_days", 0)) == 0 else ", coming back about it in %d day(s)" % int(last_entry.get("comeback_days", 0))]
+        customer_label.text = "%s\n\n%s  -  %s  -  trust %d/100\n%s\nComplaint: %s\nUses: %s\nHabits: %s\nTime: %s\nBudget: $%d. Pays $%d on completion.\n%s" % [
+            _needs_text(who), str(who["name"]), str(who["profession"]), int(who["trust"]), str(who["about"]), str(who["complaint"]),
+            str(who["uses"]), str(who["habits"]), str(who["patience"]), int(who["budget"]), int(job["payout"]), last]
+    ticket_label.text = "TICKET %s - %s\nComplaint: %s\nPayment on completion: $%d\n\n%s 1. Clean the whole PC  (%d of %d parts)\n%s 2. Apply fresh thermal paste  %s\n%s 3. Final check passes  %s\n\nParts: %s\nStatus: %s" % [
         job["id"], job["customer"], job["complaint"], int(job["payout"]),
         _check_mark(cleaned), parts_clean, parts_total, _check_mark(grade != ""), paste_text,
         _check_mark(done), check_text,
+        PartStates.summary(job),
         "COMPLETED" if done else "OPEN"]
     queue_redraw()
 
 
+func _show_tab(which: int) -> void:
+    result_scroll.visible = which == 0
+    customer_scroll.visible = which == 1
+    upgrade_panel.visible = which == 2
+    tab_check.set_pressed_no_signal(which == 0)
+    tab_customer.set_pressed_no_signal(which == 1)
+    tab_upgrades.set_pressed_no_signal(which == 2)
+
+
 func _on_check_pressed() -> void:
+    _show_tab(0)
     var r: Dictionary = GameState.run_final_check()
     AudioFeedback.request(self,"check.pass" if r["passed"] else "check.fail",{"temperature":r["temp"]})
     var temp: int = roundi(float(r["temp"]))
@@ -109,6 +202,10 @@ func _on_check_pressed() -> void:
     if r["passed"]:
         if int(r["paid"]) > 0:
             result_label.text = "FINAL CHECK PASSED: %d C. Payment received: $%d." % [temp, int(r["paid"])]
+            var pickup: Dictionary = r.get("pickup", {})
+            if not pickup.is_empty():
+                result_label.text += "\nPickup: the customer scored this %d/100%s." % [int(pickup["score"]),
+                    "" if int(pickup["comeback_days"]) == 0 else " and will be back about it in %d day(s)" % int(pickup["comeback_days"])]
         else:
             result_label.text = "FINAL CHECK PASSED: %d C. (This ticket was already paid.)" % temp
         result_label.add_theme_color_override("font_color", Color(0.25, 0.95, 0.35))
@@ -145,8 +242,8 @@ func _on_main_menu_pressed() -> void:
 
 
 func _draw() -> void:
-    draw_rect(Rect2(0, 0, 1280, 720), COLOR_BG)
-    draw_rect(Rect2(40, 105, 600, 340), COLOR_CARD)
-    draw_rect(Rect2(40, 105, 600, 340), Color(0.6, 0.62, 0.7), false, 2.0)
-    draw_rect(Rect2(40, 455, 600, 215), COLOR_CARD)
-    draw_rect(Rect2(40, 455, 600, 215), Color(0.6, 0.62, 0.7), false, 2.0)
+    draw_rect(Layout.SCREEN, COLOR_BG)
+    draw_rect(Layout.SHOP_JOB_CARD, COLOR_CARD)
+    draw_rect(Layout.SHOP_JOB_CARD, Color(0.6, 0.62, 0.7), false, 2.0)
+    draw_rect(Layout.SHOP_LOWER_CARD, COLOR_CARD)
+    draw_rect(Layout.SHOP_LOWER_CARD, Color(0.6, 0.62, 0.7), false, 2.0)

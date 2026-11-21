@@ -1,7 +1,9 @@
 # Dust regions derived from the SAME cell geometry used by the hardware bench.
 extends RefCounted
+const Ids = preload("res://scripts/data/ids.gd")
+const Layout = preload("res://scripts/data/layout.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
-const AREA_SIZE := Vector2(620, 400)
+const AREA_SIZE: Vector2 = Layout.BENCH_PC_SIZE
 const CLEAN_AT: float = 0.95
 
 static func zones(profile_id: String = "tower") -> Array:
@@ -9,9 +11,9 @@ static func zones(profile_id: String = "tower") -> Array:
     var fit: Dictionary = PCLayout.display(pc, Rect2(Vector2.ZERO, AREA_SIZE))
     return [
         {"id": "case_fan", "label": "Case fan", "rect": PCLayout.cell_rect(pc["fan"], fit), "bundles": 6, "specks": 4, "temp_penalty": 8.0},
-        {"id": "cooler", "label": "CPU cooler", "rect": PCLayout.connector_rect(pc, fit, "cpu"), "bundles": 9, "specks": 6, "temp_penalty": 20.0},
+        {"id": Ids.COOLER, "label": "CPU cooler", "rect": PCLayout.connector_rect(pc, fit, "cpu"), "bundles": 9, "specks": 6, "temp_penalty": 20.0},
         {"id": "motherboard", "label": "RAM", "rect": PCLayout.connector_rect(pc, fit, "ram_2").merge(PCLayout.connector_rect(pc, fit, "ram_1")), "bundles": 6, "specks": 4, "temp_penalty": 6.0},
-        {"id": "gpu", "label": "Graphics card", "rect": PCLayout.connector_rect(pc, fit, "pcie"), "bundles": 8, "specks": 5, "temp_penalty": 12.0},
+        {"id": Ids.GPU, "label": "Graphics card", "rect": PCLayout.connector_rect(pc, fit, "pcie"), "bundles": 8, "specks": 5, "temp_penalty": 12.0},
         {"id": "psu", "label": "Power supply", "rect": PCLayout.cell_rect(pc["psu"], fit), "bundles": 6, "specks": 4, "temp_penalty": 6.0},
         {"id": "front_filter", "label": "Filter", "rect": PCLayout.cell_rect(pc["filter"], fit), "bundles": 8, "specks": 5, "temp_penalty": 8.0, "grip_scale": 1.5},
         {"id": "under_cooler", "label": "Under cooler", "rect": PCLayout.connector_rect(pc, fit, "cpu").grow(-8), "bundles": 4, "specks": 3, "covered_by": "cooler", "temp_penalty": 0.0},

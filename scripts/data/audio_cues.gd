@@ -19,6 +19,8 @@ const CUES: Dictionary = {
     "bin.full":{"bus":"Tools","loop":false,"cooldown_ms":500},
     "bin.empty":{"bus":"Handling","loop":false,"cooldown_ms":100},
     "hose.grab":{"bus":"Handling","loop":false,"cooldown_ms":60},
+    "hose.rewind":{"bus":"Handling","loop":false,"cooldown_ms":120},
+    "item.trash":{"bus":"Handling","loop":false,"cooldown_ms":80},
     "clamp.slide":{"bus":"Handling","loop":true,"cooldown_ms":0},
     "hose.drag":{"bus":"Handling","loop":true,"cooldown_ms":0},
     "clamp.lock":{"bus":"Handling","loop":false,"cooldown_ms":80},

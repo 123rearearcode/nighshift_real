@@ -9,6 +9,8 @@ const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
+const Customers = preload("res://scripts/data/customers.gd")
+const Games = preload("res://scripts/data/games.gd")
 
 # key -> Variant.Type. REQUIRED keys must exist; OPTIONAL keys may exist; any other key is a problem.
 const COMPONENT_REQUIRED: Dictionary = {"id": TYPE_STRING, "category": TYPE_STRING, "display_name": TYPE_STRING,
@@ -17,7 +19,7 @@ const BOARD_REQUIRED: Dictionary = {"id": TYPE_STRING, "display_name": TYPE_STRI
     "rows": TYPE_ARRAY, "connectors": TYPE_ARRAY}
 const CONNECTOR_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "short_label": TYPE_STRING,
     "type": TYPE_STRING, "origin": TYPE_VECTOR2I, "footprint": TYPE_VECTOR2I}
-const CONNECTOR_OPTIONAL: Dictionary = {"allowed_rotations": TYPE_ARRAY}
+const CONNECTOR_OPTIONAL: Dictionary = {"allowed_rotations": TYPE_ARRAY, "requires": TYPE_STRING}
 const PROFILE_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "size": TYPE_VECTOR2I, "depth": TYPE_INT,
     "board_origin": TYPE_VECTOR2I, "board": TYPE_DICTIONARY, "fan": TYPE_RECT2, "psu": TYPE_RECT2, "filter": TYPE_RECT2}
 const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rect": TYPE_RECT2,
@@ -25,7 +27,8 @@ const ZONE_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "rec
 const ZONE_OPTIONAL: Dictionary = {"covered_by": TYPE_STRING, "grip_scale": TYPE_FLOAT}
 const MATERIAL_REQUIRED: Dictionary = {"id": TYPE_STRING, "label": TYPE_STRING, "cost": TYPE_INT, "heat_penalty": TYPE_FLOAT,
     "yield_scale": TYPE_FLOAT, "mobility_scale": TYPE_FLOAT, "scam": TYPE_BOOL}
-const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT}
+const OPTION_REQUIRED: Dictionary = {"label": TYPE_STRING, "cost": TYPE_INT, "performance": TYPE_INT, "heat_penalty": TYPE_FLOAT, "power": TYPE_INT,
+    "model": TYPE_STRING}   # 0.45.0 (D148): the catalogue model of the tier
 
 
 
@@ -72,6 +75,7 @@ func run_checks() -> void:
     test_boards_and_cases()
     test_zones()
     test_paste_materials()
+    test_customers()
     finish("Data schema")
 
 
@@ -164,3 +168,37 @@ func test_paste_materials() -> void:
         check(kind.get("id", "") == id, "paste material %s knows its own id" % id)
         check(int(kind.get("cost", -1)) >= 0 and float(kind.get("yield_scale", 0.0)) > 0.0 and float(kind.get("mobility_scale", 0.0)) > 0.0, "paste material %s has sensible numbers" % id)
     check(PasteMaterials.material("ketchup").is_empty(), "an unknown paste material gives nothing")
+
+
+const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "portrait": TYPE_STRING,
+    "scripted": TYPE_BOOL, "profession": TYPE_STRING, "persona": TYPE_STRING, "about": TYPE_STRING,
+    "complaint": TYPE_STRING, "uses": TYPE_STRING, "habits": TYPE_STRING, "patience": TYPE_STRING,
+    "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY,
+    "pc": TYPE_DICTIONARY}   # 0.45.0 (D148): the PC the customer brings, as catalogue parts
+const GAME_REQUIRED: Dictionary = {"id": TYPE_STRING, "title": TYPE_STRING, "price": TYPE_INT,
+    "gpu_demand": TYPE_INT, "cpu_demand": TYPE_INT, "ram_min": TYPE_INT, "size_gb": TYPE_INT}   # 0.51.0: install size (build requests)
+const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)
+
+
+func test_customers() -> void:
+    for id: String in Customers.IDS:
+        var who: Dictionary = Customers.customer(id)
+        check_schema(who, CUSTOMER_REQUIRED, {}, "customer " + id)
+        check(who.get("id", "") == id, "customer %s knows its own id" % id)
+        check(str(who.get("profession", "")) in PROFESSIONS, "customer %s has a first-cut profession" % id)
+        check(int(who.get("payout", 0)) > 0 and int(who.get("budget", 0)) >= int(who.get("payout", 0)), "customer %s can afford their own repair" % id)
+        check(clampi(int(who.get("trust_start", -1)), 0, 100) == int(who.get("trust_start", -1)), "customer %s trust starts within 0-100" % id)
+        var needs: Dictionary = who.get("needs", {})
+        if str(who.get("profession", "")) == "clueless":
+            check(needs.has("stated") and needs.has("real"), "clueless customer %s has a decoy and a real need" % id)
+            needs = needs.get("real", {})
+        for entry: Variant in needs.get("games", []):
+            check(entry is Dictionary and not Games.game(str((entry as Dictionary).get("game_id", ""))).is_empty() and int((entry as Dictionary).get("min_fps", 0)) > 0,
+                "customer %s needs a real game with a real minimum" % id)
+    check(Customers.customer("nobody").is_empty(), "an unknown customer gives nothing")
+    for id: String in Games.IDS:
+        var game: Dictionary = Games.game(id)
+        check_schema(game, GAME_REQUIRED, {}, "game " + id)
+        check(game.get("id", "") == id, "game %s knows its own id" % id)
+        check(int(game.get("price", 0)) > 0 and int(game.get("gpu_demand", 0)) > 0 and int(game.get("cpu_demand", 0)) > 0 and int(game.get("ram_min", 0)) > 0, "game %s has sensible numbers" % id)
+    check(Games.game("half life 3").is_empty(), "an unknown game gives nothing")

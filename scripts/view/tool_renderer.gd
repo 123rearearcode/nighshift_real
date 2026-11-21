@@ -1,12 +1,13 @@
 # Physical tool silhouettes, shadows and flexible brush drawing. No tool rules.
 extends RefCounted
+const Ids = preload("res://scripts/data/ids.gd")
 const Rig = preload("res://scripts/bench/tool_rig.gd")
 static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> void:
     var order: Array = visible.duplicate()
     if rig.selected in order:
         order.erase(rig.selected)
         order.append(rig.selected)
-    if "vacuum" in order:
+    if Ids.VACUUM in order:
         draw_hose(canvas, rig)
         draw_clamp(canvas, rig)
     for id: String in order:
@@ -17,12 +18,12 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         canvas.draw_line(Vector2(-18,24),Vector2(19,-32),Color(0,0,0,0.35),17)
         canvas.draw_set_transform(motion.center-Vector2(0,height),motion.angle)
         var tip: Vector2 = Rig.TIP
-        if id == "vacuum":
+        if id == Ids.VACUUM:
             canvas.draw_line(tip,Vector2(21,-31),Color("899aa9"),15)
             canvas.draw_line(Vector2(10,-18),Vector2(21,-31),Color("3d657d"),20)
             canvas.draw_circle(tip,10,Color("cad4da"))
             canvas.draw_circle(tip,6,Color("142530"))
-        elif id == "brush":
+        elif id == Ids.BRUSH:
             canvas.draw_line(tip+Vector2(0,-16),Vector2(18,-34),Color("ba814c"),13)
             canvas.draw_line(tip+Vector2(-20,-13),tip+Vector2(20,-13),Color("8a9397"),9)
             var roots: PackedVector2Array = rig.brush.roots()
@@ -31,13 +32,16 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
                 var root: Vector2 = tip+roots[i]
                 var end: Vector2 = tip+tips[i]
                 canvas.draw_polyline(PackedVector2Array([root,root.lerp(end,0.45)+rig.brush.bend*0.12,end]),Color("e8d39b") if i%2 == 0 else Color("ba9c68"),2)
-        elif id == "pick":
+        elif id == Ids.PICK:
             canvas.draw_line(Vector2(-2,4),Vector2(20,-30),Color("cb9b53"),10)
             canvas.draw_polyline(PackedVector2Array([Vector2(-2,4),tip,tip+Vector2(-6,1)]),Color("dce0df"),3)
-        elif id == "cloth":
-            var skew: float = rig.brush.bend.x*0.2
-            canvas.draw_colored_polygon(PackedVector2Array([tip+Vector2(-24,-16),tip+Vector2(22,-13),tip+Vector2(25+skew,17),tip+Vector2(-22,14)]),Color("ddd6b6"))
+        elif id == Ids.CLOTH:
+            var fabric: PackedVector2Array = rig.cloth_outline()
+            for i in range(fabric.size()): fabric[i] += tip
+            canvas.draw_colored_polygon(fabric,Color("ddd6b6"))
             for i in range(4): canvas.draw_line(tip+Vector2(-18+i*11,-11),tip+Vector2(-16+i*11,12),Color("b4ac90"),1)
+        elif id == Ids.SCREWDRIVER:
+            draw_screwdriver(canvas)
         else:
             canvas.draw_line(Vector2(-9,11),Vector2(13,-19),Color("b9deea"),13)
             canvas.draw_line(Vector2(13,-19),Vector2(24,-34),Color("96a4ae"),4)
@@ -48,12 +52,25 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
 
 
+# D131: the screwdriver, in a tool's own frame (tip at the usual tool tip). Also drawn by the hardware bench.
+static func draw_screwdriver(canvas: CanvasItem) -> void:
+    var tip: Vector2 = Rig.TIP
+    canvas.draw_line(tip, tip + Vector2(8, -16), Color("cbd3d8"), 3)          # steel shaft
+    canvas.draw_line(tip + Vector2(8, -16), tip + Vector2(21, -40), Color("d8453f"), 12)   # red handle
+    canvas.draw_line(tip + Vector2(11, -22), tip + Vector2(18, -34), Color("f08a85"), 4)    # grip highlight
+    canvas.draw_line(tip + Vector2(-3, 1), tip + Vector2(3, 1), Color("eef2f4"), 3)          # flat tip
+
+
 # The vacuum hose: a see-through corrugated tube following the simulated chain of points (drawn
 # along the same collision-tested links), with the dust it carries visible inside on its way to the bin.
 const HOSE_WIDTH: float = 8.0
 static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
-    var raw: PackedVector2Array = rig.hose.pos
+    var raw: PackedVector2Array = rig.hose.pos.duplicate()
     if raw.size() < 2: return
+    # The drawn hose is ATTACHED to the vacuum: the simulated end may lag a few pixels behind the
+    # nozzle (more while a clipped-short hose leashes the vacuum); the drawing bridges that, so the
+    # hose never appears to come off (0.22.0, from the user's video).
+    raw[raw.size() - 1] = rig.hose_end()
     var points: PackedVector2Array = raw
     var lifted: bool = rig.hose.pinned()
     canvas.draw_set_transform(Vector2(7,11) if lifted else Vector2(3,5),0.0)
@@ -92,13 +109,16 @@ static func draw_hose(canvas: CanvasItem, rig: RefCounted) -> void:
 
 static func draw_clamp(canvas: CanvasItem, rig: RefCounted) -> void:
     var occupied: bool = rig.hose_clamp > 0
-    var hovered: bool = rig.clamp_rect().has_point(rig.point)
+    var hovered: bool = rig.clamp_hit(rig.point)
     var color := Color("76c7b0") if occupied else Color("92a2ad")
     if hovered: color = Color("f3ca7a")
     if rig.clamp_dragging and rig.clamp_blocked: color = Color("ed8d79")
-    canvas.draw_rect(rig.clamp_rect(), Color("1c2a33"))
-    canvas.draw_rect(rig.clamp_rect(), color, false, 2.0)
-    canvas.draw_arc(rig.clamp_position, 7.0, 0.0, PI, 12, color, 3.0, true)
-    canvas.draw_string(ThemeDB.fallback_font, rig.clamp_rect().position + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
+    var half: Vector2 = Rig.CLAMP_RECT.size * 0.5
+    canvas.draw_set_transform(rig.clamp_position, rig.clamp_angle)
+    canvas.draw_rect(Rect2(-half, half * 2.0), Color("1c2a33"))
+    canvas.draw_rect(Rect2(-half, half * 2.0), color, false, 2.0)
+    canvas.draw_arc(Vector2.ZERO, 7.0, 0.0, PI, 12, color, 3.0, true)
+    canvas.draw_string(ThemeDB.fallback_font, -half + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
     if occupied:
-        canvas.draw_circle(rig.clamp_position, 4.0, Color("d0e5e3"))
+        canvas.draw_circle(Vector2.ZERO, 4.0, Color("d0e5e3"))
+    canvas.draw_set_transform(Vector2.ZERO, 0.0)

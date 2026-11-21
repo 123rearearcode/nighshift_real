@@ -1,3 +1,12 @@
+> **Historical reference — archived in 0.54.1, 21 November 2026.**
+> This is the original 13 November proposal against 0.19.3, preserved from PR #19.
+> Merging this document approves its archival inclusion, not implementation of its remaining ideas.
+> Descriptions of current code, work ownership and pending phases below refer to that old baseline.
+> Current authority: HANDOFF.md, DECISIONS.md, PART_LIFECYCLE.md and DEVELOPMENT.md. In particular,
+> D162 / 0.54.0 already implements the bounded delivered-part path; L1 legacy originals/bench aliases
+> and L2 orphan recovery remain open. Do not replace the shipped model or restart old phases from here.
+> Archival annotation: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 # PROPOSAL — Shared PCs, individual parts and saved ownership
 
 Revision 1 · 13 November 2026 · reviewed against main 0.19.3

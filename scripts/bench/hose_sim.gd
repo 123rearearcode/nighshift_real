@@ -31,7 +31,13 @@ var pin: int = -1                     # index of the point the player is holding
 var pin_point := Vector2.ZERO         # where that point is now
 var still_steps: int = 0              # steps in a row in which nothing touching the hose moved
 var _last_end := Vector2.INF
-var _last_obstacles := Vector2.INF
+var _last_obstacles: int = 0
+var _last_pin: int = -2
+var _last_pin_point := Vector2.INF
+var _last_anchor := Vector2.INF
+var _last_segment: float = -1.0
+var sleeping: bool = false
+var solver_steps: int = 0
 
 
 func length() -> float:
@@ -64,6 +70,9 @@ func reset(anchor_point: Vector2, end_point: Vector2) -> void:
     tug = Vector2.ZERO
     pin = -1
     still_steps = 0
+    sleeping = false
+    _last_end = Vector2.INF
+    _last_pin = -2
 
 
 # Push a point out of an obstacle (a piece lying on the bench). `obstacle` has center, angle, half.
@@ -120,18 +129,28 @@ func step(delta: float, anchor_point: Vector2, desired_end: Vector2, obstacles: 
         return
     # A hose on a table stops once nothing moves it. Without this, the bending limit and the
     # obstacles can keep nudging each other for ever and the hose creeps (found by simulation).
-    var obstacle_key := Vector2.ZERO
-    for obstacle: Dictionary in obstacles:
-        obstacle_key += Vector2(obstacle["center"]) + Vector2(obstacle["half"]) + Vector2(float(obstacle["angle"]), float(obstacle.get("corner_radius", CORNER_RADIUS)) + float(obstacles.size()))
-    var quiet: bool = not pinned() and desired_end.distance_to(_last_end) < STILL_DISTANCE \
-        and obstacle_key.distance_to(_last_obstacles) < STILL_DISTANCE
-    _last_end = desired_end
-    _last_obstacles = obstacle_key
+    # Include pin/anchor/length/individual obstacle shapes in the wake condition. A
+    # clamp can sleep too; changing any constraint wakes it before the next solve.
+    var obstacle_key: int = hash(obstacles)
+    var quiet: bool = desired_end.distance_to(_last_end) < STILL_DISTANCE \
+        and obstacle_key == _last_obstacles and pin == _last_pin \
+        and (not pinned() or pin_point == _last_pin_point) \
+        and anchor_point == _last_anchor and segment == _last_segment
     still_steps = still_steps + 1 if quiet else 0
     if still_steps > SETTLE_FRAMES:
-        for i in range(1, POINTS):
-            prev[i] = pos[i]
+        sleeping = true
+        for i in range(1, POINTS): prev[i] = pos[i]
+        # Retain the last solved endpoint: slow movements must accumulate enough
+        # displacement to wake the rope, rather than sleeping through a long drag.
         return
+    sleeping = false
+    _last_end = desired_end
+    _last_obstacles = obstacle_key
+    _last_pin = pin
+    _last_pin_point = pin_point
+    _last_anchor = anchor_point
+    _last_segment = segment
+    solver_steps += 1
     for i in range(1, POINTS):
         var velocity: Vector2 = ((pos[i] - prev[i]) * DAMPING).limit_length(MAX_STEP)
         prev[i] = pos[i]

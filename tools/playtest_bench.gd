@@ -8,9 +8,12 @@ extends SceneTree
 const Dust = preload("res://scripts/bench/dust_sim.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
+const Ids = preload("res://scripts/data/ids.gd")
 
 const STEP: float = 1.0 / 60.0
 var view: Node2D
+var smoke: bool = false
+var tuning: bool = false
 
 
 var waited: float = 0.0
@@ -18,6 +21,8 @@ var last_progress: float = 0.0   # the frame-time table waits for real frames; i
 
 
 func _initialize() -> void:
+    smoke = "--smoke" in OS.get_cmdline_user_args()
+    tuning = "--tuning" in OS.get_cmdline_user_args()
     call_deferred("run")
 
 
@@ -42,12 +47,15 @@ func run() -> void:
     for i in range(view.zones.size()):
         print("  %-13s %s" % [view.zones[i]["id"], str(view._zone_rect(i))])
     print("PLAYTEST bin hose anchor %s, hose length %.0f" % [str(DustBin.hose_anchor()), view.tools.hose.length()])
+    print("Diagnostic mode: %s" % ("smoke" if smoke else "full"))
     brush_table()
     vacuum_table()
     reach_table()
     click_table()
     paste_table()
-    await frame_time_table()
+    state_table()
+    if not smoke: await frame_time_table()
+    if tuning: tuning_table()
     view.queue_free()
     gs.save_path = original_path
     print("Playtest finished")
@@ -76,7 +84,7 @@ func brush_table() -> void:
     print("PLAYTEST BRUSH  zone          angle  stroke  tossed/bundles  shed  mean_grip_left  reachable")
     for id: String in ["case_fan", "cooler", "motherboard", "gpu", "psu", "front_filter"]:
         var zi: int = zone_index(id)
-        for angle_steps in [0, 3, 6, 9, 12, 15, 18, 21]:
+        for angle_steps in ([0,6] if smoke else [0,3,6,9,12,15,18,21]):
             for stroke: Vector2 in [Vector2(1, 0), Vector2(0, 1)]:
                 reset_bench(Dust.TOOL_BRUSH, angle_steps)
                 var dust: RefCounted = view.dust
@@ -109,7 +117,7 @@ func vacuum_table() -> void:
     print("PLAYTEST VACUUM zone          angle  removed  mean_nozzle_offset  max_offset  bin")
     for id: String in ["case_fan", "cooler", "motherboard", "gpu", "psu", "front_filter"]:
         var zi: int = zone_index(id)
-        for angle_steps in [0, 6, 12, 18]:
+        for angle_steps in ([0] if smoke else [0,6,12,18]):
             reset_bench(Dust.TOOL_VACUUM, angle_steps)
             view.bin.empty()
             var center: Vector2 = view._zone_rect(zi).get_center()
@@ -146,8 +154,8 @@ func reach_table() -> void:
 func click_table() -> void:
     print("PLAYTEST CLICK  held     angle  placed  after_click_holding  now_in_hand")
     for held: int in [Dust.TOOL_VACUUM, Dust.TOOL_BRUSH]:
-        for angle_steps in [0, 3, 6, 9, 12, 15, 18, 21]:
-            for placed: Vector2 in [Vector2(-50, 0), Vector2(50, 0), Vector2(0, 60), Vector2(0, -60), Vector2(-40, 40)]:
+        for angle_steps in ([0,6] if smoke else [0,3,6,9,12,15,18,21]):
+            for placed: Vector2 in ([Vector2(-50,0)] if smoke else [Vector2(-50,0),Vector2(50,0),Vector2(0,60),Vector2(0,-60),Vector2(-40,40)]):
                 reset_bench(held, angle_steps)
                 var pointer := Vector2(300, 260)
                 view.scripted_pointer = pointer
@@ -179,9 +187,9 @@ func paste_table() -> void:
     view.scripted_pointer = Vector2(320, 350)
     view._select_stage(view.STAGE_PASTE)
     var cpu_center: Vector2 = view.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(view.PASTE_CELL)
-    for pattern: String in ["dot", "x", "line", "five"]:
-        for squeeze in [1.5, 2.0, 2.5, 3.5]:
-            for press in [1.0, 2.5, 4.0, 6.0, 10.0]:
+    for pattern: String in (["dot"] if smoke else ["dot","x","line","five"]):
+        for squeeze in ([2.0] if smoke else [1.5,2.0,2.5,3.5]):
+            for press in ([2.5] if smoke else [1.0,2.5,4.0,6.0,10.0]):
                 view._on_clear_pressed()
                 view.wiping = false
                 view.tools.select("syringe", cpu_center)
@@ -314,3 +322,86 @@ func drive_scene(scene: String, frame: int) -> void:
         view.scripted_pointer = center + Vector2(25.0 * sin(TAU * 2.5 * t), 0.0)
     elif scene == "vacuum + moving hose":
         view.scripted_pointer = center + Vector2(160.0 * sin(TAU * 0.5 * t), 70.0 * cos(TAU * 0.7 * t))
+
+
+# Hand states (docs/HAND_STATES.md, step 5): walk one action sequence and print the derived state
+# after each act. Expected values are printed beside it so a drift is visible in the log.
+func state_table() -> void:
+    print("PLAYTEST STATE  act                       state            expected")
+    view._select_stage(view.STAGE_CLEAN)
+    view.holding = false
+    var cursor: Vector2 = view._zone_rect(zone_index("motherboard")).get_center()
+    view.scripted_pointer = cursor
+    view._select_tool(Dust.TOOL_VACUUM)
+    for frame in range(10): view._physics_process(STEP)
+    state_row("take the vacuum", "USING_TOOL")
+    view.tools.park()
+    state_row("park it", "FREE")
+    view.tools.select(Ids.VACUUM, cursor)
+    state_row("pick it up again", "USING_TOOL")
+    view.tools.begin_throw(cursor)
+    state_row("right-press (wind up)", "THROWING")
+    view.tools.release_throw(Vector2(300, 0))
+    state_row("release (it flies)", "FREE")
+    for frame in range(120): view._physics_process(STEP)
+    var grabbed: bool = view.tools.grab_hose(view.tools.hose.pos[8])
+    state_row("grab the hose" + ("" if grabbed else " (MISSED)"), "CARRYING_HOSE")
+    view.tools.release_hose()
+    state_row("let go of the hose", "FREE")
+    var clamped: bool = view.tools.begin_clamp_drag(view.tools.clamp_rect().get_center())
+    state_row("take the clamp" + ("" if clamped else " (MISSED)"), "DRAGGING_CLAMP")
+    view.tools.end_clamp_drag()
+    state_row("park the clamp", "FREE")
+    var part: bool = view.access.begin(view.access.current_rect(Ids.COOLER).get_center())
+    state_row("lift the cooler" + ("" if part else " (MISSED)"), "DRAGGING_PART")
+    view.access.finish(view.access.drag_rect.get_center())
+    state_row("set the cooler down", "FREE")
+    var coin: int = view.items.spawn("coin", view.scripted_pointer)
+    view.items.pick(view.scripted_pointer)
+    state_row("pick up a loose coin", "CARRYING_ITEM")
+    view.items.drop(view.scripted_pointer + Vector2(30, 0), ToolRig.TABLE)
+    state_row("drop the coin", "FREE")
+    coin = view.items.hit(view.scripted_pointer + Vector2(30, 0))
+    if coin >= 0:
+        view.items.kinds.remove_at(coin)
+        view.items.centers.remove_at(coin)
+        view.items.angles.remove_at(coin)
+    view._open_replacements()
+    state_row("open the stock panel", "PANEL_OPEN")
+    view.replacement_panel.hide()
+    state_row("close the stock panel", "FREE")
+    view._select_stage(view.STAGE_PASTE)
+    view._on_clear_pressed()
+    view.tools.select(Ids.SYRINGE, view.PASTE_ORIGIN + Vector2(200, 200))
+    view.scripted_pointer = view.PASTE_ORIGIN + Vector2(204, 204)
+    view.holding = true
+    for frame in range(100): view._physics_process(STEP)
+    view.holding = false
+    view._on_mount_pressed()
+    state_row("mount the cooler", "MOUNTING")
+    view._finish_mount()
+    state_row("pull the lever", "FREE")
+    view._select_stage(view.STAGE_CLEAN)
+
+
+func state_row(act: String, expected: String) -> void:
+    var got: String = view.hand_state()
+    print("PLAYTEST STATE  %-25s %-16s %s%s" % [act, got, expected, "" if got == expected else "   <-- MISMATCH"])
+
+
+# Optional tuning observation; no historical balance threshold gates a code change.
+func tuning_table() -> void:
+    var dust := Dust.new()
+    dust.setup(view.zones,Vector2.ZERO,12345)
+    var duration: float = 0.0
+    while dust.remaining_fraction() > 0.0 and duration < 90.0:
+        var target: int = -1
+        for b in range(dust.count):
+            if dust.b_state[b] != Dust.GONE:
+                target = b
+                break
+        if target < 0: break
+        var nodes: PackedVector2Array = dust.shown[target]
+        dust.step(STEP,Dust.TOOL_VACUUM,nodes[nodes.size()/2],Vector2.ZERO,true)
+        duration += STEP
+    print("TUNING vacuum_clear_seconds=%.2f remaining=%.4f (simulation only; no human travel, blockers or bin)" % [duration,dust.remaining_fraction()])

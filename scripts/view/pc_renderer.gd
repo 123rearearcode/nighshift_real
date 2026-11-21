@@ -1,5 +1,6 @@
 # Presentation only. Uses the shared geometry; no compatibility or physics here.
 extends RefCounted
+const Ids = preload("res://scripts/data/ids.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const Rules = preload("res://scripts/rules/placement_rules.gd")
 
@@ -11,7 +12,7 @@ static func fan(canvas: CanvasItem, center: Vector2, radius: float, angle: float
         canvas.draw_colored_polygon(points, Color("627e9a"))
     canvas.draw_circle(center, radius * 0.17, Color("98b5bd"))
 
-static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: Array, case_angle: float, cooler_angle: float, part_rects: Dictionary = {}, poses: Dictionary = {}) -> void:
+static func draw_static_pc(canvas: CanvasItem, profile_id: String, area: Rect2) -> void:
     var pc: Dictionary = PCLayout.profile(profile_id)
     var layout: Dictionary = PCLayout.display(pc, area)
     var board: Dictionary = pc["board"]
@@ -31,6 +32,12 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
                 canvas.draw_rect(rect, Color("4c8061"), false)
     var font: Font = ThemeDB.fallback_font
     canvas.draw_string(font, bounds.position + Vector2(5, 16), pc["name"] + " / " + str(pc["size"]) + " cells", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
+
+static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: Array, case_angle: float, cooler_angle: float, part_rects: Dictionary = {}, poses: Dictionary = {}, with_static: bool = true) -> void:
+    if with_static: draw_static_pc(canvas,profile_id,area)
+    var pc: Dictionary = PCLayout.profile(profile_id)
+    var cell: float = PCLayout.display(pc,area)["cell"]
+    var font: Font = ThemeDB.fallback_font
     for z: Dictionary in zones:
         if z.has("covered_by") or z["id"] == "case_interior": continue
         var r: Rect2 = z["rect"]
@@ -47,8 +54,8 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
         if id == "motherboard": col = Color("7c974c")
         canvas.draw_rect(r.grow(-2), col)
         canvas.draw_rect(r, Color("a4b6a2"), false, 1.0)
-        if id in ["cooler", "case_fan", "gpu"]:
-            fan(canvas, r.get_center(), minf(r.size.x, r.size.y) * 0.42, cooler_angle if id == "cooler" else case_angle)
+        if id in [Ids.COOLER, "case_fan", Ids.GPU]:
+            fan(canvas, r.get_center(), minf(r.size.x, r.size.y) * 0.42, cooler_angle if id == Ids.COOLER else case_angle)
         if id == "motherboard":
             for k in range(2):
                 canvas.draw_rect(Rect2(r.position + Vector2(4 + k * cell, 4), Vector2(cell - 8, r.size.y - 8)), Color("b4d96e"))

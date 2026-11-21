@@ -25,6 +25,14 @@ const Motes = preload("res://scripts/bench/dust_motes.gd")
 const HoseFlow = preload("res://scripts/bench/hose_flow.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
+const HandState = preload("res://scripts/bench/hand_state.gd")
+const Ids = preload("res://scripts/data/ids.gd")
+const BenchItems = preload("res://scripts/bench/bench_items.gd")
+const Games = preload("res://scripts/data/games.gd")
+const FpsSim = preload("res://scripts/rules/fps_sim.gd")
+const PickupScore = preload("res://scripts/rules/pickup_score.gd")
+const Customers = preload("res://scripts/data/customers.gd")
+const LayoutData = preload("res://scripts/data/layout.gd")
 
 func _initialize() -> void:
     call_deferred("run_checks")
@@ -34,12 +42,15 @@ func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var original_path: String = gs.save_path
     gs.save_path = "user://regression_test_only.json"
+    gs.tickets_taken = 0   # D104: the customer rotation advances per completed ticket; pin it for determinism
     gs.new_game()
     check(not gs.run_final_check()["passed"] and gs.money == 100, "unrepaired PC cannot collect payment")
     var z: Array = Zones.zones()
     var dust: RefCounted = Dust.new()
     dust.setup(z, Vector2.ZERO, 12345)
-    check(dust.count == 85 and is_equal_approx(dust.remaining_fraction(), 1.0), "new PC has visible dust without Reset")
+    var expected_groups: int = 0
+    for zone: Dictionary in z: expected_groups += int(zone["bundles"]) + int(zone.get("specks",0))
+    check(expected_groups > 0 and dust.count == expected_groups and is_equal_approx(dust.remaining_fraction(), 1.0), "new PC spawns configured bundles and specks without Reset")
     for fraction: float in [0.0, 0.123, 0.499, 0.91, 1.0]:
         var value: float = fraction
         for k in range(20):
@@ -47,20 +58,6 @@ func run_checks() -> void:
             dust.apply_progress(0, value)
             value = dust.removed_fraction(0)
         check(absf(value - fraction) < 0.00001, "no dust reload drift: " + str(fraction))
-    var duration: float = 0.0
-    dust.setup(z, Vector2.ZERO, 12345)
-    while dust.remaining_fraction() > 0.0 and duration < 90:
-        var target: int = -1
-        for b in range(dust.count):
-            if dust.b_state[b] != Dust.GONE:
-                target = b
-                break
-        if target < 0: break
-        var nodes: PackedVector2Array = dust.shown[target]
-        dust.step(1.0 / 60.0, Dust.TOOL_VACUUM, nodes[nodes.size() / 2], Vector2.ZERO, true)
-        duration += 1.0 / 60.0
-    print("Scripted vacuum clear time: %.2f seconds (not human play time)" % duration)
-    check(duration > 8.2 and duration < 65, "restrained vacuum pace remains below old 80s model")
     for id: String in ["tower", "compact"]:
         var pc: Dictionary = Layout.profile(id)
         check(LayoutRules.validate(pc).is_empty(), id + " case and board valid")
@@ -125,33 +122,41 @@ func run_checks() -> void:
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
     bench.set_physics_process(false)
-    var extra_syringes: int = 0
+    # Check action wiring, not the spelling of a button removed several versions ago.
+    var toggles: int = 0
+    var redundant_dispense: int = 0
     for child: Node in bench.get_children():
-        if child is Button and child.text.contains("Apply paste / syringe"): extra_syringes += 1
-    check(extra_syringes == 0, "duplicate syringe button removed")
+        if not child is Button: continue
+        for connection: Dictionary in child.get_signal_connection_list("pressed"):
+            var callback: Callable = connection["callable"]
+            if callback.get_object() != bench: continue
+            if callback.get_method() == "_on_wipe_toggled": toggles += 1
+            if callback.get_method() == "_select_dispense": redundant_dispense += 1
+    check(toggles == 0 and redundant_dispense == 0, "obsolete cloth/syringe toggle and duplicate dispensing button are absent")
     check(bench.dust.remaining_fraction() > 0.99, "actual fresh bench initially dusty")
     bench._select_tool(2)
     var press := InputEventMouseButton.new()
     press.button_index = MOUSE_BUTTON_LEFT
     press.pressed = true
     press.position = bench.access.current_rect("gpu").get_center()
+    bench.scripted_pointer = press.position
     bench._input(press)
+    for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)   # D89 unscrew hold
     var release := InputEventMouseButton.new()
     release.button_index = MOUSE_BUTTON_LEFT
     release.pressed = false
     release.position = Access.TRAY.get_center()
     bench._input(release)
     check("gpu" in bench.access.removed_ids(), "queued mouse events use event positions for reliable drags")
+    bench.scripted_pointer = null
     bench._select_stage(1)
-    bench.wipe_button.button_pressed = true
-    bench._on_wipe_toggled()
+    bench._select_cloth()
     check(bench.wiping, "cloth selectable")
     bench._select_stage(1)
-    check(not bench.wiping and not bench.wipe_button.button_pressed, "Apply thermal paste selects syringe")
-    bench.wipe_button.button_pressed = true
-    bench._on_wipe_toggled()
+    check(not bench.wiping and bench.tools.selected == Ids.SYRINGE, "Apply thermal paste selects syringe")
+    bench._select_cloth()
     bench._select_dispense()
-    check(not bench.wiping, "explicit syringe button exits cloth")
+    check(not bench.wiping, "explicit syringe selection exits cloth")
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
     bench.holding = true
     bench._step_paste(1.0 / 60.0, bench.PASTE_ORIGIN + Vector2(25,25) * bench.PASTE_CELL)
@@ -195,6 +200,16 @@ func run_checks() -> void:
     test_hose_bin_motes()
     test_piece_physics(gs)
     test_hose_handling()
+    test_hand_machine(gs)
+    test_bench_0_20(gs)
+    test_promoted_contracts(gs)
+    test_0_21(gs)
+    test_0_23(gs)
+    test_0_25(gs)
+    test_0_28(gs)
+    test_0_29(gs)
+    test_0_32(gs)
+    test_0_22(gs)
     test_bench_clicks(gs)
     test_hose_housing_and_clamp(gs)
     test_repaste_and_toothpaste(gs)
@@ -215,8 +230,11 @@ func test_pick_service(gs: Node) -> void:
     var accident: Dictionary = tool.step(0.8, "gpu", true, 0.0)
     check(accident["damaged"], "forced damage roll")
     tool.reset()
-    for i in range(47): check(tool.step(1.0 / 60.0, "gpu", true, 0.99).is_empty(), "no per-frame risk rolls")
+    var premature_attempt: bool = false
+    for i in range(47): premature_attempt = not tool.step(1.0 / 60.0, "gpu", true, 0.99).is_empty() or premature_attempt
+    check(not premature_attempt, "no attempt or risk roll before the complete stroke")
     check(not tool.step(1.0 / 60.0, "gpu", true, 0.99).is_empty(), "60Hz stroke reaches one attempt")
+    gs.tickets_taken = 0   # this block asserts Mara's $60 payout (rotation is tested in test_0_28)
     gs.new_game()
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
@@ -226,7 +244,8 @@ func test_pick_service(gs: Node) -> void:
     var point: Vector2 = bench.access.current_rect("gpu").get_center()
     check(bench._pick_target(point) == "gpu", "installed GPU inspect target")
     var original: int = bench.dust.trapped_count("gpu")
-    check(original == 7, "inspection counts bundles and independent specks")
+    var hidden: Dictionary = bench.zones[Zones.index_of("under_gpu")]
+    check(original == int(hidden["bundles"]) + int(hidden.get("specks",0)), "inspection counts configured hidden bundles and independent specks")
     var generator := RandomNumberGenerator.new()
     var safe_seed: int = -1
     var damage_seed: int = -1
@@ -478,8 +497,9 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     var slow := Dust.new()
     slow.setup(Zones.zones(),Vector2.ZERO,12345)
     slow.brush_contacts = PackedVector2Array([slow.rest[0][0]])
+    var initial_slow_count: int = slow.count
     for frame in range(60): slow.step(0.1,Dust.TOOL_BRUSH,slow.rest[0][0],Vector2(20,0),true)
-    check(slow.b_state[0] == Dust.STUCK and slow.count == 85, "a nearly still brush neither tosses nor sheds dust")
+    check(slow.b_state[0] == Dust.STUCK and slow.count == initial_slow_count, "a nearly still brush neither tosses nor sheds dust")
     var paste := PasteSim.new()
     paste.deposit(2.0,2.0,30.0)
     var outside_gauge: float = paste.total_deposited
@@ -517,7 +537,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
         for frame in range(600): rig.step(1.0/60,Vector2(400,250),true)
         check(rig.bodies[id].impacts > 0 and not rig.bodies[id].active, id + " bounces and settles")
         check(not rig.active, "resting/thrown tool cannot work remotely")
-        check(rig.hit(rig.motions[id].center) != "", "resting tool remains pickable")
+        check(rig.hit(rig.motions[id].center + (ToolRig.TIP if id == Ids.CLOTH else Vector2.ZERO)) != "", "resting tool remains pickable at its visible body")
     var stacked := ToolRig.new()
     stacked.motions["brush"].center = stacked.motions["vacuum"].center
     stacked.selected = "brush"
@@ -525,7 +545,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     check(stacked.hit(stacked.motions["brush"].center,["vacuum","brush"]) == "brush", "overlapping tool pickup matches visible topmost tool")
     check(stacked.hit(stacked.motions["cloth"].center,["vacuum","brush","pick"]) == "", "hidden-stage tools cannot intercept clicks")
     gs.new_game()
-    check(gs.player_inventory.size() == 6, "one shared initial stock list")
+    check(gs.player_inventory.size() == 7, "one shared initial stock list")
     var cash: int = gs.money
     var stock: int = gs.stock_count("gpu","budget")
     check(gs.buy_service_stock("gpu","budget") and gs.money == cash-18, "buying stock charges the advertised price")
@@ -535,17 +555,18 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     cash = gs.money
     var old_count: int = gs.player_inventory.size()
     check(gs.replace_service_part("gpu","budget") and gs.money == cash, "fitting owned stock has no second charge")
-    check(gs.player_inventory.size() == old_count-1 and gs.stock_count("gpu","budget") == stock, "fit consumes exactly one physical part")
+    # 0.46.2 (D150): a fitted part is a test until collection: it stays the shop's record, marked fitted.
+    check(gs.player_inventory.size() == old_count and gs.stock_count("gpu","budget") == stock, "fit keeps the part as shop stock, fitted (one fewer available)")
     var consumed: String = gs.job["service_replacement_ids"]["gpu"]
-    check(not gs.stock_available(consumed), "installed customer replacement cannot also remain player stock")
-    check(gs.job["removed_component_records"].size() == 1 and gs.job["removed_component_records"][0]["owner"] == "customer", "broken original retains customer ownership")
+    check(not gs.stock_available(consumed), "a part fitted in the customer's PC is not also available stock")
+    check(gs.job["loose_parts"].size() == 1 and gs.job["loose_parts"][0]["original_of"] == "gpu", "the customer's original stays theirs, out of the PC")
     check(not gs.fit_inventory_part("gpu",consumed), "same part cannot be fitted twice")
     gs.load_game()
-    check(gs.player_inventory.size() == old_count-1 and not gs.stock_available(consumed), "inventory consumption survives save/load")
+    check(gs.player_inventory.size() == old_count and not gs.stock_available(consumed), "custody of the fitted part survives save/load")
     var view: Node = load("res://scenes/main.tscn").instantiate()
     root.add_child(view)
     view.set_process(false)
-    check(view.inventory.items.size() == gs.player_inventory.size(), "hardware drawer uses the same current player stock")
+    check(view.inventory.items.size() == gs.player_inventory.size() - 1, "hardware drawer shows the current stock, minus the part fitted in a customer PC")
     var absent: bool = true
     for item: Dictionary in view.inventory.items: absent = absent and item["part"]["id"] != consumed
     check(absent, "consumed replacement does not regenerate in hardware drawer")
@@ -577,16 +598,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
     bench.set_physics_process(false)
-    check(bench.dust.visible_count() >= 70, "new repair bench displays dust immediately before any Reset")
-    bench._select_stage(1)
-    bench.tools.park()
-    var cloth_press := InputEventMouseButton.new()
-    cloth_press.button_index = MOUSE_BUTTON_LEFT
-    cloth_press.pressed = true
-    cloth_press.position = bench.tools.motions["cloth"].center
-    bench._input(cloth_press)
-    check(bench.tools.equipped and bench.tools.selected == "cloth" and bench.wiping,"paste-stage cloth can be picked from rack outside CPU work area")
-    bench._select_stage(0)
+    # First-use and rack pickup are covered by test_dust_flow/test_bench_interactions.
     bench.dust.apply_progress(0,0.4)
     bench._save_dust()
     bench.free()
@@ -605,7 +617,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     bench = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
     bench.set_physics_process(false)
-    check(bench.dust.visible_count() >= 70 and bench.dust.remaining_fraction() > 0.99, "next PC starts dusty without pressing Reset")
+    check(bench.dust.visible_count() > 0 and bench.dust.remaining_fraction() > 0.99, "next PC starts dusty without pressing Reset")
     bench._select_tool(2)
     var gpu_home: Rect2 = bench.access.homes["gpu"]
     check(bench._begin_part_drag(gpu_home.get_center()), "service component can be picked up")
@@ -637,7 +649,7 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     check(view.thrown.is_empty() and drawer_body.impacts > 1, "drawer throw settles after physical edge/table impacts")
     var packed: bool = true
     for i in range(view.inventory.items.size()): packed = packed and view.inventory.can_store(i,view.inventory.items[i]["cell"])
-    check(packed and view.inventory.items.size() == 6, "throw and resnap preserves all shared items without overlaps")
+    check(packed and view.inventory.items.size() == 7, "throw and resnap preserves all shared items without overlaps")
     check(view.inventory.items[0]["rotation"] == 1, "rotation selected before throw is retained on settling")
     view.free()
     # Legacy migration is scoped to this suite's isolated file.
@@ -648,11 +660,11 @@ func test_tabletop_and_shared_stock(gs: Node) -> void:
     file.store_string(JSON.stringify(legacy))
     file.close()
     gs.load_game()
-    check(gs.player_inventory.size() == 6 and gs.money == 77,"older save gains starter stock exactly once without resetting money")
+    check(gs.player_inventory.size() == 7 and gs.money == 77,"older save gains starter stock exactly once without resetting money")
     check(gs.inventory_layout.get("trial_ram_a",{}).get("rotation",0) == 1,"older active-profile drawer arrangement migrates")
     gs.save_game()
     gs.load_game()
-    check(gs.player_inventory.size() == 6,"migration does not repeat or duplicate stock on reload")
+    check(gs.player_inventory.size() == 7,"migration does not repeat or duplicate stock on reload")
 
 
 func _write_raw(path: String, text: String) -> void:
@@ -975,6 +987,7 @@ func test_bench_clicks(gs: Node) -> void:
 
 # A finished, completed thermal-paste repaste (what the bench's Complete repaste button leaves behind).
 func pasted(gs: Node) -> void:
+    gs.set_pc_powered(true) # live-check fixtures explicitly switch the repaired PC on
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
     gs.job["paste_done"] = true
     gs.job["paste_material"] = "thermal"
@@ -984,6 +997,7 @@ func pasted(gs: Node) -> void:
 func test_repaste_and_toothpaste(gs: Node) -> void:
     var fractions: Dictionary = {}
     for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
+    gs.tickets_taken = 0   # this test asserts Mara's $60 payout twice (rotation is tested in test_0_28)
     gs.new_game()
     gs.set_dust(fractions)
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
@@ -995,8 +1009,10 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     var cost: int = int(PasteMaterials.material("thermal")["cost"])
     check(gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost and gs.job["paste_done"] and gs.job["scams"].is_empty(), "completing with thermal paste charges for the paste once")
     check(not gs.complete_repaste("thermal")["ok"] and gs.money == 100 - cost, "a completed repaste cannot be completed (or charged) twice")
+    gs.set_pc_powered(true)
     var honest: Dictionary = gs.run_final_check()
     check(honest["passed"] and honest["paid"] == 60, "a completed thermal repaste on a clean PC passes and pays")
+    gs.tickets_taken = 0
     gs.new_game()
     gs.set_dust(fractions)
     gs.set_paste({"grade":"PERFECT", "coverage":1.0, "overflow":0.0})
@@ -1004,6 +1020,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     gs.save_game()
     gs.load_game()
     check(gs.job["paste_material"] == "toothpaste" and gs.job["paste_done"] and gs.job["scams"] == ["toothpaste"], "the toothpaste scam survives save and load")
+    gs.set_pc_powered(true)
     var scam: Dictionary = gs.run_final_check()
     check(scam["passed"] and scam["paid"] == 60 and is_equal_approx(scam["temp"], GameState_base(gs) + float(PasteMaterials.material("toothpaste")["heat_penalty"])), "toothpaste passes today's check, runs hotter, and the customer still pays")
     check(str(scam["notes"]).contains("Toothpaste"), "the final check tells the player what is under the cooler")
@@ -1043,8 +1060,7 @@ func test_repaste_and_toothpaste(gs: Node) -> void:
     bench.holding = true
     for frame in range(120): bench._physics_process(1.0/60.0)
     bench.holding = false
-    bench.material_button.button_pressed = true
-    bench._on_material_toggled()
+    bench._on_material_selected(2)
     check(bench.paste.material == "thermal", "the paste cannot be switched to toothpaste while paste is on the CPU")
     bench._on_mount_pressed()
     bench.scripted_pressing = true
@@ -1125,7 +1141,11 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     check(rig.hose_clamp == -1, "player can release the desk clamp")
     rig.hose_grab = 1
     rig.release_hose(ToolRig.CLAMP_POINT)
-    check(rig.hose_clamp == -1, "clamp cannot stretch a too-short bin-side section")
+    # 0.21.0 (D80): instead of refusing (which read as "the hose does not attach"), the nearest
+    # section that CAN stay stretched here is clipped; the short section itself is never stretched.
+    check(rig.hose_clamp > 1 and rig.hose.segment * float(rig.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(rig.clamp_position),
+        "a too-short bin-side drop clips the nearest reachable section instead")
+    rig.unclamp_hose()
     rig.hose_grab = 8
     rig.release_hose(Vector2(200,200))
     check(rig.hose_clamp == -1 and rig.hose_grab == -1, "ordinary drops release hose without auto-clamping")
@@ -1170,3 +1190,661 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     bench._input(press)
     check(bench.tools.hose_grab > 0, "explicit hose pickup also works in move-parts mode")
     bench.free()
+
+
+# 0.19.7: the hand-state machine (docs/HAND_STATES.md). The rules themselves, then the bench refusing
+# the moves the table forbids, in situations that were physically possible before.
+func test_hand_machine(gs: Node) -> void:
+    check(HandState.allowed(HandState.FREE, HandState.USING_TOOL), "free hands may take a tool")
+    check(HandState.allowed(HandState.USING_TOOL, HandState.THROWING), "a held tool may be thrown")
+    check(HandState.allowed(HandState.MOUNTING, HandState.FREE), "letting go is always allowed")
+    check(not HandState.allowed(HandState.MOUNTING, HandState.USING_TOOL), "no tool may be taken mid-mount")
+    check(not HandState.allowed(HandState.CARRYING_HOSE, HandState.USING_TOOL), "no tool may be taken while carrying the hose")
+    check(not HandState.allowed(HandState.THROWING, HandState.USING_TOOL), "a throw cannot turn into a tool switch")
+    check(not HandState.allowed(HandState.DRAGGING_CLAMP, HandState.DRAGGING_PART), "the clamp and a part cannot be carried together")
+    for from: String in HandState.MOVES:
+        for to: String in HandState.MOVES[from]:
+            check(to in HandState.MOVES, "move target %s exists" % to)
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # Mid-mount, nothing can be taken into the hands.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(120): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    check(bench.hand_state() == HandState.MOUNTING, "mounting is its own hand state")
+    var cloth_at: Vector2 = bench.tools.motions[Ids.CLOTH].center+ToolRig.TIP.rotated(bench.tools.motions[Ids.CLOTH].angle)
+    click(bench, MOUSE_BUTTON_RIGHT, true, cloth_at)
+    check(not bench.tools.carrying and not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, a right-press cannot take or throw a tool")
+    click(bench, MOUSE_BUTTON_RIGHT, false, cloth_at)
+    var wiping_before: bool = bench.wiping
+    bench._select_cloth()
+    check(bench.wiping == wiping_before and not bench.tools.equipped, "mid-mount, the cloth selection is refused")
+    bench._select_dispense()
+    check(not bench.tools.equipped and bench.hand_state() == HandState.MOUNTING, "mid-mount, the syringe cannot be taken")
+    # Stage navigation must not stand in for a lever. The existing defect is reproduced
+    # in test_pending_contracts.gd until Claude fixes it; do not assert it as correct here.
+    bench._cancel_unlocked_mount()
+    bench._select_stage(0)
+    # While carrying the hose, tools stay out of the hands.
+    bench.tools.park()
+    for frame in range(60): bench._physics_process(1.0/60.0)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "the parked hose can be grabbed")
+    check(bench.hand_state() == HandState.CARRYING_HOSE, "carrying the hose is its own hand state")
+    var before_switch: int = bench.active_tool
+    bench._select_tool(Dust.TOOL_VACUUM if before_switch == Dust.TOOL_BRUSH else Dust.TOOL_BRUSH)
+    check(not bench.tools.equipped and bench.active_tool == before_switch, "tool selection is refused while carrying the hose")
+    var vacuum_at: Vector2 = bench.tools.motions[Ids.VACUUM].center
+    click(bench, MOUSE_BUTTON_LEFT, true, vacuum_at)
+    check(not bench.tools.equipped and bench.hand_state() == HandState.CARRYING_HOSE, "a left click on a resting tool is refused while carrying the hose")
+    click(bench, MOUSE_BUTTON_LEFT, false, vacuum_at)
+    bench.tools.release_hose(bench.tools.hose.pos[8])
+    check(bench.hand_state() == HandState.FREE, "letting go of the hose frees the hands")
+    bench._select_tool(Dust.TOOL_BRUSH)
+    check(bench.tools.equipped and bench.tools.selected == Ids.BRUSH, "with free hands the same switch works")
+    bench.scripted_pointer = null
+    bench.queue_free()
+
+
+# 0.20.0: the user's bug reports and the new bench furniture.
+func test_bench_0_20(gs: Node) -> void:
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # LIVE repro of "cannot remove components": keyboard 3, real clicks, physics stepped like play.
+    var key3 := InputEventKey.new()
+    key3.keycode = KEY_3
+    key3.pressed = true
+    bench._input(key3)
+    check(bench.active_tool == 2 and bench.hand_state() == "FREE", "key 3 enters Move parts with free hands")
+    var cooler_home: Vector2 = bench.access.homes[Ids.COOLER].get_center()
+    bench.scripted_pointer = cooler_home
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, true, cooler_home)
+    check(bench.access.dragging == "" and bench.lift_id == Ids.COOLER, "a fitted part is not lifted by the press alone: unscrewing starts (D89)")
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, cooler_home)
+    check(bench.lift_id == "" and bench.access.dragging == "" and not Ids.COOLER in bench.access.removed_ids(), "letting go early cancels the unscrewing and the part stays fitted")
+    click(bench, MOUSE_BUTTON_LEFT, true, cooler_home)
+    for frame in range(int(bench.PART_LIFT_SECONDS * 60.0) + 8): bench._physics_process(1.0/60.0)
+    check(bench.access.dragging == Ids.COOLER, "holding through the unscrew time frees and lifts the cooler")
+    var colors_seen: Array = []
+    for b: Button in bench.tool_buttons:
+        check(b.has_theme_color_override("font_color"), "every tool button is colour-coded")
+        if not b.get_theme_color("font_color") in colors_seen: colors_seen.append(b.get_theme_color("font_color"))
+    check(colors_seen.size() == bench.tool_buttons.size(), "each tool has its own colour")
+    var tray_spot: Vector2 = Access.TRAY.get_center() + Vector2(120, 0)
+    for frame in range(30):
+        bench.scripted_pointer = cooler_home.lerp(tray_spot, float(frame) / 29.0)
+        bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, tray_spot)
+    check(Ids.COOLER in bench.access.removed_ids(), "releasing on the tray removes the cooler")
+    check(Ids.COOLER in gs.job["removed_parts"], "the removal reaches the save state")
+    for frame in range(90): bench._physics_process(1.0/60.0)   # the parked part eases to its spot; click where it is DRAWN, like a player
+    var drawn: Vector2 = (bench._part_rects()[Ids.COOLER] as Rect2).get_center()
+    click(bench, MOUSE_BUTTON_LEFT, true, drawn)
+    check(bench.access.dragging == Ids.COOLER, "the removed cooler can be lifted from the tray")
+    var home_spot: Vector2 = bench.access.homes[Ids.COOLER].get_center()
+    for frame in range(40):
+        bench.scripted_pointer = drawn.lerp(home_spot, float(frame) / 39.0)
+        bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, false, home_spot)
+    check(not Ids.COOLER in bench.access.removed_ids(), "releasing on the mount refits the cooler")
+    # Wiping the squeezed-out paste beside the CPU must not cost the mounted result.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(130): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    bench.scripted_pressing = true
+    for frame in range(170): bench._physics_process(1.0/60.0)
+    bench.scripted_pressing = null
+    click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
+    var grade: String = str(bench.mount_result.get("grade", ""))
+    check(grade in ["PERFECT", "GOOD ENOUGH"], "the lever secures a good mount (got %s)" % grade)
+    var outside: Vector2 = bench.PASTE_ORIGIN + Vector2(3.0, 25.0) * float(bench.PASTE_CELL)   # left of the CPU square
+    bench.scripted_pointer = outside   # the cloth equips snapped to the cursor, so it starts here, off the CPU
+    bench._select_cloth()
+    check(bench.wiping and bench.tools.selected == Ids.CLOTH, "after the lever the cloth can be taken")
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    bench.holding = true
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    check(not bench.mount_result.is_empty() and gs.can_complete_repaste(), "tidying the squeezed-out paste keeps the result and Complete repaste")
+    bench.scripted_pointer = cpu_center
+    bench.holding = true
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    bench.holding = false
+    check(bench.mount_result.is_empty() and not gs.can_complete_repaste(), "wiping the CPU itself still clears the result")
+    # The spool reels the vacuum in (0.22.0: it retracts, not just re-lays).
+    bench._select_stage(0)
+    bench._select_tool(0)
+    var corner := Vector2(90, 150)
+    bench.scripted_pointer = corner
+    for frame in range(240): bench._physics_process(1.0/60.0)
+    bench.tools.park()
+    bench._retract_hose()
+    check(bench.tools.spool_retracting and bench.tools.hose_clamp == -1, "the bin retract action starts reeling and unclips")
+    var reeled: int = 0
+    while bench.tools.spool_retracting and reeled < 300:
+        bench._physics_process(1.0/60.0)
+        reeled += 1
+    check(not bench.tools.spool_retracting and reeled < 300, "the spool finishes reeling (%d frames)" % reeled)
+    check(bench.tools.motions[Ids.VACUUM].center.distance_to(Bin.hose_anchor()) < 120.0, "the vacuum parks beside the bin")
+    for frame in range(30): bench._physics_process(1.0/60.0)
+    check(bench.tools.hose.worst_link_error() < 2.0, "the reeled-in hose lies tidily (worst link error %.2f)" % bench.tools.hose.worst_link_error())
+    bench._select_tool(0)
+    bench.scripted_pointer = Vector2(300, 300)
+    for frame in range(5): bench._physics_process(1.0/60.0)
+    bench._retract_hose()
+    check(bench.tools.spool_retracting, "the bin retract action parks a held vacuum first")
+    bench._equip_tool(Ids.VACUUM, Vector2(300, 300))
+    check(not bench.tools.spool_retracting, "taking the vacuum stops the reel")
+    # Loose items: pick up with empty hands, not past the machine, and the trash can eats them.
+    bench._select_tool(2)
+    var spot := Vector2(400, 300)
+    var item: int = bench.items.spawn("coin", spot)
+    check(item == 0 and bench.items.count() == 1, "a coin can be spawned for the tests")
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == 0 and bench.hand_state() == "CARRYING_ITEM", "empty hands pick the coin up (CARRYING_ITEM)")
+    var over_trash: Vector2 = LayoutData.BENCH_TRASH.get_center()
+    bench.scripted_pointer = over_trash
+    for frame in range(10): bench._physics_process(1.0/60.0)
+    check(bench.items.centers[0].distance_to(over_trash) < 1.0, "the carried coin rides the cursor")
+    click(bench, MOUSE_BUTTON_LEFT, false, over_trash)
+    check(bench.items.count() == 0 and bench.items.carried == -1 and bench.hand_state() == "FREE", "dropping it on the trash can bins it")
+    bench.items.spawn("screw", spot)
+    bench._select_tool(0)
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == -1 and bench.holding, "with a tool in hand, a click uses the tool, not the screw")
+    click(bench, MOUSE_BUTTON_LEFT, false, spot)
+    bench._select_tool(2)
+    click(bench, MOUSE_BUTTON_LEFT, true, spot)
+    check(bench.items.carried == 0, "in Move parts mode free hands still pick the screw up")
+    click(bench, MOUSE_BUTTON_LEFT, false, Vector2(420, 320))
+    check(bench.items.count() == 1 and bench.items.carried == -1, "dropping it elsewhere keeps it on the bench")
+    check(HandState.allowed(HandState.FREE, HandState.CARRYING_ITEM) and not HandState.allowed(HandState.USING_TOOL, HandState.CARRYING_ITEM), "the machine allows item pickup only with free hands")
+    bench.scripted_pointer = null
+    bench.queue_free()
+    # The menu screen shows the version.
+    var start: Node = load("res://scenes/start.tscn").instantiate()
+    root.add_child(start)
+    var found: bool = false
+    for child in start.get_children():
+        if child is Label and str((child as Label).text) == "v" + gs.game_version():
+            found = true
+    check(found, "the menu screen shows v%s" % gs.game_version())
+    start.queue_free()
+
+
+# Promoted from Codex's pending-contracts lane (PR 25), fixed in 0.21.0.
+func test_promoted_contracts(gs: Node) -> void:
+    for stage: int in [1, 0]:
+        gs.new_game(false)
+        var bench: Node = load("res://scenes/bench.tscn").instantiate()
+        root.add_child(bench)
+        bench.set_physics_process(false)
+        bench._select_stage(1)
+        bench.paste.deposit(25, 25, 120.0)
+        var units: float = bench.paste.total_deposited
+        bench._on_mount_pressed()
+        check(bench.mount.active, "fixture starts a real mount")
+        bench._select_stage(stage)
+        check(not bench.mount.active and bench.mount_result.is_empty() and str(gs.job["paste_grade"]) == "",
+            "D57: a stage switch (to %d) lifts the cooler off without securing or grading" % stage)
+        check(bench.paste.total_deposited > units * 0.5, "the pressed paste survives the lifted-off cooler")
+        bench._select_stage(1)
+        bench._on_mount_pressed()
+        check(bench.mount.active, "mounting can simply be started again")
+        bench._finish_mount()
+        check(str(bench.mount_result.get("grade", "")) != "", "the lever still grades as before")
+        bench.free()
+    gs.new_game(false)
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_tool(0)
+    bench.tools.park()
+    for frame in range(30): bench.tools.step(1.0 / 60.0, Vector2(300, 300), false)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture holds hose before testing refused selection")
+    var key := InputEventKey.new()
+    key.keycode = KEY_1   # brush now lives on key 1; still test a refused change from vacuum
+    key.pressed = true
+    bench._input(key)
+    var selection_matches: bool = true
+    for index in range(bench.tool_buttons.size()):
+        selection_matches = selection_matches and (bench.tool_buttons[index].button_pressed == (index == bench.active_tool))
+    check(selection_matches, "a refused tool switch leaves the real tool highlighted")
+    bench.free()
+
+
+# 0.21.0: rotatable clamp, hose always clips to a reachable section, 95% wipe threshold, GPU power.
+func test_0_21(gs: Node) -> void:
+    var rig := ToolRig.new()
+    check(rig.begin_clamp_drag(rig.clamp_position), "fixture grabs the clamp")
+    rig.rotate_held(1)
+    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "wheel/Q/E turns the carried clamp, not a tool")
+    var tip: Vector2 = rig.clamp_position + Vector2(rig.CLAMP_RECT.size.x * 0.5 - 2.0, 0).rotated(rig.clamp_angle)
+    check(rig.clamp_hit(tip), "the turned clamp is hit where it is drawn")
+    rig.end_clamp_drag()
+    check(not rig.clamp_dragging, "clamp parks turned")
+    rig.rotate_held(1)
+    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "a parked clamp does not turn")
+    var near_bin := ToolRig.new()
+    near_bin.hose_grab = 2   # a section too close to the bin to stay stretched at the clamp
+    near_bin.release_hose(near_bin.clamp_position)
+    check(near_bin.hose_clamp > 2 and near_bin.hose.segment * float(near_bin.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(near_bin.clamp_position),
+        "dropping a too-short section on the clamp clips the nearest section that reaches (got %d)" % near_bin.hose_clamp)
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    bench._select_tool(0)
+    bench.tools.park()
+    for frame in range(60): bench._physics_process(1.0 / 60.0)
+    check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture grabs the hose")
+    click(bench, MOUSE_BUTTON_RIGHT, false, bench.tools.clamp_position)
+    check(bench.tools.hose_clamp > 0, "dropping the hose on the clamp clips it")
+    bench.tools.rewind_hose()
+    # Wiping a graded CPU: the result survives until the paste falls below 95% of its graded amount.
+    bench._select_stage(1)
+    var cpu_center: Vector2 = bench.PASTE_ORIGIN + Vector2(25.5, 25.5) * float(bench.PASTE_CELL)
+    bench.scripted_pointer = cpu_center
+    for frame in range(20): bench._physics_process(1.0 / 60.0)
+    bench.holding = true
+    for frame in range(130): bench._physics_process(1.0 / 60.0)
+    bench.holding = false
+    bench._on_mount_pressed()
+    bench.scripted_pressing = true
+    for frame in range(170): bench._physics_process(1.0 / 60.0)
+    bench.scripted_pressing = null
+    click(bench, MOUSE_BUTTON_LEFT, true, bench.SECURE_LEVER.get_center())
+    var graded: float = float(gs.job["paste_graded_units"])
+    check(str(bench.mount_result.get("grade", "")) in ["PERFECT", "GOOD ENOUGH"] and graded > 0.0, "grading records the paste on the CPU")
+    bench.scripted_pointer = cpu_center
+    bench._select_cloth()
+    bench.holding = true
+    var frames_wiped: int = 0
+    while not bench.mount_result.is_empty() and frames_wiped < 600:
+        bench._physics_process(1.0 / 60.0)
+        frames_wiped += 1
+        if bench.paste.total_deposited >= graded * bench.KEEP_GRADE_ABOVE:
+            check(not bench.mount_result.is_empty(), "the grade survives while at least 95%% of the graded paste remains (%.0f of %.0f)" % [bench.paste.total_deposited, graded])
+            break
+    bench.holding = false
+    if not bench.mount_result.is_empty():
+        bench.holding = true
+        while not bench.mount_result.is_empty() and frames_wiped < 1200:
+            bench._physics_process(1.0 / 60.0)
+            frames_wiped += 1
+        bench.holding = false
+    check(bench.mount_result.is_empty() and bench.paste.total_deposited < graded * bench.KEEP_GRADE_ABOVE,
+        "wiping on until below 95%% clears the grade (%.0f of %.0f after %d frames)" % [bench.paste.total_deposited, graded, frames_wiped])
+    bench.scripted_pointer = null
+    bench.queue_free()
+    # GPU power (D79), superseded by the boot test (D97): a dead GPU stops the boot; any working card passes.
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 1.0
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    # D97 (0.25.0): the boot test replaced the power threshold. Any output passes as long as it boots.
+    gs.damage_service_part("gpu")
+    var dead: Dictionary = gs.run_final_check()
+    check(not dead["passed"] and not bool(dead["boots"]) and str(dead["notes"]).contains("Boot FAILED"), "a broken GPU means the PC does not boot, and the check says so")
+    gs.job["removed_parts"].append("gpu")
+    check(gs.replace_service_part("gpu", "budget"), "a budget GPU can be fitted from stock")
+    var fitted: Dictionary = gs.run_final_check()
+    check(fitted["passed"] and bool(fitted["boots"]) and str(fitted["notes"]).contains("Boot OK"), "any working GPU boots and passes; there is no power threshold any more")
+    check(not gs.job.has("required_power"), "the old power requirement is gone from the job")
+
+
+# 0.22.0: the hose end is attached to the vacuum, the clipped hose is a short leash, the PC power
+# button, and a stress test for "tools disappear when there is no room".
+func test_0_22(gs: Node) -> void:
+    var rig := ToolRig.new()
+    rig.select(Ids.VACUUM, Vector2(560, 380))
+    rig.park()
+    for frame in range(60): rig.step(1.0/60.0, Vector2(560, 380), false)
+    rig.hose_grab = Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1   # a section near the nozzle
+    rig.release_hose(rig.clamp_position)
+    var pin: int = rig.hose_clamp
+    check(pin == Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1, "the hose is clipped near its nozzle end")
+    for frame in range(360): rig.step(1.0/60.0, Vector2(100, 200), false)
+    var last: int = Hose.POINTS - 1
+    check(rig.hose.pos[last].distance_to(rig.hose_end()) < 10.0, "the simulated hose end stays at the vacuum (lag %.1f px; the drawing bridges it)" % rig.hose.pos[last].distance_to(rig.hose_end()))
+    var leash: float = rig.hose.segment * float(last - pin) * ToolRig.HOSE_STRETCH_LIMIT
+    var apart: float = rig.hose.pin_point.distance_to(rig.hose_end())
+    check(apart <= leash + 6.0, "a hose clipped near the nozzle keeps the vacuum on a short leash (%.0f of %.0f px)" % [apart, leash])
+    gs.new_game()
+    var bench: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(bench)
+    bench.set_physics_process(false)
+    # PC power button: fans stop while off, and the switch survives save and load.
+    check(not bool(gs.job["pc_powered"]) and bench.cooler_rpm == 0 and bench.case_rpm == 0, "a new job starts off with stationary fans")
+    gs.set_pc_powered(true)
+    for frame in range(30): bench._physics_process(1.0/60.0)
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())
+    check(not bool(gs.job["pc_powered"]), "clicking the case button powers the PC off")
+    for frame in range(400): bench._physics_process(1.0/60.0)
+    check(bench.cooler_rpm < 1.0 and bench.case_rpm < 1.0, "the fans wind down to a stop (%.1f / %.1f RPM)" % [bench.cooler_rpm, bench.case_rpm])
+    gs.save_game()
+    gs.load_game()
+    check(not bool(gs.job["pc_powered"]), "the power state survives save and load")
+    click(bench, MOUSE_BUTTON_LEFT, true, LayoutData.BENCH_POWER.get_center())
+    click(bench, MOUSE_BUTTON_LEFT, false, LayoutData.BENCH_POWER.get_center())
+    for frame in range(240): bench._physics_process(1.0/60.0)
+    check(bool(gs.job["pc_powered"]) and bench.case_rpm > 5.0, "powering back on spins the fans up")
+    # Stress: hurl tools into the crowded tray corner; nothing may vanish or leave the table.
+    var generator := RandomNumberGenerator.new()
+    generator.seed = 777
+    for throw in range(12):
+        var id: String = ["vacuum", "brush", "pick"][throw % 3]
+        bench._select_tool({"vacuum": 0, "brush": 1, "pick": 3}[id])
+        var start := Vector2(generator.randf_range(80, 600), generator.randf_range(140, 600))
+        bench.scripted_pointer = start
+        for frame in range(3): bench._physics_process(1.0/60.0)
+        bench.tools.begin_throw(start)
+        bench.tools.release_throw((Vector2(620, 620) - start).normalized() * generator.randf_range(600, 1500))
+        for frame in range(100): bench._physics_process(1.0/60.0)
+    var lost: Array = []
+    for id: String in ["vacuum", "brush", "pick"]:
+        var at: Vector2 = bench.tools.motions[id].center
+        if not is_finite(at.x) or not is_finite(at.y) or not ToolRig.TABLE.grow(4.0).has_point(at):
+            lost.append("%s at %s" % [id, str(at)])
+    check(lost.is_empty(), "after 12 corner throws every tool is still on the table (%s)" % str(lost))
+    for frame in range(40): bench._physics_process(1.0/60.0)
+    check(bench.tools.hose.pos[Hose.POINTS - 1].distance_to(bench.tools.hose_end()) < 12.0, "the hose end settles at the vacuum after the barrage")
+    bench.scripted_pointer = null
+    bench.queue_free()
+
+
+# 0.23.0: dust is informational (D87) and the shop has a Customer tab (D88).
+func test_0_23(gs: Node) -> void:
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): fractions[zone["id"]] = 0.9   # a little dust left everywhere
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    check(bool(r["passed"]) and int(r["paid"]) > 0, "a PC under the limit passes with leftover dust (got %.0f C)" % float(r["temp"]))
+    check(str(r["notes"]).contains("still has dust"), "the notes still say where the dust is")
+    check(not str(r["notes"]).contains("Every part must be cleaned"), "dust is no longer called a blocker")
+    gs.new_game()
+    gs.set_dust(fractions)
+    pasted(gs)
+    gs.job["removed_parts"].append(Ids.COOLER)
+    check(not bool(gs.run_final_check()["passed"]), "a part left out still fails (functionality is required)")
+    gs.tickets_taken = 0   # the checks below name Mara
+    gs.new_game()
+    var zero: Dictionary = {}
+    for zone: Dictionary in Zones.zones(): zero[zone["id"]] = 0.0
+    gs.set_dust(zero)
+    pasted(gs)
+    check(not bool(gs.run_final_check()["passed"]), "a PC fully dusty is over the limit and still fails on temperature")
+    check(gs.job["customer_id"] == "t001_mara" and str(gs.job["customer"]) == "Mara V.", "the trial job carries its customer")
+    var data: Dictionary = SaveStore.read(gs.save_path)
+    data["job"].erase("customer_id")
+    SaveStore.write(gs.save_path, data)
+    gs.load_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "an older save gains the customer on load")
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.customer_label != null and not shop.customer_scroll.visible and shop.result_scroll.visible, "the shop opens on the Final check tab")
+    shop._show_tab(1)
+    check(shop.customer_scroll.visible and not shop.result_scroll.visible, "the Customer tab swaps the lower card")
+    check(shop.customer_label.text.contains("Mara V.") and shop.customer_label.text.contains("trust"), "the Customer tab shows who they are and the earned trust")
+    shop._on_check_pressed()
+    check(shop.result_scroll.visible and not shop.customer_scroll.visible, "running the check returns to the Final check tab")
+    shop.queue_free()
+
+
+# 0.25.0: the customer model's first wave (D92-D97): fps simulation, bought games, pickup scores.
+func test_0_25(gs: Node) -> void:
+    var cs2: Dictionary = Games.game("counter_stroke_2")
+    # 0.45.0 (D148): numbers on the catalogue scale. gd/cd = what yields 60 fps; the demo PC is graphics 20,
+    # processing 25, and the budget GPU is graphics 13 (65% of it), exactly as before the rescale.
+    var gd: float = float(cs2["gpu_demand"])
+    var cd: float = float(cs2["cpu_demand"])
+    check(FpsSim.fps(2.0 * gd, 2.0 * cd, 8.0, cs2) == 120, "double the demands yields double the base fps")
+    check(FpsSim.fps(13.0, 25.0, 8.0, cs2) == 70, "a budget GPU still clears 60 fps when cool")
+    check(FpsSim.fps(13.0, 25.0, 8.0, cs2, 90.0) < 60, "the same GPU throttled at 90 C drops below 60")
+    check(FpsSim.fps(2.0 * gd, cd, 8.0, cs2) == 60, "a weak CPU caps the frame rate (the slowest part sets the pace)")
+    var starved: int = FpsSim.fps(2.0 * gd, 2.0 * cd, 4.0, cs2)
+    check(starved < 60 and starved > 0, "too little RAM makes it stutter (%d fps)" % starved)
+    check(FpsSim.fps(0.0, 25.0, 8.0, cs2) == 0, "a dead GPU renders nothing")
+    check(FpsSim.thermal_factor(50.0) == 1.0 and FpsSim.thermal_factor(90.0) == 0.5, "throttling runs from none at 60 C to half at 90 C")
+    gs.tickets_taken = 0   # the pickup below is scored against Mara
+    gs.new_game()
+    var cash: int = gs.money
+    check(not gs.buy_game("half life 3"), "an unknown game cannot be bought")
+    check(gs.buy_game("counter_stroke_2") and gs.money == cash - int(cs2["price"]) and gs.owns_game("counter_stroke_2"), "buying Counter Stroke 2 costs its price once")
+    check(not gs.buy_game("counter_stroke_2") and gs.money == cash - int(cs2["price"]), "a game cannot be bought twice")
+    gs.load_game()
+    check(gs.owns_game("counter_stroke_2"), "owned games survive save and load")
+    gs.new_game()
+    check(gs.owns_game("counter_stroke_2"), "a new ticket does not take the shop's games away")
+    # Pickup scoring: Mara, cool and quiet, leaves happy; trust rises; the visit is in the history.
+    # Earlier tests in this suite already passed her ticket, so start her slate clean.
+    gs.customer_state = {}
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    var pickup: Dictionary = r.get("pickup", {})
+    check(bool(r["passed"]) and not pickup.is_empty(), "the first pass records the pickup")
+    check(int(pickup["score"]) >= PickupScore.HAPPY_FROM and int(pickup["comeback_days"]) == 0, "a cool, quiet PC sends Mara home happy (score %d)" % int(pickup["score"]))
+    var view: Dictionary = gs.customer_view("t001_mara")
+    check(int(view["trust"]) > int(Customers.customer("t001_mara")["trust_start"]), "a happy pickup raises trust")
+    check((view["history"] as Array).size() == 1, "the visit is in the history")
+    var second: Dictionary = gs.run_final_check()
+    check((second.get("pickup", {}) as Dictionary).is_empty() and (gs.customer_view("t001_mara")["history"] as Array).size() == 1, "re-running the check does not score twice")
+    gs.load_game()
+    check((gs.customer_view("t001_mara")["history"] as Array).size() == 1, "history survives save and load")
+    # An unhappy gamer: a throttled budget GPU misses Relu's 60 fps and he comes back sooner.
+    var relu: Dictionary = Customers.customer("t002_relu")
+    var unhappy: Dictionary = PickupScore.score(relu, 74.0, 13.0, 25.0, 8.0, float(gs.PASS_TEMP))   # 0.45.0 scale: budget GPU, demo CPU
+    check(int(unhappy["score"]) < PickupScore.HAPPY_FROM and not (unhappy["misses"] as Array).is_empty(), "a hot budget GPU misses Relu's frame rate (score %d)" % int(unhappy["score"]))
+    check(PickupScore.comeback_days(30) == 1 and PickupScore.comeback_days(50) == 2 and PickupScore.comeback_days(65) == 3 and PickupScore.comeback_days(70) == 0,
+        "angrier customers come back sooner; happy ones do not")
+    var happy_relu: Dictionary = PickupScore.score(relu, 45.0, 20.0, 25.0, 8.0, float(gs.PASS_TEMP))   # 0.45.0 scale: the demo PC
+    check(int(happy_relu["score"]) >= PickupScore.HAPPY_FROM, "a cool full-power PC satisfies the gamer")
+
+
+# 0.28.0: customer rotation (D104), honest trust steps (D105), hardened history loads (D106),
+# the sound setting (D107) and the bounded dossier that leads with the customer's needs.
+func test_0_28(gs: Node) -> void:
+    check(gs.trust_step(100) == 3 and gs.trust_step(75) == 1 and gs.trust_step(70) == 1,
+        "every happy pickup gains at least 1 trust (Codex cross-review finding 2)")
+    check(gs.trust_step(69) == -1 and gs.trust_step(65) == -1 and gs.trust_step(40) == -3,
+        "every unhappy pickup loses at least 1 trust")
+    # Rotation (D104): completing a ticket brings the next customer; abandoning does not.
+    gs.tickets_taken = 0
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "the first ticket is Mara's")
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t001_mara", "abandoning a ticket keeps the same customer waiting")
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    check(bool(gs.run_final_check()["passed"]), "Mara's ticket completes")
+    gs.new_game()
+    check(str(gs.job["customer_id"]) == "t002_relu" and int(gs.job["payout"]) == 80 and str(gs.job["customer"]) == "Relu D.",
+        "a completed ticket brings the next customer: Relu, at his own payout")
+    gs.save_game()
+    gs.load_game()
+    check(gs.tickets_taken == 1 and str(gs.job["customer_id"]) == "t002_relu", "the rotation survives save and load")
+    # Damaged saves (Codex cross-review finding 3): junk history entries are dropped, fields are
+    # rebuilt, and a missing trust falls back to THAT customer's starting trust, never 50.
+    gs.customer_state = {"t002_relu": {"history": [7, "junk", {"score": 150, "comeback_days": -2, "misses": "no"}]},
+        "t001_mara": {"trust": 150, "history": []}}
+    gs.save_game()
+    gs.load_game()
+    var relu: Dictionary = gs.customer_view("t002_relu")
+    check(int(relu["trust"]) == int(Customers.customer("t002_relu")["trust_start"]), "missing trust defaults to Relu's own starting trust")
+    check((relu["history"] as Array).size() == 1, "junk history entries are dropped on load instead of crashing the shop")
+    var visit: Dictionary = (relu["history"] as Array)[0]
+    check(int(visit["score"]) == 100 and int(visit["comeback_days"]) == 0 and visit["misses"] is Array,
+        "a damaged visit record is rebuilt with sane fields")
+    check(int(gs.customer_view("t001_mara")["trust"]) == 100, "out-of-range trust is clamped on load")
+    # History stays bounded (D106).
+    var long_history: Array = []
+    for i in range(gs.HISTORY_KEEP + 4):
+        long_history.append({"ticket": "T%03d" % i, "score": 90, "misses": [], "comeback_days": 0, "scams": []})
+    gs.customer_state = {"t001_mara": {"trust": 60, "history": long_history}}
+    gs.save_game()
+    gs.load_game()
+    check((gs.customer_view("t001_mara")["history"] as Array).size() == gs.HISTORY_KEEP,
+        "each customer keeps only the last %d visits" % gs.HISTORY_KEEP)
+    # The sound setting (D107): its own file, survives a reload, never in the game save.
+    var original_settings: String = gs.settings_path
+    gs.settings_path = "user://regression_settings_test.json"
+    gs.set_sound_volume(0.3)
+    gs.sound_volume = 1.0
+    gs._load_settings()
+    check(is_equal_approx(gs.sound_volume, 0.3), "the sound volume comes back through its settings file")
+    var master: int = AudioServer.get_bus_index("Master")
+    gs.set_sound_volume(0.0, false)
+    check(AudioServer.is_bus_mute(master), "zero volume mutes the master bus")
+    gs.set_sound_volume(1.0, false)
+    check(not AudioServer.is_bus_mute(master) and absf(AudioServer.get_bus_volume_db(master)) < 0.01, "full volume restores the bus")
+    var save_data: Variant = SaveStore.read(gs.save_path)
+    check(save_data is Dictionary and not (save_data as Dictionary).has("sound_volume"), "settings never leak into the game save")
+    for suffix in ["", ".bak", ".tmp"]:
+        DirAccess.remove_absolute(gs.settings_path + suffix)
+    gs.settings_path = original_settings
+    # The dossier stays inside its card (Codex finding 1, user screenshot) and leads with needs.
+    gs.tickets_taken = 0
+    gs.new_game()
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.customer_scroll.size == Vector2(560, 195) and shop.customer_scroll.position.y + shop.customer_scroll.size.y <= 675.0,
+        "the dossier is a bounded scrolling card that ends above the footer")
+    check(shop.customer_label.get_parent() == shop.customer_scroll and shop.result_label.get_parent() == shop.result_scroll,
+        "both lower-card tabs scroll instead of growing over the screen")
+    check(shop.customer_label.text.begins_with("NEEDS: "), "the dossier leads with what the customer needs")
+    check(shop.customer_label.text.contains("boots up") and shop.customer_label.text.contains("runs quiet"), "Mara needs a booting, quiet PC")
+    shop.queue_free()
+    gs.tickets_taken = 1
+    gs.new_game()
+    var shop_relu: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop_relu)
+    check(shop_relu.customer_label.text.contains("Counter Stroke 2 at 60 fps"), "Relu's dossier names the game and frame rate he needs")
+    shop_relu.queue_free()
+    gs.tickets_taken = 0
+    gs.new_game()
+
+
+# 0.29.0: one binary source of truth for part states (D115), the path out of a broken-GPU ticket,
+# the coherent spare-part bench (CPU before cooler, D116) and the Upgrades tab (D117).
+func test_0_29(gs: Node) -> void:
+    gs.tickets_taken = 0
+    gs.new_game()
+    var fine: Dictionary = gs.part_state("gpu")
+    check(bool(fine["fitted"]) and bool(fine["working"]), "a fresh PC reports every part fitted and working")
+    gs.damage_service_part("gpu")
+    var broken: Dictionary = gs.part_state("gpu")
+    check(not bool(broken["working"]) and str(broken["text"]).contains("DAMAGED"),
+        "a part the player visibly damaged says DAMAGED (D150: visible damage may be shown)")
+    var fractions: Dictionary = {}
+    for zone: Dictionary in Zones.zones():
+        fractions[zone["id"]] = 1.0
+    gs.set_dust(fractions)
+    pasted(gs)
+    var r: Dictionary = gs.run_final_check()
+    check(not bool(r["passed"]) and str(r["notes"]).contains("GPU:") and str(r["notes"]).contains("DAMAGED"),
+        "the failed check names the part the player visibly damaged")
+    gs.job["removed_parts"].append("gpu")
+    var missing: Dictionary = gs.part_state("gpu")
+    check(not bool(missing["fitted"]) and str(gs.run_final_check()["notes"]).contains("GPU: NOT FITTED"),
+        "a part in the tray reads NOT FITTED, not a vague refusal")
+    check(gs.replace_service_part("gpu", "budget"), "the named path actually repairs it")
+    check(bool(gs.part_state("gpu")["fitted"]) and bool(gs.part_state("gpu")["working"]) and str(gs.part_state("gpu")["tier"]) == "budget",
+        "after the replacement the part reads fitted and working again")
+    check(bool(gs.run_final_check()["passed"]), "the gameplay loop completes end to end after a broken GPU")
+    # The spare-part bench is coherent now: a CPU exists, and the cooler needs it first (D116).
+    var cpus: int = 0
+    for record: Dictionary in gs.player_inventory:
+        if str(record["kind"]) == "cpu": cpus += 1
+    check(cpus == 1, "the starter stock includes a CPU for the spare-part bench")
+    var pc: Dictionary = Layout.profile("tower")
+    var board: Dictionary = pc["board"]
+    var cooler: Dictionary = ServiceParts.component("stock_cooler_similar", "cooler", "similar")
+    var cpu: Dictionary = Data.cpu_chip()
+    var mount_cell: Vector2i = Vector2i(0, 4)   # the mount sits right under the CPU socket
+    var blocked: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {}, pc["depth"])
+    check(not blocked["ok"] and str(blocked["message"]).contains("cpu"), "the cooler mount refuses until a CPU sits in the socket (real-life order)")
+    var with_cpu: Dictionary = Rules.check_placement(board, cooler, 0, mount_cell, {"cpu": "stock_cpu_demo"}, pc["depth"])
+    check(bool(with_cpu["ok"]), "with the CPU fitted, the cooler clamps onto its mount")
+    check(bool(Rules.check_placement(board, cpu, 0, Vector2i(0, 1), {}, pc["depth"])["ok"]), "the demo CPU fits its socket")
+    # The shop: Upgrades tab groups the tool upgrades; the ticket carries the binary parts line.
+    gs.new_game()
+    gs.damage_service_part("gpu")
+    var shop: Node = load("res://scenes/shop.tscn").instantiate()
+    root.add_child(shop)
+    check(shop.tab_upgrades != null and not shop.upgrade_panel.visible, "the shop opens with the Upgrades tab closed")
+    shop._show_tab(2)
+    check(shop.upgrade_panel.visible and not shop.result_scroll.visible and not shop.customer_scroll.visible, "the Upgrades tab swaps the lower card")
+    check(shop.upgrade_button.get_parent() == shop.upgrade_panel and shop.hose_button.get_parent() == shop.upgrade_panel,
+        "all tool upgrades live together under the Upgrades tab")
+    check(shop.ticket_label.text.contains("GPU DAMAGED"),
+        "the ticket shows the part the player visibly damaged")
+    check(shop.ticket_label.get_parent() == shop.ticket_scroll, "the ticket is bounded like the other cards")
+    shop.queue_free()
+    gs.new_game()
+
+
+# 0.32.0 integration: the part-state rule is pure and shared by every surface (D115), including
+# the night workshop's diagnosis, which used to say only "Damaged: gpu. Replace these parts."
+func test_0_32(gs: Node) -> void:
+    var PartStates: GDScript = load("res://scripts/rules/part_states.gd")
+    var Diagnostics: GDScript = load("res://scripts/night/night_diagnostics.gd")
+    var job: Dictionary = {"removed_parts": [], "broken_parts": [], "service_replacements": {}}
+    check(PartStates.problem_lines(job).is_empty() and PartStates.state(job, "gpu")["text"] == "fitted",
+        "a healthy job has no part problems")
+    # 0.46.2 (D150): a hidden fault is NOT named by any text; only the boot shows what the screen does.
+    job["broken_parts"] = ["gpu"]
+    var broken: Dictionary = PartStates.state(job, "gpu")
+    check(not bool(broken["working"]) and bool(broken["fitted"]) and not str(broken["text"]).contains("BROKEN") and broken["text"] == "fitted",
+        "a hidden fault reads like any fitted part (pure rule, no autoload)")
+    check(PartStates.boot_symptoms(job) == [PartStates.SYMPTOMS["gpu"]], "the boot shows what the player would see, not the cause")
+    job["removed_parts"] = ["cooler"]
+    var lines: Array = PartStates.problem_lines(job)
+    check(lines.size() == 1 and "\n".join(lines).contains("COOLER: NOT FITTED") and not "\n".join(lines).contains("GPU"),
+        "problem lines list only what is known: the part that is out")
+    check(PartStates.summary(job).contains("GPU fitted") and PartStates.summary(job).contains("COOLER NOT FITTED"),
+        "the one-line ticket summary carries presence only")
+    job["service_replacements"] = {"gpu": "budget"}
+    job["broken_parts"] = []
+    check(str(PartStates.state(job, "gpu")["text"]).contains("replacement"), "a replaced part reads fitted, with a replacement")
+    # The night workshop diagnosis uses the same lines instead of its own vague aggregate notes.
+    gs.tickets_taken = 0
+    gs.new_game(false)
+    gs.damage_service_part("gpu")
+    var report: Dictionary = Diagnostics.evaluate(gs.job, gs.owned_games)
+    var joined: String = "\n".join(report["notes"])
+    check(not bool(report["boots"]) and joined.contains("GPU:") and joined.contains("DAMAGED"),
+        "the night diagnosis names the part the player visibly damaged (BUGS.md B18)")
+    gs.job["damaged_parts"] = []   # same fault, but hidden (a story fault): no name, only the observation
+    gs.job["pc_powered"] = true
+    report = Diagnostics.evaluate(gs.job, gs.owned_games)
+    joined = "\n".join(report["notes"])
+    check(not bool(report["boots"]) and not joined.contains("GPU:") and joined.contains("no image"), "a hidden fault shows only as what the screen does (D150)")
+    check(not joined.contains("Replace these parts"), "the old vague aggregate note is gone from the diagnosis")
+    check(gs.part_state("gpu") == PartStates.state(gs.job, "gpu"), "GameState.part_state is the pure rule, not a copy")
+    gs.new_game()

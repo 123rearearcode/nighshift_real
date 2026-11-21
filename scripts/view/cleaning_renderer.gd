@@ -4,6 +4,7 @@ extends RefCounted
 
 const DustSim = preload("res://scripts/bench/dust_sim.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const Layout = preload("res://scripts/data/layout.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
@@ -58,6 +59,55 @@ static func draw_panel(canvas: CanvasItem, dust: DustSim, zones: Array, zone_don
 
 
 # Floating dust: faint specks that fade in and out as they drift.
+# The PC's power button on the case. Lit green when on; grey when off; brighter under the cursor.
+static func draw_power(canvas: CanvasItem, on: bool, hovered: bool) -> void:
+    var rect: Rect2 = Layout.BENCH_POWER
+    canvas.draw_rect(rect, Color("222a31"))
+    canvas.draw_rect(rect, Color("5a6872"), false, 2.0)
+    var center: Vector2 = rect.get_center()
+    var glow: Color = Color("72d9ad") if on else Color("5a6872")
+    if hovered: glow = glow.lightened(0.25)
+    canvas.draw_arc(center, 7.0, -PI * 0.35, PI * 1.35, 12, glow, 2.5, true)
+    canvas.draw_line(center + Vector2(0, -9), center + Vector2(0, -2), glow, 2.5)
+    UiStyle.label(canvas, Vector2(rect.position.x - 32, rect.position.y + 18), "PWR", 12, glow)
+
+
+# The trash can. It opens its lid while a carried item hovers over it.
+static func draw_trash(canvas: CanvasItem, ready_to_eat: bool) -> void:
+    var rect: Rect2 = Layout.BENCH_TRASH
+    var body := Rect2(rect.position + Vector2(4, 12), rect.size - Vector2(8, 12))
+    canvas.draw_rect(body, Color("37414b"))
+    canvas.draw_rect(body, Color("5a6872"), false, 2.0)
+    for k in range(3):
+        var x: float = body.position.x + body.size.x * (0.3 + 0.2 * float(k))
+        canvas.draw_line(Vector2(x, body.position.y + 6), Vector2(x, body.end.y - 6), Color("2a333b"), 2.0)
+    var lid := Rect2(rect.position + Vector2(0, 4), Vector2(rect.size.x, 8))
+    if ready_to_eat:
+        canvas.draw_set_transform(lid.position + Vector2(2, 8), -0.5)
+        canvas.draw_rect(Rect2(Vector2.ZERO, lid.size), Color("72d9ad"))
+        canvas.draw_set_transform(Vector2.ZERO, 0.0)
+    else:
+        canvas.draw_rect(lid, Color("46535e"))
+    UiStyle.label(canvas, Vector2(rect.position.x + 2, rect.end.y + 14), "trash", 12, Color(0.7, 0.75, 0.8))
+
+
+# Loose items on the bench (scripts/bench/bench_items.gd). The carried one rides the cursor, lifted.
+static func draw_items(canvas: CanvasItem, items: RefCounted) -> void:
+    for i in range(items.count()):
+        var at: Vector2 = items.centers[i]
+        var held: bool = i == items.carried
+        if held:
+            canvas.draw_circle(at + Vector2(4, 7), 9.0, Color(0, 0, 0, 0.3))
+            at -= Vector2(0, 6)
+        if items.kinds[i] == "coin":
+            canvas.draw_circle(at, 8.0, Color("8a6d1a"))
+            canvas.draw_circle(at, 6.5, Color("d9b13b"))
+            canvas.draw_arc(at, 4.0, 0.0, TAU, 14, Color("8a6d1a"), 1.5)
+        else:
+            canvas.draw_rect(Rect2(at - Vector2(3, 8), Vector2(6, 16)), Color("9aa4ad"))
+            canvas.draw_rect(Rect2(at - Vector2(7, 10), Vector2(14, 5)), Color("7f8a93"))
+
+
 static func draw_motes(canvas: CanvasItem, motes: DustMotes) -> void:
     for i in range(motes.count()):
         var fade: float = sin(PI * clampf(motes.age[i] / motes.life[i], 0.0, 1.0))
@@ -70,11 +120,11 @@ static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
     var level: float = bin.fraction()
     canvas.draw_rect(rect.grow(2), Color("171d22"))
     canvas.draw_rect(rect, Color("46535e"))
-    var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, rect.size.y - 24))
+    var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, 8))
     canvas.draw_rect(meter, Color("0e1317"))
     var tone: Color = UiStyle.TONE_COLORS[2] if level >= DustBin.WARN_AT else COLOR_DUST
-    var filled: float = meter.size.y * level
-    canvas.draw_rect(Rect2(meter.position + Vector2(0, meter.size.y - filled), Vector2(meter.size.x, filled)), tone)
+    var filled: float = meter.size.x * level
+    canvas.draw_rect(Rect2(meter.position, Vector2(filled, meter.size.y)), tone)
     canvas.draw_rect(meter, Color("8aa0ad"), false, 1.0)
     canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
     UiStyle.label(canvas, rect.position + Vector2(4, 10), "BIN %d%%" % roundi(level * 100.0), 10)

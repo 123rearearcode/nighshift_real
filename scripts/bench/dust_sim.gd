@@ -436,7 +436,7 @@ func step(delta: float, tool_id: int, tool_pos: Vector2, tool_vel: Vector2, acti
 
 
 func _step_stuck(b: int, delta: float, tool_pos: Vector2, tool_vel: Vector2, vac_on: bool, brushing: bool, brush_k: float) -> void:
-    var near: bool = b_center[b].distance_to(tool_pos) <= b_radius[b] + VAC_RADIUS
+    var near: bool = (vac_on or brushing) and b_center[b].distance_to(tool_pos) <= b_radius[b] + VAC_RADIUS
     var dmin: float = INF
     var reachable: bool = near and has_access(b,tool_pos)
     if reachable:

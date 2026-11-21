@@ -3,7 +3,7 @@
 Read, in this order: `HANDOFF.md`, `DEVELOPMENT.md`, the newest entry of `CHANGELOG.md`, then the
 scripts you will touch. Do not start from this file alone.
 
-Five rules that matter most:
+Project rules:
 1. Log every change in `CHANGELOG.md` with a new version number (steps in `HANDOFF.md`, section 4).
 2. Never say code works unless it was actually run in Godot 4.7.2 (the user's real version). Say exactly what you did run.
 3. Do not build anything listed in `docs/DESIGN_PROPOSALS.md` unless the user has asked for it.
@@ -12,5 +12,18 @@ Five rules that matter most:
 5. Follow the work split in `docs/WORK_PLAN.md`: Codex does design and gameplay features, Claude does
    engineering and code health. Hot files (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) have one owner
    at a time; check the plan's Status table and the newest changelog "Next action" before editing them.
+6. Every bug — user-reported, CI-caught or review-found — gets a row in `docs/BUGS.md` when it is
+   found, with its root cause filled in when fixed. Every 10 versions (0.30.0, 0.40.0, …) the
+   integrating AI runs the structural review described at the top of that file.
+   Follow its one-index/detail format and Fixed versus Verified evidence rules. Run
+   `python3 -I tools/check_bug_register.py` and `python3 -B tools/test_bug_register.py`.
+   Read `docs/PART_LIFECYCLE.md` before changing ownership, fitting, collection or save migration;
+   retain the required cross-PC lifecycle tests. Never claim slot-derived identity or orphan custody
+   is solved merely because the existing test suite passes. Coordinate hot-file ownership first.
 
 Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADMAP.md, docs/DECISIONS.md and docs/CURRENT_STATE.md. Read STABILISATION.md for the current milestone. Latest explicit user decisions and the reconciled core docs take precedence over stale OPEN labels in local proposal notes.
+
+8. For every place, door, menu, layout or navigation change, read `docs/MENU_NAVIGATION.md` (0.53.0:
+   room navigation, D161). The game moves through rooms and objects, not menus: do not reintroduce a
+   hub, tab rows or a service-menu detour. Rooms are art + hotspots (`docs/ROOM_ART_GUIDE.md`). Reuse
+   shared navigation and run its native-input tests.

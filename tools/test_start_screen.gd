@@ -20,17 +20,41 @@ func run_checks() -> void:
     await process_frame
     check(current_scene.load_button.disabled, "Load game is disabled without a readable save")
     var menu: Node = current_scene
+    check(not menu.get_children().any(func(n: Node) -> bool: return n is Button and n.text == "Storage rack"), "title screen has no duplicate storage shortcut; enter via night Workshop")
+    # 0.29.0: everything on the card stays inside it (the status text used to cross the border).
+    var card: Rect2 = preload("res://scripts/data/layout.gd").START_CARD
+    var status_rect := Rect2(menu.status_label.position, menu.status_label.size)
+    check(card.encloses(status_rect), "the menu status text stays inside the card (label %s, card %s)" % [str(status_rect), str(card)])
+    for child: Node in menu.get_children():
+        if child is Button:
+            check(card.encloses(Rect2((child as Button).position, (child as Button).size)),
+                "menu button '%s' stays inside the card" % (child as Button).text)
     menu._on_achievements()
     check(menu.achievements_dialog.visible and current_scene == menu, "Achievements opens a clearly labelled placeholder without entering game")
     menu.achievements_dialog.hide()
+    # 0.28.0 (D107): Settings holds the sound slider; it drives the master bus and its own file.
+    var original_settings: String = gs.settings_path
+    gs.settings_path = "user://start_screen_settings_test.json"
+    menu._on_settings()
+    check(menu.settings_dialog.visible and current_scene == menu, "Settings opens from the menu without entering the game")
+    menu._on_volume_changed(40.0)
+    check(is_equal_approx(gs.sound_volume, 0.4), "moving the slider sets the sound volume")
+    menu._on_volume_changed(0.0)
+    check(AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "sliding to zero mutes the game")
+    menu._on_volume_changed(100.0)
+    check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "sliding back up unmutes it")
+    menu.settings_dialog.hide()
+    for suffix in ["", ".bak", ".tmp"]:
+        DirAccess.remove_absolute(gs.settings_path + suffix)
+    gs.settings_path = original_settings
     menu._on_new_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/shop.tscn" and gs.money == gs.START_MONEY, "New game opens the existing demo with fresh state")
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and gs.money == gs.START_MONEY, "New game opens the shop counter with fresh state")
     gs.money = 247
     gs.job["dust"]["cooler"] = 0.42
     gs.save_game()
-    current_scene._on_main_menu_pressed()
+    current_scene._go("res://scenes/start.tscn")
     await process_frame
     await process_frame
     check(not current_scene.load_button.disabled and gs.money == 247, "return to menu preserves demo save and enables Load")
@@ -41,8 +65,8 @@ func run_checks() -> void:
     current_scene._on_load_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/shop.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
-    current_scene._on_main_menu_pressed()
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
+    current_scene._go("res://scenes/start.tscn")
     await process_frame
     await process_frame
     current_scene._start_new_game()
@@ -59,6 +83,7 @@ func run_checks() -> void:
     check(gs.has_saved_game() and gs.load_game() and gs.money == 319, "Load still recovers a readable backup after main-save corruption")
     for suffix in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + suffix)
+    _remove_save_files(gs.save_path+".night.json")
     gs.save_path = original_path
     current_scene.free()
     gs.new_game(false)

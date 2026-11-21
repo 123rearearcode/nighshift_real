@@ -1,5 +1,6 @@
 # VIEW + INPUT: free storage arrangement and deliberate motherboard installation.
 extends Node2D
+const Layout = preload("res://scripts/data/layout.gd")
 const TableBody = preload("res://scripts/bench/table_body.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const PlacementRules = preload("res://scripts/rules/placement_rules.gd")
@@ -7,12 +8,12 @@ const Inventory = preload("res://scripts/bench/grid_inventory.gd")
 const PartMotion = preload("res://scripts/view/part_motion.gd")
 const HoverInfo = preload("res://scripts/rules/hover_info.gd")
 const HoverCard = preload("res://scripts/view/hover_card.gd")
-const HELD_BOUNDS := Rect2(0,0,1280,720)   # a held part is kept inside the window
+const HELD_BOUNDS: Rect2 = Layout.SCREEN   # a held part is kept inside the window
 const DRAWER_CELL: float = 30.0
-const DRAWER_GRID_ORIGIN := Vector2(826, 148)
+const DRAWER_GRID_ORIGIN: Vector2 = Layout.WORKSHOP_DRAWER_GRID_ORIGIN
 const DRAWER_GRID_SIZE := Vector2i(12,8)
-const DRAWER_RECT := Rect2(800,100,440,330)
-const STATUS_RECT := Rect2(800,450,440,110)
+const DRAWER_RECT: Rect2 = Layout.WORKSHOP_DRAWER
+const STATUS_RECT: Rect2 = Layout.WORKSHOP_STATUS
 const COLOR_BG := Color("1c1f26")
 const COLOR_CASE := Color("383d4a")
 const COLOR_BOARD := Color("195c38")
@@ -56,12 +57,21 @@ func _exit_tree() -> void:
     _settle_all_throws()
     if not inventory.items.is_empty(): _save_inventory()
 
+# Hooks the night hardware bench overrides to show the ticket's own PC (D131). The defaults keep the
+# original free-standing spare-part sandbox exactly as it was.
+func _components() -> Array: return GameState.inventory_components()
+func _saved_layout() -> Dictionary: return GameState.inventory_layout
+func _title_text() -> String:
+    return "NIGHTSHIFT / SPARE-PART BENCH - the shop's own stock, NOT the customer's PC\nThe customer's PC is repaired at the repair bench (Replacement stock). Drag to arrange; flick to throw; Shift-drop places precisely. R turns. Esc puts back."
+func _intro_text() -> String:
+    return "Your spare-parts bench: the shop's own stock, not the customer's PC. Replace a customer's broken part from the repair bench (Replacement stock). Arrange parts anywhere that fits in the drawer; slots matter only when installing."
+
 func _build_ui() -> void:
     var title := Label.new()
     title.position = Vector2(40,16)
     title.size = Vector2(1200,70)
     title.add_theme_font_size_override("font_size",20)
-    title.text = "NIGHTSHIFT / hardware sandbox\nDrag to arrange. Flick-release to throw; Shift-drop places precisely. R / right-click turns. Esc puts back."
+    title.text = _title_text()
     add_child(title)
     status_label = Label.new()
     status_label.position = STATUS_RECT.position + Vector2(12,12)
@@ -89,12 +99,12 @@ func _button(text: String, pos: Vector2, size: Vector2, callback: Callable) -> v
 func _configure_layout() -> void:
     pc = PCLayout.profile(profile_id)
     board = pc["board"]
-    geometry = PCLayout.display(pc, Rect2(60,165,640,420))
+    geometry = PCLayout.display(pc, Layout.WORKSHOP_PC)
     CELL = geometry["cell"]
     BOARD_ORIGIN = PCLayout.board_rect(pc,geometry).position
-    inventory.setup(board, int(pc["depth"]), GameState.inventory_layout, GameState.inventory_components())
+    inventory.setup(board, int(pc["depth"]), _saved_layout(), _components())
     _reset_motion()
-    _set_status("Arrange parts anywhere that fits in the drawer. Slots matter only when installing.")
+    _set_status(_intro_text())
 
 func _change_profile(id: String) -> void:
     _settle_all_throws()
@@ -104,7 +114,7 @@ func _change_profile(id: String) -> void:
     _configure_layout()
 
 func _reset_state() -> void:
-    inventory.setup(board, int(pc["depth"]), {}, GameState.inventory_components())
+    inventory.setup(board, int(pc["depth"]), {}, _components())
     _reset_motion()
     _save_inventory()
     _set_status("Stock rearranged. Owned parts only; consumed parts stay consumed.")
@@ -249,7 +259,7 @@ func _candidate(mouse: Vector2) -> Dictionary:
         var result: Dictionary = PlacementRules.check_placement(board,inventory.items[i]["part"],inventory.items[i]["rotation"],cell,inventory.occupied(),int(pc["depth"]))
         var connector: Dictionary = PlacementRules.connector_at(board,cell)
         var rect: Rect2 = _connector_rect(connector) if not connector.is_empty() else Rect2(_cell_to_pos(cell),Vector2(fp)*CELL)
-        return {"kind":"board", "cell":cell, "ok":result["ok"], "rect":rect, "message":result["message"]}
+        return {"kind":"board", "cell":cell, "ok":result["ok"], "rect":rect, "message":result["message"], "connector_id":str(result.get("connector_id",""))}
     return {"ok":false, "message":"Try an empty drawer space or a matching socket."}
 
 func _process(delta: float) -> void:
@@ -289,7 +299,7 @@ func _item_rect(i: int) -> Rect2:
     var item: Dictionary = inventory.items[i]
     var fp: Vector2i = inventory.footprint(i)
     if i == inventory.held:
-        var scale_cell: float = CELL if Rect2(60,165,640,420).has_point(pointer) else DRAWER_CELL
+        var scale_cell: float = CELL if Layout.WORKSHOP_PC.has_point(pointer) else DRAWER_CELL
         var size: Vector2 = Vector2(fp)*scale_cell
         # A held part follows the pointer but can never leave the window.
         var farthest: Vector2 = (HELD_BOUNDS.end-size).max(HELD_BOUNDS.position)
@@ -313,12 +323,14 @@ func _type_color(type: String) -> Color:
         "CPU_SOCKET": return Color("e86b70")
         "PCIE_X16": return Color("b99cf0")
         "COOLER_MOUNT": return Color("62b9bd")
+        "STORAGE_SLOT": return Color("7fc97f")
+        "PSU_BAY": return Color("9aa3ad")
     return Color.GRAY
 func _text(pos: Vector2, text: String, size: int = 16, color: Color = COLOR_TEXT) -> void:
     draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
 
 func _draw() -> void:
-    draw_rect(Rect2(0,0,1280,720),COLOR_BG)
+    draw_rect(Layout.SCREEN,COLOR_BG)
     _draw_case()
     _draw_board()
     draw_rect(DRAWER_RECT,Color("41352c"))
@@ -361,12 +373,19 @@ func _draw_part(i: int) -> void:
         for j in range(3): draw_rect(Rect2(rect.position+Vector2(5,10+j*28),Vector2(maxf(8,size.x-10),18)),Color("464947"))
         _text(rect.position+Vector2(3,size.y-5),"RAM",10,Color.BLACK)
         draw_line(rect.position+Vector2(2,3),rect.position+Vector2(2,size.y-3),Color("ffe2a0"),2)
+    elif item["part"]["category"] == "CPU":
+        draw_rect(rect.grow(-5),Color("c9ced4"))
+        draw_rect(rect.grow(-14),Color("8e949c"))
+        _text(Vector2(-12,5),"CPU",12,Color.BLACK)
     elif item["part"]["category"] == "GPU":
         for j in range(2):
             var center := Vector2(-size.x*0.25 if j == 0 else size.x*0.25,0)
             draw_circle(center,size.y*0.35,Color("383d4a"))
             draw_arc(center,size.y*0.35,0,TAU,20,Color("ddd5ed"),1)
         _text(Vector2(-14,4),"GPU",11,Color.BLACK)
+    elif item["part"]["category"] in ["STORAGE","PSU"]:
+        draw_rect(rect.grow(-4),Color(0,0,0,0.18))
+        _text(Vector2(-size.x*0.5+4,5),"PSU" if item["part"]["category"] == "PSU" else "DRIVE",11,Color.BLACK)
     else:
         var radius: float = minf(size.x,size.y)*0.34
         draw_circle(Vector2.ZERO,radius,Color("294e55"))

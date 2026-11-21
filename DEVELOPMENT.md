@@ -5,6 +5,14 @@ For any AI or human contributor. Read this, then the newest entry in `CHANGELOG.
 (PROJECT_BRIEF.md, DESIGN.md, DECISIONS.md, CURRENT_STATE.md, ROADMAP.md); this project is the small
 Godot foundation trial authorised under them. It is not an approved engine migration and it preserves D01–D32 and records later workflow/design updates in docs/DECISIONS.md. Numbers in this project are demo values, not approved balance.
 
+## Approved menu-path contract
+
+Before changing menu paths/layout, read `docs/MENU_NAVIGATION.md` (D142–D144). New night screens
+reuse the shared header/guarded navigation. No service chooser between room and workbench; no
+routine Save/Refresh furniture controls or activity-body Title link. Menu changes require native
+route/pause/Continue/mode regressions and updated path docs. Canonical PC state stays in existing
+GameState/NightSession; the UI sidecar cannot become another hardware/ownership model.
+
 ## 1. Version numbering
 
 Format: `MAJOR.MINOR.PATCH`, for example `0.5.1`.
@@ -12,6 +20,8 @@ Format: `MAJOR.MINOR.PATCH`, for example `0.5.1`.
 - **Source of truth:** `config/version` in `project.godot`. The shop screen shows it. The newest
   `CHANGELOG.md` entry, the first line of `README.md` and the ZIP file name must agree with it.
   `tools/check_project.py` verifies the first three.
+
+
 - **MAJOR** stays `0` while this is a trial. `1.0.0` is reserved for when the user declares a real
   production build.
 - **MINOR** goes up for a new player-visible feature, a new screen or system, or a change to a data,
@@ -80,6 +90,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
+| `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |
+| `tools/test_delivered_parts.gd` | tooling | Same-model identity/health, collection, comeback receipts, undo/refit, return to stock, all six kinds and reload |
 | `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoloads `GameState` and `AudioFeedback` |
 | `.gitignore` | config | Ignores `.godot/` cache and export files |
 | `README.md` | docs | How to import and run; what each screen does |
@@ -87,13 +101,36 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `AGENTS.md` | docs | Short pointer for any AI agent to the files above |
 | `docs/DESIGN_PROPOSALS.md` | docs | Agreed and proposed designs (hub, night time, grid inventory, catalogue fields); not built |
 | `docs/DESIGN_AGENT_PROMPT.md` | docs | Ready-to-paste prompt for Codex: design pass on the scam direction and the dust minigame purpose |
+| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | D157 approved standard Task Manajer, implemented controls/clock/interruptions; original unapproved D156 ideas are historical |
+| `scripts/rules/antivirus_round.gd` | rules | Session-local standard cleanup: actual strain + watchdog, stable rows, aliases/adverts, uppercase word verification, outcomes; no PC/save writes |
+| `scripts/night/antivirus_panel.gd` | view | Native stable Task Manajer controls inside the monitor, SEND/Enter/uppercase, typing/focus/shared pause, bounded advert |
+| `tools/test_antivirus.gd` | tooling | Standard cleanup, native button/key submission, real monitor/time/save/cancel/PC isolation journey |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
+| `docs/PERFORMANCE.md` | docs | Measured 0.22.0/0.22.1 comparison, cache/wake contracts and profiling limits |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
-| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Unapproved shared PC/individual-part design, ownership/fit rules, work-order boundaries and acceptance examples |
-| `docs/PC_MODEL_PROPOSAL.md` | docs | Proposed shared PC/part records, owners/locations, save contents and legacy single-job migration; no code contract yet |
+| `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
+| `docs/SALVAGE_DESIGN_PROPOSAL.md` | docs | Approved salvage direction, implemented standalone slice, future shared-state interfaces and open questions |
+| `scenes/salvage.tscn` | view | Separate session-only salvage scene; start-screen entry, not a campaign hub |
+| `scripts/salvage/salvage_data.gd` | data | Sample car/site/footprint/power/colour definitions and local layout/timing values |
+| `scripts/salvage/cargo_grid.gd` | rules | Identity-aware footprint rotation, bounds/overlap and committed cargo placements |
+| `scripts/salvage/salvage_body.gd` | sim | Native RigidBody2D primitive/hollow shapes and bounded force/torque grip integrator |
+| `scripts/salvage/salvage_physics.gd` | controller | Scene-owned bodies/rim/floor, physical picking, pose sync, pause and grip/record handoff |
+| `tools/test_salvage_physics.gd` | tooling | Real engine-frame gravity/collision/support/opening/grip/cargo/scene isolation checks |
+| `tools/profile_salvage_physics.gd` | tooling | Optional 20/50/100-body native physics-phase fall/settle/pulling stress profile |
+| `scripts/salvage/salvage_pile.gd` | sim | Deterministic side-view item/contents records and opening transitions; native world owns movement |
+| `scripts/salvage/salvage_session.gd` | controller | In-memory outing, effort/time/return reserve, cargo and nested-PC custody; no GameState/save writes |
+| `scripts/salvage/salvage_view.gd` | view | Map/site controls, pile/trunk input/drawing, hints, pause and silent handling events |
+| `tools/test_salvage.gd` | tooling | Pure isolated time, grid, custody and cycle regressions |
+| `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
+| `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
+| `docs/BUGS.md` | docs | The bug register: every bug found, its root cause, and the every-10-versions structural review |
+| `docs/PART_LIFECYCLE.md` | docs | Component identity/custody invariants, staged migration acceptance and cross-AI integration boundaries |
+| `tools/check_bug_register.py` | tooling | Validate one bug index, statuses, detail/evidence links and the next review marker |
+| `tools/test_bug_register.py` | tooling | Malformed register fixtures protecting the ledger checker |
+| `tools/test_part_lifecycle.gd` | tooling | Cross-PC same-model spare identity, damage, custody, collection, reload and malformed external data journeys |
 | `CHANGELOG.md` | docs | Full change history and the entry template |
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |
@@ -102,6 +139,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/DECISIONS.md` | docs | Reconciled core project document version 1.13 |
 | `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.13 |
 | `DEVELOPMENT.md` | docs | This guide |
+| `docs/TESTING.md` | docs | Required vs diagnostic checks, retained coverage and temporary known-defect lane |
+| `tools/ci_scope.py` | tooling | Conservative Git-diff selection of runtime and full diagnostics |
+| `tools/test_ci_scope.py` | tooling | Temporary-repository tests for documentation, metadata, runtime, rename and manual-run boundaries |
+| `tools/test_pending_contracts.gd` | tooling | Visible non-blocking reproduction of lever bypass and refused-selection highlight defects |
 | `default_bus_layout.tres` | config | Six native mixer buses; currently silent |
 | `scripts/data/audio_cues.gd` | data | Cue identifiers, routing and loop/cooldown metadata |
 | `scripts/audio/audio_feedback.gd` | feedback | Silent owner-scoped events and loop lifecycle |
@@ -121,6 +162,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/pc_renderer.gd` | view | Shared PC/component drawing extracted from bench view |
 | `tools/test_regressions.gd` | tooling | Real GDScript regression suite with isolated save path |
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build; also a frame-time table (physics tick and redraw, average and worst) |
+| `tools/test_performance.gd` | tooling | Cache invalidation, clamped hose wake/sleep, static redraw and UI correctness; no timing gates |
+| `tools/profile_bench.gd` | tooling | Short isolated CPU physics/draw/save profile with nearest-rank p50/p95/p99 |
+| `scripts/view/bench_backdrop.gd` | view | Static background, case grid and tray on a separately redrawn CanvasItem |
 | `tools/test_support.gd` | tooling | Shared base for the test suites: check(), disposable save path, click(), finish() summary line; each suite extends it |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |
 | `tools/test_bench_feedback.gd` | tooling | Real trapped-tail extraction, clamp gestures/UI exclusion, corner hose reach and mount put-down checks |
@@ -128,6 +172,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_dust_flow.gd` | tooling | Actual first-entry/reopen/reset input, transport/traps/mass/snapshot and movable-clamp regressions |
 | `scripts/bench/hose_sim.gd` | sim | Verlet-rope vacuum hose: fixed-length links, bending limit, per-housing corners and link clearance, bin/nozzle ends and optional held/clamped point |
 | `scripts/bench/hose_flow.gd` | sim/state | Dust travelling inside the hose from the nozzle to the bin (fills the bin on arrival) |
+| `scripts/bench/hand_state.gd` | rules | The hand-state machine: derives the state from flags and says which state changes are allowed (docs/HAND_STATES.md) |
+| `scripts/bench/bench_items.gd` | state/rules | Loose items on the bench (coin, screw): pick up with empty hands, carry, drop; the trash can destroys them; session-local, not saved |
 | `scripts/bench/piece_collision.gd` | sim | Rotated-box collisions between tools and loose parts (pure function on dictionaries; the caller copies results back) |
 | `scripts/bench/dust_bin.gd` | rules/state | The vacuum's dust bin: capacity, fill, full, empty; also where the bin sits on the bench |
 | `scripts/bench/dust_motes.gd` | sim (cosmetic) | Floating dust specks; never counted in progress, bin or saves |
@@ -145,11 +191,66 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/dust_pick.gd` | sim/controller | Pick stroke timing and per-attempt random risk; injectable rolls for checks |
 | `scripts/data/service_parts.gd` | data | Two generic replacement tiers for cooler/GPU; trial only |
 | `scripts/data/paste_materials.gd` | data | What can go under the cooler: thermal paste ($3) or toothpaste (free, stiffer, +14 C, a scam) |
+| `scripts/data/customers.gd` | data | The customers behind the tickets: identity, profession, persona, habits (scam-relevant), trust start, budget, payout and NEEDS; earned trust/history live in the save (`customer_state`) |
+| `scripts/data/generated_people.gd` | data | Name, persona, background, use and habit pools for generated customers by profession; the clueless customer's decoy need (0.48.0) |
+| `scripts/data/games.gd` | data | Video games the shop can buy to test with (Counter Stroke 2): price and gpu/cpu/ram demands for the fps simulation |
+| `scripts/rules/fps_sim.gd` | rules | Simulated frame rate of a PC in a game: slowest part sets the pace, heat throttles the GPU, low RAM stutters |
+| `scripts/rules/customer_pc.gd` | rules | Pure projection of a ticket's PC (CPU, RAM, GPU, cooler) into hardware-bench components and placements (D131) |
+| `scripts/data/upgrades.gd` | data | The tool upgrades the Shop sells (D131) |
+| `scripts/night/shop_activity_view.gd` | view | Activities > Shop: all tool upgrades (D131) |
+| `scenes/night_shop.tscn` | scene | Shop activity scene |
+| `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
+| `scripts/data/hardware_catalog.gd` | data | The hardware catalogue: CPUs, GPUs, RAM, storage, PSUs, coolers with parody names, stats and prices (D148) |
+| `scripts/rules/pc_build.gd` | rules | A PC's six stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied (D148) |
+| `tools/test_real_hardware.gd` | tooling | Catalogue, stats, support rules, multi-GPU, names, unchanged demo performance, saves (D148) |
+| `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
+| `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
+| `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
+| `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
+| `tools/test_trust_and_reviews.gd` | tooling | Star reviews with comments and pettiness, the rating, trust points and levels, finding out (scams and honest mistakes), fake reviews and the site's check, save/load, the phone (real input), the morning standing (0.52.0) |
+| `tools/test_build_requests.gd` | tooling | Cases, the uses table, wants and budgets, cheapest-build solvability for every use, the empty build, assembly minutes and 06:00, case/board swaps, save/load, collection pay and scoring, scam-hook records, morning arrivals from night 5, the bench with a build (0.51.0) |
+| `tools/test_testing_bay.gd` | tooling | Condition vs knowledge, salvage and customer parts into stock, inspection/tests/clock/mark/scrap, untested test parts behaving as they really are, reload rebuild, the bay screen (0.50.0) |
+| `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
+| `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
+| `scripts/night/morning_text.gd` | view helper | The morning's words: card text and PC detail text, shown by customers at the counter (D136; 0.53.0) |
+| `scenes/morning.tscn` | scene | Retired morning report: redirects to the counter (0.53.0) |
+| `tools/test_morning.gd` | tooling | Ending the night, collection, comebacks, waiting PCs, new tickets, report screen, 06:00 limit (D136) |
+| `scripts/rules/ticket.gd` | rules | A ticket as one derived record (request, customer, machine, symptoms, requirements, terms, status) and its pickup flags: ready sticker, called (D134/D135) |
+| `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
+| `tools/test_tickets_pickup.gd` | tooling | Ticket rule, pickup flags on active and stored PCs, saves, native right-clicks in the room and on the ticket (D134) |
+| `scripts/rules/work_report.gd` | rules | Hardware check, work-done lines and the measured match to the customer's request (D133) |
+| `scripts/rules/night_clock.gd` | rules | Night clock label, how many night minutes timed tests take (D133) and whether a test still ends by 06:00 (0.47.0) |
+| `scripts/rules/findings.gd` | rules | The Findings notebook (D150, 0.47.0): seen / measured / done entries on the night clock, outdated marking, bench inspection texts, part labels with owner |
+| `scripts/rules/stress_lab.gd` | rules | The Stress lab, the monitor's standalone long load test (D150, 0.47.0): temperature readings, loud fans, crash minute; observations only |
+| `scripts/rules/diagnosis.gd` | rules | Diagnosis solvability and difficulty levels from the hidden truth (D150 5.7, 0.47.0); tests and the future generator only, never the player's UI |
+| `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
+| `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
+| `scripts/rules/part_condition.gd` | rules | What the shop KNOWS about its parts (label, notes, tests done) apart from their hidden condition; inspection spots and tells; quick/long rig test results; scrap values; the delayed 'crashing part' fault (0.50.0, D158) |
+| `scripts/rules/reviews.gd` | rules | Reviews (D160): pickup and found-out reviews with comments, the star rating, trust points and the shop level, hidden deceptions customers find out, fake reviews and the review site's check (0.52.0) |
+| `scripts/night/phone_panel.gd` | view | The phone (Activities > Phone): FixFindr reviews, trustworthiness and shop level, the ReviewBoost button (0.52.0) |
+| `scripts/rules/build_request.gd` | rules | Build requests (D159): uses table, needs and wants, cheapest catalogue build (solvability and budget), the empty build job, assembly minutes, pickup review, ticket texts, scam-hook delivery record (0.51.0) |
+| `scripts/rules/salvage_stock.gd` | rules | A salvage find becomes one untested stock part (older model, hidden real condition) or scrap (0.50.0) |
+| `scripts/night/testing_bay_view.gd` | view | Activities > Testing bay: stock list, part drawing with inspection spots, quick/long rig tests, the player's mark, scrap; shows known state only (0.50.0) |
+| `scenes/night_bay.tscn` | scene | Testing bay scene (0.50.0) |
+| `scripts/bench/vacuum_state.gd` | state | The vacuum's saved bin fill and hose clumps: sanitize, capture, restore (0.48.1; kept across screens and reloads) |
+| `scripts/rules/malware.gd` | rules | Infection strains, the anti-virus scan and their hidden pickup faults (D132) |
+| `scripts/rules/overclock.gd` | rules | CPU overclock settings, heat, stability, stress tests and hidden pickup faults (D132) |
+| `tools/test_malware_overclock.gd` | tooling | Anti-virus and overclocker: pure rules, state, save, monitor buttons (D132) |
+| `scripts/rules/install_faults.gd` | rules | Hidden cooler-install mistakes (film, screw pattern), their heat and complaint, screw geometry (D130) |
+| `scripts/rules/part_states.gd` | rules | The binary fitted/working state of a customer PC's serviceable parts and the "GPU: BROKEN - ..." repair-path lines every surface shares (D115) |
+| `scripts/rules/pickup_score.gd` | rules | Customer happiness at pickup (0-100) against their REAL needs, and how soon an unhappy one comes back |
+| `scripts/data/layout.gd` | data | Screen positions in one place: bench table, PC area, tray, bin, clamp, socket, lever, panel, shop/workshop/start cards |
+| `scripts/data/ids.gd` | data | Tool, stage and serviceable-part ids in one place (use these instead of typing "vacuum" or 0) |
 | `scripts/bench/service_access.gd` | sim/controller | Service mount/tray geometry and drag state; no drawing/input |
 | `scripts/bench/dust_sim.gd` | sim | Dust bundle physics: vacuum suction, brush loosening, per-part progress |
 | `scripts/bench/paste_sim.gd` | sim | Paste spreading physics and grading |
 | `scripts/view/shop_view.gd` | view | Shop screen: ticket checklist, cash, buttons, version label |
-| `scripts/view/bench_view.gd` | view | Repair bench coordinator: input, tools, stage switching, service parts, replacements; delegates drawing to the renderers and mounting to `mount_session.gd` |
+| `scripts/view/bench_view.gd` | view | Repair bench coordinator: all bench state, setup, stage and tool selection, hand state, the frame loop and drawing calls; behaviour is delegated to the five `bench_*.gd` helpers below through one-line wrappers that keep the old method names (0.41.2) |
+| `scripts/view/bench_thermal.gd` | view | Bench helper: paste material, syringe and cloth, the timed mount and the cooler install ritual (0.41.2) |
+| `scripts/view/bench_cleaning.gd` | view | Bench helper: dust steps, pick, vacuum bin, tool and part collisions, fan speeds, dust saving (0.41.2) |
+| `scripts/view/bench_parts.gd` | view | Bench helper: movable cooler/GPU geometry, unscrewing, dragging, saved positions, Replacement stock panel (0.41.2) |
+| `scripts/view/bench_ui.gd` | view | Bench helper: builds the bench's buttons, labels and panels (0.41.2) |
+| `scripts/view/bench_input.gd` | view | Bench helper: mouse and keyboard input through the hand state (0.41.2) |
 | `scripts/view/ui_style.gd` | view | Shared colours, text and progress-bar drawing helpers |
 | `scripts/view/paste_renderer.gd` | view | Draws the paste stage, paste picture and paste side panel (presentation only) |
 | `scripts/view/cleaning_renderer.gd` | view | Draws dust bundles and the cleaning side panel (presentation only) |
@@ -161,6 +262,56 @@ Update this table whenever files change. The checker fails if a file is missing 
 Screen flow: shop (`shop.tscn`) opens the cooler bench (`bench.tscn`) and the hardware bench
 (`main.tscn`); both have a button back to the shop. Scene changes use
 `get_tree().change_scene_to_file(...)`.
+
+### Storage rack files (0.29.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scenes/storage.tscn` | scene | General inventory entry |
+| `scripts/storage/storage_data.gd` | data | Furniture specs and storage footprints |
+| `scripts/storage/storage_sources.gd` | adapter | Read-only projection of canonical owned stock, included tools and current customer PC |
+| `scripts/storage/storage_model.gd` | rules | Shelf packing, rotation, transactional moves, overflow and layout snapshot |
+| `scripts/storage/storage_store.gd` | state | Auxiliary layout save via SafeStore; future-version guard |
+| `scripts/storage/storage_view.gd` | view | Rack/drawers/tool board, hover, drag and expansion |
+| `tools/test_storage.gd` | tooling | Source/ownership, packing/save and real scene-input contracts |
+| `docs/STORAGE.md` | docs | Controls, capacity boundaries and Claude handoff |
+
+These files form an isolated feature module: model knows only data, sources only read state,
+store handles layout I/O, view orchestrates them. No dependency from GameState into storage.
+
+### Night workshop files (0.30.0)
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_session.gd` | state bridge | Inactive job manifest, active GameState.job, PC identity, safe switching/recovery |
+| `scripts/night/night_diagnostics.gd` | rules | Pure non-completing temperature/boot/parts/fps report |
+| `scripts/night/paste_snapshot.gd` | sim adapter | Exact float32 paste-field JSON persistence and validation |
+| `scripts/night/night_screen.gd` | view helper | Shared label/button/navigate helpers for the testing bay, the tool shop and the monitor (was the Activities hub until 0.52.0) |
+| `scripts/rooms/room_view.gd` | view | A room: art + hotspots; placeholders without art; F3 outlines; dawn closing; go/open/later actions (0.53.0, D161) |
+| `scripts/rooms/hotspot.gd` | view | A clickable spot the artist drags over the art (action, label, art hint; @tool so it shows in the editor) |
+| `scripts/rooms/room_art.gd` | view helper | Finds room pictures (art/rooms/) and customer portraits (art/customers/) |
+| `scripts/rooms/counter_room.gd` | view | The counter, the main screen: doors, till, ticket clipboard, phone, catalogue, shutter (end night), the morning's customers one by one |
+| `scripts/rooms/workshop_room.gd` | view | The workshop: repair bench, hardware board, monitor, testing bay, stock room door |
+| `scripts/rooms/outside_room.gd` | view | Outside: the shop door, the van (salvage), later spots |
+| `scripts/rooms/legacy_redirect.gd` | view | Retired screens (Activities hub, morning report) continue at the counter |
+| `scenes/rooms/counter.tscn` | scene | The counter: Background + hotspots (edit in the Godot editor; docs/ROOM_ART_GUIDE.md) |
+| `scenes/rooms/workshop.tscn` | scene | The workshop: Background + hotspots |
+| `scenes/rooms/outside.tscn` | scene | Outside: Background + hotspots |
+| `art/rooms/README.md` | art | Where room pictures go (counter.png, workshop.png, outside.png) |
+| `art/customers/README.md` | art | Where customer portraits go (by person id or profession) |
+| `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
+| `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |
+| `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |
+| `scripts/night/repair_view.gd` | view adapter | Existing bench with workshop return and lever-driven paste commit |
+| `scripts/night/hardware_view.gd` | view adapter | Existing shop-stock sandbox, return to workshop |
+| `scripts/night/salvage_view.gd` | view adapter | Existing dump physics, return to Activities |
+| `scenes/activities.tscn` | scene | Retired Activities hub: redirects to the counter (0.53.0) |
+| `scenes/night_workshop.tscn` | scene | PC selection and diagnostics |
+| `scenes/night_bench.tscn` | scene | Night repair route |
+| `scenes/night_hardware.tscn` | scene | Night stock sandbox route |
+| `scenes/night_salvage.tscn` | scene | Dump accessed from Activities |
+| `tools/test_night_workshop.gd` | tooling | Multi-PC progress, save/recovery/ownership and scene contracts |
+| `docs/NIGHT_WORKSHOP.md` | docs | Controls, manifests, coordination and limitations |
 
 ## 6. Data contracts
 
@@ -301,7 +452,7 @@ Job adds service_table_positions(id->{center:[x,y],angle}),removed_component_rec
 `UiStyle`: `label`, `bar`, `COLOR_TEXT`, `TONE_COLORS`. `SaveStore`: `write(path, data) -> bool`, `read(path) -> Variant` (null if missing).
 `bench_view.gd` keeps the member names the regression suite uses (`dust`, `access`, `tools`, `holding`, `wiping`, `PASTE_ORIGIN`, `PASTE_CELL`, ...). Do not rename them without updating `tools/test_regressions.gd`.
 Renderers are static and take the canvas as an argument, like `pc_renderer.gd`; they must not read input or change state.
-Still inside `bench_view.gd` on purpose: the replacement panel (the suite touches its members directly), service-part drag and the input handling. Extract them one at a time, with the regression suite run after each.
+Since 0.41.2 the replacement panel, service-part drag, input handling, interface building, cleaning and thermal behaviour live in the `bench_*.gd` helpers. Their state still lives on the bench, so the suite reaches the same members. **How the helpers work:** each holds `bv`, the bench node, and reaches every bench member through it (`bv.paste`, `bv._set_status(...)`). The bench keeps a one-line wrapper per moved method with the old name, so tests, signal connections and the night `repair_view.gd` overrides (`_finish_mount`, `_step_paste`, `_save_dust`, `_new_ticket`, `_material_charge_note`) still work; inside a helper, calls to those overridable methods go through `bv.` so the override is honoured.
 
 ## 0.11.2 save safety
 `SaveStore.write(path, data)` writes `<path>.tmp`, reads it back, keeps the previous save as `<path>.bak`, then moves the new file into place. `SaveStore.read(path)` returns the first of `path`, `path.bak`, `path.tmp` that parses to a Dictionary, else null. Save format is unchanged. Field-by-field validation of what is inside a save is still `GameState.load_game()`'s job and is not complete.
@@ -312,7 +463,7 @@ Still inside `bench_view.gd` on purpose: the replacement panel (the suite touche
 
 When you add a new kind of data, or a new key to existing data, add it to the schema tables at the top of `tools/test_data_schemas.gd` in the same change. An unexpected key is reported as a problem on purpose: it catches typos.
 
-Queued (not done): the `bench_view.gd` split continues with the replacement panel, then part dragging, then input handling, then one script per tool and a separate UI builder. Do one extraction per patch and let the automated tests run after each.
+Done in 0.41.2: the split into five helpers (bench_view.gd 1482 -> about 610 lines). Still queued: one controller script per tool, and moving bench state into the helpers that own it.
 
 
 ## 0.16.0 contracts — start menu and hose
@@ -359,3 +510,393 @@ AudioFeedback is a presentation service depending only on AudioCues data. Views 
 DustSim.last_brush_contacts resets each step and counts actual contacts, enabling truthful brushing feedback. Bench loop activity is rebuilt per physics step; vacuum motor requires active tool and bin capacity, particle layer carries load, paste/cloth require CPU contact, fans carry RPM. View button and physical handling hooks cover other screens. Persistent vacuum_status derives from actual DustBin.fill independently of transient tool status; empty action is disabled only for an empty bin.
 
 HoseSim._untangle reverses intersecting link subsequences with reset history, preserving endpoints and restoring pin identity. A rare pinned fold is reseeded into outward arcs around the fixed pin, projected outside obstacles and untangled again. ToolRig reserves segment*pin length for the bin side of a pinned hose. self_crossings() supports deterministic rapid-movement regression. This is a pragmatic tabletop recovery, not a 3D knot solver. Human judgement of sudden recovery movement remains needed.
+
+## 0.20.1 test policy
+
+See docs/TESTING.md. Pure Markdown plus version-only metadata runs hygiene and scope tests; other changes retain all seven required Godot suites. Bench/data/geometry or playtest-driver edits retain the full matrix; other runtime edits use --smoke. The pending-contract report is deliberately non-blocking while the existing D57/highlight bugs await Claude; promote it after fixes. No production contract or save format changes.
+
+
+## 0.22.1 performance contracts
+
+User-authorised scoped performance pass; Claude retains Phase 2 hot-file ownership. Only bench_view
+integration changes, for cross-review before step 7. See docs/PERFORMANCE.md for measurements/limits.
+HoseSim sleeps with an unchanged pin too; endpoint displacement accumulates while asleep. Pin target,
+anchor, length, reset and individual obstacle geometry changes wake before solving. No solver iteration,
+tug, collision or untangling formula changes. sleeping/solver_steps are diagnostic, not saved.
+PasteSim.revision invalidates measure() caching; deposit/wipe/flow/clear call mark_changed(). Any future
+bulk restore/direct h write MUST call mark_changed(). measure() returns a separate dictionary.
+PasteRenderer texture-local stamp includes sim/image identity, revision, material and both overlay flags;
+external modification/reuse of a texture must remove its paste_stamp metadata or call refresh on a new
+texture. No global growing cache. Diagnostics count scans/uploads; they are not save data.
+BenchBackdrop.configure must be called on stage/profile/area/background changes. Dynamic draw_pc can
+retain its static drawing by default for other consumers; bench passes false. Bin UI key includes rounded
+percent, full state and exact empty state; paste UI key includes mount/wiping/done/completion eligibility
+and resets on stage entry. Keep external control changes in sync with these keys.
+Eight required suites; new performance tests check correctness rather than host-dependent speed limits.
+Quick profiler uses disposable saves; it measures full snapshot+safe write, without altering save safety.
+
+
+## 0.26.0 standalone salvage contracts
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D98–D102 and the
+salvage specification reconcile unmerged design PR #31 with Claude's customer D92–D97. The new scene
+is reachable through start_view._on_salvage(); New/Load behaviour is unchanged. No hot files edited.
+
+SalvageSession.shared_demo() retains only in-memory demo state through menu navigation; Reset replaces
+it and app exit loses it. No autoload, JSON write, campaign clock/day/stock/customer integration exists.
+Session fields: day/remaining/car/site/reserve, per-site piles/cycles, per-car grids/cargo, demo shelf,
+effort/held/original/rotation and pause. depart() reserves and charges travel; next_night() only on map.
+start_effort(uid,grab/open),step(),cancel_effort() charge partial effort once, with no idle wall-clock
+charge. Moving uses sampled motion plus final-drop distance so instant release cannot teleport for free.
+Unfinished/cancelled moves restore the committed record; pause/focus loss is safe. Return charges its
+reserve once. Overtime policy remains open; the demo refuses new effort that cannot preserve return.
+
+CargoGrid keeps committed placements while held; failed/cancelled drops restore rotation/position.
+A successful claim removes the same UID from the site's map/order; a PC moves its hidden child records
+into packed_children with it. Unpacking moves them into the current site, never resurrecting an old-site
+copy. Opening clears installed child references, reveals those records and marks a stripped PC incomplete
+with zero rated output. Separate cars cannot claim one another's cargo by UID. unload() moves records
+once to the isolated shelf, never into player_inventory. Source UID carries site/cycle identity.
+
+Site piles generate from site/cycle seed; opening containers does not roll loot. Same-session re-entry
+keeps reveal/positions/removals; a due cycle replaces that site's abandoned objects while cargo/shelf
+remain separate. No refresh runs mid-visit in the current demo. Objects use layer occlusion, weighted
+follow, restrained neighbour nudges/edge bounce, visual sway and sleep; no full 3D/soft-body simulation.
+True working/broken condition stays hidden/untested on collection. Existing budget/similar GPU sample
+power ratings are reused; no independent FPS, sales value or catalogue system is introduced.
+
+View rewrites controls only when its state stamp changes; drawing stays dynamic. It emits existing
+AudioFeedback handling/UI events but adds no sounds/playback. Nine required suites; salvage suite prints
+an idle CPU observation without a host timing gate. Claude owns future clock/save/stock/PC adapters.
+
+
+## 0.27.0 native salvage physics (supersedes 0.26.0 motion)
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026. D103 authorises this trial.
+SalvageBody is a native RigidBody2D; _integrate_forces applies capped grip forces/soft rotation without
+setting body transforms every drag frame. Primitive shapes, low bounce, friction/damping, sleep and
+selective CCD keep the pile bounded. Open boxes/PCs replace their solid collider with three walls;
+opened bags become flat light bodies. Hidden pre-generated contents become separate bodies once.
+
+SalvagePhysics is scene-owned (physics layer/mask 128), contains static matching rim/floor/bounds and
+UID->body mapping. sync creates/removes/configures bodies from current visible item records/held cargo;
+capture copies pose/velocity/nearest grid orientation back to records. No Node reference is saved in
+Session. Physics queries select actual shapes, not drawing rectangles. Grip of committed cargo uses a
+transient body at the sorting transfer point; failed/cancelled cargo edits remove it before capture can
+corrupt the committed placement. World cancellation releases at the physical pose, never restores an
+old now-occupied pose. Rim clearance uses actual rotated bounds before a trunk claim.
+
+Session.physics_mode means the engine owns motion; pure logical tests still exercise direct placement
+commits without a world. step only advances effort; native gripped distance charges charge_motion once.
+No manual pile stepping/nudges or percentage occlusion remain. No-space/exhausted-work handling does not
+award items or consume the reserved return. Pause freezes native bodies and preserves velocities for
+resume. View departure/return/menu/focus changes coordinate sync/capture and native-node cleanup.
+
+Ten required suites: pure salvage rules plus native-frame tests. Optional stress profiler times the
+physics_frame→process_frame wall phase, not just view callbacks or the coarse Performance time counter.
+No GPU/whole-frame claim. Same session-only/save/stock/Claude hot-file boundaries as 0.26.0 remain.
+
+
+### Storage save contract (0.29.0)
+
+See docs/STORAGE.md for version-1 furniture/placement-only JSON. No change to SAVE_FORMAT.
+StorageModel.setup(sources,snapshot) reconciles ownership references; begin/rotate/cancel never
+edit committed allocations; drop commits only if can_place succeeds. StorageStore protects
+future-version files. No purchase/intake capacity hook yet; never silently discard overflow.
+The required workflow now also runs test_storage.gd (summary name Storage).
+
+
+### Night queue contract (0.30.0)
+NightSession autoload follows GameState. Marker namespace hardware_trial.night_session binds run,
+ticket and optional physical PC; hardware_trial.night_paste stores the physical field. Inactive tickets
+live in a version-1 `<save_path>.night.json` manifest; main save owns the selected active job.
+Checkpoint/readback precedes a switch; unknown/damaged manifests lock switching and preserve files.
+Shop stock/money remain only in GameState. Read-only sources never seed queue items. New Game seeds
+two existing-customer tickets; legacy migration retains only actual work. No root SAVE_FORMAT change.
+Full recovery/order contract and ownership limitation: docs/NIGHT_WORKSHOP.md. The workflow adds
+required suite test_night_workshop.gd (Night workshop); existing diagnostic rules still serve legacy
+payout tests, while the new pure report never mutates customer history or completes a ticket.
+## Salvage generation/weight contract — 0.31.0
+
+`SalvagePile.generate(site, visit, seed_override = -1, identity_prefix = "")` rolls a fresh RNG
+by default; an explicit seed reproduces a report. Unique session nonce/visit/seed IDs avoid collisions
+with cargo/shelf records. `spawn_seed` is available for debug reports. Root hull placement accounts
+for tilt, skips unsafe overflow and caps root+hidden records at Data.MAX_OBJECTS (64). Opening reveals
+pre-generated IDs, bounds children inside their side of the bin/rim, and never rerolls them.
+`SalvageSession.depart` now generates on EVERY successful arrival; `visit_sequence/visit_counts`
+track entries. `cycles/cycle_for` remain legacy/debug period metadata only, not a refresh gate.
+`SalvageData` owns fourteen collectible shapes/colours, site-specific weighted loot, labels and masses.
+Heavy obstacles are excluded from SHAPES and cargo. Native heavy bodies have high friction/mass and
+bounded weaker grip/torque; no static pins or artificial position locks. Existing scenario tests add
+seed-matrix/layout/identity/packing and real heavy/generated-pile physics cases.
+
+| File | Layer | Update |
+| --- | --- | --- |
+| `docs/SALVAGE_VARIETY.md` | docs | Current controls, new arrival rule, catalogue, weight/generation limits and review handoff |
+
+Existing salvage module file map entries remain valid; no new runtime scripts or suite files.
+No changes to GameState, bench/tool hot files, saves or campaign stock. Independent main-based PR;
+leave pending inventory/night PRs and their local patches unchanged.
+
+
+## Room storage module — local 0.33.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/storage/room_canvas.gd` | view | Draw-only Node2D under a clipped Control; no ownership/input logic |
+| `docs/STORAGE_ROOM.md` | docs | Current controls, schema-2 migration, UI lifecycle boundaries |
+| `docs/REVIEW_0_32.md` | docs | Claude PR #39 review, measured findings and follow-ups |
+
+StorageModel adds can_place_furniture(id,cell), free_room_cell(), move_unit(id,cell), and optional
+cell argument to add_unit. Four-by-two room bays and one-bay furniture limit capacity to eight.
+Schema 2 adds room_cell arrays to units; first reserves valid positions then rehomes invalid/missing
+cells, preserving shelf allocations. Store protects versions above 2. No GameState SAVE_FORMAT change.
+StorageView creates all controls once; a clipped room canvas owns drawing, stable toolbar/popup
+controls handle GUI dispatch. No rack selector Buttons, furniture pages or synchronous frees.
+Tests dispatch native viewport mouse input through toolbar/popup, with embedded popup coordinates,
+and validate choice rectangles, direct room dragging, migration and repeated interaction lifecycles.
+Earlier version-1 storage contract is historical; see STORAGE_ROOM.md for the current format.
+
+
+## Tool/hose feel contract — 0.34.0
+ToolRig.hose_capacity is total available hose; hose.length() is deployed length. start_spool_retract
+releases hose/clamp pins, parks a held vacuum and reduces deployed length while returning it. The
+remaining chain stays short; _pay_out_hose feeds to capacity only under nozzle/rope/active clamp pulling. Passive/throw motion is constrained to the currently deployed length; it cannot feed the reel itself. Upgrading capacity preserves a coiled chain. Existing spool cancellation,
+rope solver, clamp and hand-state rules remain. Bench instance only; no save-format change.
+Brush key 1 / vacuum key 2 are input mappings, NOT renamed physics indices. Tool-buttons array stays
+indexed by DustSim ids; all highlights are synchronized on accepted switch. Heavy tuning changes only
+salvage data/material/force values. User directly requested these narrow feel edits; no concurrent hot PR.
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `docs/BENCH_FEEL_0_34.md` | docs | Requested behavior, tests and review handoff |
+
+
+## Wave 2 first slice / 0.35.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/rules/software_checks.gd` | rules | Shared powered boot gate and ownership/boot-aware FPS report, no side effects |
+| `scripts/night/software_view.gd` | view | Customer monitor, per-PC switch, boot/thermal/Vapor actions, bounded ticket/report panels |
+| `scenes/software.tscn` | scene | Workshop diagnostic desktop |
+| `tools/test_software.gd` | tooling | Native power click, per-PC save state, diagnostic/payment isolation, store/FPS and cloth fringe |
+| `docs/SOFTWARE_WAVE_2.md` | docs | Implemented first slice, controls, coordination and future apps |
+
+PC power missing/default is false; explicit saved values are retained. SoftwareChecks.boot is the
+shared live startup gate for night diagnostics and legacy final check. New screen only reads
+reports; GameState.buy_game is the existing purchase transaction. No new save shape or licence
+scope. Scene reports are ephemeral and cleared on power-down. Future app buttons do not run tests.
+Cloth pickup and drawing share ToolRig.cloth_outline, inset 1px only for pickup; wiping reach is
+35 world px / 8px grid. Existing square-cloth upgrade scoring stays unchanged. CI adds test_software.
+
+
+## Room/workshop route / 0.36.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `scripts/night/night_navigation.gd` | view | Shared named Activities Button at one top-right rectangle; owner handles save/cleanup |
+| `tools/test_room_workshop.gd` | tooling | Native PC-slot drag, furniture sequence, six common exit routes, state/save preservation |
+| `docs/ROOM_WORKSHOP.md` | docs | Current room-to-workshop behavior, reservations, version evidence and installation |
+
+Storage selection resolves a fresh Sources.collect PC id to its ticket, asks NightSession to switch
+and checkpoint, then defers scene entry until input is released. Invalid drops cancel the transient
+hand without changing shelf allocation. The shelf footprint of the currently worked PC is only a
+reservation, not another PC. No new save field/schema or change to NightSession's authority.
+Navigation.attach uses ActivitiesButton/RECT on six work screens; scene cleanup runs through the
+existing owners (repair dust/paste, hardware settling/stock save, salvage capture/cancel). Generic
+night navigation blocks on failed checkpoints. Existing scene-specific return-to-workshop actions
+remain. No hot files or WORK_PLAN.md modified by 0.36.0.
+
+
+## Thermal/paste/bin contract / 0.37.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `tools/test_install_technique.gd` | tooling | Film and screw faults: pure rule, pickup score, hidden from the final check, save, real clicks |
+| `tools/test_thermal_service.gd` | tooling | Native tab/menu/mount/retract input, obsolete UI absence, premium cooling/charge/persistence |
+| `docs/REPAIR_LOOP_DESIGN.md` | docs | Design, not built: pickup, tickets, morning report, diagnosis, events (D134 to D139) |
+| `docs/INSTALL_TECHNIQUE.md` | docs | Cooler install technique: the film, the screws, hidden faults and where they surface (D130) |
+| `docs/THERMAL_SERVICE.md` | docs | Current controls, trial material tuning and bin-reel behavior |
+
+PasteMaterials.IDS is canonical for menus, main-save validation and physical PasteSnapshot loading.
+`super` is a new compatible string value, not a new save shape. Signed heat_penalty values apply
+in both night/legacy thermal reports. Renderer color uses material ID, including the legend/cache.
+Tool selection has no wipe_button; cloth/syringe are physical tools. Shared paste UI sync includes
+stage and mount readiness, so mass/result changes cannot leave a stale Mount action. Menu state
+refreshes only on open/selection, never per physics tick. Material edits refuse deposited layers.
+BENCH_RETRACT lies inside BENCH_BIN; no BENCH_SPOOL or draw_spool remains. Raw bench input delegates
+that rectangle to the native button so it cannot also vacuum, pick an item, or empty dust. Button
+minimum size/theme margins are explicitly bounded to the physical bin. Internal reel state/method
+names remain for compatibility; no separate spool entity. Same PR owns all hot-file changes.
+
+
+## Menu navigation / 0.42.0
+
+| File | Layer | Purpose |
+| --- | --- | --- |
+| `docs/MENU_NAVIGATION.md` | docs | Approved mandatory screen roles, header, modes, safe routes, Pause/Continue and future workflow |
+| `scripts/night/navigation_state.gd` | UI state | Run-bound UI preferences only: whitelisted scene, per-ticket view/subview; future-version protection |
+| `scripts/night/pause_menu.gd` | view | Real pause/Resume, existing sound Settings, guarded Title exit; F10/Escape layer handling |
+| `tools/test_menu_navigation.gd` | tooling | Native mode/route/tab/pause/Continue and preference/save safety regressions |
+
+`night_navigation.gd` owns header controls/rectangles. Views implement `_navigate(path)->bool`;
+only a successful scene-specific cancel/save/checkpoint enters the destination. Commit redirects
+legacy night_workshop links to Repair; the old service chooser is no longer a playable menu.
+Hardware/repair wrappers save their own work, monitor refuses busy exit, salvage captures/cancels
+custody and preserves its local pause state. No hot-file/source model/clock modifications here.
+
+`<GameState.save_path>.navigation.json`: version 1, run id matching job.hardware_trial.night_session,
+whitelisted `scene`, bounded `workbench_views` and `repair_stages` dictionaries keyed by ticket.
+Unknown/corrupt/missing files fall back; newer numeric versions cannot be overwritten. Entering a
+real night scene records its UI path; returning to Title retains the last activity. No per-frame
+preference writes. Existing game save/manifest remain authoritative. A failed UI preference write
+warns in Pause that Continue may fall back. A failed actual layout/game checkpoint blocks exit.
+
+
+## Compatibility contracts — 0.46.3
+
+Compatibility update 0.46.3 (PR #57): settlement materializes temporary fitted hardware into job.parts
+before consuming stock and clearing custody. return_replacement restores the original's own flags
+and retains damage on the shop record; condition="broken" stock survives load and is shown as known
+damage, not a hidden fault revealed for free. PcBuild.stock_model maps legacy starter records to
+existing models without changing uid. WorkReport.signature includes parts, shop_fitted and dead_slots.
+The optional root save flag starter_cpu_seeded marks completed one-time CPU migration; old saves
+without it retain the historical migration, while new saves never respawn a collected starter CPU.
+SAVE_FORMAT remains 1 (additive optional flag, not an incompatible schema change). No new runtime files.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest.
+
+
+## Diagnosis contracts — 0.47.0 (session 3.4)
+
+`job.findings` is the Findings notebook (`scripts/rules/findings.gd`): an Array of
+`{kind, text, night, minute, until, sig, source, incomplete}`, kind `observation`/`measurement`/`work`,
+rebuilt by `Findings.sanitize` on load (unknown kinds, empty texts and malformed stamps are dropped;
+newest 150 kept). Old saves and manifests without the key simply start an empty notebook; SAVE_FORMAT
+stays 1. Write entries only through `GameState.note()` (no save) or `GameState.record_finding()` (saves);
+both stamp `night_number`, `night_minutes` and `WorkReport.signature(job)`. Hardware changes are logged
+inside GameState's own mutators (`_note_build` diffs `Findings.configuration` before/after), so views
+never write work history themselves. **Never put hidden health into a Findings text**: only what the
+player was shown. `scripts/rules/diagnosis.gd` reads hidden truth and must never be called from a view,
+the notebook or a future manual; it exists for tests and the 3.5 generator. Timed monitor tests check
+`NightClock.fits` before charging anything. The diagnosis manual is not built (deferred by the user).
+
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
+
+
+## Generated tickets contracts — 0.48.0 (session 3.5)
+
+Save gains `people` (generated customers by id `pNNNN`, rebuilt by `GameState._person_from`: known
+fields only, profession in regular/gamer/clueless, needs and PC sanitized; story ids are refused),
+`person_sequence`, `reviews` (pickup scores, newest 20) and `world_seed` (non-zero; created when
+missing). SAVE_FORMAT stays 1. Look customers up with `GameState.person(id)` or `customer_view(id)`,
+never `Customers.customer()` directly, wherever a ticket's customer may be generated (load, manifest
+validation, ticket window, pickup, comebacks). Mornings: `NightSession._arrivals` draws with
+`TicketGenerator.rng_for(world_seed, night, slot)` only, so the same save repeats; never call
+`randi()`/`randf()` in generation. `ticket_generator.gd` preloads `game_state.gd`, so GameState must
+never preload the generator (rating maths live in `shop_rating.gd` for that reason). Every case passes
+`TicketGenerator.check()` before it is offered; the proof reads hidden truth and is never shown.
+
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5), 18 November 2026.
+
+
+## Motherboard and saved-tool contracts — 0.48.1
+
+`job.parts.board` is a board id from `HardwareCatalog.BOARDS` or "" (= the case's default board; old
+saves). Read it through `PcBuild.board_model(job)`, never directly. `job.board_out` (bool) is true only
+after `GameState.take_out_board()`, which requires `board_blocker() == ""` (every part out, no shop test
+parts fitted). While it is true, `fit_inventory_part`, `fit_catalog_stock`, `set_service_part_fitted(...,
+true)` and `apply_bench` with anything on a slot all refuse, and `PcBuild.missing()` lists the board
+first. Code that rebuilds a parts dictionary must carry `board` (see `CustomerPC.apply`). Boards are not
+in `HardwareCatalog.PARTS`/`TYPES` on purpose: they are not bench drag pieces or order-panel stock.
+Save gains `vacuum_state` ({bin, hose: [[t, amount]]}, `VacuumState.sanitize`); the bench restores it in
+`_ready` and stores it on every dust save and when the bin is emptied. Recorded by Claude (Opus 5.5).
+
+## Standard anti-virus contract — 0.49.0 (D157)
+
+The monitor owns a session-local AntivirusRound and a native AntivirusPanel. The existing single
+`job.infection` remains the sole infection truth; round source/watchdog rows are its UI simulation,
+not another writable PC record. No saved field or SAVE_FORMAT change. A powered boot, deliberate scan,
+writable checkpoint and `NightClock.fits` gate entry. Spend ten night minutes once before play;
+record start/outcome on the actual clock. `Round.COST_MINUTES` is trial tuning. Interrupted attempts
+retain infection and cost, discard UI-only progress, and never generate a success measurement.
+
+Only a won round on the same scanned ticket and strain calls `GameState.clean_infection()`. Ordinary
+monitor/pickup ownership, cash and parts are untouched. Completion is resolved once. Power-off aborts;
+header navigation rejects while the panel exists, including completed results until Back to monitor.
+Application exit aborts without curing. Shared Pause stops the child process; focus loss pauses it
+unless a word prompt already freezes simulation. Native controls are built once; SEND and Enter
+share submission; text_changed normalizes uppercase with caret preservation. Never rebuild the input
+from a refresh tick. Tests use actual viewport events for both confirmations.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+19 November 2026, Europe/Bucharest.
+
+
+
+## Part condition and testing bay contracts — 0.50.0
+
+Stock records may carry `condition` (working | degraded | broken), `defect` (only when degraded; one per
+kind, `PcBuild.DEFECTS`) and `known` ({label, notes, tests, source}, `PartCondition.sanitize_known`).
+Created and reloaded records must have the same shape (B51). Never show `condition`/`defect`: views use
+`PartCondition.label_text`/`describe`; `stock_available` uses `PartCondition.usable` (the player's
+knowledge). `GameState.diagnosis_capabilities` counts only `known_good` spares. A fitted shop part's
+condition is copied into `job.shop_condition` by `_carry_condition` at fit time and rebuilt by
+`refresh_shop_condition()` on load and PC switch; the stock record is the authority. A dead first-slot
+GPU/cooler is also mirrored into `broken_parts` so the existing symptoms and return path apply. Bay
+actions (`inspect_part`, `test_part`, `label_part`, `scrap_part`) spend night minutes through
+`advance_night` after a `NightClock.fits` check; `receive_salvage` takes `[{uid, kind, condition}]`.
+Recorded by Claude (Opus 5.5).
+
+## Build request contracts — 0.51.0
+
+A build is a job whose `ticket.request == "build"` (`PcBuild.is_build`) with a sanitized `job.build`
+record (`BuildRequest.sanitize`: use, needs {processing, graphics, ram_gb, storage_gb, game}, wants,
+budget, deposit, and after collection `delivered`). The empty build keeps the existing PC shape: empty
+CPU/RAM/drive/PSU, the first GPU and cooler listed in `removed_parts` with placeholder ids in `parts`
+that are never shown or counted (`CustomerPC.first_parts` skips them; `part_lines` says "none fitted
+yet"); every part in it is shop stock fitted through `fit_catalog_stock` / `fit_inventory_part` and
+settled by `settle_custody` like any test part. Builds charge `BuildRequest.MINUTES` per fit (after a
+`NightClock.fits` check; `assembly_blocker` explains a refusal); repairs charge nothing. A build cooler
+sets the pre-applied paste grade; the Repair tab is disabled and every route to the repair bench turns
+into the hardware bench (`navigation_state`, `workshop_hub`, `repair_view`). `parts.case` ("" = the
+layout's default case, which has no effect) is read through `PcBuild.case_model` / `case_heat` by BOTH
+temperature checks. Case and board swaps (`choose_build_case`, `choose_build_board`) need the board out
+and refund the old model. Arrival: `take_build_deposit` adds the deposit minus `BuildRequest.starter_cost`;
+collection pays `job.payout` (= budget − deposit) and `BuildRequest.adjust` applies the review. History
+entries may carry `build {budget, value}` (kept by the loader). Recorded by Claude (Opus 5.5).
+
+## Trust and review contracts — 0.52.0
+
+`GameState.reviews` holds review records `{stars 1..5, text, kind (pickup | found_out | fake | notice),
+night, ticket, author}`, newest last, at most 40 (`Reviews.sanitize` turns a 0.48.0 plain score into a
+pickup review). `Reviews.rating` is the one rating rule (ShopRating delegates); notices never count.
+`trust_points` (never below 0) sets `shop_level()`; only `_record_pickup` adds (good work) and only
+`advance_comebacks` (found out: `Reviews.found_points`) and `check_fake_reviews` (caught) subtract.
+Collection lists the hidden deceptions (`_hidden_deceptions`: toothpaste, non-new shop parts handed
+over, an overpriced build; plus a working original kept) and queues `Reviews.discoveries` as comebacks
+with `found:<kind>` faults, which `Morning.sanitize_pending` keeps. `fake_orders` holds purchase nights;
+the review site's check runs in `end_night` before arrivals. Every roll is seeded from `world_seed`.
+Recorded by Claude (Opus 5.5).
+
+## Delivered physical records — 0.54.0
+
+`job.part_instances`: optional slot -> {uid, model, kind, owner, condition, defect?, known}; keys are
+GPU/cooler service kinds or canonical hardware slots (cpu, psu_bay, pcie_2, ram_1..3, m2_1..2).
+The models/placement projection remains `job.parts`. `PcBuild.shop_condition` reads the stock-derived
+cache only while that slot has actual temporary custody; otherwise it reads the matching permanent
+record. Hidden effects, effective stats and boot observations continue after ownership transfer.
+Never display actual condition directly. The shared PartCondition sanitizers own condition/knowledge.
+
+Collection copies physical records before consuming stock and is idempotent. New loose entries may
+include `instance`; CustomerPC.apply moves it with the physical part and compacts record positions
+alongside model arrays. A retained migrated original returns to stock with its existing uid/condition,
+marked untested under D158. The same uid is not minted again or inferred from a matching model.
+
+`comebacks[].pc_snapshot` optionally stores immutable physical delivery receipts; the pending-comeback
+sanitizer and due report preserve them. They do not introduce a new editable PC store or automatic
+repair ticket. Old saves lack these optional fields; SAVE_FORMAT stays 1. Already-lost condition is
+not guessed. The new delivered-parts suite is required in CI alongside all prior suites.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

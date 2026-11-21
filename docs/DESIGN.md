@@ -1,6 +1,120 @@
 # Nightshift — Working Design
 
-Version 1.13 · 13 November 2026
+## Current audit follow-up — 0.54.0, 21 November 2026
+
+Codex's user-authorized follow-up preserves individual delivered shop parts through collection,
+reload, removal/refitting, return to stock and immutable comeback receipts. Actual health/defect,
+UID and known evidence survive ownership transfer; hidden condition stays out of hover text.
+Unreplaced loose components leave in the customer's bag with their records intact. The existing
+comeback remains a report, not an automatically spawned repair ticket. See PART_LIFECYCLE's 0.54.0
+stage and HANDOFF for the integration boundaries.
+
+This patch is stacked after open #64 builds, #65 trust/reviews and #66 Rooms. L3 is fixed for future
+handovers (B53); old lost state is not guessed. L1 legacy originals/bench aliases and L2 orphan
+custody remain open. L4 now tracks clock integration, L5 drawer overflow independently. No new time
+charging rules or UI routes are added. Claude resumes the current Rooms/art/playtest work after
+cross-review/user-controlled integration. The scheduled next structural review stays at 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Current anti-virus contract — D157, 19 November 2026
+
+The user approved the standard in-chat Task Manajer and requested game integration. The chaotic
+disappearing/reordering version is rejected as normal play; a future boss is only an idea. Fixed rows,
+readable process evidence, one occasional advert, slow miner aliases, uppercase funny-word overrides
+and no typing countdown define this slice. Cure requires stopping the actual source and watchdog,
+disabling auto-start and a verified reboot; closing the activity cannot finish/pay a repair ticket.
+See ANTIVIRUS_MINIGAME_DESIGN.md for the current implemented contract and trial timing. The diagnosis
+contract below remains in force; its baseline-status paragraph is historical (diagnosis is merged).
+The manual stays deferred. Next planned session is still 3.6 Testing bay, talk first.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Diagnosis design update — approved 17–18 November 2026 (D150)
+
+Design contract, **not an implementation claim**. Verified main is 0.46.0 with 3.3b merged;
+diagnosis is next. Detailed current rules: REPAIR_LOOP_DESIGN.md section 5. Resume instructions and
+file ownership: HANDOFF.md and WORK_PLAN.md. Older status paragraphs below describe their versions.
+
+- Start from the customer's complaint, potentially with multiple aspects. Hidden faults and actual
+  state remain separate from what the player knows. No diagnosis quiz or new completion button.
+- Findings distinguishes physical **Observations**, test **Measurements** and **Work history**;
+  it never writes the conclusion. Log only evidence actually exposed, with relevant part/configuration
+  context. Keep historical results and mark them outdated after relevant changes.
+- Timestamps use the actual shared night clock and night identity, including midnight/save/load/PC
+  switching. No separate diagnostic clock. Existing clock mechanics are not rewritten by this design.
+- Story-case facts/faults stay fixed. Optional explanations and progressively more specific guidance
+  come through a **manual** chosen by the user. No automatic difficulty scaling, mentor, new customer
+  follow-up questions, hidden-fault-driven answers or automatic hints. Manual chapter/UI details remain
+  proposals; this approves the format, not an extra case-specific hint engine.
+- Test outputs have defined limits; Hardware check, hover text and fitting/refitting permissions
+  cannot expose hidden health. Meaningful comparisons can narrow possibilities without claiming proof
+  beyond what changed. Ambiguity classification is requested; its exact categories remain proposed.
+- Preserve D130/D133/D146 hidden installation and delayed pickup/comeback behaviour.
+- Temporary substitutions require suitable parts actually owned by the player; those stay shop-owned
+  and removed customer parts stay theirs. Settle permanent replacement at collection. An unnecessary
+  replacement of a working part costs the player and its original enters player stock; no double charge
+  for a purchased test part or charge merely for an experiment.
+- Use existing test time/cost trade-offs; trial numbers stay provisional. Refused/incomplete tests
+  cannot claim a completed result. Reading notes/manual adds no separate time charge.
+- Cases remain solvable using available capabilities. Mandatory story jobs do not vanish or change
+  truth when equipment is absent; their particular alternate/acquisition path still needs design.
+- Rich visual component inspection and the proposed example-case pack are **later**. Generation,
+  testing bay and builds remain their separate Wave 3 sessions.
+
+**Split and delivery:** Codex owns diagnosis design/manual content and cross-review. Claude owns
+runtime diagnosis/manual integration and its tests. Claude audits existing/unpublished code FIRST;
+if it conflicts with the approved contract, deliver a separate compatibility patch before continuing
+new features. Preserve unpublished work, coordinate hot files and retain user-controlled merges.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+18 November 2026, Europe/Bucharest. No runtime implementation or Godot run by this documentation update.
+
+**Current 0.42.0 navigation update (approved 16 November 2026):** based on main 0.41.0, preserving
+Claude's connected customer hardware, install technique, Shop, malware/overclock and timed monitor
+measurements. Earlier progress/branch-status notes below are historical. Only older MENU/PATH rules
+are superseded; other confirmed design remains. Canonical menu rules: MENU_NAVIGATION.md.
+
+Activities chooses Workshop room / Salvage / Shop. Drop a customer PC into the room slot to open
+work directly. Persistent Repair / Hardware / Monitor tabs view that same PC; Repair has Cleaning
+and Thermal secondary tabs. Named parent at top-left, selected PC identity centrally, Activities
+and Pause at top-right. No intermediate service chooser, duplicate navigation actions or direct
+Title button in an activity. Title's Continue resumes the last valid activity, PC and subview.
+Pause actually pauses; it contains Resume, existing Settings and Title screen. Room furniture
+edits belong to Arrange room mode; ordinary inventory/PC handling stays uncluttered, with autosave
+status and an error-only retry. Safe exits preserve owned work and reject failed saves/running tests.
+Navigation preferences are separate/run-bound and never own PC state. Salvage remains session-only.
+
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 16 November 2026.
+
+Current review build: **0.34.0 spool, brush-first controls and movable heavy waste**. Room 0.33.0
+was approved/published/merged in PR #40; its older local-only notes below are historical.
+See BENCH_FEEL_0_34.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
+Current local delivery: **0.33.0 room storage**, based on integrated main 0.32.0. Prior branch-status
+notes are historical. Room has direct furniture, eight floor bays and zoom/pan; no rack-selector list.
+See STORAGE_ROOM.md and REVIEW_0_32.md. Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+Current delivery: **0.30.0 night workshop / activities**, pending review, stacked on unmerged 0.29.0.
+New Game → Activities → Workshop or Salvage; two real customer PCs, three-shelf racks,
+non-completing diagnostics and free switching. Full scope/boundaries: NIGHT_WORKSHOP.md.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+
+
+Previous delivery: **0.29.0 general storage rack**, pending review/unmerged. Signed: Codex
+(GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 14 November 2026.
+F5 → Storage rack; PCs/tools/parts share expandable furniture grids. See the final section and
+STORAGE.md for controls, save boundaries and capacity integration still to coordinate with Claude.
+
+Earlier milestone notes follow.
+
+
+Version 1.15 · 14 November 2026
 
 ## Status vocabulary
 CONFIRMED = explicit user decision. PROPOSED = recommended but not approved in detail. OPEN = unresolved. IMPLEMENTED = prototype behaviour only; it does not prove release completeness. See CURRENT_STATE.md for implementation.
@@ -52,7 +166,20 @@ List whole builds, individual parts and bulk lots. Choose asking prices, specifi
 ## 9. Personal PC and salvage — CONFIRMED
 The personal PC serves as technician terminal; it can be built, upgraded, kept, sold and replaced. Test its power level through a mechanism still OPEN. It can break with a 1% daily probability after at least five days of protection following acquisition of a new PC. Precise day-boundary, what qualifies as a new PC, repair failure handling and anti-reset exploits are OPEN.
 
-Entering the dump starts a dedicated minigame; choices determine whether and how much time it costs. Minigame rules are OPEN. Do not assume an unconditional entry fee or that the shop clock also runs during the minigame: that could double-charge time.
+Confirmed night salvage direction (D98–D102): cars determine travel time and trunk space; multiple sites have different loot odds and are re-dumped every few days. Physically move layered bags/boxes/rubbish to uncover useful parts/PCs, with a sorting area and rotatable trunk grid. Site tendencies, travel estimates and known activity inform an uncertain gamble; proper diagnosis is back at the bench. Ordinary clock progression pauses during outings; explicit travel/action costs consume night time. Salvage can be a bad choice compared with repairs or buying stock.
+
+IMPLEMENTED 0.26.0: isolated in-memory demo, two sample cars/sites, explicit effort/travel budget with return reserved, pre-generated container contents, obstructed extraction, sorting/packing, same-session revisits and few-day cycles. No campaign inventory, saving or real night hub integration. Exact numbers, return/overtime rules, inspection, tips and physics remain tuning/proposals as labelled in SALVAGE_DESIGN_PROPOSAL.md. No fuel/wear/stealth system implied. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work, 14 November 2026.
+
+### 0.27.0 authorised physics experiment
+
+D103: try the dumpster as a side-on cutaway using native 2D gravity/collisions and a force-based mouse
+grip. Objects support each other; removing a support changes the pile. Boxes/PCs open into solid wall
+frames, while bags collapse and their pre-generated parts become physical. No invisible percentage
+blocking gate remains. Players must physically clear the rim before transferring an item to the trunk.
+Cargo cancellation restores its committed grid; releasing/cancelling a world grip lets the body drop
+where it actually is, rather than teleporting it back through the pile. This is a playable trial, not
+approval of final art, perfect soft-body bags or a guaranteed frame-rate budget. See the specification
+and measured 20/50/100-body stress profiles. Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol), ChatGPT Work.
 
 ## 10. Later and unresolved scope
 LATER UPDATE: diagnostic software requiring particular hardware; buying games and testing customer-requested performance. LONG-TERM: B2B/bulk sales unlock under conditions; more complex server demands. Whether servers are initial release or an update is OPEN. Advanced endgame must remain enjoyable and change the experience substantially, but its systems are not selected.
@@ -171,3 +298,151 @@ CONFIRMED: current cooler iteration prioritises interaction design, button organ
 IMPLEMENTED: cleaning tool row and maintenance row; permanent bin state with explicit Empty bin; thermal material/tool row followed by mount/complete. A full bin pauses suction by design. Hose crossing recovery prevents persistent loop artefacts in tested rapid drags and clamp transitions.
 
 CONFIRMED/IMPLEMENTED foundation: pickup, impacts, vacuuming, brushing, wiping, dispensing, pressing, lever and UI actions emit silent audio events. Six buses and managed per-owner loops prepare later sound work; no audio assets/playback exist. See AUDIO_DESIGN.md. Future samples, mix, tonal palette and exact feedback tuning are PROPOSALS. Critical state must stay visible and sound must not expose secret scam or diagnosis data.
+
+
+Latest merged: **0.31.0 salvage variety** — fresh random pile per arrival, fourteen collectible kinds,
+heavy obstacles (docs/SALVAGE_VARIETY.md, D113). Codex (GPT 6.1 Sol, model id gpt-6.1-sol), 15 November 2026.
+
+## General storage rack — trial 0.29.0, 14 November 2026
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+The user approved a general inventory occupied by PCs, owned tools and parts, shown as a rack
+and expandable with more furniture. The first implementation is `scenes/storage.tscn`, available
+from the start menu's **Storage rack** button. Steel racks, shallow parts cabinets and tool boards
+provide distinct grid capacity. Drag, rotate, move between shelves/furniture and add units; invalid
+drops return safely. A visible waiting area retains everything that cannot fit.
+
+The rack reads current player stock, the included five-tool kit and the one active customer PC.
+It stores only furniture and allocations in `user://nightshift_storage.json`; ownership stays in
+GameState. Installed shop parts retain marked shelf reservations; a whole customer PC includes
+its fitted customer parts. No duplication or ownership transfer occurs by moving a tile.
+
+Prototype choices, not final balance: furniture is free, at most eight units, example shelf sizes
+and storage footprints. Furniture/layout survives New game independently of demo progress.
+This is not the final shared-PC/owned-part model: multiple waiting PCs, owned built PCs and a
+purchasable tool catalogue need canonical source records first. The current old hardware drawer
+and buying/intake capacity checks are unchanged. The rack enforces its own allocation space and
+shows overflow, but does not yet reject purchases, intake or salvage on capacity grounds.
+
+Claude owns current concurrent engineering work. No changes to bench_view.gd, tool_rig.gd,
+game_state.gd, shop_view.gd or WORK_PLAN.md in this delivery. Coordinate capacity hooks after
+review; do not merge automatically. Contract, file map and playtest steps: docs/STORAGE.md.
+
+
+## Night workshop and three-shelf rack — trial 0.30.0
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work,
+14 November 2026, Europe/Bucharest. User-approved follow-up to the unmerged 0.29.0 rack.
+
+New Game → Activities: Workshop, Salvage dump, Storage rack and a disabled future-activity space.
+Salvage moves out of the initial menu. Workshop groups customer-PC selection, repair bench,
+hardware stock sandbox and Final Check. New games have two actual repair tickets using the existing
+customers, with separate dirty PCs and per-PC repair progress. Existing saves migrate only their
+actual current ticket; they do not gain fictional client PCs. Every rack now has a third shelf.
+
+A ticket does not imply a customer PC: the manifest explicitly stores an optional physical PC ID;
+build orders without supplied hardware occupy no PC space. Night checks only diagnose boot/heat/
+parts and owned game tests. They do not pay, complete jobs, advance customer rotation or record a
+pickup. Switch PCs whenever desired. A good paste mount commits through the cooler lever, without
+another completion button; existing thermal-paste costs/scam recording remain. Physical paste fields
+also survive leaving the bench, alongside each PC's dust, removed parts, damage and replacements.
+
+The daytime pickup/shop screen is future work. Hardware bench still manipulates SHOP STOCK, not a
+full customer assembly model. Salvage time/cargo still belongs to its isolated prototype. No shared
+campaign clock, shop economy or full owned-PC/part schema is claimed here. A temporary NightSession
+bridge stores inactive jobs and references the active GameState.job; it does not clone stock or money.
+Main-save active markers and a versioned sidecar allow interrupted-switch recovery; see NIGHT_WORKSHOP.md.
+No edits to Claude's hot files or WORK_PLAN.md. This delivery is stacked on the rack branch; both PRs
+must stay unmerged until reviewed. Claude goes next on shared-state integration review.
+
+
+## Storage room — local trial 0.33.0
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest.
+The user replaces rack-selector buttons with direct room furniture. A 4×2 floor grid holds up to
+eight units. All units coexist on one clipped room canvas; zoom/pan and Fit furniture/Entire room
+replace paging. Drag furniture by its title bar to another free bay; its contents stay with it.
+Parts still pack into each unit's shelves, with rotation, reservations, overflow and safe cancellation.
+
+This removes the signal-emitter deletion path behind B16. The add-furniture popup uses proper
+margin/VBox layout, fixing overlapping choices (B20). Native viewport mouse events now exercise
+sort/save/add/model selection and repeated room selections in tests. No claim of universal crash
+freedom or graphical playtest: the tested flows pass without script/locked-object errors.
+
+Storage layout version 2 stores unit room_cell in addition to unchanged shelf allocations. Version 1
+assigns distinct room bays on load; duplicate/malformed/out-of-range cells are rehomed safely. Item
+ownership remains in the canonical GameState projection. Furniture remains free prototype tuning;
+no room purchase/expansion economy or shared capacity hook introduced. Full controls: STORAGE_ROOM.md.
+
+Main 0.32.0 already integrates the prior PRs. Earlier pending/independent-branch notes below are
+historical. Review of Claude PR #39: canonical CPU/part-state fixes retained; night ticket overflow
+B19 remains open with measured evidence, reported to Claude. Code is local; no pushes or merges.
+
+
+## Bench feel — trial 0.34.0
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026, Europe/Bucharest.
+Room 0.33.0 is published and merged (PR #40, user authorized). This new review branch keeps that
+room and adds requested feel fixes. Spool winds in deployed hose instead of restoring a full coil;
+idle hose stays short, and pulling the nozzle/hose/clipped moving clamp feeds out only needed length,
+up to base/upgrade capacity. Spooling releases a held rope point and removes the clamp constraint.
+
+Repair benches (legacy and night) start with Brush, key 1. Vacuum is key 2; Parts 3 and Pick 4 stay.
+Internal physics slots remain vacuum=0/brush=1. Tool highlights explicitly follow actual selection,
+including hotkeys and refused hand-state transitions. Heavy concrete/appliances retain dynamic mass
+and cannot be packed; lower mass/friction and strong damping allow controlled nudging without flight.
+All weight/force/length tuning is provisional. Deployed hose length remains local to a bench instance,
+like existing tool poses; cross-scene tool arrangement persistence is later engineering work.
+
+No shared save/ownership changes. User-requested narrow edits touch ToolRig spool and BenchView
+initial-tool/keys/labels/highlights; no competing bench PR was open. Hand-state rules are unchanged.
+Claude cross-reviews next; the new feel changes are not automatically merged with the approved room.
+
+
+## 0.35.0 — Wave 2 first playable monitor slice
+
+Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+User approved starting Wave 2 after cloth and power fixes. New repair tickets and saves lacking
+an explicit switch begin powered OFF; an explicit saved on/off value remains respected. Repair
+bench initializes fans still when off. Power is per customer PC; live boot/game/thermal tests
+require switching on. Cleaning/repasting do not require power. Legacy final check now also
+respects the power flag, while its historical one-time payment behavior remains unchanged.
+
+Workshop → Diagnostic monitor offers boot, non-paying final/thermal report, Vapor purchase and
+Counter Stroke 2 simulated FPS using existing Wave 1 rules and shop-owned licences. Customer
+complaint, uses and collection request remain visible in a bounded sidebar. Reports clear on
+power-down; no money/trust/pickup/completion side effect except explicit game purchases.
+Anti-virus and overclocker are labeled upcoming; neither runs a pretend scan nor alters hardware.
+Their exact mechanics, later campaign time and master-PC requirements remain future design work.
+Cloth pickup follows rendered skew/rotation with a one-pixel inset; wiping reach is 35 world
+pixels rather than 36 (not one whole 8px paste cell). See SOFTWARE_WAVE_2.md for limits.
+
+
+## 0.36.0 — Physical room selection and common night exit
+
+User requested room-based workshop selection: Activity Workshop now enters the room. Drag a real
+customer PC into its workshop slot to select/open that PC. The old PC dropdown is removed. The
+active PC's rack footprint is retained as a marked reservation; the slot references the same
+GameState/NightSession record, with no clone or new ownership/save schema. Parts, tools, build
+orders with no PC, stale IDs and protected manifests cannot act as customer PCs. Selection and
+exits preserve repair progress. Existing hardware bench still operates shop stock (not a second
+copy of the selected customer's installed hardware). Shared PC-model integration remains future work.
+
+Activities uses one top-right control on room, service hub, repair, hardware, diagnostic monitor
+and salvage. Duplicate title/activity Storage shortcuts are removed. Ticket details in the service
+hub are now scrolled/bounded. The uploaded recording displays v0.32.0 and the removed rack-list
+implementation; fresh v0.36.0 installation instructions avoid confusing project copies. No universal
+crash-freedom claim: real native input regression tests cover the reported sequence and navigation.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+
+## 0.37.0 — Thermal controls and bin retraction
+
+User approved: distinct teal Cleaning / purple Thermal tabs; remove redundant cloth/syringe
+button in favor of physical tools. Mount cooler moves below the socket, visible only after
+paste is present and before mounting/graded completion. This does not force a good-size blob:
+poor paste work remains possible. The lever still locks/grades; mounting never auto-completes.
+One material menu offers normal thermal paste, super-paste and toothpaste. Wipe/reset a layer
+before changing material. Super-paste is honest, uses normal flow/contact rules with a subtle
+blue-purple tint, and improves cooling at equal grade. Trial numbers: $6 and −4°C versus normal
+$3/0°C and toothpaste free/+14°C. Both thermal reports and saved/per-PC physical fields honor it.
+The reel is inside the vacuum bin: RETRACT on the bin replaces the separate spool. It does not
+empty the bin; hose stays shortened until pulled. No new campaign system or save-shape change.
+Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
