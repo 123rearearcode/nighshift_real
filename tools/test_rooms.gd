@@ -114,8 +114,12 @@ func run_checks() -> void:
         await process_frame
         var window: Node = counter.get_node_or_null("TicketWindow")
         check(window != null, "clicking a ticket on the clipboard opens the ticket")
-        if window != null: window.queue_free()
+        if window != null:
+            window.hide()   # an open dialog would take the next click; close it a frame before clicking on
+            window.queue_free()
     counter.clipboard.hide()
+    await process_frame
+    await process_frame
     await press(counter.hotspot("Till"))
     check(counter.message.text.contains("$%d" % gs.money), "the till shows the cash")
     await press(counter.hotspot("Bin"))
