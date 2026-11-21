@@ -37,6 +37,22 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled Code checker role — 2026-11-21 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.50.0 (c04a278). Open PRs #64–#67 are untouched; the integrator assigns the version.
+- Added: `docs/CODE_CHECKER.md`. User decision: a scheduled Claude session is the code checker. Every
+  6 hours it reviews new main commits and changed PRs (comment-only), files bugs through small docs PRs,
+  runs the every-10-versions structural review in BUGS.md, and every 2 days a performance review in
+  PERFORMANCE.md. It never edits game code, approves or merges. Other AIs no longer run these reviews.
+- Changed: AGENTS.md rule 6, BUGS.md filing rules, WORK_PLAN.md roles, PERFORMANCE.md (review log
+  section), DEVELOPMENT.md file map, HANDOFF.md note.
+- Files changed: docs/CODE_CHECKER.md (A), AGENTS.md (M), docs/BUGS.md (M), docs/WORK_PLAN.md (M),
+  docs/PERFORMANCE.md (M), DEVELOPMENT.md (M), HANDOFF.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, no runtime, test or CI change.
+- Checks: `python3 -I tools/check_project.py`, bug-register checker and its tests (results in the PR).
+- Next action: the user merges this PR; the scheduled tasks are already active and read this file.
+
 ### Approved diagnosis/manual design and coordinated resume — 2026-11-18 (documentation only)
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.

@@ -122,6 +122,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_salvage.gd` | tooling | Pure isolated time, grid, custody and cycle regressions |
 | `docs/CODEX_PROMPT_SALVAGE.md` | docs | Ready-to-paste prompt for Codex: street/dumpster salvage minigame, design first, no hot files |
 | `docs/CUSTOMER_MODEL_MAP.md` | docs | The approved customer/software system map (D92–D97) with the wave-1 scope and the user's answers |
+| `docs/CODE_CHECKER.md` | docs | The scheduled Code checker: 6-hourly change review, structural bug review, performance review every 2 days; what it may and may not do |
 | `docs/BUGS.md` | docs | The bug register: every bug found, its root cause, and the every-10-versions structural review |
 | `docs/PART_LIFECYCLE.md` | docs | Component identity/custody invariants, staged migration acceptance and cross-AI integration boundaries |
 | `tools/check_bug_register.py` | tooling | Validate one bug index, statuses, detail/evidence links and the next review marker |

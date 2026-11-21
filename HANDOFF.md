@@ -1,5 +1,10 @@
 # Handoff — current state first
 
+**Code checker (user decision, 21 November 2026):** reviews now belong to a scheduled Claude session —
+change review every 6 hours, the every-10-versions structural bug review, and a performance review every
+2 days. Do not run those yourselves; answer its PR comments and its "Code checker log" issue. It never
+edits game code or merges. Read `docs/CODE_CHECKER.md`. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
 
 Read first, per Codex's 0.49.0 resume order (below): done. Claude cross-reviewed PR #62 (approve, three
