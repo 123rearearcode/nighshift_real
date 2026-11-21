@@ -76,6 +76,69 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.53.0 - 2026-11-21 - Rooms instead of menus
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.52.0 (PR #65, open; stacked on #64, open).
+- Type: minor (user-requested revamp, D161; supersedes the 0.42.0 menu-path rules).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 33
+suites passed (2,298 checks), including the new Rooms suite (53 checks, native clicks on the hotspots),
+after one test-ordering fix (B52). No graphical playtest yet; the rooms use placeholder drawings.
+
+### Added
+- **The counter** is the main screen: front door (outside), back door (workshop), the customer window,
+  the till, the ticket clipboard, your phone, the tool catalogue, the wall board, the bin (later) and the
+  shutter, which ends the night.
+- **The workshop**: the repair bench, hardware board and diagnostic monitor (with the PC on the bench),
+  the testing bay corner, the stock room door, the door back to the counter.
+- **Outside**: the shop door and your van to the salvage dump; a parts supplier spot for later.
+- **The morning at the counter**: the shutter goes up and every customer walks in, one at a time, with
+  what they have to say (collections, comebacks, new tickets). The slip counts how many came in; the rest of
+  the shop waits until they are served; then the counter sums up who is still waiting and any review-site
+  notice. No clock runs during the visits.
+- **Replaceable art**: each room is a picture (`art/rooms/<room>.png`) plus clickable spots you drag in the
+  Godot editor; placeholders until the picture exists; F3 shows every spot. Customer portraits go in
+  `art/customers/`. Guide: `docs/ROOM_ART_GUIDE.md`.
+
+### Changed
+- No Activities hub, no workbench tabs, no morning report screen. Close-ups have one exit named after
+  their room (← Workshop, ← Outside, ← Counter) plus Pause. Old links and preferences land at the counter.
+- New game and the Continue fallback open the counter.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/room_view.gd`, `hotspot.gd`, `room_art.gd`, `counter_room.gd`, `workshop_room.gd`, `outside_room.gd`, `legacy_redirect.gd` | A | The rooms |
+| `scenes/rooms/counter.tscn`, `workshop.tscn`, `outside.tscn` | A | Room scenes (Background + hotspots) |
+| `art/rooms/README.md`, `art/customers/README.md`, `docs/ROOM_ART_GUIDE.md` | A | Art folders and the artist's guide |
+| `scripts/night/morning_text.gd` | A | The morning's words (from the retired morning screen) |
+| `tools/test_rooms.gd` | A | Rooms suite |
+| `scripts/night/activities_view.gd` → `scripts/night/night_screen.gd` | R | Only the shared helpers remain |
+| `scripts/night/morning_view.gd` | D | Replaced by the counter's visits |
+| `scenes/activities.tscn`, `scenes/morning.tscn` | M | Redirect to the counter |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/night_session.gd` | M | Places, exits, resume paths, the visits flag |
+| `scripts/storage/storage_view.gd`, `scripts/night/salvage_view.gd`, `scripts/night/shop_activity_view.gd`, `scripts/night/testing_bay_view.gd`, `scripts/night/software_view.gd`, `scripts/view/start_view.gd` | M | Exits to their rooms; start at the counter |
+| `tools/test_menu_navigation.gd`, `test_morning.gd`, `test_night_workshop.gd`, `test_room_workshop.gd`, `test_start_screen.gd`, `test_storage.gd`, `test_testing_bay.gd`, `test_salvage_physics.gd`, `test_trust_and_reviews.gd`, `test_build_requests.gd`, `.github/workflows/tests.yml` | M | Walk through rooms instead of the hub and tabs; suite registered |
+| `docs/MENU_NAVIGATION.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/CURRENT_STATE.md`, `AGENTS.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | Room navigation rules, D161, plan, state, agent rule 8, file map, handoff, version 0.53.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): run 44842058308 on `ff07409` failed one check (Rooms: "the till shows the cash", B52, a test-ordering defect); run 44842432173 on `98a39db`: 33 suites, 2,298 checks, 0 failures (Rooms 53, Menu navigation 38, Morning report 28); bench smoke playtest finished.
+
+### Decisions proposed (not approved)
+- "The day is not timed" read as: the morning visits have no clock; the night clock stays.
+- While customers are at the counter, every other spot waits; the stock room opens off the workshop.
+- Close-ups keep their current look; only rooms take new art for now.
+
+### Known issues and open items
+- Placeholder drawings only; the user plans the art. Customer portraits are optional silhouettes for now.
+- Customers do not yet talk in dialogue: their visit is the old report text on a slip.
+
+### Next action
+The user playtests and plans art; Codex cross-reviews #64, #65 and this PR; merges stay with the user.
+
 ## 0.52.0 - 2026-11-20 - Trust and reviews (session 3.8)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

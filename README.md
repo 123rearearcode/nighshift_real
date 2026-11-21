@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.52.0)
+# Nightshift - Godot Foundation Trial (v0.53.0)
+
+0.53.0 removes the menus. You start at the **shop counter**: the front door on the left takes you
+outside (your van drives to the salvage dump), the back door takes you into the workshop (repair bench,
+hardware board, diagnostic monitor, testing bay, and the stock room with your PCs). On the counter: the
+till, the ticket clipboard, your phone and the tool catalogue. Pull the shutter to end the night; in the
+morning the shutter goes up and every customer walks in to the counter, one at a time. The rooms use
+placeholder boxes until real art is added: see `docs/ROOM_ART_GUIDE.md` (press F3 in a room to see every
+clickable spot).
 
 0.52.0 is session 3.8, **trust and reviews** (no elegance score). Every customer who collects writes a
 review on your shop's page, stars plus a comment, and some are petty about it. Good work raises your

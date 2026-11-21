@@ -1,4 +1,5 @@
-# End-to-end menu paths: mode gates, workbench tabs, safe exits, pause/Continue, UI preference safety.
+# End-to-end paths: mode gates, the workshop's stations (0.53.0: no tabs), safe exits, pause/Continue, UI
+# preference safety. Every transition is a native click on a real button or hotspot.
 extends "res://tools/test_support.gd"
 const Nav = preload("res://scripts/night/night_navigation.gd")
 const Memory = preload("res://scripts/night/navigation_state.gd")
@@ -19,6 +20,13 @@ func button(view: Node,text: String) -> Button:
     for child: Node in view.get_children():
         if child is Button and child.text == text: return child
     return null
+# 0.53.0 (D161): back out of a close-up to the workshop, then click a station's hotspot.
+func station(name: String) -> void:
+    await press(current_scene.get_node("BackButton"))
+    await process_frame
+    check(current_scene.scene_file_path == Nav.WORKSHOP,"← Workshop leads back to the workshop room")
+    await press(current_scene.hotspot(name))
+    await process_frame
 func scene(path: String) -> void:
     change_scene_to_file(path)
     await process_frame
@@ -78,18 +86,17 @@ func run_checks() -> void:
     for i in range(controls.size()):
         for j in range(i+1,controls.size()): separated = separated and not controls[i].get_global_rect().intersects(controls[j].get_global_rect())
     check(separated,"shared header navigation and service action buttons do not overlap")
-    await press(repair.get_node("HardwareTab"))
-    await process_frame
-    check(current_scene.scene_file_path == Nav.HARDWARE and gs.job["id"] == ticket,"Hardware tab changes view of the same selected PC")
+    check(repair.get_node_or_null("HardwareTab") == null and repair.get_node_or_null("ActivitiesButton") == null,"no workbench tabs and no hub button: the workshop is the way between stations")
+    await station("HardwareBoard")
+    check(current_scene.scene_file_path == Nav.HARDWARE and gs.job["id"] == ticket,"the hardware board shows the same selected PC")
     var hardware: Node = current_scene
     check(hardware._title_text().contains("own PC"),"hardware is the connected customer PC, not a relabeled shop sandbox")
-    await press(hardware.get_node("MonitorTab"))
-    await process_frame
-    check(current_scene.scene_file_path == Nav.MONITOR and gs.job["id"] == ticket,"Monitor tab keeps ticket identity")
+    await station("Monitor")
+    check(current_scene.scene_file_path == Nav.MONITOR and gs.job["id"] == ticket,"the monitor keeps ticket identity")
     var monitor: Node = current_scene
     monitor._run_timed("Navigation check",30,func() -> void: pass)
-    await press(monitor.get_node("RepairTab"))
-    check(current_scene == monitor and monitor.message.text.contains("test is running"),"running monitor tests must finish/cancel before switching views")
+    await press(monitor.get_node("BackButton"))
+    check(current_scene == monitor and monitor.message.text.contains("test is running"),"running monitor tests must finish/cancel before walking away")
     var pause: Node = monitor.get_node("PauseMenu")
     await press(monitor.get_node("PauseButton"))
     var time: float = monitor.busy_left
@@ -120,21 +127,24 @@ func run_checks() -> void:
     await press(current_scene.load_button)
     await process_frame
     check(current_scene.scene_file_path == Nav.MONITOR and gs.job["id"] == ticket,"Continue restores last activity and selected PC")
-    await press(current_scene.get_node("RepairTab"))
-    await process_frame
-    check(current_scene.stage == current_scene.STAGE_PASTE and current_scene.paste.h == field,"returning to Repair restores its thermal subview and physical paste")
+    await station("RepairBench")
+    check(current_scene.stage == current_scene.STAGE_PASTE and current_scene.paste.h == field,"returning to the repair bench restores its thermal subview and physical paste")
     var back: Button = current_scene.get_node("BackButton")
-    check(back.text == "← Room" and current_scene.get_node("ActivitiesButton").get_global_rect() == Nav.RECT,"back destination and global Activities have distinct consistent roles")
+    check(back.text == "← Workshop" and back.get_global_rect() == Nav.BACK_RECT and current_scene.get_node("PauseButton") != null,"one named way back, plus Pause")
     await press(back)
     await process_frame
-    check(current_scene.scene_file_path == Nav.ROOM and not current_scene.arranging,"Back returns directly to normal room, never an intermediate menu")
+    await press(current_scene.hotspot("StockDoor"))
+    await process_frame
+    check(current_scene.scene_file_path == Nav.ROOM and not current_scene.arranging,"the stock room door opens the normal room, never an intermediate menu")
     check(gs.money == money and gs.player_inventory == stock,"menu paths do not charge, restock or finish repairs")
     # UI preferences cannot execute arbitrary scene paths or overwrite future formats.
     var job: Dictionary = gs.job.duplicate(true)
     SafeStore.write(prefs,{"run":night.run_id,"garbage":true})
     check(Memory.enter(gs,Nav.ROOM) and Memory.resume_path(gs) == Nav.ROOM,"missing UI schema fields safely rebuild preferences")
     SafeStore.write(prefs,{"version":1,"run":night.run_id,"scene":"res:"+"//unknown.tscn"})
-    check(Memory.resume_path(gs) == Nav.ACTIVITIES,"unknown resume scenes safely fall back to Activities")
+    check(Memory.resume_path(gs) == Nav.COUNTER,"unknown resume scenes safely fall back to the counter")
+    SafeStore.write(prefs,{"version":1,"run":night.run_id,"scene":Memory.LEGACY_HUB})
+    check(Memory.resume_path(gs) == Nav.COUNTER,"a 0.52.0 preference for the retired hub resumes at the counter")
     SafeStore.write(prefs,{"version":999,"run":night.run_id,"sentinel":"keep"})
     check(not Memory.enter(gs,Nav.REPAIR) and SafeStore.read(prefs)["sentinel"] == "keep","newer UI preference format is never overwritten")
     check(gs.job == job,"UI preference loading never changes repair state")
@@ -142,7 +152,7 @@ func run_checks() -> void:
     Memory.enter(gs,Nav.MONITOR)
     gs.new_game(false)
     night.start(gs)
-    check(Memory.resume_path(gs) == Nav.ACTIVITIES,"new run cannot resume a previous run's PC/view")
+    check(Memory.resume_path(gs) == Nav.COUNTER,"new run cannot resume a previous run's PC/view")
     await scene("res://scenes/night_workshop.tscn")
     await process_frame
     check(current_scene.scene_file_path == Nav.REPAIR,"legacy workshop links redirect directly to the bench")

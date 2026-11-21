@@ -131,11 +131,11 @@ func run_checks() -> void:
 
     # ---- the phone ----
     gs.money = 200
-    var acts: Node = load("res://scenes/activities.tscn").instantiate()
+    var acts: Node = load("res://scenes/rooms/counter.tscn").instantiate()
     root.add_child(acts)
     await process_frame
     check(not acts.phone.visible, "the phone starts in your pocket")
-    await press(acts.phone_button)
+    await press(acts.hotspot("Phone"))
     check(acts.phone.visible and str(acts.phone.header.text).contains("★") and str(acts.phone.standing.text).contains("shop level"), "the phone shows the rating, trustworthiness and the shop level")
     await process_frame
     check(acts.phone.list.get_child_count() == gs.reviews.size(), "every review is listed")

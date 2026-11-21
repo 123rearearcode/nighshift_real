@@ -50,7 +50,7 @@ func run_checks() -> void:
     menu._on_new_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.money == gs.START_MONEY, "New game opens activity selection with fresh state")
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and gs.money == gs.START_MONEY, "New game opens the shop counter with fresh state")
     gs.money = 247
     gs.job["dust"]["cooler"] = 0.42
     gs.save_game()
@@ -65,7 +65,7 @@ func run_checks() -> void:
     current_scene._on_load_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and gs.money == 247 and is_equal_approx(gs.dust_fraction("cooler"),0.42), "Load restores saved money and work then opens demo")
     current_scene._go("res://scenes/start.tscn")
     await process_frame
     await process_frame
