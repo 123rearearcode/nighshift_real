@@ -83,6 +83,7 @@ Next structural review: **0.60.0**.
 | B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
 | B52 | Verified | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Automated: Rooms suite (CI run 44842432173) |
 | B53 | Verified | High | Component lifecycle | Collection consumes individual shop records and heals their delivered parts by keeping only model names | 0.54.0 | Automated: delivered-parts full-journey regressions |
+| B54 | Fixed | Medium | Test harness | The Rooms suite preloaded a view script, which then failed to compile (no autoloads yet); the scene later loaded without its script, the test errored mid-coroutine and CI hung for 30+ minutes | 0.55.0 | Pending CI rerun: Rooms suite and suite timeout |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -773,3 +774,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: fit an untested degraded GPU with artifacts; confirm load instability at minute 12; settle custody; the original build then had no artifacts/instability and no surviving physical uid. Repeat with dead RAM/CPU/PSU/cooler/storage to observe wrong post-delivery contribution or boot symptoms.
 - Expected / actual: ownership changes while the individual part and its condition persist / physical identity and condition were lost at handover.
 - Regression / evidence: Automated Godot 4.7.2 `tools/test_delivered_parts.gd`: complete collection/receipt/comeback/reload path; identical RAM with different health reordered/removed/refitted; delivered GPU temporarily swapped, restored and later returned to stock with its same uid/defect; every supported kind in degraded and broken states. The four-check probe on the unchanged parent failed its two post-handover checks. No graphical acceptance claimed.
+
+### B54 — A test preloaded a view script and hung CI
+
+- Found: 0.55.0 development, GitHub Actions run 44854128030 (cancelled by Claude after 33 minutes in "Required test suites")
+- Reported by: CI log: `Compile Error: Identifier not found: GameState` at `scripts/rooms/under_counter_view.gd:33`, then `Node not found: "BackButton"` in `tools/test_rooms.gd`
+- Fixed in: 0.55.0 (before release)
+- Root cause: `tools/test_rooms.gd` preloaded `under_counter_view.gd` to read a constant. A `--script` test compiles before the autoloads (GameState, NightSession) exist, so the view failed to compile and stayed cached as broken; when the test later opened the scene it had no script and no back button. The error stopped the test coroutine before `finish()`, so Godot never quit, and the CI step has no per-suite time limit. Two defects: the preload (test) and the missing timeout (CI).
+- Reproduction: preload any script that names an autoload from a SceneTree test script, then open its scene in the test.
+- Expected / actual: the suite runs and reports / the suite never exits and the job stalls until GitHub's six-hour limit.
+- Regression / evidence: the test reads the constant from the running scene's script (`get_script_constant_map()`); every suite now runs under `timeout 600`. Evidence pending the CI rerun; no user verification claimed.
+
