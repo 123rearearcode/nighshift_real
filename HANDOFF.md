@@ -1,6 +1,27 @@
 # Handoff — current state first
 
-## Current — 0.55.0 store and under-counter storage; work split for Codex (Claude), 21 November 2026
+## Current — 0.56.1 merge completion and checker reports, 21 November 2026
+
+The user authorized merging all current PRs. #69 (0.55.0 store/under-counter storage) and #70
+(0.56.0 magnifying glass) are merged in order on main, baseline b4d6841. This docs/version patch
+integrates #71 while preserving B54's verified harness fix and adding both checker reports:
+B55 (hidden cursor in the pause menu with the lens) and B56 (under-counter items drawn at the
+stock-room origin). Both remain Open, code-review findings only, not reproduced or fixed here.
+All runtime files, tests, tools and CI remain identical to the passing 0.56.0 release.
+
+Resume from current main. The 0.55.0 work split below still applies: Codex next owns 0.57.0
+anti-virus effects/reduce-flashing and 0.58.0 per-part tests; #70's merge releases the bay for that
+planned work. This merge request does not start those features. Claude handles engineering/code
+health and follows up the checker findings with the relevant file owner; coordinate any bay fix
+before overlapping Codex's changes. Keep every required suite, the hidden-condition boundary and
+all lifecycle contracts. Next unused bug id is B57; next structural review stays 0.60.0 and belongs
+to the scheduled Code checker. Remaining feature/design questions in the prior section stay open.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/version integration only; no new Godot run. See CHANGELOG 0.56.1.
+
+
+## Previous — 0.55.0 store and under-counter storage; work split for Codex (Claude), 21 November 2026
 
 Read first: done (0.54.2 section and docs/CODE_CHECKER.md). The user played 0.53.0 and decided D162.
 Versions and owners are handed out here so nobody collides:

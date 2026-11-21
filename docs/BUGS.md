@@ -84,6 +84,8 @@ Next structural review: **0.60.0**.
 | B52 | Verified | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Automated: Rooms suite (CI run 44842432173) |
 | B53 | Verified | High | Component lifecycle | Collection consumes individual shop records and heals their delivered parts by keeping only model names | 0.54.0 | Automated: delivered-parts full-journey regressions |
 | B54 | Verified | Medium | Test harness | The Rooms suite preloaded a view script, which then failed to compile (no autoloads yet); the scene later loaded without its script, the test errored mid-coroutine and CI hung for 30+ minutes | 0.55.0 | Automated: Rooms suite under the suite timeout (CI run 44857271062) |
+| B55 | Open | Medium | Input | Pausing (F10) with the magnifying glass over the part leaves the mouse cursor hidden for the whole pause menu | — | Not reproduced; code review of PR #70 head 6df5f89 |
+| B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -785,3 +787,22 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: the suite runs and reports / the suite never exits and the job stalls until GitHub's six-hour limit.
 - Regression / evidence: the test reads the constant from the running scene's script (`get_script_constant_map()`); every suite now runs under `timeout 600`. Automated Godot 4.7.2, CI run 44857271062 on `90a11c1`: the Rooms suite completes (71 checks, 0 failures) and the job finishes in about two minutes. No user verification claimed.
 
+### B55 — Pausing with the magnifying glass leaves the cursor hidden
+
+- Found: Code checker change review, 21 November 2026, PR #70 head `6df5f89` (0.56.0, not merged)
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), code review only
+- Fixed in: —
+- Root cause: suspected, from code: `scripts/night/testing_bay_view.gd` sets `Input.MOUSE_MODE_HIDDEN` (window-wide) while the lens is over `PART_RECT.grow(LENS_RADIUS)` and only restores it in its own `_input` / `_put_lens_down` / `_exit_tree`. F10 opens `pause_menu.gd`, which sets `SceneTree.paused = true`; the bay (default process mode) then receives no `_input`, so the cursor stays hidden. The pause panel (`Rect2(420,170,440,360)`) sits almost exactly over `PART_RECT` (`Rect2(420,132,450,300)`), so its buttons must be used blind.
+- Reproduction (expected path, not run): testing bay, select a part, pick up the glass, move it over the part, press F10.
+- Expected / actual: the pause menu shows a cursor / the cursor stays hidden until the pause closes (Esc or F10 again) or the scene changes.
+- Regression / evidence: none yet. Suggested owner test: lens held over the part, open pause, assert `Input.get_mouse_mode() == MOUSE_MODE_VISIBLE`. Not reproduced by the checker (no Godot run).
+
+### B56 — The stock room draws items kept under the counter at its origin
+
+- Found: Code checker change review, 21 November 2026, PR #69 head `928610e` (0.55.0, not merged)
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), code review only
+- Fixed in: —
+- Root cause: suspected, from code: `scripts/storage/storage_view.gd` `_draw_room` loops over every entry in `model.placements` and calls `_draw_item(uid, _world_item(uid), ...)`. `_world_item` finds only units in `model.units`, so a placement in the new fixed `counter` unit returns `Rect2()`, and `_draw_item` draws `Rect2().grow(-2)` (a negative-size rect around world (0,0)) plus its outline. The comment in `storage_data.gd` says the stock room does not draw the counter unit.
+- Reproduction (expected path, not run): keep one or more items under the counter, open the stock room, zoom in at the top-left of the room view.
+- Expected / actual: nothing from under the counter is drawn in the stock room / a small coloured mark per kept item at the room origin (presentation only; hit-testing returns no rect, so it cannot be grabbed).
+- Regression / evidence: none yet. Suggested fix: skip placements whose `_world_item` has no area in `_draw_room`. Not reproduced by the checker (no Godot run, no graphical check).

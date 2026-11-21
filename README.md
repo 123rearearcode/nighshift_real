@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.56.0)
+# Nightshift - Godot Foundation Trial (v0.56.1)
+
+0.56.1 integrates the checker reports B55/B56 after the store/storage and magnifying-glass releases. Both reports remain Open and unverified; runtime is unchanged from 0.56.0.
 
 0.56.0: the testing bay has a **magnifying glass**. Pick it up and hold it over a spot on the part for a
 close look (placeholder drawing until the parts have art).

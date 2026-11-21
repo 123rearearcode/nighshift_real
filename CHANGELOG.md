@@ -92,6 +92,58 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.56.1 - 2026-11-21 - Integrate checker findings after store and lens merges
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker, original findings in PR #71; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.56.0 / b4d6841 after #69 and #70; PR #71 head d359fe9.
+- Type: patch (bug-register documentation, handoff and version-only metadata; no runtime/save change).
+
+### Execution status
+
+No new Godot run for this docs-only integration. Existing #69/#70 head checks passed in GitHub
+Actions on Godot 4.7.2; all runtime files are retained unchanged from merged 0.56.0. B55 and B56
+were found by the checker through code reading only and have not been reproduced. No graphical
+acceptance or fix of either report is claimed.
+
+### Added / Changed / Fixed / Removed
+
+- Merge #69's store/under-counter storage before #70's magnifying glass, retargeting #70 to main.
+- Resolve #71's BUGS conflict by retaining B54 and adding both B55/B56 rows and details, Open.
+- Assign the checker documentation its integration version and refresh the handoff: Codex's planned
+  0.57.0/0.58.0 tasks remain next; coordinate checker fixes with file owners before overlapping work.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/BUGS.md | M | Preserve B54; merge B55/B56 as Open, code-review-only reports |
+| HANDOFF.md | M | Merged releases, current ownership and checker follow-up boundaries |
+| README.md | M | Version and open-report integration note |
+| project.godot | M | Version only, 0.56.1 |
+| CHANGELOG.md | M | Convert #71 Unreleased note into this signed release entry |
+
+### Checks performed
+
+- Project checker passed: 155 scripts, 819 references, 229 mapped files, five core docs, zero problems.
+- Bug-register checker passed with zero problems; all 12 bug fixtures and 9 CI-scope fixtures passed.
+- Whitespace against merged main passed; only five Markdown/version files differ. Runtime files,
+  scenes, tests, tools and CI are identical to merged 0.56.0.
+- CI scope: runtime=false, full=false (documentation and config/version only).
+
+### Decisions proposed (not approved)
+
+None added by integration. Existing feature questions and tuning proposals remain unchanged.
+
+### Known issues and open items
+
+B55 cursor visibility and B56 stock-room drawing remain Open, not reproduced. L1/L2 and separate
+L4/L5 remain unchanged. Structural review marker remains 0.60.0; the dedicated checker owns it.
+
+### Next action
+
+Codex resumes planned 0.57.0 anti-virus effects/reduce-flashing and 0.58.0 per-part tests when asked;
+Claude/affected owners follow up checker reports with coordinated bay ownership. No feature starts
+as part of this merge-only task. Preserve all required tests and hidden-condition boundaries.
+
 ## 0.56.0 - 2026-11-21 - The testing bay's magnifying glass
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
