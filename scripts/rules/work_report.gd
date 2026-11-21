@@ -53,6 +53,15 @@ static func signature(job: Dictionary) -> String:
     var dead: Array = (job.get("dead_slots", []) as Array).duplicate()
     dead.sort()
     text += "|dead:" + ",".join(dead)
+    # Ownership/knowledge edits are not hardware changes; only physical identity and health matter.
+    var physical: Variant = job.get("part_instances", {})
+    if physical is Dictionary:
+        var positions: Array = physical.keys()
+        positions.sort()
+        for position: Variant in positions:
+            var record: Variant = physical[position]
+            if record is Dictionary:
+                text += "|physical:%s:%s:%s:%s:%s" % [position,str(record.get("uid","")),str(record.get("model","")),str(record.get("condition","")),str(record.get("defect",""))]
     var oc: Dictionary = Overclock.settings(job)
     text += "|%s|%s|%s|%s|%s|%d|%d|%s" % [str(job.get("paste_grade", "")), str(bool(job.get("paste_done", false))), str(job.get("paste_material", "")), ",".join(removed), ",".join(broken), int(oc["mult"]), int(oc["volt"]), Malware.strain(job)]
     return str(text.hash())

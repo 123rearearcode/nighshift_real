@@ -1,5 +1,18 @@
 # Nightshift — Decision Register
 
+### D162 — Implement the bug-audit recommendations (user, 21 November 2026)
+
+After confirmation that the 0.50.0 review had been done, the user asked Codex to implement the changes.
+This delivery preserves condition/identity at handover and advances stable records on the migrated
+shop-to-customer path, with complete reload/refit/return-to-stock/comeback-receipt tests. Split L4 into
+clock integration and L5 drawer overflow. This is preservation of existing physical truth, not a new
+fraud, payment, time-charging or customer-return mechanic. Full legacy original-part migration and
+orphan recovery stay explicit follow-ups under L1/L2; no historical hidden condition is invented.
+The original structural review schedule is retained (next 0.60.0). Integrate after Claude's #64/#65/#66
+chain; Claude resumes his latest Rooms/art/playtest work after cross-review. The manual stays deferred.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ### D157 — Standard Task Manajer accepted and game implementation requested (19 November 2026)
 
 The user reviewed two interactive anti-virus demos, rejected the fast disappearing/reordering version

@@ -76,6 +76,89 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.54.0 - 2026-11-21 - Preserve delivered physical parts and reconcile audit follow-ups
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work; no deployment id invented.
+- Based on: PR #66 head f61583c8be04be8150eb547ae6f71285e70dbc33 (0.53.0), stacked after #64 builds and #65 trust/reviews; main remains 0.50.0/c04a278.
+- Type: minor (new compatible physical-record and comeback-receipt contracts for the user-authorized bug correction; SAVE_FORMAT remains 1).
+
+### Execution status
+Codex ran Godot 4.7.2 stable ed1daf0bf locally, headless. The new Delivered parts suite passed 80 checks.
+The four-check reproduction on the unchanged 0.53.0 parent failed its two post-handover assertions
+(condition and uid loss), proving B53 before the correction. All 33 required suites passed (2,378 checks, zero failures), and the bench smoke playtest finished
+without script/parse errors. No graphical/native-feel acceptance is claimed.
+
+### Added / Changed / Fixed / Removed
+- Fix B53/L3: collection now transfers an individual record before consuming shop stock. UID, actual
+  health/defect and known evidence survive; owner changes once. Dead/degraded parts keep their
+  effective stats, boot symptoms and load faults after collection, inactive-PC reload and save/load.
+- `job.part_instances` is the migrated shop-to-customer path. Legacy originals are not assigned
+  invented identities or health; L1/L2 remain explicit. Temporary parts still use shop records as
+  authority; rules use permanent records after handover, not a stale shop_condition cache.
+- Removing/refitting or reordering identical RAM/drive models carries each physical record; later
+  replacement returns it to shop stock with the SAME UID/condition/defect, untested under D158. Parts
+  not replaced leave in the customer's bag with their records retained, never as free shop stock.
+- Immutable `pc_snapshot` comeback receipts retain the actual delivered PC, including loose bag
+  contents. Sanitization/reload and due report cards preserve them. Existing report-only comeback
+  routing, payment/reviews and social rules are not replaced by a new return-repair workflow.
+- Physical measurement fingerprints include uid/model/health/defect in stable order. Known labels or
+  ownership metadata alone do not invalidate measurements; empty legacy records keep old signatures.
+- Record sanitizers reuse PartCondition and the shared loose-entry adapter. Compatible optional fields
+  default empty; already-lost old condition cannot be reconstructed. No new inventory/clock/UI flow.
+- Split the former combined L4 into L4 salvage-clock integration and L5 drawer overflow, independently
+  open. Keep 41 historical bugs Fixed, not automatically Verified. Next scheduled review stays 0.60.0.
+- Current handoff coordinates this stacked patch and tells Claude to resume the latest Rooms/art/
+  playtest follow-up after cross-review/user-controlled integration, not old Wave 3 sessions.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| scripts/rules/part_instances.gd | A | Physical-record, shared loose-entry and immutable comeback-receipt adapters |
+| scripts/state/game_state.gd | M | Transfer records at collection, carry them during undo/refit, return stock UID, bag/receipt preservation |
+| scripts/rules/customer_pc.gd | M | Move migrated records alongside actual components, including same-model reordering |
+| scripts/rules/pc_build.gd | M | Permanent condition and defect effects after shop custody ends |
+| scripts/rules/part_states.gd | M | Boot observations retain the delivered source's actual condition |
+| scripts/rules/morning.gd | M | Preserve optional comeback receipts across load |
+| scripts/rules/work_report.gd | M | Stable physical identity/health fingerprints independent of knowledge/owner metadata |
+| tools/test_delivered_parts.gd | A | Full same-model delivery/comeback/removal/refit/return-to-stock journey and all six part types |
+| .github/workflows/tests.yml | M | Register Delivered parts, preserving every prior suite |
+| project.godot | M | Version 0.54.0 |
+| README.md | M | Correction scope, stack dependency and remaining limitations |
+| HANDOFF.md | M | Live assignment, code ownership, integration order and Claude resume prompt |
+| DEVELOPMENT.md | M | New file map and physical-record/receipt compatibility contract |
+| docs/BUGS.md | M | B53 verified reproduction/fix; targeted review; separate L4/L5; L1/L2 and historical evidence stay explicit |
+| docs/PART_LIFECYCLE.md | M | Migrated delivered-part path and exact remaining original/alias/orphan scope |
+| docs/WORK_PLAN.md | M | Current bounded ownership and resume coordination |
+| docs/TESTING.md | M | Required complete delivery-lifecycle scenarios |
+| docs/DECISIONS.md | M | D162: user-authorized audit follow-up, preserving existing gameplay truth |
+| docs/CURRENT_STATE.md | M | Current branch/implementation facts |
+| docs/DESIGN.md | M | Preservation scope and deferred boundaries |
+| docs/ROADMAP.md | M | Current follow-up and unchanged 0.60.0 structural checkpoint |
+| docs/PROJECT_BRIEF.md | M | Current correction scope |
+| CHANGELOG.md | M | This signed release record |
+
+### Checks performed
+- Godot 4.7.2: unchanged-parent reproduction, 4 checks, 2 expected failures after collection.
+- Godot 4.7.2: Delivered parts 80 checks, zero failures; previous Part lifecycle 38 and Testing bay 52 passed.
+- All 33 required Godot 4.7.2 suites: 2,378 checks, zero failures. Bench smoke: Playtest finished, no script/parse errors.
+- Project checker: 154 scripts, 806 resolved references, 223 mapped files, five core docs; zero problems. `git diff --check` passed.
+- Bug register checker: 0 problems. Register fixtures: 12 passed. CI-scope tests: 9 passed.
+
+### Decisions proposed (not approved)
+No new gameplay/balance proposal. Full legacy-original migration, orphan recovery, salvage clock costs
+and drawer UI still require their bounded follow-ups; this correction does not silently design them.
+
+### Known issues and open items
+L1 legacy originals and presentation aliases remain slot-derived; L2 orphan custody remains locked.
+Old saves which already lost a delivered part's condition cannot honestly recover it. Comebacks are
+still report-only; receipts are history, not automatically created repair tickets. No graphical test.
+
+### Next action
+Claude cross-reviews the #64 -> #65 -> #66 chain, then this patch; user controls merges. Preserve the
+Delivered parts and all previous suites. After integration, resume current Rooms/art/playtest work.
+Codex releases this bounded runtime reservation after delivery/cross-review. Continue L1 migration
+incrementally; handle L2 recovery safely; design L4 clock and L5 overflow separately. Review at 0.60.0.
+
 ## 0.53.0 - 2026-11-21 - Rooms instead of menus
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

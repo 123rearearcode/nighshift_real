@@ -81,3 +81,31 @@ hidden truth or silently mutate customer hardware to manufacture solvability.
 Read an optional value once, validate that local value, then use it. Do not type-check a get() fallback
 and then index the possibly absent key. Keep fixtures with missing keys, wrong nested container types,
 bad numbers and future-version data. A generalized validation framework is not required by this plan.
+
+## Stage reached in 0.54.0 — delivered physical records (Codex)
+
+The user authorized the audit follow-up. `job.part_instances` owns the identity, actual condition,
+defect and known evidence of parts permanently handed over from shop stock. Each record keeps its
+original shop uid, catalogue model/kind and customer owner. `parts` remains the legacy model/placement
+projection; these records supply physical identity and condition, not a second writable stock store.
+A temporary shop part still uses the existing authoritative stock record and rebuilt shop_condition.
+At collection, records transfer before stock is consumed; old shared-stock custody is then cleared.
+
+A migrated part removed at the hardware bench carries its record inside its loose entry; refitting
+and identical RAM/drive reordering transfer that same record. When it is later replaced and retained
+by the shop, the same uid and actual fault return to stock (D158's untested label still applies).
+Snapshots on delayed comeback entries/cards are immutable delivery receipts, not independently editable
+PCs or newly spawned repair tickets. Existing report-only comeback routing and social effects stay.
+
+Old saves without records keep their prior legacy behaviour. We do not guess already-lost historical
+condition or invent uids for all originals. L1 remains open for those originals, stable bench aliases,
+full migration/rollback and malformed/orphan recovery. L2 is not solved or silently unlocked. The new
+suite is `tools/test_delivered_parts.gd`; preserve it with all existing lifecycle tests.
+
+Current bounded file ownership: Codex owns this follow-up on top of #66's exact head, not a competing
+main-based GameState rewrite. Claude cross-reviews it after his #64 -> #65 -> #66 chain, then resumes
+his current room/art/playtest follow-up. These live instructions supersede the historical #59 claim
+above. Next scheduled structural review remains 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+21 November 2026, Europe/Bucharest.

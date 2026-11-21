@@ -186,6 +186,18 @@ static func effective_parts(job: Dictionary) -> Dictionary:
     if dead_second_card(job) and gpus.size() > 1: gpus.remove_at(1)
     if Ids.GPU in removed or Ids.GPU in broken: gpus.remove_at(0)
     if Ids.COOLER in removed or Ids.COOLER in broken: p["cooler"] = ""
+    # Delivered parts keep their health after stock custody ends. Missing() still reads physical
+    # contents; only their effective contribution is removed here, never their physical model.
+    if str(shop_condition(job, CPU_SLOT)["condition"]) == BROKEN: p["cpu"] = ""
+    if str(shop_condition(job, PSU_SLOT)["condition"]) == BROKEN: p["psu"] = ""
+    if str(shop_condition(job, Ids.GPU)["condition"]) == BROKEN and not Ids.GPU in removed and not Ids.GPU in broken and not gpus.is_empty(): gpus.remove_at(0)
+    if str(shop_condition(job, Ids.COOLER)["condition"]) == BROKEN: p["cooler"] = ""
+    for field: String in ["ram", "storage"]:
+        var slots: Array = RAM_SLOTS if field == "ram" else STORAGE_SLOTS
+        var healthy: Array = []
+        for i in range((p[field] as Array).size()):
+            if str(shop_condition(job, str(slots[i]))["condition"]) != BROKEN: healthy.append(p[field][i])
+        p[field] = healthy
     # 0.46.2 (D150): shop parts fitted for a test count while they are in the PC, but stay the shop's.
     # 0.50.0: a dead one (actual condition, never shown) is in the slot but contributes nothing.
     for slot: String in shop_fitted(job):
@@ -231,11 +243,33 @@ const WEAK_COOLER_SHARE: float = 0.5
 static func shop_condition(job: Dictionary, key: String) -> Dictionary:
     var raw: Variant = job.get("shop_condition", {})
     var entry: Variant = (raw as Dictionary).get(key, {}) if raw is Dictionary else {}
+    # A still-fitted shop part reads its rebuilt stock projection. Once delivered, the physical
+    # instance is authoritative instead; never revive a stale saved shop_condition cache.
+    var custody: Variant = job.get("shop_custody", [])
+    var fitted: Variant = job.get("shop_fitted", {})
+    var temporary: bool = (custody is Array and key in custody) or (fitted is Dictionary and fitted.has(key))
+    if not temporary:
+        var records: Variant = job.get("part_instances", {})
+        entry = records.get(key, {}) if records is Dictionary else {}
+        if not entry is Dictionary or str(entry.get("model", "")) != physical_model(job, key): entry = {}
     var condition: String = str(entry.get("condition", WORKING)) if entry is Dictionary else WORKING
     if not condition in [WORKING, DEGRADED, BROKEN]: condition = WORKING
     var defect: String = str(entry.get("defect", "")) if entry is Dictionary else ""
     if condition != DEGRADED or not defect in DEFECTS.values(): defect = ""
     return {"condition": condition, "defect": defect}
+
+static func physical_model(job: Dictionary, key: String) -> String:
+    var p: Dictionary = sanitize(job.get("parts", {}))
+    if key == Ids.GPU: return str(p["gpus"][0])
+    if key == Ids.COOLER: return str(p["cooler"])
+    if key == CPU_SLOT: return str(p["cpu"])
+    if key == PSU_SLOT: return str(p["psu"])
+    if key == GPU2_SLOT: return str(p["gpus"][1]) if (p["gpus"] as Array).size() > 1 else ""
+    for field: String in ["ram", "storage"]:
+        var slots: Array = RAM_SLOTS if field == "ram" else STORAGE_SLOTS
+        var index: int = slots.find(key)
+        if index >= 0: return str(p[field][index]) if index < (p[field] as Array).size() else ""
+    return ""
 
 
 # Defects of the degraded shop parts fitted now (a dead or removed part has none).
@@ -247,6 +281,11 @@ static func defects(job: Dictionary) -> Array:
     for kind: String in [Ids.GPU, Ids.COOLER]:
         if replaced.has(kind) and not kind in removed: keys.append(kind)
     keys.append_array(shop_fitted(job).keys())
+    var records: Variant = job.get("part_instances", {})
+    if records is Dictionary:
+        for key: Variant in records:
+            if str(key) in [Ids.GPU, Ids.COOLER] and str(key) in removed: continue
+            if physical_model(job, str(key)) != "" and not key in keys: keys.append(key)
     for key: Variant in keys:
         var d: String = str(shop_condition(job, str(key))["defect"])
         if d != "": out.append(d)
@@ -268,7 +307,7 @@ static func defect_heat(job: Dictionary) -> float:
 
 # The customer's second card is dead (hidden truth; it simply adds nothing).
 static func dead_second_card(job: Dictionary) -> bool:
-    return GPU2_SLOT in (job.get("dead_slots", []) if job.get("dead_slots", []) is Array else [])
+    return GPU2_SLOT in (job.get("dead_slots", []) if job.get("dead_slots", []) is Array else []) or str(shop_condition(job, GPU2_SLOT)["condition"]) == BROKEN
 
 
 static func effective(job: Dictionary) -> Dictionary:
