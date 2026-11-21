@@ -99,24 +99,25 @@ func run_checks() -> void:
     check(current_scene.get_node("PCIdentity").text.contains(other),"workbench header identifies the active ticket")
     var hub: Node = current_scene
     DirAccess.make_dir_absolute(manifest+".tmp")
-    await press(hub.get_node("ActivitiesButton"))
+    await press(hub.get_node("BackButton"))
     check(current_scene == hub and hub.status_label.text.contains("could not be saved"),"failed checkpoint keeps player on current screen with a visible error")
     DirAccess.remove_absolute(manifest+".tmp")
-    # Same top-right position and actual return route on every playable night screen.
-    for path: String in ["res://scenes/night_bench.tscn","res://scenes/night_hardware.tscn","res://scenes/software.tscn","res://scenes/night_salvage.tscn","res://scenes/storage.tscn"]:
+    # 0.53.0 (D161): every close-up has one way back, in the same place, to the room it belongs to.
+    var parents: Dictionary = {"res://scenes/night_bench.tscn": Nav.WORKSHOP, "res://scenes/night_hardware.tscn": Nav.WORKSHOP, "res://scenes/software.tscn": Nav.WORKSHOP,
+        "res://scenes/night_salvage.tscn": Nav.OUTSIDE, "res://scenes/storage.tscn": Nav.WORKSHOP, "res://scenes/night_shop.tscn": Nav.COUNTER, "res://scenes/night_bay.tscn": Nav.WORKSHOP}
+    for path: String in parents:
         await scene(path)
-        var exit: Button = current_scene.get_node_or_null("ActivitiesButton")
-        check(exit != null and exit.get_global_rect() == Nav.RECT,"Activities has common top-right rectangle in "+path)
-        var exits: Array = current_scene.get_children().filter(func(n: Node) -> bool: return n is Button and n.text == "Activities")
-        check(exits.size() == 1,"exactly one Activities control in "+path)
+        var exit: Button = current_scene.get_node_or_null("BackButton")
+        check(exit != null and exit.get_global_rect() == Nav.BACK_RECT and current_scene.get_node_or_null("ActivitiesButton") == null,"one back button in the common rectangle, no hub button, in "+path)
         await press(exit)
         await process_frame
-        check(current_scene.scene_file_path == Nav.ACTIVITIES,"native Activities click returns to night hub from "+path)
+        check(current_scene.scene_file_path == parents[path],"the back button walks to the right room from "+path)
     check(night.switch_pc(gs,first) and is_equal_approx(gs.job["dust"]["cooler"],0.37),"first PC progress survives selection, all exits and reselect")
     check(night.switch_pc(gs,other) and gs.load_game() and gs.job["id"] == other,"chosen workbench ticket survives save/reload")
-    await press(button(current_scene,"WORKSHOP ROOM\nDrag a PC into the workshop slot"))
+    await scene(Nav.WORKSHOP)
+    await press(current_scene.hotspot("StockDoor"))
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/storage.tscn","activity Workshop now opens room selection rather than old dropdown")
+    check(current_scene.scene_file_path == "res://scenes/storage.tscn","the workshop's stock room door opens room selection rather than an old dropdown")
     current_scene.free()
     _remove_save_files(layout)
     _remove_save_files(manifest)

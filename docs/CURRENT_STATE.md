@@ -1,5 +1,13 @@
 # Nightshift — Current State and Technical Handoff
 
+## Current — 0.53.0 rooms instead of menus, 21 November 2026
+
+Navigation is now places, not menus (D161, `docs/MENU_NAVIGATION.md`): the counter is the main screen,
+its doors lead to the workshop and outside, close-ups have one named exit, and the morning's customers
+walk in at the counter. Art is replaceable per room (`docs/ROOM_ART_GUIDE.md`). Stacked on #65 (0.52.0)
+and #64 (0.51.0), all open. Paragraphs below that mention Activities, tabs or the morning report screen
+are historical.
+
 ## Current — 0.49.0 Task Manajer detour, 19 November 2026
 
 Main is verified at 0.48.0 (`6c18522`, #59 including #60 merged). This 0.49.0 feature is stacked on

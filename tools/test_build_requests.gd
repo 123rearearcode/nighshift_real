@@ -253,7 +253,7 @@ func run_checks() -> void:
         var view: Node = load("res://scenes/night_hardware.tscn").instantiate()
         root.add_child(view)
         await process_frame
-        check(view.case_button.visible and view.get_node("RepairTab").disabled, "the bench offers Case and motherboard; the Repair tab is off for a build")
+        check(view.case_button.visible and view.get_node_or_null("RepairTab") == null, "the bench offers Case and motherboard (0.53.0: stations, no tabs)")
         check(view.inventory.items.all(func(item: Dictionary) -> bool: return not CustomerPC.is_customer(str(item["part"]["id"]))), "the bench shows no customer part in a build")
         view._toggle_case_panel()
         check(view.case_panel.visible, "the case panel opens")

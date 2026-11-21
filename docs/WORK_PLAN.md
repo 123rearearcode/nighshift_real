@@ -144,6 +144,7 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.6 Testing bay | 0.50.0 | untested parts from salvage and customers; physical inspection and rig tests; degraded parts; the player's mark; scrap; required 0.50.0 structural review | answered (D158) | merged by the user in #63 (played: "all looks good so far") |
 | 3.7 Build requests | 0.51.0 | budget, uses (needs) and wants (quiet, headroom, brand, storage); swappable cases; assemble at the hardware bench on the night clock; half up front, half on collection; from nights 4–5 | answered (D159) | built by Claude; awaiting Codex cross-review, the user's playtest (gate after 3.7) and merge |
 | 3.8 Trust and reviews (was Elegance) | 0.52.0 | no elegance (D160); trustworthiness and the shop level (up with good work, down only when customers find out); star reviews with comments, some petty; the phone app with fake reviews | answered (D160) | built by Claude, stacked on #64; awaiting Codex cross-review and the user's merge |
+| Rooms revamp (user request after Wave 3) | 0.53.0 | no menus: the counter is the main screen, doors to the workshop and outside, stations and close-ups, the morning's customers at the counter; art + replaceable hotspots | answered (D161) | built by Claude, stacked on #65; awaiting the user's playtest and merge |
 
 Playtest gates proposed: after 3.2, 3.4 and 3.7. Later, not in Wave 3: personas and lore, the upsell, the
 wrong self-diagnosis, upgrades.

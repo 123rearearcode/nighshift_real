@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/night/activities_view.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/rooms/legacy_redirect.gd" id="1"]
 
-[node name="Activities" type="Node2D"]
+[node name="LegacyRedirect" type="Node"]
 script = ExtResource("1")

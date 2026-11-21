@@ -3,7 +3,7 @@ extends Node2D
 const Layout = preload("res://scripts/data/layout.gd")
 
 const NavigationState = preload("res://scripts/night/navigation_state.gd")
-const DEMO: String = "res://scenes/activities.tscn"
+const DEMO: String = "res://scenes/rooms/counter.tscn"   # 0.53.0 (D161): the game starts at the shop counter
 var load_button: Button
 var status_label: Label
 var replace_dialog: ConfirmationDialog
@@ -22,7 +22,7 @@ func _ready() -> void:
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
     _button("Settings", 458, _on_settings)
-    status_label = _label("New game opens your night activities. Choose workshop or salvage from there.", Vector2(424, 578), Vector2(432, 56), 13)
+    status_label = _label("New game opens the shop counter. Walk through the doors to work.", Vector2(424, 578), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"

@@ -652,3 +652,24 @@ ReviewBoost sells 3 five-star reviews for $45; each morning after a purchase the
 (12%, +8% per further order in three nights, +20% when most recent reviews are bought); caught: all
 bought reviews removed, a notice on the page, −25 trust. The phone is a button on the Activities screen.
 Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D161 — Rooms instead of menus (user, 21 November 2026)
+
+"The next step is a major revamp; I want to get rid of the menus ... everything ties together visually
+instead of with menus. The main screen is the shop till, and you see the customers coming in. If you
+press on the door on the left, you could go outside." (Reference: a recording of a counter-based shop
+game; only the idea of navigating through places and objects is taken, not its art or layout.)
+Answers to the follow-up questions:
+1. **All customers walk in at the beginning of the day.** You see the number of customers that arrived.
+   The day is not timed; it is more about the stories.
+2. The places: the **counter** (main), the **workshop**, a **stock room** and **outside** (street, dump).
+3. Small windows opening over the scene (a paper ticket, the phone, a screen) are fine.
+4. Every place is art with **replaceable clickable spots**; lay the groundwork so the user can do this easily.
+5. **Do it all at once**, and leave room for the scam hooks (what is said at the counter, the till, the bin,
+   nosy customers).
+Approved design; supersedes the 0.42.0 menu-path rules (MENU_NAVIGATION.md rewritten). Implementation
+(Claude, 0.53.0): `scripts/rooms/` (room_view + hotspot + room_art), three room scenes with placeholder
+drawing, the close-ups keep one named back exit, the morning report became the customers' visits at the
+counter. Interpretation recorded for the user to confirm: "the day is not timed" is read as the morning
+visits having no clock; the night clock and the time that work costs (D-earlier, D159) are unchanged.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

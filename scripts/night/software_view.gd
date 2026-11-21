@@ -1,5 +1,5 @@
 # Wave 2 first slice: live diagnostic desktop. The rules own reports; views never finish a job.
-extends "res://scripts/night/activities_view.gd"
+extends "res://scripts/night/night_screen.gd"
 const Checks = preload("res://scripts/rules/software_checks.gd")
 const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
 const Games = preload("res://scripts/data/games.gd")

@@ -208,8 +208,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_testing_bay.gd` | tooling | Condition vs knowledge, salvage and customer parts into stock, inspection/tests/clock/mark/scrap, untested test parts behaving as they really are, reload rebuild, the bay screen (0.50.0) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
-| `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
-| `scenes/morning.tscn` | scene | Morning report scene |
+| `scripts/night/morning_text.gd` | view helper | The morning's words: card text and PC detail text, shown by customers at the counter (D136; 0.53.0) |
+| `scenes/morning.tscn` | scene | Retired morning report: redirects to the counter (0.53.0) |
 | `tools/test_morning.gd` | tooling | Ending the night, collection, comebacks, waiting PCs, new tickets, report screen, 06:00 limit (D136) |
 | `scripts/rules/ticket.gd` | rules | A ticket as one derived record (request, customer, machine, symptoms, requirements, terms, status) and its pickup flags: ready sticker, called (D134/D135) |
 | `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
@@ -282,12 +282,26 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `scripts/night/night_session.gd` | state bridge | Inactive job manifest, active GameState.job, PC identity, safe switching/recovery |
 | `scripts/night/night_diagnostics.gd` | rules | Pure non-completing temperature/boot/parts/fps report |
 | `scripts/night/paste_snapshot.gd` | sim adapter | Exact float32 paste-field JSON persistence and validation |
-| `scripts/night/activities_view.gd` | view | Workshop/salvage/storage selection and future activity space |
+| `scripts/night/night_screen.gd` | view helper | Shared label/button/navigate helpers for the testing bay, the tool shop and the monitor (was the Activities hub until 0.52.0) |
+| `scripts/rooms/room_view.gd` | view | A room: art + hotspots; placeholders without art; F3 outlines; dawn closing; go/open/later actions (0.53.0, D161) |
+| `scripts/rooms/hotspot.gd` | view | A clickable spot the artist drags over the art (action, label, art hint; @tool so it shows in the editor) |
+| `scripts/rooms/room_art.gd` | view helper | Finds room pictures (art/rooms/) and customer portraits (art/customers/) |
+| `scripts/rooms/counter_room.gd` | view | The counter, the main screen: doors, till, ticket clipboard, phone, catalogue, shutter (end night), the morning's customers one by one |
+| `scripts/rooms/workshop_room.gd` | view | The workshop: repair bench, hardware board, monitor, testing bay, stock room door |
+| `scripts/rooms/outside_room.gd` | view | Outside: the shop door, the van (salvage), later spots |
+| `scripts/rooms/legacy_redirect.gd` | view | Retired screens (Activities hub, morning report) continue at the counter |
+| `scenes/rooms/counter.tscn` | scene | The counter: Background + hotspots (edit in the Godot editor; docs/ROOM_ART_GUIDE.md) |
+| `scenes/rooms/workshop.tscn` | scene | The workshop: Background + hotspots |
+| `scenes/rooms/outside.tscn` | scene | Outside: Background + hotspots |
+| `art/rooms/README.md` | art | Where room pictures go (counter.png, workshop.png, outside.png) |
+| `art/customers/README.md` | art | Where customer portraits go (by person id or profession) |
+| `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
+| `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |
 | `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |
 | `scripts/night/repair_view.gd` | view adapter | Existing bench with workshop return and lever-driven paste commit |
 | `scripts/night/hardware_view.gd` | view adapter | Existing shop-stock sandbox, return to workshop |
 | `scripts/night/salvage_view.gd` | view adapter | Existing dump physics, return to Activities |
-| `scenes/activities.tscn` | scene | New/load-game destination |
+| `scenes/activities.tscn` | scene | Retired Activities hub: redirects to the counter (0.53.0) |
 | `scenes/night_workshop.tscn` | scene | PC selection and diagnostics |
 | `scenes/night_bench.tscn` | scene | Night repair route |
 | `scenes/night_hardware.tscn` | scene | Night stock sandbox route |

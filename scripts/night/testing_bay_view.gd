@@ -3,7 +3,7 @@
 # mark it working, degraded or dead, or sell it for scrap. Everything costs night time except the
 # sticker and the scrap sale. The screen shows only what the shop knows (PART_LIFECYCLE invariant 7):
 # the real condition is never displayed, and the label is the player's call, not a verdict.
-extends "res://scripts/night/activities_view.gd"
+extends "res://scripts/night/night_screen.gd"
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
@@ -29,9 +29,8 @@ var empty_label: Label
 
 func _ready() -> void:
     NightSession.ensure(GameState)
-    _label("TESTING BAY / YOUR STOCK", Vector2(172, 24), Vector2(800, 38), 28)
-    Navigation.attach(self, _go.bind(Navigation.ACTIVITIES))
-    Navigation.back(self, "Activities", Navigation.ACTIVITIES)
+    _label("TESTING BAY / YOUR STOCK", Vector2(210, 24), Vector2(760, 38), 28)
+    Navigation.exit(self, "Workshop", Navigation.WORKSHOP)   # 0.53.0: a corner of the workshop
     cash_label = _label("", Vector2(32, 80), Vector2(1216, 44), 16)
     var scroll := ScrollContainer.new()
     scroll.position = LIST_RECT.position

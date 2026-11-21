@@ -1,6 +1,19 @@
 # Handoff — current state first
 
-## Current — 0.52.0 session 3.8 Trust and reviews (Claude), 20 November 2026
+## Current — 0.53.0 Rooms instead of menus (Claude), 21 November 2026
+
+Read first: done. #64 (0.51.0) and #65 (0.52.0) are open; this branch `feat/rooms-0530` is stacked on
+#65 (merge #64, then #65, then this; retarget each to main as the one below merges). The user asked for a
+major revamp: no menus, the shop counter as the main screen, doors and objects to move around (D161,
+MENU_NAVIGATION.md rewritten). Built all at once as asked: `scripts/rooms/` (room_view, hotspot, room_art,
+counter/workshop/outside rooms), three room scenes with placeholder drawing and replaceable art
+(`docs/ROOM_ART_GUIDE.md`), close-ups with one named exit, the morning's customers at the counter.
+Open for the user: confirm "the day is not timed" (read as no clock on the morning visits; night clock
+kept); art; customer dialogue beyond the report text. Not started: shop level upgrades, interactive
+reviews, scam consequences at the counter (the till, the bin), L1/L2, the manual.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.52.0 session 3.8 Trust and reviews (Claude), 20 November 2026
 
 Read first: done. 0.51.0 (#64, build requests) is open and unmerged; this branch
 `feat/trust-reviews-0520` is stacked on it (review/merge #64 first, then retarget this PR to main).

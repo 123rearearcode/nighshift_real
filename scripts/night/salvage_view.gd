@@ -1,7 +1,7 @@
 extends "res://scripts/salvage/salvage_view.gd"
 const Navigation = preload("res://scripts/night/night_navigation.gd")
 func _button(text: String,rect: Rect2,action: Callable) -> Button:
-    if text == "Main menu": return Navigation.attach(self,action)
+    if text == "Main menu": return Navigation.exit(self,"Outside",Navigation.OUTSIDE)   # 0.53.0: back out to the street
     if text == "Unload to demo shelf": text = "Unload into stock"   # 0.50.0 (D158): finds become real stock
     return super._button(text,rect,action)
 
@@ -22,11 +22,10 @@ func _ready() -> void:
     super._ready()
     for node: Node in get_children():
         if node is Label and node.position.y < 40:
-            node.position.x = 172
-            node.size.x = 800
-    Navigation.back(self,"Activities",Navigation.ACTIVITIES)
+            node.position.x = 210
+            node.size.x = 760
 func _back() -> void:
-    _navigate(Navigation.ACTIVITIES)
+    _navigate(Navigation.OUTSIDE)
 func _navigate(path: String) -> bool:
     physics.capture()
     session.cancel_hand()

@@ -105,7 +105,8 @@ jobs:
           test_antivirus|Antivirus
           test_testing_bay|Testing bay
           test_build_requests|Build requests
-          test_trust_and_reviews|Trust and reviews"
+          test_trust_and_reviews|Trust and reviews
+          test_rooms|Rooms"
           bad=0
           while IFS='|' read -r file name; do
             file="$(echo "$file" | xargs)"

@@ -1,0 +1,88 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/workshop_room.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2"]
+
+[node name="Workshop" type="Node2D"]
+script = ExtResource("1")
+art_name = "workshop"
+room_title = "THE WORKSHOP"
+
+[node name="Background" type="TextureRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+texture_filter = 1
+
+[node name="Hotspots" type="Node2D" parent="."]
+
+[node name="CounterDoor" type="Button" parent="Hotspots"]
+offset_left = 20.0
+offset_top = 150.0
+offset_right = 170.0
+offset_bottom = 550.0
+script = ExtResource("2")
+action = "go:counter"
+label = "Door: back to the counter"
+art_hint = "The door back out to the counter."
+placeholder_color = Color(0.235, 0.310, 0.369, 1)
+
+[node name="StockDoor" type="Button" parent="Hotspots"]
+offset_left = 420.0
+offset_top = 70.0
+offset_right = 600.0
+offset_bottom = 240.0
+script = ExtResource("2")
+action = "go:stock"
+label = "Stock room"
+art_hint = "The door to the stock room: shelves of PCs waiting for work."
+placeholder_color = Color(0.235, 0.310, 0.369, 1)
+
+[node name="RepairBench" type="Button" parent="Hotspots"]
+offset_left = 190.0
+offset_top = 300.0
+offset_right = 490.0
+offset_bottom = 490.0
+script = ExtResource("2")
+action = "go:repair"
+label = "Repair bench"
+art_hint = "The repair bench: cleaning and thermal paste (the PC on the bench)."
+placeholder_color = Color(0.310, 0.353, 0.235, 1)
+closed_at_dawn = true
+
+[node name="HardwareBoard" type="Button" parent="Hotspots"]
+offset_left = 520.0
+offset_top = 260.0
+offset_right = 780.0
+offset_bottom = 490.0
+script = ExtResource("2")
+action = "go:hardware"
+label = "Hardware board"
+art_hint = "The open PC with its motherboard: parts in and out."
+placeholder_color = Color(0.235, 0.353, 0.333, 1)
+closed_at_dawn = true
+
+[node name="Monitor" type="Button" parent="Hotspots"]
+offset_left = 810.0
+offset_top = 200.0
+offset_right = 1020.0
+offset_bottom = 390.0
+script = ExtResource("2")
+action = "go:monitor"
+label = "Diagnostic monitor"
+art_hint = "The diagnostic computer's monitor: software tests and benchmarks."
+placeholder_color = Color(0.184, 0.239, 0.353, 1)
+closed_at_dawn = true
+
+[node name="TestingBay" type="Button" parent="Hotspots"]
+offset_left = 1040.0
+offset_top = 300.0
+offset_right = 1260.0
+offset_bottom = 520.0
+script = ExtResource("2")
+action = "go:bay"
+label = "Testing bay"
+art_hint = "A corner with a test rig: inspect and test the shop's own parts."
+placeholder_color = Color(0.353, 0.290, 0.235, 1)
+closed_at_dawn = true

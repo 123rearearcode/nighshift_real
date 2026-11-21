@@ -17,7 +17,8 @@ var active_id: String = ""
 var bound_path: String = ""
 var status: String = ""
 var read_only: bool = false
-var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; shown by morning.tscn
+var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; its customers walk in at the counter
+var visits_pending: bool = false   # 0.53.0 (D161): true from the end of the night until the counter has shown every customer
 
 func _marker(gs: Node) -> Dictionary:
     var trial: Variant = gs.job.get("hardware_trial",{})
@@ -36,6 +37,8 @@ func start(gs: Node) -> bool:
     bound_path = gs.save_path
     read_only = false
     status = ""
+    visits_pending = false   # 0.53.0: a new run has nobody waiting at the counter
+    last_report = {}
     tickets = []
     active_id = str(gs.job["id"])
     _tag(gs.job,active_id,run_id+":pc:1")
@@ -329,6 +332,7 @@ func end_night(gs: Node) -> Dictionary:
     if not checkpoint(gs): return {"ok":false,"message":status}
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
+    visits_pending = true
     last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money),"arrivals":arrivals["summary"],
         "rating":arrivals["rating"],"reputation":arrivals["reputation"],"standing":gs.standing_text(),"level":gs.shop_level(),"level_before":level_before}
     return last_report
