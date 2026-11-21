@@ -83,7 +83,7 @@ Next structural review: **0.60.0**.
 | B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
 | B52 | Verified | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Automated: Rooms suite (CI run 44842432173) |
 | B53 | Verified | High | Component lifecycle | Collection consumes individual shop records and heals their delivered parts by keeping only model names | 0.54.0 | Automated: delivered-parts full-journey regressions |
-| B54 | Fixed | Medium | Test harness | The Rooms suite preloaded a view script, which then failed to compile (no autoloads yet); the scene later loaded without its script, the test errored mid-coroutine and CI hung for 30+ minutes | 0.55.0 | Pending CI rerun: Rooms suite and suite timeout |
+| B54 | Verified | Medium | Test harness | The Rooms suite preloaded a view script, which then failed to compile (no autoloads yet); the scene later loaded without its script, the test errored mid-coroutine and CI hung for 30+ minutes | 0.55.0 | Automated: Rooms suite under the suite timeout (CI run 44857271062) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -783,5 +783,5 @@ then-current design wording do not override the current status, D150 or the late
 - Root cause: `tools/test_rooms.gd` preloaded `under_counter_view.gd` to read a constant. A `--script` test compiles before the autoloads (GameState, NightSession) exist, so the view failed to compile and stayed cached as broken; when the test later opened the scene it had no script and no back button. The error stopped the test coroutine before `finish()`, so Godot never quit, and the CI step has no per-suite time limit. Two defects: the preload (test) and the missing timeout (CI).
 - Reproduction: preload any script that names an autoload from a SceneTree test script, then open its scene in the test.
 - Expected / actual: the suite runs and reports / the suite never exits and the job stalls until GitHub's six-hour limit.
-- Regression / evidence: the test reads the constant from the running scene's script (`get_script_constant_map()`); every suite now runs under `timeout 600`. Evidence pending the CI rerun; no user verification claimed.
+- Regression / evidence: the test reads the constant from the running scene's script (`get_script_constant_map()`); every suite now runs under `timeout 600`. Automated Godot 4.7.2, CI run 44857271062 on `90a11c1`: the Rooms suite completes (71 checks, 0 failures) and the job finishes in about two minutes. No user verification claimed.
 

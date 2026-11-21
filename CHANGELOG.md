@@ -99,8 +99,8 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (user playtest of 0.53.0, D162).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
-is recorded under Checks performed. No graphical playtest yet.
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2 and they
+passed (run 44857271062). No graphical playtest yet.
 
 ### Added
 - **Storage under the counter window**: a 20 × 10 grid for anything (parts, tools, PCs waiting for pickup).
@@ -127,7 +127,9 @@ is recorded under Checks performed. No graphical playtest yet.
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless), run 44857271062 on `90a11c1`: passed. 34 required suites,
+  2,398 checks, 0 failures (Rooms 71, Testing bay 52, Room workshop 31, Morning report 28). The first run,
+  44854128030, hung on B54 and was cancelled. The style report and diagnostics lanes are non-blocking.
 
 ### Decisions proposed (not approved)
 - "Keep store upgrades separate from buying parts and tools" read as: the store sells the tool upgrades;
