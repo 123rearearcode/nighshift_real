@@ -37,19 +37,6 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
-### Code checker: B55 and B56 filed — 2026-11-21 (documentation only)
-
-- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), Claude Code cloud session.
-- Based on: main 0.54.2 (2b346c1). The integrator assigns the version.
-- Added: `docs/BUGS.md` rows and details for B55 (PR #70: cursor stays hidden in the pause menu while the
-  magnifying glass is over the part) and B56 (PR #69: stock room draws under-counter items at its origin).
-  Both Open, found by code review only and not reproduced.
-- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
-- Execution: documentation only; no Godot run.
-- Checks: `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py` (results in the PR).
-- Next action: the owner of PRs #69/#70 (Claude) answers the findings; this PR's BUGS index rows sit next
-  to #69's B54 row, so whichever merges second has a one-line merge to resolve.
-
 ### Scheduled Code checker role — 2026-11-21 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
@@ -104,6 +91,148 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
+
+## 0.56.1 - 2026-11-21 - Integrate checker findings after store and lens merges
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker, original findings in PR #71; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.56.0 / b4d6841 after #69 and #70; PR #71 head d359fe9.
+- Type: patch (bug-register documentation, handoff and version-only metadata; no runtime/save change).
+
+### Execution status
+
+No new Godot run for this docs-only integration. Existing #69/#70 head checks passed in GitHub
+Actions on Godot 4.7.2; all runtime files are retained unchanged from merged 0.56.0. B55 and B56
+were found by the checker through code reading only and have not been reproduced. No graphical
+acceptance or fix of either report is claimed.
+
+### Added / Changed / Fixed / Removed
+
+- Merge #69's store/under-counter storage before #70's magnifying glass, retargeting #70 to main.
+- Resolve #71's BUGS conflict by retaining B54 and adding both B55/B56 rows and details, Open.
+- Assign the checker documentation its integration version and refresh the handoff: Codex's planned
+  0.57.0/0.58.0 tasks remain next; coordinate checker fixes with file owners before overlapping work.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/BUGS.md | M | Preserve B54; merge B55/B56 as Open, code-review-only reports |
+| HANDOFF.md | M | Merged releases, current ownership and checker follow-up boundaries |
+| README.md | M | Version and open-report integration note |
+| project.godot | M | Version only, 0.56.1 |
+| CHANGELOG.md | M | Convert #71 Unreleased note into this signed release entry |
+
+### Checks performed
+
+- Project checker passed: 155 scripts, 819 references, 229 mapped files, five core docs, zero problems.
+- Bug-register checker passed with zero problems; all 12 bug fixtures and 9 CI-scope fixtures passed.
+- Whitespace against merged main passed; only five Markdown/version files differ. Runtime files,
+  scenes, tests, tools and CI are identical to merged 0.56.0.
+- CI scope: runtime=false, full=false (documentation and config/version only).
+
+### Decisions proposed (not approved)
+
+None added by integration. Existing feature questions and tuning proposals remain unchanged.
+
+### Known issues and open items
+
+B55 cursor visibility and B56 stock-room drawing remain Open, not reproduced. L1/L2 and separate
+L4/L5 remain unchanged. Structural review marker remains 0.60.0; the dedicated checker owns it.
+
+### Next action
+
+Codex resumes planned 0.57.0 anti-virus effects/reduce-flashing and 0.58.0 per-part tests when asked;
+Claude/affected owners follow up checker reports with coordinated bay ownership. No feature starts
+as part of this merge-only task. Preserve all required tests and hidden-condition boundaries.
+
+## 0.56.0 - 2026-11-21 - The testing bay's magnifying glass
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.55.0 (PR #69, open; this branch is stacked on it).
+- Type: minor (D162 point 3).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2 and they
+passed (run 44857272678). No graphical playtest yet; the lens is placeholder drawing.
+
+### Added
+- **The magnifying glass** in the testing bay: pick it up, hold it over a spot on the part, and after a
+  moment it takes a close look (one night minute, noted on the part as before). Esc or right-click puts it
+  down. Spots already looked at are ticked and cost nothing more. The cursor hides while the glass is
+  over the part.
+- `PartCondition.needs_lens(kind, spot)`: today every spot needs the glass; later fault types that show to
+  the bare eye can say otherwise (the user: "there will be multiple types").
+
+### Changed
+- The "Look: <spot>" buttons are gone; the glass replaces them. The quick and long tests are unchanged
+  (Codex replaces them with the part tests in 0.58.0).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/night/testing_bay_view.gd` | M | The magnifying glass replaces the spot buttons |
+| `scripts/rules/part_condition.gd` | M | `needs_lens` |
+| `tools/test_testing_bay.gd` | M | The glass with real mouse input (hover, pick up, dwell, Esc) |
+| `README.md`, `project.godot`, `CHANGELOG.md`, `HANDOFF.md` | M | Version 0.56.0; the bay passes to Codex after merge |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless), run 44857272678 on `83095a0` (0.56.0 with 0.55.0 merged in):
+  passed. 34 required suites, 2,403 checks, 0 failures (Testing bay 57, including the lens flow by native
+  mouse motion; Rooms 71). The style report and diagnostics lanes are non-blocking.
+
+### Decisions proposed (not approved)
+- Dwell 0.6 seconds, lens radius 58 px, spots marked faintly until the parts have art.
+
+### Next action
+After the user merges 0.55.0 and 0.56.0, `testing_bay_view.gd` passes to Codex for the part tests (0.58.0).
+
+## 0.55.0 - 2026-11-21 - The store down the street and storage under the counter
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.54.2 (main 2b346c1).
+- Type: minor (user playtest of 0.53.0, D162).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2 and they
+passed (run 44857271062). No graphical playtest yet.
+
+### Added
+- **Storage under the counter window**: a 20 × 10 grid for anything (parts, tools, PCs waiting for pickup).
+  Bring things from the stock room, drag to arrange, turn with R / Q / E, send back. It shares the stock
+  room's layout file, so nothing is copied; auto-packing the stock room leaves it alone.
+- **The store** outside, down the street: the tool upgrades that were the counter's catalogue. It is a
+  separate place from the parts supplier (still a "later" spot).
+- Briefs for Codex: `docs/PART_TESTS_DESIGN.md` (0.58.0) and the 0.57.0 section at the top of
+  `docs/ANTIVIRUS_MINIGAME_DESIGN.md`.
+
+### Changed
+- The counter no longer has a tool catalogue. The stock room's summary counts what is under the counter.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/under_counter_view.gd`, `scenes/under_counter.tscn` | A | Under the counter |
+| `docs/PART_TESTS_DESIGN.md` | A | Part tests brief (Codex) |
+| `scripts/storage/storage_data.gd`, `scripts/storage/storage_model.gd`, `scripts/storage/storage_view.gd` | M | The fixed under-counter unit; place_first, to_room, in_unit; arrange keeps it |
+| `scenes/rooms/counter.tscn`, `scenes/rooms/outside.tscn`, `scripts/rooms/counter_room.gd` | M | Under-counter spot replaces the catalogue; the store outside |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/shop_activity_view.gd` | M | The new place; the store's exit to the street |
+| `tools/test_rooms.gd`, `tools/test_morning.gd`, `tools/test_room_workshop.gd` | M | Store and under-counter coverage |
+| `docs/DECISIONS.md`, `docs/MENU_NAVIGATION.md`, `docs/ROOM_ART_GUIDE.md`, `docs/ANTIVIRUS_MINIGAME_DESIGN.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `project.godot`, `CHANGELOG.md` | M | D162, places, art guide, the anti-virus brief, file map, handoff, version |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless), run 44857271062 on `90a11c1`: passed. 34 required suites,
+  2,398 checks, 0 failures (Rooms 71, Testing bay 52, Room workshop 31, Morning report 28). The first run,
+  44854128030, hung on B54 and was cancelled. The style report and diagnostics lanes are non-blocking.
+
+### Decisions proposed (not approved)
+- "Keep store upgrades separate from buying parts and tools" read as: the store sells the tool upgrades;
+  parts are still ordered on the hardware bench. To be confirmed by the user.
+- The grid is 20 wide by 10 high (wide, under the window); trial size.
+
+### Next action
+Claude: the magnifying glass in the testing bay (0.56.0). Codex: the anti-virus effects (0.57.0), then the
+part tests (0.58.0) after 0.56.0 merges. Merges stay with the user.
 
 ## 0.54.2 - 2026-11-21 - Integrate dedicated Code checker role
 

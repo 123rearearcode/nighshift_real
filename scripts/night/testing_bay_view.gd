@@ -3,6 +3,9 @@
 # mark it working, degraded or dead, or sell it for scrap. Everything costs night time except the
 # sticker and the scrap sale. The screen shows only what the shop knows (PART_LIFECYCLE invariant 7):
 # the real condition is never displayed, and the label is the player's call, not a verdict.
+# 0.56.0 (D162): spots are looked at with the MAGNIFYING GLASS: pick it up, hold it over a spot on the part
+# and it takes a close look (one night minute). The lens is placeholder drawing until the parts have art;
+# which faults need it is per spot (PartCondition.needs_lens; the user: "there will be multiple types").
 extends "res://scripts/night/night_screen.gd"
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
@@ -18,7 +21,14 @@ var selected: String = ""
 var cash_label: Label
 var list_box: VBoxContainer
 var list_buttons: Dictionary = {}
-var spot_buttons: Array[Button] = []
+const LENS_RADIUS: float = 58.0
+const LENS_DWELL: float = 0.6        # seconds the lens rests on a spot before you have had a close look
+const SPOT_REACH: float = 26.0       # how near the lens centre must be to a spot
+var lens_button: Button
+var lens_held: bool = false
+var lens_at := Vector2.ZERO
+var dwell_spot: int = -1
+var dwell: float = 0.0
 var card_text: Label
 var quick_button: Button
 var long_button: Button
@@ -39,13 +49,6 @@ func _ready() -> void:
     list_box = VBoxContainer.new()
     list_box.custom_minimum_size = Vector2(LIST_RECT.size.x - 16, 0)
     scroll.add_child(list_box)
-    for i in range(SPOT_AT.size()):
-        var spot := Button.new()
-        spot.add_theme_font_size_override("font_size", 14)
-        spot.size = Vector2(150, 30)
-        spot.pressed.connect(_inspect.bind(i))
-        add_child(spot)
-        spot_buttons.append(spot)
     empty_label = _label("No stock part selected. Parts from salvage, customers' old parts and your own stock appear on the left.", PART_RECT.position + Vector2(20, 120), Vector2(PART_RECT.size.x - 40, 80), 16)
     card_text = _label("", CARD_RECT.position + Vector2(12, 10), CARD_RECT.size - Vector2(24, 20), 14)
     card_text.clip_text = true
@@ -56,7 +59,9 @@ func _ready() -> void:
         label_buttons[label] = _action_button("Mark " + label, Rect2(x, 448, 112, 46), _mark.bind(label))
         x += 120
     scrap_button = _action_button("", Rect2(896, 504, 352, 40), _scrap)
-    _label("Look at each spot for marks, smells and damage (1 night minute each). The quick test finds dead parts and steady faults; some faults only show in the long test. Your mark is your own call: the bay never decides for you.", Vector2(420, 560), Vector2(828, 70), 15)
+    lens_button = _action_button("", Rect2(420, 504, 450, 40), _toggle_lens)
+    lens_button.name = "MagnifierButton"
+    _label("Pick up the magnifying glass and hold it over a spot on the part for a close look (1 night minute each; Esc or right-click puts it down). The quick test finds dead parts and steady faults; some faults only show in the long test. Your mark is your own call.", Vector2(420, 560), Vector2(828, 70), 15)
     message = _label(NightSession.status, Vector2(32, 646), Vector2(1216, 50), 16)
     _rebuild_list()
     _refresh()
@@ -117,17 +122,9 @@ func _refresh() -> void:
     var has: bool = not record.is_empty()
     var over: bool = NightClock.over(GameState.night_minutes)
     empty_label.visible = not has
-    var spots: Array = PartCondition.spots(_kind(record)) if has else []
-    var tests: Array = PartCondition.known(record)["tests"] if has else []
-    for i in range(spot_buttons.size()):
-        var b: Button = spot_buttons[i]
-        b.visible = i < spots.size()
-        if not b.visible: continue
-        var at: Vector2 = SPOT_AT[i]
-        b.position = PART_RECT.position + Vector2(PART_RECT.size.x * at.x, PART_RECT.size.y * at.y) - b.size * 0.5
-        var looked: bool = ("inspect:" + str(spots[i])) in tests
-        b.text = ("✓ " if looked else "Look: ") + str(spots[i])
-        b.disabled = over and not looked
+    if not has and lens_held: _put_lens_down()
+    lens_button.text = ("Put the magnifying glass down" if lens_held else "Pick up the magnifying glass") if has else "Magnifying glass (select a part)"
+    lens_button.disabled = not has
     card_text.text = ("%s\n%s\n\n%s" % [_model_name(record), _kind(record).to_upper(), PartCondition.describe(record, 8)]) if has else ""
     quick_button.text = PartCondition.test_name(_kind(record), false) + " · %d min" % PartCondition.QUICK_MINUTES if has else "Quick test"
     long_button.text = PartCondition.test_name(_kind(record), true) + " · %d min" % PartCondition.LONG_MINUTES if has else "Long test"
@@ -143,6 +140,81 @@ func _after(text: String) -> void:
     var saved: bool = NightSession.checkpoint(GameState)
     message.text = text + ("" if saved else "\n" + NightSession.status)
     _refresh()
+
+
+# ---- 0.56.0: the magnifying glass ----
+
+func spot_center(i: int) -> Vector2:
+    var at: Vector2 = SPOT_AT[i]
+    return PART_RECT.position + Vector2(PART_RECT.size.x * at.x, PART_RECT.size.y * at.y)
+
+
+func looked(i: int) -> bool:
+    var record: Dictionary = _record()
+    var spots: Array = PartCondition.spots(_kind(record)) if not record.is_empty() else []
+    return i < spots.size() and ("inspect:" + str(spots[i])) in PartCondition.known(record)["tests"]
+
+
+# The spot under the lens centre, or -1.
+func spot_under_lens() -> int:
+    var record: Dictionary = _record()
+    if record.is_empty(): return -1
+    var spots: Array = PartCondition.spots(_kind(record))
+    for i in range(mini(spots.size(), SPOT_AT.size())):
+        if lens_at.distance_to(spot_center(i)) <= SPOT_REACH and PartCondition.needs_lens(_kind(record), str(spots[i])): return i
+    return -1
+
+
+func _toggle_lens() -> void:
+    if lens_held: _put_lens_down()
+    elif not _record().is_empty():
+        lens_held = true
+        lens_at = get_viewport().get_mouse_position()
+        if PART_RECT.has_point(lens_at): Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+        message.text = "Magnifying glass in hand: hold it over a spot on the part."
+    _refresh()
+
+
+func _put_lens_down() -> void:
+    lens_held = false
+    dwell_spot = -1
+    dwell = 0.0
+    Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+    queue_redraw()
+
+
+func _input(event: InputEvent) -> void:
+    if not lens_held: return
+    if event is InputEventMouseMotion:
+        lens_at = event.position
+        Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN if PART_RECT.grow(LENS_RADIUS).has_point(lens_at) else Input.MOUSE_MODE_VISIBLE)
+        queue_redraw()
+    elif (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
+        _put_lens_down()
+        _refresh()
+        get_viewport().set_input_as_handled()
+
+
+func _process(delta: float) -> void:
+    if not lens_held: return
+    var i: int = spot_under_lens()
+    if i < 0 or looked(i) or NightClock.over(GameState.night_minutes):
+        dwell_spot = -1
+        dwell = 0.0
+        return
+    if i != dwell_spot:
+        dwell_spot = i
+        dwell = 0.0
+    dwell += delta
+    queue_redraw()
+    if dwell >= LENS_DWELL:
+        dwell_spot = -1
+        dwell = 0.0
+        _inspect(i)
+
+
+func _exit_tree() -> void:
+    Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func _inspect(i: int) -> void:
@@ -188,6 +260,12 @@ func _draw() -> void:
     var colour: Color = KIND_COLOURS.get(kind, Color("7a8a90"))
     draw_rect(body, colour.darkened(0.25))
     draw_rect(body, colour.lightened(0.3), false, 3.0)
+    _draw_part_shape(kind, body, colour)
+    _draw_spots(record)
+    if lens_held: _draw_lens(record, kind, body, colour)
+
+
+func _draw_part_shape(kind: String, body: Rect2, colour: Color) -> void:
     match kind:
         "gpu":
             for k in range(2): draw_circle(body.position + Vector2(body.size.x * (0.3 + 0.4 * k), body.size.y * 0.5), body.size.y * 0.3, colour.darkened(0.5))
@@ -203,3 +281,31 @@ func _draw() -> void:
             for k in range(9): draw_line(body.position + Vector2(body.size.x * (0.1 + 0.1 * k), body.size.y * 0.1), body.position + Vector2(body.size.x * (0.1 + 0.1 * k), body.size.y * 0.9), colour.lightened(0.2), 2.0)
         "storage":
             draw_rect(Rect2(body.position + body.size * Vector2(0.15, 0.15), body.size * Vector2(0.5, 0.35)), Color("e8e3d4"))
+
+
+# Placeholder marks for the spots (with art, the spots are simply parts of the picture).
+func _draw_spots(record: Dictionary) -> void:
+    var spots: Array = PartCondition.spots(_kind(record))
+    var font: Font = ThemeDB.fallback_font
+    for i in range(mini(spots.size(), SPOT_AT.size())):
+        var c: Vector2 = spot_center(i)
+        if looked(i):
+            draw_circle(c, 7.0, Color("6fcf97"))
+            draw_string(font, c + Vector2(10, 5), "✓ " + str(spots[i]), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("cfe9d9"))
+        else:
+            draw_arc(c, 9.0, 0.0, TAU, 20, Color(1, 1, 1, 0.35), 1.5)
+
+
+func _draw_lens(_record_shown: Dictionary, kind: String, body: Rect2, colour: Color) -> void:
+    var c: Vector2 = lens_at
+    var font: Font = ThemeDB.fallback_font
+    # The glass: a magnified look at what is under it (placeholder: the part's colour, the spot made big).
+    draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.16) if not body.has_point(c) else colour.lightened(0.15))
+    var i: int = spot_under_lens()
+    if i >= 0:
+        var spots: Array = PartCondition.spots(kind)
+        draw_circle(c, 18.0, Color(1, 1, 1, 0.55) if not looked(i) else Color("6fcf97"))
+        draw_string(font, c + Vector2(-LENS_RADIUS, LENS_RADIUS + 20), str(spots[i]), HORIZONTAL_ALIGNMENT_CENTER, LENS_RADIUS * 2.0, 15, Color("ffd27a"))
+        if dwell_spot == i: draw_arc(c, LENS_RADIUS + 6.0, -PI / 2.0, -PI / 2.0 + TAU * clampf(dwell / LENS_DWELL, 0.0, 1.0), 40, Color("ffd27a"), 4.0)
+    draw_arc(c, LENS_RADIUS, 0.0, TAU, 48, Color("c9d2d8"), 5.0)
+    draw_line(c + Vector2(LENS_RADIUS * 0.72, LENS_RADIUS * 0.72), c + Vector2(LENS_RADIUS * 1.5, LENS_RADIUS * 1.5), Color("6b4a2e"), 10.0)
