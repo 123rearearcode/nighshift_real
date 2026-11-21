@@ -119,7 +119,7 @@ func run_checks() -> void:
     check(gs.load_game(), "the save loads")
     check(gs.person("p0001")["name"] == person_a["name"] and gs.person("p0001")["needs"] == person_a["needs"], "a generated customer survives save and load")
     check(not gs.people.has("p9999") and gs.person("t001_mara")["name"] == "Mara V.", "broken records and fake story customers are dropped")
-    check(int(gs.customer_view("p0001")["trust"]) == 72 and gs.reviews == [80, 90] and gs.world_seed == seed and seed != 0, "their trust, the reviews and the world seed are kept")
+    check(int(gs.customer_view("p0001")["trust"]) == 72 and gs.reviews.size() == 2 and int(gs.reviews[0]["stars"]) == 4 and int(gs.reviews[1]["stars"]) == 5 and gs.world_seed == seed and seed != 0, "their trust, the reviews (0.52.0: old scores become star reviews) and the world seed are kept")
 
     # ---- a morning brings generated tickets ----
     gs.people = {}

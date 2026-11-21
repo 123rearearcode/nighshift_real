@@ -241,8 +241,8 @@ runtime integration. This document update implements no runtime feature, case or
 - DECIDED: PSU and cooler are **support** stats (they must cover what the other parts draw and produce),
   but customers **can also ask for quietness**.
 - DECIDED: parts are named **like real hardware** (names and brands the player learns).
-- DECIDED: builds get an **elegance score** that ties into the **shop level** and gives good **online
-  reviews**.
+- ~~DECIDED: builds get an elegance score that ties into the shop level and gives good online reviews.~~
+  SUPERSEDED by D160 (20 November 2026): no elegance score; trustworthiness feeds the shop level (7c).
 - DECIDED: salvaged parts need a **testing bay** to learn their real condition.
 - DECIDED: **mining customers** will be a persona.
 - LATER (user): the upsell temptation; the wrong self-diagnosis (may be added later); new uses (not yet).
@@ -270,6 +270,26 @@ runtime integration. This document update implements no runtime feature, case or
 ## 7a-bis. Real hardware (D148) — model BUILT in 0.45.0
 The six stats, support rules, several GPUs and the catalogue: docs/HARDWARE_CATALOG.md. The build request
 (7a) will choose parts from that catalogue.
+
+## 7c. Trustworthiness, the shop level and reviews (D160, 20 November 2026)
+
+- DECIDED: **no elegance mechanic** ("it doesn't work well with the scamminess of the game").
+- DECIDED: a **trustworthiness** level that ties into the **shop level**. It rises with good work. It
+  falls only when customers **find out** what happened (they go online and write a review). Honest
+  mistakes found out and scams found out **both** hurt it.
+- DECIDED: the shop level gives **upgrades**, defined later.
+- DECIDED: finding out is a delayed discovery a few mornings after pickup; how likely depends on the
+  customer (one who opens the case finds more than one who never does).
+- DECIDED: **every pickup leaves a review**, and customers are not always fair: some reviews are petty.
+  This gives the player a reason to feel justified in scamming.
+- DECIDED: reviews are a **star rating with comments**, seen on the player's **phone** (an app). The phone
+  also has a button to **buy fake reviews**.
+- LATER (user): **more interactive reviews**. Respond to reviews instead of only reading them: reply
+  publicly to an angry review to calm it down (or make it worse), or pay an angry customer to take their
+  review down (a bribe, with its own risk of being found out). Both build on the written reviews; not
+  built yet.
+- Built in 0.52.0 (`scripts/rules/reviews.gd`, `scripts/night/phone_panel.gd`); numbers in D160's
+  implementation proposals.
 
 ## 7b. The Wave 3 plan (D141)
 The user approved a plan of coding sessions 3.0 to 3.8 (one release each). It lives in docs/WORK_PLAN.md.

@@ -9,6 +9,7 @@ const Overclock = preload("res://scripts/rules/overclock.gd")
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
+const Reviews = preload("res://scripts/rules/reviews.gd")
 
 # Felt only after a few days at home. Everything else is felt at pickup.
 const DELAYED: Array = [InstallFaults.GPU_LOOSE, Overclock.UNSTABLE, Overclock.CRASHING, PartCondition.UNSTABLE_FAULT]   # 0.50.0: a crashing part left in
@@ -27,13 +28,13 @@ static func split(faults: Array) -> Dictionary:
 
 
 static func annoyance(faults: Array) -> float:
-    return InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults) + PartCondition.annoyance(faults)
+    return InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults) + PartCondition.annoyance(faults) + Reviews.annoyance(faults)
 
 
 static func complaints(faults: Array) -> Array:
     var out: Array = []
     for f: Variant in faults:
-        var text: String = InstallFaults.complaint(str(f)) + Malware.complaint(str(f)) + Overclock.complaint(str(f)) + PartCondition.complaint(str(f))
+        var text: String = InstallFaults.complaint(str(f)) + Malware.complaint(str(f)) + Overclock.complaint(str(f)) + PartCondition.complaint(str(f)) + Reviews.complaint(str(f))
         if text != "": out.append(text)
     return out
 
@@ -78,7 +79,7 @@ static func sanitize_pending(raw: Variant) -> Array:
         var raw_faults: Variant = (item as Dictionary).get("faults", [])
         if raw_faults is Array:
             for f: Variant in raw_faults:
-                if str(f) in DELAYED: faults.append(str(f))
+                if str(f) in DELAYED or Reviews.is_found(str(f)): faults.append(str(f))   # 0.52.0: found-out deceptions
         var nights: Variant = (item as Dictionary).get("nights_left", COMEBACK_NIGHTS)
         if faults.is_empty() or not typeof(nights) in [TYPE_INT, TYPE_FLOAT]: continue
         out.append({"customer_id": str(item.get("customer_id", "")), "customer": str(item.get("customer", "")),

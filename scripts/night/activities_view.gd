@@ -7,6 +7,9 @@ var message: Label
 var end_button: Button
 var activity_buttons: Array[Button] = []
 var end_dialog: ConfirmationDialog
+const Phone = preload("res://scripts/night/phone_panel.gd")
+var phone: Panel
+var phone_button: Button
 func _ready() -> void:
     NightSession.ensure(GameState)
     _label("NIGHTSHIFT / AFTER HOURS",Vector2(60,72),Vector2(1160,60),32)
@@ -27,7 +30,22 @@ func _ready() -> void:
     add_child(end_dialog)
     Navigation.pause(self)
     message = _label(NightSession.status,Vector2(60,620),Vector2(1160,65),17)
+    # 0.52.0 (D160): the phone: reviews, trustworthiness and the shop level, and bought reviews.
+    phone = Phone.new()
+    phone.position = Vector2(440,60)
+    phone.z_index = 10
+    phone.hide()
+    add_child(phone)
+    phone_button = _button("Phone",Rect2(840,20,148,42),"")
+    phone_button.name = "PhoneButton"
+    phone_button.add_theme_font_size_override("font_size",17)
+    phone_button.tooltip_text = "Your phone: the shop's reviews, its trustworthiness and level."
+    phone_button.pressed.connect(_toggle_phone)
     _refresh_end()
+
+func _toggle_phone() -> void:
+    if phone.visible: phone.hide()
+    else: phone.open()
 
 func _called() -> Array:
     return NightSession.jobs(GameState).filter(func(job: Dictionary) -> bool: return job.get("state","open") != "done" and TicketRule.status(job) == TicketRule.CALLED)
