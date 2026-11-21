@@ -1,5 +1,18 @@
 # Nightshift — Decision Register
 
+### D162 — Implement the bug-audit recommendations (user, 21 November 2026)
+
+After confirmation that the 0.50.0 review had been done, the user asked Codex to implement the changes.
+This delivery preserves condition/identity at handover and advances stable records on the migrated
+shop-to-customer path, with complete reload/refit/return-to-stock/comeback-receipt tests. Split L4 into
+clock integration and L5 drawer overflow. This is preservation of existing physical truth, not a new
+fraud, payment, time-charging or customer-return mechanic. Full legacy original-part migration and
+orphan recovery stay explicit follow-ups under L1/L2; no historical hidden condition is invented.
+The original structural review schedule is retained (next 0.60.0). Integrate after Claude's #64/#65/#66
+chain; Claude resumes his latest Rooms/art/playtest work after cross-review. The manual stays deferred.
+
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ### D157 — Standard Task Manajer accepted and game implementation requested (19 November 2026)
 
 The user reviewed two interactive anti-virus demos, rejected the fast disappearing/reordering version
@@ -584,3 +597,92 @@ test 5 minutes (finds dead, heat, weak output, slow drives), long test 20 minute
 memory errors); scrap $2–8; a degraded spare fitted in a customer PC is weak, hot or crashes (Stress lab
 at minute 8/12, game test messages) and a crashing part left in a PC brings the customer back
 (delayed fault). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D159 — Build requests (user, 20 November 2026)
+
+The user's answers to the session 3.7 talk-first questions:
+1. **Uses table:** the rescaled table (catalogue scale) is approved: light office 10/0/8 GB/250 GB, medium
+   office 20/0/16/500, heavy office 30/10/32/1000, school or kid's PC 15/10/8/500, music production
+   30/0/32/1000, video editing 40/30/32/2000, crypto mining 10/60/8/250 (processing / graphics / RAM /
+   storage); gaming from the game and the customer's FPS (storage = the game's size); streaming = the
+   game +15 processing, +16 GB RAM, +500 GB storage.
+2. **Wants:** quiet, headroom, a favourite brand, extra storage.
+3. **Cases are also something swappable.**
+4. **Price:** the customer pays their budget; the shop's profit is the budget minus the parts' cost; no
+   charging over the budget; half up front, half on collection.
+5. **Assembly costs night time.**
+6. **Build requests start on nights 4–5.**
+7. **Scam hooks** agreed and left open: salvaged or untested parts at new prices; a cheaper part than
+   asked for; charging the full budget for a much cheaper PC.
+Approved design. Implementation proposals (Claude, 0.51.0, for Codex's cross-review and the user's
+playtest): five parody cases (basic tower and compact cases with no effect, so repair PCs are unchanged;
+a mesh tower −6 °C; two sound-dampened cases that hide one loud fan); a build starts as the basic case
+of its size with the cheapest motherboard fitted, both paid from the deposit; the case and board are
+swapped only while the case is empty (old one refunded; a case of the other size swaps the board too);
+assembly minutes: CPU 5, RAM 3, drive 4, PSU 8, GPU 5, cooler 10, motherboard 10, case 15 (taking parts
+out is free); a build cooler goes on with pre-applied paste (no repair-bench work; the Repair tab is off
+for builds); every PC needs a graphics card and a cooler to start (graphics 0 = any card); wants:
+headroom = a third more processing / graphics / FPS, extra storage = twice the need, quiet = no cooler
+above 75% or PSU above 80% of its capacity (a dampened case hides one), brand = CPU or GPU maker;
+pickup: −40 per missed need, −10 per missed want, on top of the usual temperature and fault rules;
+budget = the cheapest build that meets the needs × 1.15–1.5 (a quarter of customers: × 1.0–1.1, a tight
+budget) plus 40–100% of what the wants add; a request is offered only when that cheapest build exists
+and the shop's cash plus the deposit covers it; from night 4 each arrival has a 30% chance, night 5's
+first arrival is always a build; nights 4–5 offer light / medium office, school and gaming (60 or 90
+FPS); every use from night 6 (gaming up to 144 FPS); mining needs a tower (two cards). Scam hooks are
+recorded, not punished: the collected build keeps its value at new prices next to the budget and counts
+its parts by what the shop knew (new / untested / tested / salvaged). Recorded by Claude (Opus 5.5,
+model id claude-opus-5-5).
+
+### D160 — Trust, shop level and reviews instead of elegance (user, 20 November 2026)
+
+The user's answers to the session 3.8 talk-first questions:
+1. **No elegance mechanic**: it does not work well with the scamminess of the game. (Supersedes D140's
+   elegance score.)
+2. A **trustworthiness level** that ties into the **shop level**, which rises with good work. The shop
+   level gives **upgrades**, defined later. It can go down, but **only when customers find out** what
+   happened (they go online and write a review).
+3. Finding out: a delayed discovery a few nights after pickup, likelier for customers who open the case:
+   yes. **Honest mistakes and scams found out both hurt** trustworthiness.
+4. A disappointed customer at pickup **also leaves a review**; customers should give the player a reason
+   to feel justified in scamming.
+5. Reviews are a **star rating with comments**, on **the player's phone** (an app): all reviews, and a
+   button to **buy fake reviews** (the user likes buying fake reviews).
+6. Later (design doc, not built): more interactive reviews — reply to reviews, pay a customer to take a
+   review down.
+Approved design. Implementation proposals (Claude, 0.52.0, for Codex's cross-review): reviews are
+records (stars, comment, kind, night, author), 40 kept, the latest 10 make the rating (the site's notice
+never counts); pickup stars 5/4/3/2/1 from scores 90/70/50/30, a no-start PC 1 star, and 30% of
+customers knock a star off for a petty reason (night work, the smell of coffee, no discount); trust
+points: +3 / +2 / +1 for a 5 / 4 / 3-star job (before pettiness), nothing for a poor pickup; −5 per honest
+mistake found out (the existing delayed faults), −12 toothpaste, −10 second-hand parts handed over as if
+new, −10 a build worth under 60% of its budget, −8 a customer's working part kept; −25 when bought
+reviews are caught; levels at 0 / 15 / 40 / 80 / 140 / 220 points (1–6), no upgrades yet; discovery
+chances 50% / 30% / 35% / 20% (toothpaste / used parts / overpriced / kept part), ×1.5 for a customer
+who opens the case, watches temperatures or reads reviews, ×0.5 for one who never opens it, found out
+2–5 mornings later with a one-star review (a mistake: two stars); the review site is "FixFindr";
+ReviewBoost sells 3 five-star reviews for $45; each morning after a purchase the site may catch them
+(12%, +8% per further order in three nights, +20% when most recent reviews are bought); caught: all
+bought reviews removed, a notice on the page, −25 trust. The phone is a button on the Activities screen.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D161 — Rooms instead of menus (user, 21 November 2026)
+
+"The next step is a major revamp; I want to get rid of the menus ... everything ties together visually
+instead of with menus. The main screen is the shop till, and you see the customers coming in. If you
+press on the door on the left, you could go outside." (Reference: a recording of a counter-based shop
+game; only the idea of navigating through places and objects is taken, not its art or layout.)
+Answers to the follow-up questions:
+1. **All customers walk in at the beginning of the day.** You see the number of customers that arrived.
+   The day is not timed; it is more about the stories.
+2. The places: the **counter** (main), the **workshop**, a **stock room** and **outside** (street, dump).
+3. Small windows opening over the scene (a paper ticket, the phone, a screen) are fine.
+4. Every place is art with **replaceable clickable spots**; lay the groundwork so the user can do this easily.
+5. **Do it all at once**, and leave room for the scam hooks (what is said at the counter, the till, the bin,
+   nosy customers).
+Approved design; supersedes the 0.42.0 menu-path rules (MENU_NAVIGATION.md rewritten). Implementation
+(Claude, 0.53.0): `scripts/rooms/` (room_view + hotspot + room_art), three room scenes with placeholder
+drawing, the close-ups keep one named back exit, the morning report became the customers' visits at the
+counter. Interpretation recorded for the user to confirm: "the day is not timed" is read as the morning
+visits having no clock; the night clock and the time that work costs (D-earlier, D159) are unchanged.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

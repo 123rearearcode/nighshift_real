@@ -24,6 +24,7 @@ Project rules:
 
 Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADMAP.md, docs/DECISIONS.md and docs/CURRENT_STATE.md. Read STABILISATION.md for the current milestone. Latest explicit user decisions and the reconciled core docs take precedence over stale OPEN labels in local proposal notes.
 
-8. For every menu, layout or navigation change, read `docs/MENU_NAVIGATION.md`. Its approved screen
-   roles/header/mode/Continue rules override older path notes. Reuse shared navigation and run its
-   native-input tests. Do not reintroduce a service-menu detour or move Main menu into activity UI.
+8. For every place, door, menu, layout or navigation change, read `docs/MENU_NAVIGATION.md` (0.53.0:
+   room navigation, D161). The game moves through rooms and objects, not menus: do not reintroduce a
+   hub, tab rows or a service-menu detour. Rooms are art + hotspots (`docs/ROOM_ART_GUIDE.md`). Reuse
+   shared navigation and run its native-input tests.

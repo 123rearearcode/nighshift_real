@@ -1,5 +1,15 @@
 # Test policy — 0.27.0
 
+## Current addition — 0.54.0 delivered physical parts
+
+Keep required `tools/test_delivered_parts.gd` (Delivered parts) alongside Part lifecycle. It follows a
+degraded GPU and identical RAM of different health through collection, active/inactive reload,
+comeback receipts, same-model reordering, loose/refit, substitution undo, later collection and return
+to stock under the same UID. Also cover the customer's returned bag, repeat settlement, every kind
+degraded/broken, old optional-field migration and no hidden-health hover leak. Metadata-only label/
+owner edits cannot invalidate unchanged physical measurements. The parent four-check reproduction
+fails the two post-handover UID/condition assertions; exact native results are in CHANGELOG.
+
 ## Current addition — 0.49.0 standard anti-virus
 
 Required `tools/test_antivirus.gd` prints Antivirus checks. Exercise real viewport mouse SEND and

@@ -36,6 +36,7 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     var pc: Dictionary = PcBuild.effective(job)   # D148: the PC's own parts
     var gpu: float = float(pc["graphics"])
     for id: String in job.get("service_replacements",{}):
+        if PcBuild.is_build(job): break   # 0.51.0: a build has no original specification
         var replacement: Dictionary = Parts.option(id,str(job["service_replacements"][id]))
         if float(replacement.get("performance",100))<100: notes.append("%s replacement: %d%% of original output."%[id.to_upper(),replacement["performance"]])
     temp += PcBuild.defect_heat(job)   # 0.50.0: a degraded shop CPU runs hot (hidden cause, visible degrees)
@@ -43,6 +44,10 @@ static func evaluate(job: Dictionary,owned_games: Array) -> Dictionary:
     if cooling > 0.0:
         temp += cooling
         notes.append("The cooler cannot remove all of the CPU's heat (+%.0f°C)."%cooling)
+    var case_heat: float = PcBuild.case_heat(job)   # 0.51.0: the case's airflow (0 for the default cases)
+    if case_heat != 0.0:
+        temp += case_heat
+        notes.append("Case airflow: %+.0f°C." % case_heat)
     var oc_heat: float = Overclock.heat(job)
     if oc_heat > 0.0:
         temp += oc_heat

@@ -1,8 +1,8 @@
 # Nightshift — Bug register
 
-Current ledger reconciliation: **0.50.0**, 20 November 2026 (scheduled structural review, below). This
-ledger distinguishes a recorded fix from verification. It is not a claim that every historical fix has
-been replayed on the current build.
+Current ledger reconciliation: **0.54.0**, 21 November 2026 (targeted delivery-lifecycle follow-up).
+The scheduled structural review was completed at 0.50.0 on 20 November; both entries are below.
+Recorded fixes remain distinct from verification; historical fixes have not all been replayed.
 Next structural review: **0.60.0**.
 
 ## Filing and verification rules
@@ -81,15 +81,18 @@ Next structural review: **0.60.0**.
 | B49 | Verified | Low | Layout | GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket | 0.48.1 | Automated: bracket screw geometry regression |
 | B51 | Verified | Medium | Save | Stock records changed shape on reload (an empty defect key), so a menu path looked as if it altered the stock | 0.50.0 | Automated: menu navigation stock-equality regression |
 | B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
+| B52 | Verified | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Automated: Rooms suite (CI run 44842432173) |
+| B53 | Verified | High | Component lifecycle | Collection consumes individual shop records and heals their delivered parts by keeping only model names | 0.54.0 | Automated: delivered-parts full-journey regressions |
 
 ## Known limitations and design debt (not closed bugs)
 
 | ID | Status | Priority | Limitation | Next action |
 | --- | --- | --- | --- | --- |
-| L1 | Investigating | High | Customer part identity is slot/order-derived; identical parts lack a complete stable physical record | Stage the per-part model described in PART_LIFECYCLE.md; reproduce swaps of identical customer components before migrating |
+| L1 | Investigating | High | Legacy customer originals remain slot/order-derived; delivered shop parts now retain individual records through handover and reuse | Continue the staged migration in PART_LIFECYCLE.md; do not claim all originals or bench aliases have migrated |
 | L2 | Investigating | High | Orphan fitted_in custody marks have no recovery UI | Establish a safe reproduction/recovery policy; never clear an unknown mark just to make stock available |
-| L3 | Open | Medium | A shop part delivered inside a customer's PC loses its real condition at collection: the permanent PC record holds models only | Covered for now by the pickup check and the delayed "crashing part" fault; carry condition per part when L1's part records exist |
-| L4 | Open | Low | The salvage outing still runs on its own demo clock, not the night clock; a full drawer can hide extra stock on the hardware bench (the testing bay lists all) | Design talk: how long a dump visit takes in night minutes; drawer overflow handling |
+| L3 | Fixed | Medium | Delivered-part condition loss is fixed for future handovers in 0.54.0 (B53); already-lost old condition cannot be reconstructed | Preserve physical records/receipts and the delivered-parts suite; no invented recovery of old lost data |
+| L4 | Open | Low | Salvage outings still use the demo clock rather than canonical night minutes | Design the visit/travel charging contract independently of storage UI |
+| L5 | Open | Low | A full hardware drawer can hide overflow stock although the testing bay lists all parts | Address drawer overflow visibility independently of salvage-clock integration; split from former combined L4 |
 
 L1/L2 were already listed in HANDOFF. This PR tests supported shop-part journeys; it does not claim
 to have migrated all customer-part identity or solved orphan recovery. Neither is an excuse to bypass
@@ -144,6 +147,23 @@ test positions against the real connector rectangles. A deliberate derived copy 
 tampers with the copy.
 
 ## Reviews (newest first)
+
+### 0.54.0 — targeted delivery-lifecycle follow-up, 21 November 2026
+
+User authorized the review recommendations. Reproduced L3 on the unchanged 0.53.0 parent: a degraded
+GPU lost both its fault and its physical uid at settlement (two failing regression checks). Filed B53,
+fixed the handover path, and added the complete delivered-parts journey. Physical records retain uid,
+model, condition/defect and knowledge; ownership changes once. Removal/refitting, identical RAM
+reordering, inactive-PC reload, repeat collection, return to stock and immutable comeback receipts
+preserve those facts. Rules derive behaviour from these records, not the cleared shop-condition cache.
+
+This advances RC-5/L1 for the shop-to-customer path only: legacy originals and bench presentation
+aliases have not all migrated; orphan custody L2 remains untouched and locked. Split L4 (clock) from
+L5 (drawer overflow), with independent next actions. B1–B41 remain Fixed; this focused regression does
+not supply missing historical per-bug evidence or imply graphical/user acceptance. The scheduled
+0.50.0 review was already completed; the next scheduled structural review stays 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 
 ### 0.50.0 — scheduled structural review, 20 November 2026
 
@@ -732,3 +752,24 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: start a new game, take the menu path Title → Continue → workbench → room, compare `player_inventory` with the value before the path.
 - Expected / actual: identical stock / stock unequal after the reload inside the path.
 - Regression / evidence: Automated Godot 4.7.2 `tools/test_menu_navigation.gd` (unchanged check now passes) and the reload checks in `tools/test_testing_bay.gd`. No user verification claimed.
+
+### B52 — The Rooms suite clicked through a ticket window that was still open
+
+- Found: 0.53.0 development, GitHub Actions (Rooms suite, run 44842058308)
+- Reported by: CI, failing check "the till shows the cash"
+- Fixed in: 0.53.0 (before release)
+- Root cause: the test opened a ticket window from the clipboard, called `queue_free()` on it and clicked the till in the same frame. An open dialog in the tree takes the next click, so the till never received it. A test-ordering defect, not a game bug: the till works when the window is closed.
+- Reproduction: in `tools/test_rooms.gd`, open a ticket from the counter's clipboard, free the window with `queue_free()` only, then click the till at once.
+- Expected / actual: the message shows the till's cash / the message is unchanged (the click went to the closing dialog).
+- Regression / evidence: the test now hides the window and waits two frames before the next click. Automated Godot 4.7.2 `tools/test_rooms.gd`, CI run 44842432173 on `98a39db`: the check passes. No user verification claimed.
+
+
+### B53 — Collection loses physical identity and heals delivered shop parts
+
+- Found: 0.50.0 structural review L3; reproduced by Codex on unchanged 0.53.0 parent f61583c, 21 November 2026
+- Reported by: Claude's L3 review finding; user authorized implementation after Codex's audit report
+- Fixed in: 0.54.0, stacked after the Rooms PR #66
+- Root cause: settle_custody copied catalogue model names, removed the stock records and cleared shop_condition. Only those deleted records held actual condition, defect, knowledge and uid, so dead/degraded fitted stock silently became ordinary permanent components. The same loss affected build requests.
+- Reproduction: fit an untested degraded GPU with artifacts; confirm load instability at minute 12; settle custody; the original build then had no artifacts/instability and no surviving physical uid. Repeat with dead RAM/CPU/PSU/cooler/storage to observe wrong post-delivery contribution or boot symptoms.
+- Expected / actual: ownership changes while the individual part and its condition persist / physical identity and condition were lost at handover.
+- Regression / evidence: Automated Godot 4.7.2 `tools/test_delivered_parts.gd`: complete collection/receipt/comeback/reload path; identical RAM with different health reordered/removed/refitted; delivered GPU temporarily swapped, restored and later returned to stock with its same uid/defect; every supported kind in degraded and broken states. The four-check probe on the unchanged parent failed its two post-handover checks. No graphical acceptance claimed.

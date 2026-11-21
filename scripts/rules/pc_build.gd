@@ -13,7 +13,7 @@ const BASE_WATTS: int = 50              # board, fans and drives
 const EXTRA_GPU_SHARE: float = 0.5      # each further GPU adds half of what the one before it added
 const HEAT_PER_EXCESS_WATT: float = 0.5 # degrees C per watt of CPU heat the cooler cannot remove
 # Shown when an old save or a broken record names no parts: the 0.44 demo PC.
-const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box", "board": ""}
+const FALLBACK: Dictionary = {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box", "board": "", "case": ""}
 # Service replacement tiers (repair-bench stock) as catalogue models. "similar" = the same model as the
 # demo PCs' parts, "budget" = the cheaper one below it (0.44 numbers kept).
 # Board slots (the same ids as component_data.gd and customer_pc.gd).
@@ -69,7 +69,28 @@ static func sanitize(raw: Variant) -> Dictionary:
         "cooler": _one(r.get("cooler", null), Catalog.COOLER, FALLBACK["cooler"]),
         # 0.48.1: the motherboard. "" (also for old saves and records without one) = the case's original
         # board, i.e. the default model for the job's layout (board_model()).
-        "board": str(r.get("board", "")) if Catalog.is_board(str(r.get("board", ""))) else ""}
+        "board": str(r.get("board", "")) if Catalog.is_board(str(r.get("board", ""))) else "",
+        # 0.51.0: the case model. "" (old saves, repair PCs) = the default case of the job's layout.
+        "case": str(r.get("case", "")) if Catalog.is_case(str(r.get("case", ""))) else ""}
+
+
+# 0.51.0: the case model of this job. A case of the wrong form for the layout reads as the default.
+static func case_model(job: Dictionary) -> String:
+    var layout: String = "compact" if str(job.get("layout", "tower")) == "compact" else "tower"
+    var id: String = str(sanitize(job.get("parts", {}))["case"])
+    if id != "" and str(Catalog.CASES[id]["form"]) == layout: return id
+    return str(Catalog.DEFAULT_CASE[layout])
+
+
+# Degrees the case adds to the CPU temperature (0 for the default cases).
+static func case_heat(job: Dictionary) -> float:
+    return float(Catalog.CASES[case_model(job)]["heat"])
+
+
+# 0.51.0: a build request's PC (the shop assembles it; there is no customer original of any part).
+static func is_build(job: Dictionary) -> bool:
+    var t: Variant = job.get("ticket", {})
+    return t is Dictionary and str((t as Dictionary).get("request", "")) == "build"
 
 
 # 0.48.1: the motherboard model in this job's case. A board of the wrong form for the case, or none
@@ -165,6 +186,18 @@ static func effective_parts(job: Dictionary) -> Dictionary:
     if dead_second_card(job) and gpus.size() > 1: gpus.remove_at(1)
     if Ids.GPU in removed or Ids.GPU in broken: gpus.remove_at(0)
     if Ids.COOLER in removed or Ids.COOLER in broken: p["cooler"] = ""
+    # Delivered parts keep their health after stock custody ends. Missing() still reads physical
+    # contents; only their effective contribution is removed here, never their physical model.
+    if str(shop_condition(job, CPU_SLOT)["condition"]) == BROKEN: p["cpu"] = ""
+    if str(shop_condition(job, PSU_SLOT)["condition"]) == BROKEN: p["psu"] = ""
+    if str(shop_condition(job, Ids.GPU)["condition"]) == BROKEN and not Ids.GPU in removed and not Ids.GPU in broken and not gpus.is_empty(): gpus.remove_at(0)
+    if str(shop_condition(job, Ids.COOLER)["condition"]) == BROKEN: p["cooler"] = ""
+    for field: String in ["ram", "storage"]:
+        var slots: Array = RAM_SLOTS if field == "ram" else STORAGE_SLOTS
+        var healthy: Array = []
+        for i in range((p[field] as Array).size()):
+            if str(shop_condition(job, str(slots[i]))["condition"]) != BROKEN: healthy.append(p[field][i])
+        p[field] = healthy
     # 0.46.2 (D150): shop parts fitted for a test count while they are in the PC, but stay the shop's.
     # 0.50.0: a dead one (actual condition, never shown) is in the slot but contributes nothing.
     for slot: String in shop_fitted(job):
@@ -210,11 +243,33 @@ const WEAK_COOLER_SHARE: float = 0.5
 static func shop_condition(job: Dictionary, key: String) -> Dictionary:
     var raw: Variant = job.get("shop_condition", {})
     var entry: Variant = (raw as Dictionary).get(key, {}) if raw is Dictionary else {}
+    # A still-fitted shop part reads its rebuilt stock projection. Once delivered, the physical
+    # instance is authoritative instead; never revive a stale saved shop_condition cache.
+    var custody: Variant = job.get("shop_custody", [])
+    var fitted: Variant = job.get("shop_fitted", {})
+    var temporary: bool = (custody is Array and key in custody) or (fitted is Dictionary and fitted.has(key))
+    if not temporary:
+        var records: Variant = job.get("part_instances", {})
+        entry = records.get(key, {}) if records is Dictionary else {}
+        if not entry is Dictionary or str(entry.get("model", "")) != physical_model(job, key): entry = {}
     var condition: String = str(entry.get("condition", WORKING)) if entry is Dictionary else WORKING
     if not condition in [WORKING, DEGRADED, BROKEN]: condition = WORKING
     var defect: String = str(entry.get("defect", "")) if entry is Dictionary else ""
     if condition != DEGRADED or not defect in DEFECTS.values(): defect = ""
     return {"condition": condition, "defect": defect}
+
+static func physical_model(job: Dictionary, key: String) -> String:
+    var p: Dictionary = sanitize(job.get("parts", {}))
+    if key == Ids.GPU: return str(p["gpus"][0])
+    if key == Ids.COOLER: return str(p["cooler"])
+    if key == CPU_SLOT: return str(p["cpu"])
+    if key == PSU_SLOT: return str(p["psu"])
+    if key == GPU2_SLOT: return str(p["gpus"][1]) if (p["gpus"] as Array).size() > 1 else ""
+    for field: String in ["ram", "storage"]:
+        var slots: Array = RAM_SLOTS if field == "ram" else STORAGE_SLOTS
+        var index: int = slots.find(key)
+        if index >= 0: return str(p[field][index]) if index < (p[field] as Array).size() else ""
+    return ""
 
 
 # Defects of the degraded shop parts fitted now (a dead or removed part has none).
@@ -226,6 +281,11 @@ static func defects(job: Dictionary) -> Array:
     for kind: String in [Ids.GPU, Ids.COOLER]:
         if replaced.has(kind) and not kind in removed: keys.append(kind)
     keys.append_array(shop_fitted(job).keys())
+    var records: Variant = job.get("part_instances", {})
+    if records is Dictionary:
+        for key: Variant in records:
+            if str(key) in [Ids.GPU, Ids.COOLER] and str(key) in removed: continue
+            if physical_model(job, str(key)) != "" and not key in keys: keys.append(key)
     for key: Variant in keys:
         var d: String = str(shop_condition(job, str(key))["defect"])
         if d != "": out.append(d)
@@ -247,7 +307,7 @@ static func defect_heat(job: Dictionary) -> float:
 
 # The customer's second card is dead (hidden truth; it simply adds nothing).
 static func dead_second_card(job: Dictionary) -> bool:
-    return GPU2_SLOT in (job.get("dead_slots", []) if job.get("dead_slots", []) is Array else [])
+    return GPU2_SLOT in (job.get("dead_slots", []) if job.get("dead_slots", []) is Array else []) or str(shop_condition(job, GPU2_SLOT)["condition"]) == BROKEN
 
 
 static func effective(job: Dictionary) -> Dictionary:
@@ -290,7 +350,9 @@ static func part_lines(job: Dictionary) -> Array:
     lines.append("CPU: %s" % ("%s (%s)" % [Catalog.part(p["cpu"])["name"], Catalog.stat_text(p["cpu"])] if str(p["cpu"]) != "" else "none fitted"))
     # D150: list what is fitted by model; a part that does not work is listed like any other.
     var first: String = model_of(str(replaced.get(Ids.GPU, "")), Ids.GPU, str(original["gpus"][0])) if replaced.has(Ids.GPU) else str(original["gpus"][0])
-    if Ids.GPU in removed: lines.append("GPU: %s (not fitted)" % Catalog.part(first)["name"])
+    var build: bool = is_build(job)   # 0.51.0: a build has no customer original behind an empty first slot
+    if Ids.GPU in removed and build: lines.append("GPU: none fitted yet")
+    elif Ids.GPU in removed: lines.append("GPU: %s (not fitted)" % Catalog.part(first)["name"])
     else: lines.append("GPU: %s (%s)" % [Catalog.part(first)["name"], Catalog.stat_text(first)])
     var others: Array = (original["gpus"] as Array).slice(1)
     for slot: String in shop_fitted(job):
@@ -302,8 +364,10 @@ static func part_lines(job: Dictionary) -> Array:
     if (p["storage"] as Array).is_empty(): lines.append("Storage: none fitted")
     lines.append("PSU: %s" % ("%s (%s)" % [Catalog.part(p["psu"])["name"], Catalog.stat_text(p["psu"])] if str(p["psu"]) != "" else "none fitted"))
     var cooler: String = model_of(str(replaced.get(Ids.COOLER, "")), Ids.COOLER, str(original["cooler"])) if replaced.has(Ids.COOLER) else str(original["cooler"])
-    if Ids.COOLER in removed: lines.append("Cooler: %s (not fitted)" % Catalog.part(cooler)["name"])
+    if Ids.COOLER in removed and build: lines.append("Cooler: none fitted yet")
+    elif Ids.COOLER in removed: lines.append("Cooler: %s (not fitted)" % Catalog.part(cooler)["name"])
     else: lines.append("Cooler: %s (%s)" % [Catalog.part(cooler)["name"], Catalog.stat_text(cooler)])
+    lines.append("Case: %s (%s)" % [Catalog.case_model(case_model(job))["name"], Catalog.case_text(case_model(job))])   # 0.51.0
     return lines
 
 

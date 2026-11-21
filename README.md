@@ -1,4 +1,40 @@
-# Nightshift - Godot Foundation Trial (v0.50.0)
+# Nightshift - Godot Foundation Trial (v0.54.2)
+
+0.54.2 integrates the dedicated Code checker documentation from PR #68. Game code remains identical to 0.54.0; see docs/CODE_CHECKER.md and HANDOFF.md.
+
+0.54.1 integrates all pending PRs and archives the old PC-model proposals as historical reference. Runtime is identical to 0.54.0; see HANDOFF.md for the current Claude resume prompt.
+
+0.54.0 fixes delivered component identity/condition loss: individual shop-part records transfer with
+the PC before stock is consumed. Dead/degraded parts keep their real behaviour after collection and
+reload; removed/refitted parts retain uid/defect; comeback receipts and the customer's loose-parts bag
+retain the same records. Marked labels remain player knowledge, not physical repairs.
+
+This is stacked after PR #66 (Rooms), preserving #64 builds and #65 reviews. L1 legacy original-part
+migration and L2 orphan recovery remain open; the clock and drawer-overflow tasks are now separate
+L4/L5 entries. Next structural review remains 0.60.0. See HANDOFF.md for Claude's resume instructions.
+
+0.53.0 removes the menus. You start at the **shop counter**: the front door on the left takes you
+outside (your van drives to the salvage dump), the back door takes you into the workshop (repair bench,
+hardware board, diagnostic monitor, testing bay, and the stock room with your PCs). On the counter: the
+till, the ticket clipboard, your phone and the tool catalogue. Pull the shutter to end the night; in the
+morning the shutter goes up and every customer walks in to the counter, one at a time. The rooms use
+placeholder boxes until real art is added: see `docs/ROOM_ART_GUIDE.md` (press F3 in a room to see every
+clickable spot).
+
+0.52.0 is session 3.8, **trust and reviews** (no elegance score). Every customer who collects writes a
+review on your shop's page, stars plus a comment, and some are petty about it. Good work raises your
+shop's **trustworthiness** and with it the **shop level** (upgrades come later). It only drops when a
+customer **finds out** something a few mornings later: toothpaste under the cooler, a "new" part that was
+second-hand, a build worth half its price, a loose GPU, and they say so online. Open your **Phone** on the
+Activities screen to read every review, and to buy five-star ones from ReviewBoost. The review site
+checks each morning, and if it catches them, it removes them all and flags your shop.
+
+0.51.0 is session 3.7, **build requests**. From night 4 some customers ask the shop to build them a new
+PC: a use (office work, a kid's PC, gaming, video editing, mining, …), a few wishes (quiet, room to grow,
+a favourite brand, extra storage) and a budget. They pay half up front and the rest when they collect;
+whatever the parts did not cost is your profit. The build starts as an empty basic case with a cheap
+motherboard; swap the case or board while it is empty, order parts and fit them at the hardware bench.
+Every part you fit costs night time. The pickup checks the needs (hard) and the wishes (soft).
 
 0.50.0 is session 3.6, the **testing bay** (Activities > Testing bay). Salvage finds and customers'
 replaced parts now land in your stock as **untested**: nobody knows if they work. At the bay you look

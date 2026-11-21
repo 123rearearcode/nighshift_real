@@ -13,6 +13,7 @@ const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const ComponentData = preload("res://scripts/data/component_data.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const Instances = preload("res://scripts/rules/part_instances.gd")
 
 const PREFIX := "customer_"
 const SLOT_OF: Dictionary = {Ids.GPU: "pcie", Ids.COOLER: "cooler_mount"}
@@ -57,15 +58,7 @@ static func parts(job: Dictionary) -> Dictionary:
 # broken = hidden truth (never shown); damaged = visible damage the player caused; original_of = "gpu" /
 # "cooler" when a shop part took its place in the first slot (0.46.2, D150 custody).
 static func loose(job: Dictionary) -> Array:
-    var out: Array = []
-    var raw: Variant = job.get("loose_parts", [])
-    if raw is Array:
-        for entry: Variant in raw:
-            if entry is Dictionary and not Catalog.part(str(entry.get("id", ""))).is_empty():
-                var of: String = str(entry.get("original_of", ""))
-                out.append({"id": str(entry["id"]), "broken": bool(entry.get("broken", false)), "damaged": bool(entry.get("damaged", false)),
-                    "original_of": of if of in [Ids.GPU, Ids.COOLER] else ""})
-    return out
+    return Instances.loose(job.get("loose_parts", []))
 
 
 static func ram_sticks(job: Dictionary) -> int:
@@ -126,9 +119,17 @@ static func components(job: Dictionary) -> Array:
     if (p["gpus"] as Array).size() > 1: out.append(_customer_part(job, "gpu_2", str(p["gpus"][1]), false, "In the PC (second card)"))
     var list: Array = loose(job)
     for i in range(list.size()): out.append(_customer_part(job, "loose_" + str(i), str(list[i]["id"]), bool(list[i]["damaged"]), "Out of the PC" + (" (a part from your stock is in its place)" if str(list[i]["original_of"]) != "" else "")))
-    for part: String in [Ids.GPU, Ids.COOLER]:
+    for part: String in first_parts(job):
         out.append(service_component(job, part))
     return out
+
+
+# 0.51.0: the first-slot parts (GPU, cooler) that physically exist for this job. A repair PC always has
+# both (out of the PC or in it). A build has no customer original: an empty first slot holds nothing.
+static func first_parts(job: Dictionary) -> Array:
+    var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
+    if not PcBuild.is_build(job): return [Ids.GPU, Ids.COOLER]
+    return [Ids.GPU, Ids.COOLER].filter(func(part: String) -> bool: return not part in removed)
 
 
 static func service_component(job: Dictionary, part: String) -> Dictionary:
@@ -137,7 +138,7 @@ static func service_component(job: Dictionary, part: String) -> Dictionary:
     if component.is_empty(): component = ServiceParts.component(uid(job, part), part, "similar")
     var replaced: bool = (job.get("service_replacements", {}) as Dictionary).has(part)
     var label: String = "GPU" if part == Ids.GPU else "cooler"
-    component["display_name"] = ("Replacement " if replaced else "Customer's ") + label
+    component["display_name"] = ("The build's " if PcBuild.is_build(job) else ("Replacement " if replaced else "Customer's ")) + label   # 0.51.0
     var stock_backed: bool = part in (job.get("shop_custody", []) as Array)   # 0.46.2: still the shop's until collection
     var details: Array = [["Model", model_name(job, part)], ["Owner", "Your stock, fitted until the customer collects" if stock_backed else ("Customer's" if not replaced else "Customer's (a replacement)")]]
     if part in (job.get("damaged_parts", []) as Array): details.append(["Condition", "DAMAGED (you broke it)"])
@@ -149,6 +150,8 @@ static func service_component(job: Dictionary, part: String) -> Dictionary:
 
 # HIDDEN truth, for rules only (never for display or permissions).
 static func is_broken(job: Dictionary, part_uid: String) -> bool:
+    var record: Dictionary = instance(job, part_uid)
+    if not record.is_empty(): return str(record["condition"]) == PcBuild.BROKEN
     var part: String = part_of(part_uid)
     if part == "loose":
         var i: int = int(part_uid.get_slice("_", part_uid.get_slice_count("_") - 1))
@@ -156,6 +159,22 @@ static func is_broken(job: Dictionary, part_uid: String) -> bool:
         return i >= 0 and i < list.size() and bool(list[i]["broken"])
     if part == "gpu_2": return PcBuild.dead_second_card(job)
     return part in (job.get("broken_parts", []) as Array)
+
+# Stable physical identity/health for the migrated delivered-part path, independent of bench aliases.
+static func instance(job: Dictionary, part_uid: String) -> Dictionary:
+    var kind: String = part_of(part_uid)
+    var tail: String = part_uid.get_slice("_", part_uid.get_slice_count("_") - 1)
+    if kind == "loose":
+        var list: Array = loose(job)
+        var i: int = int(tail)
+        return Instances.clean(list[i].get("instance", {})) if i >= 0 and i < list.size() else {}
+    if kind == "gpu_2": return Instances.get_part(job, GPU2_SLOT)
+    if kind == "psu": return Instances.get_part(job, PSU_SLOT)
+    if kind in ["ram", "storage"]:
+        var i: int = LETTERS.find(tail)
+        var slots: Array = RAM_SLOTS if kind == "ram" else STORAGE_SLOTS
+        return Instances.get_part(job, str(slots[i])) if i >= 0 and i < slots.size() else {}
+    return Instances.get_part(job, kind)
 
 
 # VISIBLE damage the player caused (may be shown).
@@ -182,7 +201,7 @@ static func placements(job: Dictionary, saved: Dictionary) -> Dictionary:
     if (p["gpus"] as Array).size() > 1: out[uid(job, "gpu_2")] = {"location": GPU2_SLOT, "cell": [0, 0], "rotation": 0}
     var keys: Array = []
     for i in range(loose(job).size()): keys.append(uid(job, "loose_" + str(i)))
-    for part: String in [Ids.GPU, Ids.COOLER]:
+    for part: String in first_parts(job):
         if part in (job.get("removed_parts", []) as Array): keys.append(uid(job, part))
         else: out[uid(job, part)] = {"location": SLOT_OF[part], "cell": [0, 0], "rotation": 0}
     for key: String in keys:
@@ -219,6 +238,10 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
     var slot_ids: Dictionary = {}
     var drawer: Array = []
     var first: Dictionary = {}
+    var records: Dictionary = {}
+    for kind: String in [Ids.GPU, Ids.COOLER]:
+        var record: Dictionary = Instances.get_part(job, kind)
+        if not record.is_empty(): records[kind] = record
     for key: String in snapshot:
         if not is_customer(key) or not key.begins_with(uid(job, "")): continue
         var kind: String = part_of(key)
@@ -226,6 +249,8 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         var id: String = catalog_id(job, key)
         if id == "": continue
         var entry: Dictionary = {"id": id, "broken": is_broken(job, key), "damaged": is_damaged(job, key), "original_of": ""}
+        var record: Dictionary = instance(job, key)
+        if not record.is_empty(): entry["instance"] = record
         if kind == "loose":
             var i: int = int(key.get_slice("_", key.get_slice_count("_") - 1))
             entry["original_of"] = str(loose(job)[i]["original_of"])
@@ -234,7 +259,7 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         elif location == SLOT_OF[Ids.GPU] or location == SLOT_OF[Ids.COOLER]:
             first[Ids.GPU if location == SLOT_OF[Ids.GPU] else Ids.COOLER] = entry
         else: slot_ids[location] = entry
-    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"], "board": p["board"]}   # 0.48.1: the board stays
+    var out: Dictionary = {"cpu": "", "gpus": [p["gpus"][0]], "ram": [], "storage": [], "psu": "", "cooler": p["cooler"], "board": p["board"], "case": p["case"]}   # 0.48.1: the board stays (0.51.0: and the case)
     var dead: Array = []
     # D150 (0.46.2): a part that does not work CAN be fitted (nothing refuses it); it simply does not work.
     for slot: String in slot_ids:
@@ -244,8 +269,13 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         elif slot == GPU2_SLOT:
             (out["gpus"] as Array).append(entry["id"])
             if bool(entry["broken"]): dead.append(GPU2_SLOT)
+        if slot in [CPU_SLOT, PSU_SLOT, GPU2_SLOT] and entry.has("instance"): records[slot] = entry["instance"]
     for slot: String in RAM_SLOTS:
-        if slot_ids.has(slot): (out["ram"] as Array).append(slot_ids[slot]["id"])
+        if slot_ids.has(slot):
+            (out["ram"] as Array).append(slot_ids[slot]["id"])
+            if slot_ids[slot].has("instance"): records[RAM_SLOTS[(out["ram"] as Array).size()-1]] = slot_ids[slot]["instance"]
     for slot: String in STORAGE_SLOTS:
-        if slot_ids.has(slot): (out["storage"] as Array).append(slot_ids[slot]["id"])
-    return {"parts": out, "loose_parts": drawer, "first": first, "dead_slots": dead}
+        if slot_ids.has(slot):
+            (out["storage"] as Array).append(slot_ids[slot]["id"])
+            if slot_ids[slot].has("instance"): records[STORAGE_SLOTS[(out["storage"] as Array).size()-1]] = slot_ids[slot]["instance"]
+    return {"parts": out, "loose_parts": drawer, "first": first, "dead_slots": dead, "part_instances": records}

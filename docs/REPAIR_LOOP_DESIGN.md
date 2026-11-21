@@ -241,28 +241,55 @@ runtime integration. This document update implements no runtime feature, case or
 - DECIDED: PSU and cooler are **support** stats (they must cover what the other parts draw and produce),
   but customers **can also ask for quietness**.
 - DECIDED: parts are named **like real hardware** (names and brands the player learns).
-- DECIDED: builds get an **elegance score** that ties into the **shop level** and gives good **online
-  reviews**.
+- ~~DECIDED: builds get an elegance score that ties into the shop level and gives good online reviews.~~
+  SUPERSEDED by D160 (20 November 2026): no elegance score; trustworthiness feeds the shop level (7c).
 - DECIDED: salvaged parts need a **testing bay** to learn their real condition.
 - DECIDED: **mining customers** will be a persona.
 - LATER (user): the upsell temptation; the wrong self-diagnosis (may be added later); new uses (not yet).
-- PROPOSED uses table (numbers to tune, not confirmed):
+- DECIDED (D159, 20 November 2026): the uses table on the catalogue scale. Built in 0.51.0
+  (`scripts/rules/build_request.gd`). The old-scale table (before the 0.45.0 catalogue) is superseded.
 
 | Use | Processing | Graphics | RAM GB | Storage GB |
 | --- | --- | --- | --- | --- |
-| Light office | 60 | 0 | 8 | 250 |
-| Medium office | 90 | 0 | 16 | 500 |
-| Heavy office | 130 | 20 | 32 | 1000 |
-| Gaming | set by the game | set by the game | set by the game | the game's size |
-| Video editing | 150 | 80 | 32 | 2000 |
-| Crypto mining | 40 | 200 | 8 | 250 |
-| Streaming | game + 50 | game | game + 16 | game + 500 |
-| Music production | 120 | 0 | 32 | 1000 |
-| School / kid's PC | 70 | 30 | 8 | 500 |
+| Light office | 10 | 0 | 8 | 250 |
+| Medium office | 20 | 0 | 16 | 500 |
+| Heavy office | 30 | 10 | 32 | 1000 |
+| School / kid's PC | 15 | 10 | 8 | 500 |
+| Music production | 30 | 0 | 32 | 1000 |
+| Video editing | 40 | 30 | 32 | 2000 |
+| Crypto mining | 10 | 60 | 8 | 250 |
+| Gaming | from the game and the customer's FPS | | | the game's size |
+| Streaming | game + 15 | game | game + 16 | game + 500 |
+
+- DECIDED (D159): wants are quiet, headroom, a favourite brand and extra storage; cases are swappable
+  parts; the customer pays the budget (half up front, half on collection), profit = budget − parts, never
+  more than the budget; assembly costs night time; build requests start on nights 4–5; scam hooks
+  (untested parts at new prices, a cheaper part than asked, full budget for a much cheaper PC) are left
+  open. Implementation numbers: D159 proposals.
 
 ## 7a-bis. Real hardware (D148) — model BUILT in 0.45.0
 The six stats, support rules, several GPUs and the catalogue: docs/HARDWARE_CATALOG.md. The build request
 (7a) will choose parts from that catalogue.
+
+## 7c. Trustworthiness, the shop level and reviews (D160, 20 November 2026)
+
+- DECIDED: **no elegance mechanic** ("it doesn't work well with the scamminess of the game").
+- DECIDED: a **trustworthiness** level that ties into the **shop level**. It rises with good work. It
+  falls only when customers **find out** what happened (they go online and write a review). Honest
+  mistakes found out and scams found out **both** hurt it.
+- DECIDED: the shop level gives **upgrades**, defined later.
+- DECIDED: finding out is a delayed discovery a few mornings after pickup; how likely depends on the
+  customer (one who opens the case finds more than one who never does).
+- DECIDED: **every pickup leaves a review**, and customers are not always fair: some reviews are petty.
+  This gives the player a reason to feel justified in scamming.
+- DECIDED: reviews are a **star rating with comments**, seen on the player's **phone** (an app). The phone
+  also has a button to **buy fake reviews**.
+- LATER (user): **more interactive reviews**. Respond to reviews instead of only reading them: reply
+  publicly to an angry review to calm it down (or make it worse), or pay an angry customer to take their
+  review down (a bribe, with its own risk of being found out). Both build on the written reviews; not
+  built yet.
+- Built in 0.52.0 (`scripts/rules/reviews.gd`, `scripts/night/phone_panel.gd`); numbers in D160's
+  implementation proposals.
 
 ## 7b. The Wave 3 plan (D141)
 The user approved a plan of coding sessions 3.0 to 3.8 (one release each). It lives in docs/WORK_PLAN.md.

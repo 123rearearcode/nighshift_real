@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/outside_room.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/rooms/hotspot.gd" id="2"]
+
+[node name="Outside" type="Node2D"]
+script = ExtResource("1")
+art_name = "outside"
+room_title = "OUTSIDE"
+
+[node name="Background" type="TextureRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+texture_filter = 1
+
+[node name="Hotspots" type="Node2D" parent="."]
+
+[node name="ShopDoor" type="Button" parent="Hotspots"]
+offset_left = 980.0
+offset_top = 140.0
+offset_right = 1180.0
+offset_bottom = 500.0
+script = ExtResource("2")
+action = "go:counter"
+label = "Shop door: go back in"
+art_hint = "The shop's front door, seen from the street."
+placeholder_color = Color(0.235, 0.310, 0.369, 1)
+
+[node name="Van" type="Button" parent="Hotspots"]
+offset_left = 110.0
+offset_top = 330.0
+offset_right = 500.0
+offset_bottom = 550.0
+script = ExtResource("2")
+action = "go:salvage"
+label = "Your van: the salvage dump"
+art_hint = "The van you drive to the salvage dump."
+placeholder_color = Color(0.310, 0.353, 0.235, 1)
+closed_at_dawn = true
+
+[node name="Supplier" type="Button" parent="Hotspots"]
+offset_left = 560.0
+offset_top = 190.0
+offset_right = 840.0
+offset_bottom = 430.0
+script = ExtResource("2")
+action = "later:supplier"
+label = "Parts supplier"
+art_hint = "A shop down the street (later: buying parts in person)."
+placeholder_color = Color(0.227, 0.227, 0.275, 1)

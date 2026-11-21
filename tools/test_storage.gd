@@ -160,13 +160,13 @@ func run_checks() -> void:
     _remove_save_files(view.store.path)
     view.queue_free()
     await process_frame
-    change_scene_to_file("res://scenes/activities.tscn")
+    change_scene_to_file("res://scenes/rooms/workshop.tscn")
     await process_frame
     await process_frame
-    current_scene._go("res://scenes/storage.tscn")
+    current_scene.act("go:stock")
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/storage.tscn","night activity route opens the physical room")
+    check(current_scene.scene_file_path == "res://scenes/storage.tscn","the workshop's stock room door opens the physical room")
     restore_save(gs)
     finish("Storage")
 

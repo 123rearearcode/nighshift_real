@@ -44,10 +44,9 @@ func _ready() -> void:
     if not GameState.job.get("hardware_trial",{}).get("night_session",{}).is_empty(): NightSession.ensure(GameState)
     model.setup(Sources.collect(GameState),store.read())
     selected_unit = model.units[0]["id"]
-    _label("WORKSHOP ROOM",Vector2(172,24),Vector2(800,36),26)
-    Navigation.back(self,"Activities",Navigation.ACTIVITIES)
+    _label("STOCK ROOM",Vector2(210,24),Vector2(760,36),26)
+    Navigation.exit(self,"Workshop",Navigation.WORKSHOP)   # 0.53.0 (D161): the stock room opens off the workshop
     summary = _label("",Vector2(24,62),Vector2(946,32),16)
-    Navigation.attach(self,_leave)
     _label("v%s · room storage"%GameState.game_version(),Vector2(1008,72),Vector2(244,24),13)
     arrange_toggle = _button("Arrange room",Rect2(24,108,174,36),func() -> void: _set_arranging(not arranging))
     arrange_toggle.toggle_mode = true
@@ -277,7 +276,7 @@ func _arrange() -> void:
     model.arrange()
     _save()
 func _leave() -> void:
-    _navigate(Navigation.ACTIVITIES)
+    _navigate(Navigation.WORKSHOP)
 func _navigate(path: String) -> bool:
     _cancel()
     if store.status.contains("not saved") and not store.read_only:

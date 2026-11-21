@@ -92,6 +92,394 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.54.2 - 2026-11-21 - Integrate dedicated Code checker role
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), original PR #68; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.54.1 / 7861de7 and PR #68 head 5feb8e7.
+- Type: patch (documentation and version-only metadata; no runtime or save change).
+
+### Execution status
+
+No new Godot run. Runtime remains identical to tested 0.54.0; this patch integrates documentation
+only. It does not create or verify Claude's external scheduled tasks or claim graphical acceptance.
+
+### Added / Changed / Fixed / Removed
+
+- Integrate PR #68's dedicated Code checker contract and pointers: six-hourly change review,
+  structural reviews at the BUGS marker and performance reviews every two days. The checker reports;
+  code owners implement fixes and the user controls merges. Authors retain testing/bug-filing duties.
+- Resolve the old-baseline handoff conflict while preserving integrated releases and historical
+  proposals. Refresh the current Claude resume prompt and assign a delivery version under project rules.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/CODE_CHECKER.md | A | Original dedicated review-role contract from Claude's PR #68 |
+| AGENTS.md | M | Scheduled review ownership pointer |
+| docs/BUGS.md | M | Structural review owner pointer; marker unchanged |
+| docs/PERFORMANCE.md | M | Review ownership and empty log section |
+| docs/WORK_PLAN.md | M | Dedicated checker role alongside standing author split |
+| DEVELOPMENT.md | M | Register checker contract in file map |
+| HANDOFF.md | M | Reconcile current integrated state and copyable resume prompt |
+| docs/CURRENT_STATE.md | M | Current checker integration status |
+| README.md | M | Version and integration note |
+| project.godot | M | Version only, 0.54.2 |
+| CHANGELOG.md | M | Original Unreleased provenance and this signed delivery record |
+
+### Checks performed
+
+- Project checker passed: 154 scripts, 806 references, 226 mapped files, five core docs, zero problems.
+- Bug checker passed with zero problems; 12 bug-register fixtures and 9 CI-scope fixtures passed.
+- Whitespace against main passed; only Markdown and config/version differ from main 0.54.1.
+  All game code, scenes, tests, tools and CI are unchanged from tested 0.54.0.
+
+### Decisions proposed (not approved)
+
+None added by integration; retain the checker-role decision recorded in PR #68. No new automation
+is configured by this merge.
+
+### Known issues and open items
+
+L1/L2 open; L4/L5 separate; deferred features unchanged. External schedules are outside this
+integration's verification. Next structural review marker remains 0.60.0.
+
+### Next action
+
+Claude pulls current main, reads HANDOFF 0.54.2 and CODE_CHECKER, resumes Rooms/art/playtesting and
+coordinates the next runtime owner. The dedicated checker handles scheduled reviews.
+
+## 0.54.1 - 2026-11-21 - Integrate release chain and archive historical PC-model proposals
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+- Based on: integrated main 0.54.0 / d8ecf6a after user-authorized merges #64, #65, #66 and #67; resolves old PR #19.
+- Type: patch (documentation/archive integration and version-only metadata; no runtime behaviour or save change).
+
+### Execution status
+
+No new Godot run for this documentation-only patch. Runtime files are identical to the merged
+0.54.0 tree, whose 33 required Godot 4.7.2 suites passed 2,378 checks and bench smoke completed
+(see 0.54.0 evidence). This is not graphical acceptance.
+
+### Added / Changed / Fixed / Removed
+
+- Preserve PR #19's two 0.19.3-era PC/part proposals with prominent historical/unapproved annotations;
+  current DECISIONS, PART_LIFECYCLE and DEVELOPMENT take precedence. Archival merge does not approve
+  remaining proposal mechanics or replace the current physical-record contract.
+- Resolve conflicting DEVELOPMENT and CHANGELOG content in favour of current main, retaining the
+  complete current runtime and release history; register both archived documents in the file map.
+- Record completed #64–#67 integration and update Claude's copyable resume prompt: current Rooms/art/
+  playtesting, Wave 3 already built, no runtime hot file reserved by this task. Keep L1/L2 open,
+  L4/L5 separate, deferred features deferred and the structural review at 0.60.0.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/PC_MODEL_PROPOSAL.md | A | Archive the old record/save/migration proposal with current-authority annotation |
+| docs/PC_OWNED_PART_MODEL_PROPOSAL.md | A | Archive the old player-facing proposal with current-authority annotation |
+| DEVELOPMENT.md | M | Register both historical documents; preserve current contracts |
+| HANDOFF.md | M | Integration status, hot-file release and current Claude resume prompt |
+| docs/CURRENT_STATE.md | M | Integrated main and historical proposal status |
+| docs/WORK_PLAN.md | M | Current integration and resumed ownership coordination |
+| README.md | M | Version and archival integration note |
+| project.godot | M | Version only, 0.54.1 |
+| CHANGELOG.md | M | This signed integration record |
+
+### Checks performed
+
+- Project checker passed: 154 scripts, 806 resolved references, 225 mapped files, five core docs, zero problems.
+- Bug-register checker passed with zero problems; all 12 register fixtures passed.
+- All 9 CI-scope fixtures passed; `git diff --check` passed.
+- Comparison against merged main d8ecf6a: only nine Markdown/version files differ; project.godot
+  changes only config/version. All runtime files are identical to tested 0.54.0.
+
+### Decisions proposed (not approved)
+
+No new proposal. The two archived documents retain their original unapproved ideas for reference;
+this merge does not approve them or a full legacy-identity migration.
+
+### Known issues and open items
+
+L1/L2 remain open; L4 and L5 remain separate open tasks. No lost historical condition is invented.
+The manual and other deferred features remain deferred. Human graphical acceptance remains pending.
+
+### Next action
+
+Claude pulls integrated main and resumes Rooms/art/playtesting via HANDOFF 0.54.1. Coordinate the
+next runtime hot-file owner and retain all required suites. Next structural review: 0.60.0.
+
+## 0.54.0 - 2026-11-21 - Preserve delivered physical parts and reconcile audit follow-ups
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work; no deployment id invented.
+- Based on: PR #66 head f61583c8be04be8150eb547ae6f71285e70dbc33 (0.53.0), stacked after #64 builds and #65 trust/reviews; main remains 0.50.0/c04a278.
+- Type: minor (new compatible physical-record and comeback-receipt contracts for the user-authorized bug correction; SAVE_FORMAT remains 1).
+
+### Execution status
+Codex ran Godot 4.7.2 stable ed1daf0bf locally, headless. The new Delivered parts suite passed 80 checks.
+The four-check reproduction on the unchanged 0.53.0 parent failed its two post-handover assertions
+(condition and uid loss), proving B53 before the correction. All 33 required suites passed (2,378 checks, zero failures), and the bench smoke playtest finished
+without script/parse errors. No graphical/native-feel acceptance is claimed.
+
+### Added / Changed / Fixed / Removed
+- Fix B53/L3: collection now transfers an individual record before consuming shop stock. UID, actual
+  health/defect and known evidence survive; owner changes once. Dead/degraded parts keep their
+  effective stats, boot symptoms and load faults after collection, inactive-PC reload and save/load.
+- `job.part_instances` is the migrated shop-to-customer path. Legacy originals are not assigned
+  invented identities or health; L1/L2 remain explicit. Temporary parts still use shop records as
+  authority; rules use permanent records after handover, not a stale shop_condition cache.
+- Removing/refitting or reordering identical RAM/drive models carries each physical record; later
+  replacement returns it to shop stock with the SAME UID/condition/defect, untested under D158. Parts
+  not replaced leave in the customer's bag with their records retained, never as free shop stock.
+- Immutable `pc_snapshot` comeback receipts retain the actual delivered PC, including loose bag
+  contents. Sanitization/reload and due report cards preserve them. Existing report-only comeback
+  routing, payment/reviews and social rules are not replaced by a new return-repair workflow.
+- Physical measurement fingerprints include uid/model/health/defect in stable order. Known labels or
+  ownership metadata alone do not invalidate measurements; empty legacy records keep old signatures.
+- Record sanitizers reuse PartCondition and the shared loose-entry adapter. Compatible optional fields
+  default empty; already-lost old condition cannot be reconstructed. No new inventory/clock/UI flow.
+- Split the former combined L4 into L4 salvage-clock integration and L5 drawer overflow, independently
+  open. Keep 41 historical bugs Fixed, not automatically Verified. Next scheduled review stays 0.60.0.
+- Current handoff coordinates this stacked patch and tells Claude to resume the latest Rooms/art/
+  playtest follow-up after cross-review/user-controlled integration, not old Wave 3 sessions.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| scripts/rules/part_instances.gd | A | Physical-record, shared loose-entry and immutable comeback-receipt adapters |
+| scripts/state/game_state.gd | M | Transfer records at collection, carry them during undo/refit, return stock UID, bag/receipt preservation |
+| scripts/rules/customer_pc.gd | M | Move migrated records alongside actual components, including same-model reordering |
+| scripts/rules/pc_build.gd | M | Permanent condition and defect effects after shop custody ends |
+| scripts/rules/part_states.gd | M | Boot observations retain the delivered source's actual condition |
+| scripts/rules/morning.gd | M | Preserve optional comeback receipts across load |
+| scripts/rules/work_report.gd | M | Stable physical identity/health fingerprints independent of knowledge/owner metadata |
+| tools/test_delivered_parts.gd | A | Full same-model delivery/comeback/removal/refit/return-to-stock journey and all six part types |
+| .github/workflows/tests.yml | M | Register Delivered parts, preserving every prior suite |
+| project.godot | M | Version 0.54.0 |
+| README.md | M | Correction scope, stack dependency and remaining limitations |
+| HANDOFF.md | M | Live assignment, code ownership, integration order and Claude resume prompt |
+| DEVELOPMENT.md | M | New file map and physical-record/receipt compatibility contract |
+| docs/BUGS.md | M | B53 verified reproduction/fix; targeted review; separate L4/L5; L1/L2 and historical evidence stay explicit |
+| docs/PART_LIFECYCLE.md | M | Migrated delivered-part path and exact remaining original/alias/orphan scope |
+| docs/WORK_PLAN.md | M | Current bounded ownership and resume coordination |
+| docs/TESTING.md | M | Required complete delivery-lifecycle scenarios |
+| docs/DECISIONS.md | M | D162: user-authorized audit follow-up, preserving existing gameplay truth |
+| docs/CURRENT_STATE.md | M | Current branch/implementation facts |
+| docs/DESIGN.md | M | Preservation scope and deferred boundaries |
+| docs/ROADMAP.md | M | Current follow-up and unchanged 0.60.0 structural checkpoint |
+| docs/PROJECT_BRIEF.md | M | Current correction scope |
+| CHANGELOG.md | M | This signed release record |
+
+### Checks performed
+- Godot 4.7.2: unchanged-parent reproduction, 4 checks, 2 expected failures after collection.
+- Godot 4.7.2: Delivered parts 80 checks, zero failures; previous Part lifecycle 38 and Testing bay 52 passed.
+- All 33 required Godot 4.7.2 suites: 2,378 checks, zero failures. Bench smoke: Playtest finished, no script/parse errors.
+- Project checker: 154 scripts, 806 resolved references, 223 mapped files, five core docs; zero problems. `git diff --check` passed.
+- Bug register checker: 0 problems. Register fixtures: 12 passed. CI-scope tests: 9 passed.
+
+### Decisions proposed (not approved)
+No new gameplay/balance proposal. Full legacy-original migration, orphan recovery, salvage clock costs
+and drawer UI still require their bounded follow-ups; this correction does not silently design them.
+
+### Known issues and open items
+L1 legacy originals and presentation aliases remain slot-derived; L2 orphan custody remains locked.
+Old saves which already lost a delivered part's condition cannot honestly recover it. Comebacks are
+still report-only; receipts are history, not automatically created repair tickets. No graphical test.
+
+### Next action
+Claude cross-reviews the #64 -> #65 -> #66 chain, then this patch; user controls merges. Preserve the
+Delivered parts and all previous suites. After integration, resume current Rooms/art/playtest work.
+Codex releases this bounded runtime reservation after delivery/cross-review. Continue L1 migration
+incrementally; handle L2 recovery safely; design L4 clock and L5 overflow separately. Review at 0.60.0.
+
+## 0.53.0 - 2026-11-21 - Rooms instead of menus
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.52.0 (PR #65, open; stacked on #64, open).
+- Type: minor (user-requested revamp, D161; supersedes the 0.42.0 menu-path rules).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 33
+suites passed (2,298 checks), including the new Rooms suite (53 checks, native clicks on the hotspots),
+after one test-ordering fix (B52). No graphical playtest yet; the rooms use placeholder drawings.
+
+### Added
+- **The counter** is the main screen: front door (outside), back door (workshop), the customer window,
+  the till, the ticket clipboard, your phone, the tool catalogue, the wall board, the bin (later) and the
+  shutter, which ends the night.
+- **The workshop**: the repair bench, hardware board and diagnostic monitor (with the PC on the bench),
+  the testing bay corner, the stock room door, the door back to the counter.
+- **Outside**: the shop door and your van to the salvage dump; a parts supplier spot for later.
+- **The morning at the counter**: the shutter goes up and every customer walks in, one at a time, with
+  what they have to say (collections, comebacks, new tickets). The slip counts how many came in; the rest of
+  the shop waits until they are served; then the counter sums up who is still waiting and any review-site
+  notice. No clock runs during the visits.
+- **Replaceable art**: each room is a picture (`art/rooms/<room>.png`) plus clickable spots you drag in the
+  Godot editor; placeholders until the picture exists; F3 shows every spot. Customer portraits go in
+  `art/customers/`. Guide: `docs/ROOM_ART_GUIDE.md`.
+
+### Changed
+- No Activities hub, no workbench tabs, no morning report screen. Close-ups have one exit named after
+  their room (← Workshop, ← Outside, ← Counter) plus Pause. Old links and preferences land at the counter.
+- New game and the Continue fallback open the counter.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/room_view.gd`, `hotspot.gd`, `room_art.gd`, `counter_room.gd`, `workshop_room.gd`, `outside_room.gd`, `legacy_redirect.gd` | A | The rooms |
+| `scenes/rooms/counter.tscn`, `workshop.tscn`, `outside.tscn` | A | Room scenes (Background + hotspots) |
+| `art/rooms/README.md`, `art/customers/README.md`, `docs/ROOM_ART_GUIDE.md` | A | Art folders and the artist's guide |
+| `scripts/night/morning_text.gd` | A | The morning's words (from the retired morning screen) |
+| `tools/test_rooms.gd` | A | Rooms suite |
+| `scripts/night/activities_view.gd` → `scripts/night/night_screen.gd` | R | Only the shared helpers remain |
+| `scripts/night/morning_view.gd` | D | Replaced by the counter's visits |
+| `scenes/activities.tscn`, `scenes/morning.tscn` | M | Redirect to the counter |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/night_session.gd` | M | Places, exits, resume paths, the visits flag |
+| `scripts/storage/storage_view.gd`, `scripts/night/salvage_view.gd`, `scripts/night/shop_activity_view.gd`, `scripts/night/testing_bay_view.gd`, `scripts/night/software_view.gd`, `scripts/view/start_view.gd` | M | Exits to their rooms; start at the counter |
+| `tools/test_menu_navigation.gd`, `test_morning.gd`, `test_night_workshop.gd`, `test_room_workshop.gd`, `test_start_screen.gd`, `test_storage.gd`, `test_testing_bay.gd`, `test_salvage_physics.gd`, `test_trust_and_reviews.gd`, `test_build_requests.gd`, `.github/workflows/tests.yml` | M | Walk through rooms instead of the hub and tabs; suite registered |
+| `docs/MENU_NAVIGATION.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/CURRENT_STATE.md`, `AGENTS.md`, `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | Room navigation rules, D161, plan, state, agent rule 8, file map, handoff, version 0.53.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): run 44842058308 on `ff07409` failed one check (Rooms: "the till shows the cash", B52, a test-ordering defect); run 44842432173 on `98a39db`: 33 suites, 2,298 checks, 0 failures (Rooms 53, Menu navigation 38, Morning report 28); bench smoke playtest finished.
+
+### Decisions proposed (not approved)
+- "The day is not timed" read as: the morning visits have no clock; the night clock stays.
+- While customers are at the counter, every other spot waits; the stock room opens off the workshop.
+- Close-ups keep their current look; only rooms take new art for now.
+
+### Known issues and open items
+- Placeholder drawings only; the user plans the art. Customer portraits are optional silhouettes for now.
+- Customers do not yet talk in dialogue: their visit is the old report text on a slip.
+
+### Next action
+The user playtests and plans art; Codex cross-reviews #64, #65 and this PR; merges stay with the user.
+
+## 0.52.0 - 2026-11-20 - Trust and reviews (session 3.8)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.51.0 (PR #64, open; this branch is stacked on it).
+- Type: minor (session 3.8, D160 user approved; replaces the planned elegance score).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 32
+suites passed (2,239 checks), including the new Trust and reviews suite (38 checks, real input on the
+phone), and the bench smoke playtest finished. No graphical playtest yet.
+
+### Added
+- **Reviews**: every pickup leaves a star review with a comment on the shop's FixFindr page. About a third
+  of customers knock a star off for a petty reason. Customers who find something out post a one-star review
+  (a two-star one for an honest mistake).
+- **Trustworthiness and the shop level**: good pickups earn trust points; the level (1–6) follows them.
+  Points are only lost when customers find out, or when bought reviews are caught. Upgrades come later.
+- **Finding out**: at collection the game notes what was hidden (toothpaste, second-hand parts handed
+  over as new, a build sold far above its worth, a working part of theirs kept); some customers find out
+  2–5 mornings later, more often those who open the case. The existing delayed faults count too.
+- **The phone** (Activities > Phone): the rating, every review, trustworthiness and the shop level, and
+  ReviewBoost: three five-star reviews for $45. The review site may catch them the next morning: it removes
+  them all, flags the page and the shop loses trust.
+- The morning report shows each review and the shop's standing, and says when the level changed.
+
+### Changed
+- Reviews are records instead of plain scores (old saves migrate); the rating averages review stars.
+- No elegance score (D160 supersedes that part of D140).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/reviews.gd` | A | Reviews, rating, trust points and levels, finding out, fake reviews |
+| `scripts/night/phone_panel.gd` | A | The phone app |
+| `tools/test_trust_and_reviews.gd` | A | Trust and reviews suite |
+| `scripts/state/game_state.gd` | M | Review records, trust points, fake orders; pickup reviews; deceptions found out; the site's check |
+| `scripts/rules/shop_rating.gd`, `scripts/rules/morning.gd` | M | One rating rule; found-out comebacks |
+| `scripts/night/night_session.gd`, `scripts/night/morning_view.gd`, `scripts/night/activities_view.gd` | M | The morning check and standing; reviews on cards; the phone button |
+| `tools/test_generated_tickets.gd`, `.github/workflows/tests.yml` | M | Saved reviews now migrate to records; suite registered |
+| `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `DEVELOPMENT.md`, `HANDOFF.md` | M | D160, design 7c (with the later interactive reviews), plan, contracts, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.52.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless), run 44788341331 on `a0f44d7`: 32 suites, 2,239 checks, 0 failures (Trust and reviews 38, Build requests 190, Generated tickets 65, Morning report 27); bench smoke playtest finished.
+
+### Decisions proposed (not approved)
+- Every number in D160's implementation proposals; the phone lives on the Activities screen only.
+- A disappointed pickup lowers the star rating but not trustworthiness (nothing was hidden).
+- Second-hand parts count as a deception whenever a non-new shop part is handed over (no disclosure option yet).
+
+### Known issues and open items
+- Shop level upgrades are not defined; the level changes nothing yet.
+- Interactive reviews (replying, paying for removal) are design only (7c).
+
+### Next action
+Codex cross-reviews; the user decides #64 then this PR. The Wave 3 plan is complete after this.
+
+## 0.51.0 - 2026-11-20 - Build requests (session 3.7)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.50.0 (main c04a278: PR #63 merged by the user; archived as archive/v0.50.0).
+- Type: minor (session 3.7, D159 user approved).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 31
+suites passed (2,201 checks), including the new Build requests suite (190 checks), and the bench smoke
+playtest finished. No graphical playtest yet (the playtest gate after 3.7 is the user's).
+
+### Added
+- **Build requests** (from night 4; night 5's first new customer always brings one): a use from the
+  approved table, up to two wishes (quiet, room to grow, a favourite CPU or GPU brand, extra storage) and
+  a budget. Half is paid when they arrive, the rest on collection; the profit is what the parts did not cost.
+- **The empty build**: the basic case of its size with the cheapest motherboard, both paid from the
+  deposit. Order parts and fit them at the hardware bench; each fit costs night minutes (CPU 5, RAM 3,
+  drive 4, PSU 8, GPU 5, cooler 10, motherboard 10, case 15). The cooler goes on with pre-applied paste.
+- **Cases**: five parody cases (basic tower and compact, a mesh tower that runs cooler, two
+  sound-dampened ones). Swap the case or the motherboard from the new **Case and motherboard** panel while
+  the case is empty (the old one is refunded; a case of the other size takes a board of its size).
+- **Pickup for builds**: each missed need costs 40 points, each missed wish 10, on top of the usual
+  temperature and fault rules (loose GPU screws and crashing untested parts still come back).
+- Every PC now lists its case; a repair PC sits in the default case of its size, which changes nothing.
+
+### Changed
+- A build opens at the hardware bench; the Repair tab is off for builds (nothing to clean or repaste).
+- The ticket of a build shows its needs, wishes, budget and what the parts in it cost so far.
+- Scam hooks (left open on purpose, D159): a collected build keeps its value at new prices next to the
+  budget and counts its parts by what the shop knew (new, untested, tested, salvaged). No consequence yet.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/build_request.gd` | A | Uses table, needs and wants, cheapest catalogue build, the empty build, assembly minutes, pickup review, ticket texts, delivery record |
+| `tools/test_build_requests.gd` | A | Build requests suite |
+| `scripts/data/hardware_catalog.gd` | M | Cases; cheapest board |
+| `scripts/data/games.gd` | M | Install size |
+| `scripts/rules/pc_build.gd` | M | `case` in the parts record, case model and heat, `is_build`, build part lines |
+| `scripts/rules/ticket_generator.gd` | M | `draw_build` |
+| `scripts/night/night_session.gd` | M | Build arrivals and their deposit |
+| `scripts/state/game_state.gd` | M | Build record on save/load, assembly minutes, case/board swaps, deposit, build pickup review, delivery record, the customer's new PC |
+| `scripts/rules/customer_pc.gd` | M | No phantom first GPU/cooler in a build; the case kept |
+| `scripts/night/hardware_view.gd` | M | Case and motherboard panel, build texts, assembly refusals |
+| `scripts/rules/ticket.gd`, `scripts/night/ticket_menu.gd`, `scripts/rules/part_states.gd`, `scripts/rules/findings.gd` | M | Build ticket and wording |
+| `scripts/night/night_diagnostics.gd` | M | Case airflow; no repair-only notes for builds |
+| `scripts/night/night_navigation.gd`, `scripts/night/navigation_state.gd`, `scripts/night/workshop_hub.gd`, `scripts/night/repair_view.gd` | M | Builds go to the hardware bench |
+| `tools/test_data_schemas.gd`, `.github/workflows/tests.yml` | M | Game schema key; suite registered |
+| `docs/DECISIONS.md`, `docs/REPAIR_LOOP_DESIGN.md`, `docs/WORK_PLAN.md`, `docs/PART_LIFECYCLE.md`, `DEVELOPMENT.md`, `HANDOFF.md` | M | D159, the approved uses table, plan, lifecycle stage, contracts, handoff |
+| `README.md`, `project.godot`, `CHANGELOG.md` | M | Version 0.51.0 |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless), run 44775665191 on `d4a6efe`: 31 suites, 2,201 checks, 0 failures (Build requests 190, Testing bay 52, Menu navigation 33, Morning report 27); bench smoke playtest finished.
+
+### Decisions proposed (not approved)
+- Every number in D159's implementation proposals (cases, minutes, wish rules, scoring, budgets, odds).
+- Builds skip the paste minigame (pre-applied paste); case swaps exist for builds only, not repairs.
+- Build customers are new people (not returning ones) and never the clueless profession, for now.
+
+### Known issues and open items
+- L3 applies to builds: a delivered degraded or dead part loses its condition at collection.
+- The scam hooks are recorded but have no consequence; elegance (3.8) does not read builds yet.
+- A build handed back unfinished pays nothing and the customer does not keep it as their PC record.
+
+### Next action
+Codex cross-reviews; the user playtests the 3.7 gate and decides the merge. Then 3.8 Elegance and
+reviews (0.52.0), talk first.
+
 ## 0.50.0 - 2026-11-20 - Testing bay (session 3.6) and the 0.50.0 structural review
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

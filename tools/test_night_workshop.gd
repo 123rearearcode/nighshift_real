@@ -133,7 +133,7 @@ func run_checks() -> void:
     current_scene._start_new_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and night.tickets.size() == 2,"New game enters activity hub with two playable tickets")
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and night.tickets.size() == 2,"New game opens the shop counter with two playable tickets")
     night.run_id = ""
     change_scene_to_file("res://scenes/storage.tscn")
     await process_frame
@@ -198,17 +198,21 @@ func run_checks() -> void:
     await process_frame
     await process_frame
     check(current_scene.scene_file_path == "res://scenes/night_hardware.tscn","workshop hardware bench route loads")
-    change_scene_to_file("res://scenes/activities.tscn")
+    change_scene_to_file("res://scenes/rooms/counter.tscn")
     await process_frame
     await process_frame
-    current_scene._go("res://scenes/night_salvage.tscn")
+    current_scene.act("go:outside")
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/night_salvage.tscn","activity hub opens salvage dump")
+    check(current_scene.scene_file_path == "res://scenes/rooms/outside.tscn","the counter's front door leads outside")
+    current_scene.act("go:salvage")
+    await process_frame
+    await process_frame
+    check(current_scene.scene_file_path == "res://scenes/night_salvage.tscn","the van drives to the salvage dump")
     current_scene._back()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn","salvage returns to activities instead of initial menu")
+    check(current_scene.scene_file_path == "res://scenes/rooms/outside.tscn","salvage returns to the street outside the shop")
     current_scene.free()
     _remove_save_files(manifest)
     restore_save(gs)

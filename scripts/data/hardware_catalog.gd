@@ -72,6 +72,54 @@ const BOARDS: Dictionary = {
 const DEFAULT_BOARD: Dictionary = {"tower": "board_atx_b350", "compact": "board_matx_h310"}
 
 
+# 0.51.0 (session 3.7, D159; user, 20 November 2026: "cases are also something swappable"). Kept apart
+# from PARTS like the boards: a case is not a drawer piece. "form" decides the layout (tower = ATX boards,
+# compact = mATX boards). "heat" = degrees the case adds to the CPU temperature (negative = better airflow).
+# "quiet" = sound-dampened panels: one loud fan inside does not make the PC loud (build_request.gd).
+# The two DEFAULT cases have no effect, so every repair PC behaves exactly as before. Trial numbers.
+const CASE := "case"
+const CASES: Dictionary = {
+    "case_tower_basic": {"brand": "Kooler Mastr", "model": "MasterBox Q300", "form": "tower", "price": 30, "heat": 0, "quiet": false},
+    "case_tower_mesh": {"brand": "Fractl", "model": "Meshify Torrent", "form": "tower", "price": 75, "heat": -6, "quiet": false},
+    "case_tower_silent": {"brand": "be quiat!", "model": "Silent Base 620", "form": "tower", "price": 90, "heat": 2, "quiet": true},
+    "case_compact_basic": {"brand": "Thermaltek", "model": "Versa H17", "form": "compact", "price": 25, "heat": 0, "quiet": false},
+    "case_compact_quiet": {"brand": "Fractl", "model": "Define Mini", "form": "compact", "price": 60, "heat": 3, "quiet": true},
+}
+const DEFAULT_CASE: Dictionary = {"tower": "case_tower_basic", "compact": "case_compact_basic"}
+
+
+static func case_model(id: String) -> Dictionary:
+    var c: Variant = CASES.get(id, null)
+    if not c is Dictionary: return {}
+    var out: Dictionary = (c as Dictionary).duplicate()
+    out["id"] = id
+    out["type"] = CASE
+    out["name"] = "%s %s" % [out["brand"], out["model"]]
+    return out
+
+
+static func is_case(id: String) -> bool:
+    return CASES.has(id)
+
+
+static func case_text(id: String) -> String:
+    var c: Dictionary = case_model(id)
+    if c.is_empty(): return ""
+    var bits: Array = [str(c["form"])]
+    if int(c["heat"]) < 0: bits.append("airflow %d°C" % int(c["heat"]))
+    elif int(c["heat"]) > 0: bits.append("+%d°C" % int(c["heat"]))
+    if bool(c["quiet"]): bits.append("sound-dampened")
+    return " · ".join(bits)
+
+
+# The cheapest board of a form (the one a new build starts with).
+static func cheapest_board(form: String) -> String:
+    var best: String = ""
+    for id: String in boards_for(form):
+        if best == "" or int(BOARDS[id]["price"]) < int(BOARDS[best]["price"]): best = id
+    return best
+
+
 static func board(id: String) -> Dictionary:
     var b: Variant = BOARDS.get(id, null)
     if not b is Dictionary: return {}

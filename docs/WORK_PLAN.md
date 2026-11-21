@@ -1,5 +1,25 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current integration — 0.54.1, 21 November 2026
+
+User-authorized merges #64–#67 are complete. PR #19 is being resolved as historical proposal archival,
+not a new implementation assignment. Current main/runtime contracts supersede its old baseline and
+phase ownership. Codex's bounded delivery patch and this documentation integration are complete;
+no runtime hot file remains reserved by this task. Claude resumes Rooms/art/playtesting from the
+current main after reading HANDOFF's 0.54.1 resume prompt. Coordinate ownership for the next edit;
+retain the standing split, all lifecycle tests, deferred features and the 0.60.0 structural review.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Current bounded audit follow-up — 0.54.0, 21 November 2026
+
+The user assigned Codex the delivery-condition/identity correction and ledger split. Codex owns the
+affected GameState/CustomerPC/PcBuild/receipt files for this patch, stacked on #66 head f61583c rather
+than a competing main-based rewrite. Cross-review/integrate #64 -> #65 -> #66 -> this follow-up under
+the user's merge direction, preserving every suite including Delivered parts. Claude then resumes
+the current Rooms/art/playtest work. The full legacy-original identity migration and orphan recovery
+remain L1/L2; clock integration L4 and drawer visibility L5 are separate future tasks. No new clock or
+UI flow is invented. HANDOFF's current section supersedes older ownership and resume claims below.
+
 Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5); approved by the user the same day
 ("go ahead"). Combines Claude's code health review and Codex's improvement list. Each step is one version,
 one pull request, all checks green before merging. A step that should not change behaviour must leave
@@ -144,9 +164,10 @@ Sessions marked "talk first" need a short design conversation with the user befo
 | 3.5 Generated tickets | 0.48.0 | morning arrivals from rating and reputation; generated and returning customers; problems by night; each case proven solvable (buying a test part counts) and repairable | answered (D153) | merged in #59, including #60's safeguards; earlier cross-review notes remain in D154 |
 | 0.48.1 user requests | 0.48.1 | motherboard as a PC part (remove everything first), GPU bracket screws (B49), vacuum and paste kept across screens (D155) | answered (D155) | built by Claude in open #61; predecessor of the detour |
 | Anti-virus detour | 0.49.0 | approved standard Task Manajer in the monitor; native uppercase SEND/Enter, fixed rows, calm pacing | answered through in-chat demos (D157) | implemented by Codex; cross-review/user-controlled integration after #61 |
-| 3.6 Testing bay | 0.50.0 | untested parts from salvage and customers; physical inspection and rig tests; degraded parts; the player's mark; scrap; required 0.50.0 structural review | answered (D158) | built by Claude; awaiting Codex cross-review and the user's merge |
-| 3.7 Build requests | 0.51.0 | budget, uses (needs) and wants (incl. quiet); assemble at the hardware bench; half up front, half on collection | yes: uses table numbers | after 3.6 |
-| 3.8 Elegance and reviews | 0.52.0 | elegance score feeding shop level and online reviews | yes: what elegant means, shop level | after 3.7 |
+| 3.6 Testing bay | 0.50.0 | untested parts from salvage and customers; physical inspection and rig tests; degraded parts; the player's mark; scrap; required 0.50.0 structural review | answered (D158) | merged by the user in #63 (played: "all looks good so far") |
+| 3.7 Build requests | 0.51.0 | budget, uses (needs) and wants (quiet, headroom, brand, storage); swappable cases; assemble at the hardware bench on the night clock; half up front, half on collection; from nights 4–5 | answered (D159) | built by Claude; awaiting Codex cross-review, the user's playtest (gate after 3.7) and merge |
+| 3.8 Trust and reviews (was Elegance) | 0.52.0 | no elegance (D160); trustworthiness and the shop level (up with good work, down only when customers find out); star reviews with comments, some petty; the phone app with fake reviews | answered (D160) | built by Claude, stacked on #64; awaiting Codex cross-review and the user's merge |
+| Rooms revamp (user request after Wave 3) | 0.53.0 | no menus: the counter is the main screen, doors to the workshop and outside, stations and close-ups, the morning's customers at the counter; art + replaceable hotspots | answered (D161) | built by Claude, stacked on #65; awaiting the user's playtest and merge |
 
 Playtest gates proposed: after 3.2, 3.4 and 3.7. Later, not in Wave 3: personas and lore, the upsell, the
 wrong self-diagnosis, upgrades.

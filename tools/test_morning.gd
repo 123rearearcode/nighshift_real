@@ -1,6 +1,7 @@
 # Wave 3 session 3.2 (D136): ending the night, collection by called customers, hidden faults now or
 # later, waiting PCs, new tickets, the report screen and the 06:00 limit.
 extends "res://tools/test_support.gd"
+const MorningText = preload("res://scripts/night/morning_text.gd")
 const Morning = preload("res://scripts/rules/morning.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
@@ -75,28 +76,29 @@ func run_checks() -> void:
     check(back.size() == 1 and back[0]["customer_id"] == first_customer and (back[0]["misses"] as Array).has(gpu_text) and back[0]["trust_change"] < 0, "the hidden fault comes back two mornings later and costs trust")
     check(gs.comebacks.is_empty() and of_kind(report, "waiting")[0]["nights"] == 2 and gs.night_number == 4, "the comeback is used up; waiting nights add up")
 
-    # The report screen.
-    change_scene_to_file("res://scenes/morning.tscn")
+    # 0.53.0 (D161): the morning's customers walk in at the counter, one at a time.
+    var walked_in: Array = (report["cards"] as Array).filter(func(c: Dictionary) -> bool: return str(c["kind"]) in ["collected", "comeback", "new"])
+    night.visits_pending = true
+    change_scene_to_file("res://scenes/rooms/counter.tscn")
     await process_frame
     await process_frame
-    var view: Node = current_scene
-    check(view.cards.size() == (report["cards"] as Array).size() and view.next_button.text.contains("night 4"), "one card per report entry, and a button for the next night")
-    view.cards[0].mouse_entered.emit()
-    check(view.detail.text.contains("Parts:") or view.detail.text.contains("CAME BACK"), "hovering a card shows the PC's state")
-    view.next_button.pressed.emit()
+    var counter: Node = current_scene
+    check(counter.visiting() and counter.arrived == walked_in.size() and counter.slip.visible and counter.slip_title.text.contains("%d customer" % walked_in.size()), "the shutter goes up and the board counts who came in")
+    check(counter.slip_text.text == MorningText.card_text(walked_in[0]) and counter.hotspot("BackDoor").disabled, "the first customer speaks across the counter; the shop waits until they are served")
+    for i in range(walked_in.size()): counter.next_button.pressed.emit()
     await process_frame
-    await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn", "the next night starts at Activities")
+    check(not counter.visiting() and not night.visits_pending and not counter.slip.visible and not counter.hotspot("BackDoor").disabled, "after the last customer the counter opens for the night")
+    check(counter.message.text.contains("came in this morning"), "the counter sums up the morning")
 
-    # 06:00: only ending the night is left.
+    # 06:00: only closing the shutter is left.
     gs.night_minutes = 480
-    change_scene_to_file("res://scenes/activities.tscn")
+    change_scene_to_file("res://scenes/rooms/counter.tscn")
     await process_frame
     await process_frame
     var acts: Node = current_scene
-    check(acts.activity_buttons.all(func(b: Button) -> bool: return b.disabled) and acts.end_button.text.contains("06:00") and not acts.end_button.disabled, "at 06:00 only ending the night remains")
+    check(acts.hotspot("BackDoor").disabled and acts.hotspot("FrontDoor").disabled and acts.hotspot("Catalogue").disabled and not acts.hotspot("Shutter").disabled and acts.hotspot("Shutter").badge.contains("06:00"), "at 06:00 only closing the shutter remains")
     acts._ask_end_night()
-    check(acts.end_dialog.dialog_text.contains("Nobody was called"), "the end-of-night question says who collects")
+    check(acts.end_dialog.dialog_text.contains("Nobody was called"), "the shutter's question says who collects")
     acts.end_dialog.hide()
     gs.set_pc_powered(true)
     change_scene_to_file("res://scenes/software.tscn")
@@ -107,13 +109,14 @@ func run_checks() -> void:
     var minutes: int = gs.night_minutes
     monitor._game()
     check(monitor.output.text.contains("06:00") and gs.night_minutes == minutes, "the monitor refuses timed tests after 06:00")
-    change_scene_to_file("res://scenes/activities.tscn")
+    change_scene_to_file("res://scenes/rooms/counter.tscn")
     await process_frame
     await process_frame
     current_scene._end_night()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/morning.tscn" and gs.night_minutes == 0 and gs.night_number == 5, "ending the night from Activities opens the morning")
+    var visitors: bool = not (night.last_report["cards"] as Array).filter(func(c: Dictionary) -> bool: return str(c["kind"]) in ["collected", "comeback", "new"]).is_empty()
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and gs.night_minutes == 0 and gs.night_number == 5 and current_scene.visiting() == visitors, "closing the shutter brings the morning's customers to the counter")
     _remove_save_files(manifest)
     restore_save(gs)
     finish("Morning report")

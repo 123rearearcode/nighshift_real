@@ -1,11 +1,192 @@
 # Handoff — current state first
 
-**Code checker (user decision, 21 November 2026):** reviews now belong to a scheduled Claude session —
-change review every 6 hours, the every-10-versions structural bug review, and a performance review every
-2 days. Do not run those yourselves; answer its PR comments and its "Code checker log" issue. It never
-edits game code or merges. Read `docs/CODE_CHECKER.md`. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+## Current — 0.54.2 dedicated Code checker integration, 21 November 2026
 
-## Current — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
+PRs #19 and #64–#67 are merged (main 0.54.1 / 7861de7). PR #68 appeared during that integration;
+this patch resolves its handoff conflict, retains all current game code and assigns version 0.54.2.
+The two older PC-model proposals remain historical; the 0.54.0 delivered-part contracts remain current.
+
+**Code checker (user decision recorded by Claude, 21 November 2026):** reviews belong to a separate
+scheduled Claude session — change review every six hours, structural review when the BUGS marker is
+reached (next 0.60.0), and performance review every two days. Read docs/CODE_CHECKER.md for the full
+contract. It reports and opens small docs PRs; it never edits runtime/tests/tools/CI or merges. Other
+AIs still test their changes and file bugs found in their own work, but do not take over those scheduled
+reviews. This integration records the role only; it does not create, inspect or verify external schedules.
+
+### Copyable Claude resume prompt
+
+> Pull main and read HANDOFF's 0.54.2 section and docs/CODE_CHECKER.md first. All previously open
+> release PRs and the historical #19 archive are integrated; #68 adds the separate checker role.
+> Resume Rooms/art/playtesting from the current room navigation, not old Wave 3 steps. Preserve
+> delivered UID/condition/defect/knowledge, bags, comeback receipts and every required suite. L1/L2
+> remain open, L4 clock and L5 overflow are separate. No runtime hot file is reserved by this
+> integration; coordinate the next owner. Manual/boss malware/interactive reviews/shop upgrades
+> stay deferred. The dedicated checker owns scheduled structural/performance reviews; authors
+> still verify their work and file bugs. Next structural marker remains 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/version integration only; no new Godot run. See CHANGELOG 0.54.2.
+
+
+## Previous — 0.54.1 integration and historical proposal archive, 21 November 2026
+
+The user authorized merging everything. PRs #64 (builds), #65 (trust/reviews), #66 (Rooms) and
+#67 (delivered physical records) are now merged in order. Their integrated main baseline is
+0.54.0 / d8ecf6a. This final documentation patch resolves PR #19 against that baseline, retaining
+its two 0.19.3-era proposals as prominently labelled historical reference. Current runtime, save
+contracts, tests and all five core design documents are retained; only config/version changes.
+Merging #19 does not authorize implementing its remaining proposed rules. Current DECISIONS,
+PART_LIFECYCLE and DEVELOPMENT supersede its illustrative fields and old work assignments.
+Older sections below preserve history; their open-PR/integration instructions are superseded.
+
+### Claude's next action
+
+1. Pull current main and read this section, the 0.54.0 lifecycle stage and newest changelog first.
+   Start new work from integrated main, not the old stacked feature branches or PR #19 baseline.
+2. Resume the latest Rooms/art/playtest follow-up from 0.53.0: replaceable room art, actual player
+   feedback and the pending day-timing clarification. Wave 3 through 3.8 is already built; do not
+   restart the testing bay, build requests or trust/reviews, and do not reintroduce the old menus.
+3. Preserve the Delivered parts suite and all earlier tests. Cross-review the delivered-part path
+   when extending it. L1 legacy originals/bench aliases and L2 orphan recovery remain open; L4
+   salvage-clock integration and L5 drawer overflow are separate tasks. Do not unlock orphan stock.
+4. The bounded Codex runtime patch is complete; no hot file is reserved by this merge-only task.
+   Coordinate the next runtime owner before editing GameState/bench hot files. The standing split
+   remains Codex design/gameplay and Claude engineering/code health. This patch requires no runtime
+   compatibility patch; audit any newly assigned work against current contracts before implementing.
+5. Manual, boss malware, interactive reviews and shop upgrades remain deferred. Next scheduled
+   structural review is 0.60.0. Green headless tests are not graphical acceptance.
+
+### Copyable Claude resume prompt
+
+> Pull main and read HANDOFF's 0.54.1 section before continuing. The user authorized all merges:
+> #64/#65/#66/#67 are integrated; #19 is preserved only as historical 0.19.3 design reference.
+> Resume current Rooms/art/playtesting from the shipped 0.53.0 navigation, not old Wave 3 steps.
+> Preserve 0.54.0's delivered UID/condition/defect/knowledge, bag and comeback receipt contracts
+> and every required suite. L1/L2 remain open, L4 clock and L5 overflow are separate. Coordinate
+> hot-file ownership for the next task; keep deferred features deferred and the 0.60.0 review.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/version integration only; evidence in CHANGELOG 0.54.1.
+
+## Previous — 0.54.0 delivered physical records and audit follow-up (Codex), 21 November 2026
+
+User assignment: implement the recommendations from the bug-register review: preserve delivered
+condition through collection/comeback/reload, continue stable identity incrementally, split the two
+unrelated L4 issues. The scheduled 0.50.0 review WAS done by Claude on 20 November; this is its targeted
+follow-up, not a claim that it was missed. New regression B53 reproduces loss on the unchanged parent.
+
+### Integration and ownership
+
+- Verified main: 0.50.0 / c04a278. Open chain: #64 builds (0.51.0) -> #65 trust/reviews (0.52.0) ->
+  #66 Rooms (0.53.0). This branch `fix/delivered-part-records-0540` starts from #66 head f61583c,
+  preserving all their changes. Review/integration order is that chain, then this follow-up. Retarget
+  each dependent PR to updated main when its predecessor merges; do not merge/force-push predecessors.
+- The user's current instruction assigns Codex the bounded GameState/CustomerPC/PcBuild/receipt
+  correction and its tests. This supersedes the stale #59 ownership notes for this task only.
+  Do not race a second lifecycle or GameState patch; cross-review this result first.
+- Version 0.54.0 is used because physical saved-record contracts are added compatibly. SAVE_FORMAT
+  stays 1. Existing original parts are not assigned invented historical identities or hidden health.
+
+### What changed
+
+`job.part_instances` retains the original physical stock uid, model, customer owner, actual condition,
+defect and player knowledge when custody ends. Existing `parts` remains the model/placement projection;
+temporary fits still derive condition from shop stock. Actual effects persist after collection,
+including dead RAM/CPU/PSU and degraded GPU/cooler/storage. Matching same-model parts never exchanges
+their health. Measurement fingerprints include physical uid/health, not ownership or knowledge edits.
+
+Removal/refitting/reordering carries each migrated record inside the relevant loose entry. A later
+replacement returns that original to stock with its SAME uid/defect, marked untested under D158. An
+unreplaced removed part leaves in the customer's bag; its record remains in the PC/receipt, not free
+stock. Repeat settlement neither consumes more parts nor heals them. Optional immutable `pc_snapshot`
+receipts survive pending-comeback save/load and due report cards. These are historical receipts; the
+existing comeback flow is report-only, not a newly implemented automatic return-repair ticket.
+
+B53 is fixed with target-engine regression evidence. L3 now points to that fix for future handovers;
+already-lost old condition cannot be recovered honestly. L1 remains Investigating for legacy customer
+originals, stable bench aliases and the full migration/rollback path. L2 remains Investigating: no
+orphan mark was cleared or unlocked. L4 now means salvage/night-clock integration ONLY; L5 separately
+tracks drawer-overflow visibility. Both remain open. B1–B41 are still Fixed, not automatically Verified.
+
+### Claude's next action
+
+1. Check live branches and read this section, PART_LIFECYCLE's 0.54.0 stage and the new changelog.
+2. Cross-review the #64 -> #65 -> #66 chain and this final patch under user-controlled integration.
+   Pay attention to same-model RAM reordering, undoing service replacements, a delivered part returned
+   to stock, bag contents, inactive-PC load and immutable comeback receipts. Keep all prior suites and
+   the new Delivered parts suite; do not weaken the old Part lifecycle journey.
+3. After the user integrates, resume the CURRENT Rooms/art/playtest follow-up in the 0.53.0 section
+   below. Wave 3 through 3.8 is already built on this chain: do not restart the testing bay or builds.
+   The manual, boss malware, interactive reviews and shop upgrades remain deferred as before.
+4. Continue L1 by migrating legacy originals behind adapters, retaining one authoritative identity/
+   condition record and proving rollback/duplicate/orphan scenarios. This patch is one migrated path,
+   not the full registry. Keep L2 locked until a safe recovery policy exists. Design L4 clock charging
+   separately from L5 UI overflow. Neither receives invented gameplay rules in this task.
+5. Next scheduled structural review stays at 0.60.0. Historical review entries are provenance; green
+   CI is not graphical acceptance or proof that the 41 historical fixes were individually reverified.
+
+### Copyable Claude resume prompt
+
+> Read HANDOFF's 0.54.0 section before continuing. The user asked Codex to implement the audit
+> recommendations. This stacked follow-up fixes B53/L3: physical stock uid/condition/defect/knowledge
+> survive delivery, removal/refit, return to stock, bag contents and comeback receipts. It preserves
+> your #64/#65/#66 chain; integrate in that order under the user's merge instructions. Cross-review
+> the new Delivered parts suite alongside all existing lifecycle/native tests. Then resume Rooms/art/
+> playtesting, not old Wave 3 steps. L1 legacy originals/bench aliases and L2 orphan recovery remain
+> open; L4 clock and L5 drawer overflow are separate. Keep the manual deferred and the 0.60.0 review.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution evidence: CHANGELOG 0.54.0. Native Godot checks are not a graphical/user acceptance claim.
+
+## Previous — 0.53.0 Rooms instead of menus (Claude), 21 November 2026
+
+Read first: done. #64 (0.51.0) and #65 (0.52.0) are open; this branch `feat/rooms-0530` is stacked on
+#65 (merge #64, then #65, then this; retarget each to main as the one below merges). The user asked for a
+major revamp: no menus, the shop counter as the main screen, doors and objects to move around (D161,
+MENU_NAVIGATION.md rewritten). Built all at once as asked: `scripts/rooms/` (room_view, hotspot, room_art,
+counter/workshop/outside rooms), three room scenes with placeholder drawing and replaceable art
+(`docs/ROOM_ART_GUIDE.md`), close-ups with one named exit, the morning's customers at the counter.
+Open for the user: confirm "the day is not timed" (read as no clock on the morning visits; night clock
+kept); art; customer dialogue beyond the report text. Not started: shop level upgrades, interactive
+reviews, scam consequences at the counter (the till, the bin), L1/L2, the manual.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.52.0 session 3.8 Trust and reviews (Claude), 20 November 2026
+
+Read first: done. 0.51.0 (#64, build requests) is open and unmerged; this branch
+`feat/trust-reviews-0520` is stacked on it (review/merge #64 first, then retarget this PR to main).
+3.8 talk-first was held; the user's answers are D160: no elegance mechanic; a trustworthiness level
+feeding the shop level (up with good work, down only when customers find out; honest mistakes and scams
+both hurt; upgrades later); every pickup leaves a review and some customers are petty ("a reason to feel
+justified in scamming"); star reviews with comments on the player's phone, with a button to buy fake
+reviews. Later (design doc 7c): more interactive reviews (replying, paying for a review to be removed).
+
+For Codex's cross-review: review records replaced the plain score list (old saves migrate; one 0.48.0
+assertion updated to the new shape); `Reviews.rating` is the single rating rule; the deceptions found out
+at collection (`_hidden_deceptions`) and their `found:` comebacks; the review site's morning check; the
+numbers in D160. Not started: shop level upgrades, interactive reviews, L1/L2, the manual.
+Wave 3's plan ends here; what comes next is the user's call. Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.51.0 session 3.7 Build requests (Claude), 20 November 2026
+
+Read first: done. The user merged #63 (0.50.0, main `c04a278`, archived `archive/v0.50.0`) after
+playing it ("all looks good for me so far"). 3.7 talk-first was held; the user's answers are D159
+(rescaled uses table, wants quiet/headroom/brand/storage, swappable cases, budget = price with half up
+front, assembly costs night time, builds from nights 4–5, scam hooks open). Branch
+`feat/build-requests-0510` builds it (details: CHANGELOG 0.51.0, D159 proposals, DEVELOPMENT "Build
+request contracts", PART_LIFECYCLE "Stage reached in 0.51.0").
+
+For Codex's cross-review: a build reuses the PC shape with an empty first GPU/cooler held in
+`removed_parts` (placeholder ids never shown: `CustomerPC.first_parts`); the repair bench is bypassed
+for builds (pre-applied paste); `case` joined the parts record ("" = default case, zero effect);
+the cheapest-build search used for solvability and budgets; the numbers in D159. Open for the user:
+whether builds should include the paste minigame; case swaps for repair customers (upsell); returning
+and clueless build customers. Not started: elegance (3.8), scam consequences, L1/L2, the manual.
+Next in the plan: 3.8 Elegance and reviews (0.52.0), talk first. Merge stays user-controlled.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Claude Code cloud session.
+
+## Previous — 0.50.0 session 3.6 Testing bay + structural review (Claude), 20 November 2026
 
 Read first, per Codex's 0.49.0 resume order (below): done. Claude cross-reviewed PR #62 (approve, three
 non-blocking notes in the PR comment); the user then asked Claude to merge #61 and #62: main is 0.49.0

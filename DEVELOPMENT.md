@@ -90,6 +90,10 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
+| `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
+| `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |
+| `tools/test_delivered_parts.gd` | tooling | Same-model identity/health, collection, comeback receipts, undo/refit, return to stock, all six kinds and reload |
 | `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoloads `GameState` and `AudioFeedback` |
 | `.gitignore` | config | Ignores `.godot/` cache and export files |
 | `README.md` | docs | How to import and run; what each screen does |
@@ -204,11 +208,13 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
 | `tools/test_generated_tickets.gd` | tooling | Rating/reputation/arrivals, deterministic generation, difficulty by night, solvable and repairable cases, buying counts, generated customers saved and loaded, mornings with generated tickets (0.48.0) |
 | `tools/test_board_and_bench_state.gd` | tooling | Motherboard as a part and its remove-everything-first journey on the real bench, GPU bracket screw placement, vacuum contents across reloads, paste after closing mid-press (0.48.1) |
+| `tools/test_trust_and_reviews.gd` | tooling | Star reviews with comments and pettiness, the rating, trust points and levels, finding out (scams and honest mistakes), fake reviews and the site's check, save/load, the phone (real input), the morning standing (0.52.0) |
+| `tools/test_build_requests.gd` | tooling | Cases, the uses table, wants and budgets, cheapest-build solvability for every use, the empty build, assembly minutes and 06:00, case/board swaps, save/load, collection pay and scoring, scam-hook records, morning arrivals from night 5, the bench with a build (0.51.0) |
 | `tools/test_testing_bay.gd` | tooling | Condition vs knowledge, salvage and customer parts into stock, inspection/tests/clock/mark/scrap, untested test parts behaving as they really are, reload rebuild, the bay screen (0.50.0) |
 | `docs/HARDWARE_CATALOG.md` | docs | The part list and stat rules for review (D148) |
 | `scripts/rules/morning.gd` | rules | The morning: hidden faults felt now vs later, pay, reactions, comeback countdown (D136) |
-| `scripts/night/morning_view.gd` | view | Morning report: one card per PC, hover for the PC's state, start the next night (D136) |
-| `scenes/morning.tscn` | scene | Morning report scene |
+| `scripts/night/morning_text.gd` | view helper | The morning's words: card text and PC detail text, shown by customers at the counter (D136; 0.53.0) |
+| `scenes/morning.tscn` | scene | Retired morning report: redirects to the counter (0.53.0) |
 | `tools/test_morning.gd` | tooling | Ending the night, collection, comebacks, waiting PCs, new tickets, report screen, 06:00 limit (D136) |
 | `scripts/rules/ticket.gd` | rules | A ticket as one derived record (request, customer, machine, symptoms, requirements, terms, status) and its pickup flags: ready sticker, called (D134/D135) |
 | `scripts/night/ticket_menu.gd` | view | The pickup menu and ticket window shared by the room (right-click a PC) and the workbench header ticket (D134) |
@@ -221,6 +227,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rules/ticket_generator.gd` | rules | Generated tickets (session 3.5, D153/D154): new or returning customer, their PC, problems by night, complaint, pay; offered only when solvable, within the night's difficulty and repairable to a happy pickup |
 | `scripts/rules/shop_rating.gd` | rules | Online rating (stars from the latest pickup scores), reputation (average trust) and how many new customers arrive each morning (0.48.0) |
 | `scripts/rules/part_condition.gd` | rules | What the shop KNOWS about its parts (label, notes, tests done) apart from their hidden condition; inspection spots and tells; quick/long rig test results; scrap values; the delayed 'crashing part' fault (0.50.0, D158) |
+| `scripts/rules/reviews.gd` | rules | Reviews (D160): pickup and found-out reviews with comments, the star rating, trust points and the shop level, hidden deceptions customers find out, fake reviews and the review site's check (0.52.0) |
+| `scripts/night/phone_panel.gd` | view | The phone (Activities > Phone): FixFindr reviews, trustworthiness and shop level, the ReviewBoost button (0.52.0) |
+| `scripts/rules/build_request.gd` | rules | Build requests (D159): uses table, needs and wants, cheapest catalogue build (solvability and budget), the empty build job, assembly minutes, pickup review, ticket texts, scam-hook delivery record (0.51.0) |
 | `scripts/rules/salvage_stock.gd` | rules | A salvage find becomes one untested stock part (older model, hidden real condition) or scrap (0.50.0) |
 | `scripts/night/testing_bay_view.gd` | view | Activities > Testing bay: stock list, part drawing with inspection spots, quick/long rig tests, the player's mark, scrap; shows known state only (0.50.0) |
 | `scenes/night_bay.tscn` | scene | Testing bay scene (0.50.0) |
@@ -278,12 +287,26 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `scripts/night/night_session.gd` | state bridge | Inactive job manifest, active GameState.job, PC identity, safe switching/recovery |
 | `scripts/night/night_diagnostics.gd` | rules | Pure non-completing temperature/boot/parts/fps report |
 | `scripts/night/paste_snapshot.gd` | sim adapter | Exact float32 paste-field JSON persistence and validation |
-| `scripts/night/activities_view.gd` | view | Workshop/salvage/storage selection and future activity space |
+| `scripts/night/night_screen.gd` | view helper | Shared label/button/navigate helpers for the testing bay, the tool shop and the monitor (was the Activities hub until 0.52.0) |
+| `scripts/rooms/room_view.gd` | view | A room: art + hotspots; placeholders without art; F3 outlines; dawn closing; go/open/later actions (0.53.0, D161) |
+| `scripts/rooms/hotspot.gd` | view | A clickable spot the artist drags over the art (action, label, art hint; @tool so it shows in the editor) |
+| `scripts/rooms/room_art.gd` | view helper | Finds room pictures (art/rooms/) and customer portraits (art/customers/) |
+| `scripts/rooms/counter_room.gd` | view | The counter, the main screen: doors, till, ticket clipboard, phone, catalogue, shutter (end night), the morning's customers one by one |
+| `scripts/rooms/workshop_room.gd` | view | The workshop: repair bench, hardware board, monitor, testing bay, stock room door |
+| `scripts/rooms/outside_room.gd` | view | Outside: the shop door, the van (salvage), later spots |
+| `scripts/rooms/legacy_redirect.gd` | view | Retired screens (Activities hub, morning report) continue at the counter |
+| `scenes/rooms/counter.tscn` | scene | The counter: Background + hotspots (edit in the Godot editor; docs/ROOM_ART_GUIDE.md) |
+| `scenes/rooms/workshop.tscn` | scene | The workshop: Background + hotspots |
+| `scenes/rooms/outside.tscn` | scene | Outside: Background + hotspots |
+| `art/rooms/README.md` | art | Where room pictures go (counter.png, workshop.png, outside.png) |
+| `art/customers/README.md` | art | Where customer portraits go (by person id or profession) |
+| `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
+| `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |
 | `scripts/night/workshop_hub.gd` | view | PC picker, collection request and diagnosis report |
 | `scripts/night/repair_view.gd` | view adapter | Existing bench with workshop return and lever-driven paste commit |
 | `scripts/night/hardware_view.gd` | view adapter | Existing shop-stock sandbox, return to workshop |
 | `scripts/night/salvage_view.gd` | view adapter | Existing dump physics, return to Activities |
-| `scenes/activities.tscn` | scene | New/load-game destination |
+| `scenes/activities.tscn` | scene | Retired Activities hub: redirects to the counter (0.53.0) |
 | `scenes/night_workshop.tscn` | scene | PC selection and diagnostics |
 | `scenes/night_bench.tscn` | scene | Night repair route |
 | `scenes/night_hardware.tscn` | scene | Night stock sandbox route |
@@ -826,3 +849,55 @@ GPU/cooler is also mirrored into `broken_parts` so the existing symptoms and ret
 actions (`inspect_part`, `test_part`, `label_part`, `scrap_part`) spend night minutes through
 `advance_night` after a `NightClock.fits` check; `receive_salvage` takes `[{uid, kind, condition}]`.
 Recorded by Claude (Opus 5.5).
+
+## Build request contracts — 0.51.0
+
+A build is a job whose `ticket.request == "build"` (`PcBuild.is_build`) with a sanitized `job.build`
+record (`BuildRequest.sanitize`: use, needs {processing, graphics, ram_gb, storage_gb, game}, wants,
+budget, deposit, and after collection `delivered`). The empty build keeps the existing PC shape: empty
+CPU/RAM/drive/PSU, the first GPU and cooler listed in `removed_parts` with placeholder ids in `parts`
+that are never shown or counted (`CustomerPC.first_parts` skips them; `part_lines` says "none fitted
+yet"); every part in it is shop stock fitted through `fit_catalog_stock` / `fit_inventory_part` and
+settled by `settle_custody` like any test part. Builds charge `BuildRequest.MINUTES` per fit (after a
+`NightClock.fits` check; `assembly_blocker` explains a refusal); repairs charge nothing. A build cooler
+sets the pre-applied paste grade; the Repair tab is disabled and every route to the repair bench turns
+into the hardware bench (`navigation_state`, `workshop_hub`, `repair_view`). `parts.case` ("" = the
+layout's default case, which has no effect) is read through `PcBuild.case_model` / `case_heat` by BOTH
+temperature checks. Case and board swaps (`choose_build_case`, `choose_build_board`) need the board out
+and refund the old model. Arrival: `take_build_deposit` adds the deposit minus `BuildRequest.starter_cost`;
+collection pays `job.payout` (= budget − deposit) and `BuildRequest.adjust` applies the review. History
+entries may carry `build {budget, value}` (kept by the loader). Recorded by Claude (Opus 5.5).
+
+## Trust and review contracts — 0.52.0
+
+`GameState.reviews` holds review records `{stars 1..5, text, kind (pickup | found_out | fake | notice),
+night, ticket, author}`, newest last, at most 40 (`Reviews.sanitize` turns a 0.48.0 plain score into a
+pickup review). `Reviews.rating` is the one rating rule (ShopRating delegates); notices never count.
+`trust_points` (never below 0) sets `shop_level()`; only `_record_pickup` adds (good work) and only
+`advance_comebacks` (found out: `Reviews.found_points`) and `check_fake_reviews` (caught) subtract.
+Collection lists the hidden deceptions (`_hidden_deceptions`: toothpaste, non-new shop parts handed
+over, an overpriced build; plus a working original kept) and queues `Reviews.discoveries` as comebacks
+with `found:<kind>` faults, which `Morning.sanitize_pending` keeps. `fake_orders` holds purchase nights;
+the review site's check runs in `end_night` before arrivals. Every roll is seeded from `world_seed`.
+Recorded by Claude (Opus 5.5).
+
+## Delivered physical records — 0.54.0
+
+`job.part_instances`: optional slot -> {uid, model, kind, owner, condition, defect?, known}; keys are
+GPU/cooler service kinds or canonical hardware slots (cpu, psu_bay, pcie_2, ram_1..3, m2_1..2).
+The models/placement projection remains `job.parts`. `PcBuild.shop_condition` reads the stock-derived
+cache only while that slot has actual temporary custody; otherwise it reads the matching permanent
+record. Hidden effects, effective stats and boot observations continue after ownership transfer.
+Never display actual condition directly. The shared PartCondition sanitizers own condition/knowledge.
+
+Collection copies physical records before consuming stock and is idempotent. New loose entries may
+include `instance`; CustomerPC.apply moves it with the physical part and compacts record positions
+alongside model arrays. A retained migrated original returns to stock with its existing uid/condition,
+marked untested under D158. The same uid is not minted again or inferred from a matching model.
+
+`comebacks[].pc_snapshot` optionally stores immutable physical delivery receipts; the pending-comeback
+sanitizer and due report preserve them. They do not introduce a new editable PC store or automatic
+repair ticket. Old saves lack these optional fields; SAVE_FORMAT stays 1. Already-lost condition is
+not guessed. The new delivered-parts suite is required in CI alongside all prior suites.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

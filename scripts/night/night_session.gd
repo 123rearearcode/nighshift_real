@@ -9,13 +9,16 @@ const PcBuild = preload("res://scripts/rules/pc_build.gd")
 const Generator = preload("res://scripts/rules/ticket_generator.gd")
 const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const BuildRequest = preload("res://scripts/rules/build_request.gd")
+const Reviews = preload("res://scripts/rules/reviews.gd")
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
 var bound_path: String = ""
 var status: String = ""
 var read_only: bool = false
-var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; shown by morning.tscn
+var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; its customers walk in at the counter
+var visits_pending: bool = false   # 0.53.0 (D161): true from the end of the night until the counter has shown every customer
 
 func _marker(gs: Node) -> Dictionary:
     var trial: Variant = gs.job.get("hardware_trial",{})
@@ -34,6 +37,8 @@ func start(gs: Node) -> bool:
     bound_path = gs.save_path
     read_only = false
     status = ""
+    visits_pending = false   # 0.53.0: a new run has nobody waiting at the counter
+    last_report = {}
     tickets = []
     active_id = str(gs.job["id"])
     _tag(gs.job,active_id,run_id+":pc:1")
@@ -248,7 +253,27 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
         var who: Dictionary = {}
         var pc: Dictionary = {}
         var returning: bool = false
-        if r.randf() < Generator.RETURN_CHANCE:
+        # 0.51.0 (session 3.7, D159): from night 4 some arrivals are build requests. A separate generator
+        # decides, so a repair arrival draws exactly the case it drew before builds existed.
+        var fresh_job: Dictionary = gs.make_ticket_job("")
+        if BuildRequest.wanted(Generator.rng_for(int(gs.world_seed),night,slot+100),night,slot):
+            who = Generator.new_person(r,gs.next_person_id())
+            var order: Dictionary = Generator.draw_build(fresh_job,who,int(gs.money),night,r)
+            if not order.is_empty():
+                gs.remember_person(order["person"])
+                var build_job: Dictionary = order["job"]
+                _tag(build_job,str(build_job["id"]),run_id+":pc:"+str(build_job["id"]))
+                var net: int = gs.take_build_deposit(build_job)
+                tickets.append(build_job)
+                present.append(str(build_job["customer_id"]))
+                var spec: Dictionary = order["build"]
+                cards.append({"kind":"new","ticket":str(build_job["id"]),"customer":str(build_job["customer"]),"customer_id":str(build_job["customer_id"]),
+                    "returning":false,"paid":net,"build":true,
+                    "reaction":"New customer. Build request: %s. %s Budget $%d: they paid $%d up front; the basic case and motherboard ($%d) came out of it."%[
+                        str(BuildRequest.USES[spec["use"]]["label"]),str(build_job["complaint"]),int(spec["budget"]),int(spec["deposit"]),BuildRequest.starter_cost(str(build_job["layout"]))],
+                    "job":build_job.duplicate(true)})
+                continue
+        if r.randf() < Generator.RETURN_CHANCE and who.is_empty():
             var known: Array = []
             for id: String in gs.known_customers():
                 if not id in present and gs.customer_state.has(id) and int(gs.customer_view(id).get("trust",0)) >= Generator.RETURN_MIN_TRUST: known.append(id)
@@ -257,7 +282,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
                 pc = who.get("pc",{})
                 returning = true
         if who.is_empty(): who = Generator.new_person(r,gs.next_person_id())
-        var drawn: Dictionary = Generator.draw_case(gs.make_ticket_job(""),who,pc,caps,night,r)
+        var drawn: Dictionary = Generator.draw_case(fresh_job,who,pc,caps,night,r)
         if not bool(drawn["person"].get("scripted",false)): gs.remember_person(drawn["person"])
         var fresh: Dictionary = drawn["job"]
         _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))
@@ -266,7 +291,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
         cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":str(fresh["customer_id"]),
             "returning":returning,"reaction":("Back again. " if returning else "New customer. ")+"New ticket: %s"%str(fresh["complaint"]),"job":fresh.duplicate(true)})
     gs.save_game()
-    return {"cards":cards,"summary":ShopRating.summary(stars,gs.reviews.size(),rep,count),"rating":stars,"reputation":rep,"count":count}
+    return {"cards":cards,"summary":ShopRating.summary(stars,Reviews.counted(gs.reviews),rep,count),"rating":stars,"reputation":rep,"count":count}
 
 # Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
 # night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
@@ -274,6 +299,7 @@ func end_night(gs: Node) -> Dictionary:
     if not ensure(gs): return {"ok":false,"message":status}
     if not checkpoint(gs): return {"ok":false,"message":status}
     var night: int = int(gs.night_number)
+    var level_before: int = gs.shop_level()   # 0.52.0: the report says when the shop level changed
     var cards: Array = gs.advance_comebacks()
     var collected: Array = []
     for entry: Dictionary in _open_tickets():
@@ -291,6 +317,9 @@ func end_night(gs: Node) -> Dictionary:
         cards.append({"kind":"waiting","ticket":str(entry["id"]),"customer":str(entry["customer"]),"customer_id":str(entry["customer_id"]),
             "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"],
             "job":entry.duplicate(true)})
+    # 0.52.0 (D160): the review site checks the shop's new reviews before the morning's customers read them.
+    var notice: Dictionary = gs.check_fake_reviews(night)
+    if not notice.is_empty(): cards.append(notice)
     # 0.48.0: new tickets come in with the morning, as many as the rating and reputation bring.
     var arrivals: Dictionary = _arrivals(gs,night+1)
     cards.append_array(arrivals["cards"])
@@ -303,6 +332,7 @@ func end_night(gs: Node) -> Dictionary:
     if not checkpoint(gs): return {"ok":false,"message":status}
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
+    visits_pending = true
     last_report = {"ok":true,"night":night,"cards":cards,"earned":earned,"cash":int(gs.money),"arrivals":arrivals["summary"],
-        "rating":arrivals["rating"],"reputation":arrivals["reputation"]}
+        "rating":arrivals["rating"],"reputation":arrivals["reputation"],"standing":gs.standing_text(),"level":gs.shop_level(),"level_before":level_before}
     return last_report

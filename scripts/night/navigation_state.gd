@@ -1,12 +1,16 @@
 # UI-only resume preferences. Bound to the current run; never owns PCs or salvage items.
 extends RefCounted
 const Store = preload("res://scripts/state/save_store.gd")
-const ACTIVITIES := "res://scenes/activities.tscn"
+const COUNTER := "res://scenes/rooms/counter.tscn"   # 0.53.0 (D161): the rooms replaced the Activities hub
+const WORKSHOP := "res://scenes/rooms/workshop.tscn"
+const OUTSIDE := "res://scenes/rooms/outside.tscn"
+const ACTIVITIES := COUNTER                          # legacy name: the fallback place is the counter
+const LEGACY_HUB := "res://scenes/activities.tscn"
 const ROOM := "res://scenes/storage.tscn"
 const REPAIR := "res://scenes/night_bench.tscn"
 const HARDWARE := "res://scenes/night_hardware.tscn"
 const MONITOR := "res://scenes/software.tscn"
-const PATHS: Array = [ACTIVITIES,ROOM,REPAIR,HARDWARE,MONITOR,"res://scenes/night_salvage.tscn","res://scenes/night_shop.tscn","res://scenes/night_bay.tscn"]
+const PATHS: Array = [COUNTER,WORKSHOP,OUTSIDE,ROOM,REPAIR,HARDWARE,MONITOR,"res://scenes/night_salvage.tscn","res://scenes/night_shop.tscn","res://scenes/night_bay.tscn"]
 static func _run(gs: Node) -> String:
     return str(gs.job.get("hardware_trial",{}).get("night_session",{}).get("run",""))
 static func _read(gs: Node) -> Dictionary:
@@ -31,10 +35,15 @@ static func enter(gs: Node,path: String) -> bool:
         data["workbench_views"] = views
     return _write(gs,data)
 static func resume_path(gs: Node) -> String:
-    var path: Variant = _read(gs).get("scene",ACTIVITIES)
-    if not path is String or not path in PATHS: return ACTIVITIES
+    var path: Variant = _read(gs).get("scene",COUNTER)
+    if path is String and path == LEGACY_HUB: return COUNTER   # 0.52.0 and older preferences
+    if not path is String or not path in PATHS: return COUNTER
     if path in [REPAIR,HARDWARE,MONITOR] and gs.job.get("hardware_trial",{}).get("night_session",{}).get("pc","") == "": return ROOM
+    if path == REPAIR and _build(gs): return HARDWARE   # 0.51.0: a build has no repair bench work
     return path
+static func _build(gs: Node) -> bool:
+    var t: Variant = gs.job.get("ticket",{})
+    return t is Dictionary and str(t.get("request","")) == "build"
 static func repair_stage(gs: Node) -> int:
     var stages: Variant = _read(gs).get("repair_stages",{})
     return 1 if stages is Dictionary and stages.get(str(gs.job.get("id","")),0) == 1 else 0
@@ -51,7 +60,9 @@ static func set_repair_stage(gs: Node,stage: int) -> bool:
     return _write(gs,data)
 
 static func workbench_path(gs: Node) -> String:
+    var first: String = HARDWARE if _build(gs) else REPAIR   # 0.51.0: a build opens at the hardware bench
     var views: Variant = _read(gs).get("workbench_views",{})
-    if not views is Dictionary: return REPAIR
-    var path: Variant = views.get(str(gs.job.get("id","")),REPAIR)
-    return path if path in [REPAIR,HARDWARE,MONITOR] else REPAIR
+    if not views is Dictionary: return first
+    var path: Variant = views.get(str(gs.job.get("id","")),first)
+    if path == REPAIR and _build(gs): return HARDWARE
+    return path if path in [REPAIR,HARDWARE,MONITOR] else first

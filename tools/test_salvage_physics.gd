@@ -252,7 +252,7 @@ func test_scene() -> void:
     await physics_frame
     root.get_node("NightSession").ensure(gs)
     var routed_job: Dictionary = gs.job.duplicate(true)
-    var menu: Node = load("res://scenes/activities.tscn").instantiate()
+    var menu: Node = load("res://scenes/rooms/outside.tscn").instantiate()
     root.add_child(menu)
     menu._go("res://scenes/night_salvage.tscn")
     await process_frame
@@ -261,7 +261,7 @@ func test_scene() -> void:
     current_scene._back()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/activities.tscn" and gs.job == routed_job,"leaving the physics scene preserves campaign and menu navigation")
+    check(current_scene.scene_file_path == "res://scenes/rooms/outside.tscn" and gs.job == routed_job,"leaving the physics scene returns to the street and preserves the campaign")
     current_scene.free()
     menu.free()
     _remove_save_files(gs.save_path+".night.json")
