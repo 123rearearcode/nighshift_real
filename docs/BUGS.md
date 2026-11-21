@@ -80,7 +80,7 @@ Next structural review: **0.60.0**.
 | B49 | Verified | Low | Layout | GPU bracket screws drawn on the second PCIe slot instead of the card's rear bracket | 0.48.1 | Automated: bracket screw geometry regression |
 | B51 | Verified | Medium | Save | Stock records changed shape on reload (an empty defect key), so a menu path looked as if it altered the stock | 0.50.0 | Automated: menu navigation stock-equality regression |
 | B50 | Verified | Medium | Anti-virus input | Review prototype SEND did not complete a mainframe override; native port must support actual click and Enter | 0.49.0 | Automated: native SEND/Enter and uppercase regression |
-| B52 | Fixed | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Pending CI rerun: Rooms suite |
+| B52 | Verified | Low | Test harness | The Rooms suite clicked the till while the ticket window it had just opened was still in the tree, so the open dialog took the click | 0.53.0 | Automated: Rooms suite (CI run 44842432173) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -741,5 +741,5 @@ then-current design wording do not override the current status, D150 or the late
 - Root cause: the test opened a ticket window from the clipboard, called `queue_free()` on it and clicked the till in the same frame. An open dialog in the tree takes the next click, so the till never received it. A test-ordering defect, not a game bug: the till works when the window is closed.
 - Reproduction: in `tools/test_rooms.gd`, open a ticket from the counter's clipboard, free the window with `queue_free()` only, then click the till at once.
 - Expected / actual: the message shows the till's cash / the message is unchanged (the click went to the closing dialog).
-- Regression / evidence: the test now hides the window and waits two frames before the next click. Evidence pending the CI rerun on `4ba5dea`; no user verification claimed.
+- Regression / evidence: the test now hides the window and waits two frames before the next click. Automated Godot 4.7.2 `tools/test_rooms.gd`, CI run 44842432173 on `98a39db`: the check passes. No user verification claimed.
 

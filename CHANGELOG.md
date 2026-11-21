@@ -83,8 +83,9 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Type: minor (user-requested revamp, D161; supersedes the 0.42.0 menu-path rules).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
-is recorded under Checks performed. No graphical playtest yet; the rooms use placeholder drawings.
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2: all 33
+suites passed (2,298 checks), including the new Rooms suite (53 checks, native clicks on the hotspots),
+after one test-ordering fix (B52). No graphical playtest yet; the rooms use placeholder drawings.
 
 ### Added
 - **The counter** is the main screen: front door (outside), back door (workshop), the customer window,
@@ -124,7 +125,7 @@ is recorded under Checks performed. No graphical playtest yet; the rooms use pla
 
 ### Checks performed
 - `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless): run 44842058308 on `ff07409` failed one check (Rooms: "the till shows the cash", B52, a test-ordering defect); run 44842432173 on `98a39db`: 33 suites, 2,298 checks, 0 failures (Rooms 53, Menu navigation 38, Morning report 28); bench smoke playtest finished.
 
 ### Decisions proposed (not approved)
 - "The day is not timed" read as: the morning visits have no clock; the night clock stays.
