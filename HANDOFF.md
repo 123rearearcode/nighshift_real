@@ -8,7 +8,7 @@ Versions and owners are handed out here so nobody collides:
 | Version | Owner | What | Brief | Status |
 | --- | --- | --- | --- | --- |
 | 0.55.0 | Claude | The tool catalogue leaves the counter for **the store** outside (not the parts supplier); **storage under the counter window**, a 20 × 10 grid for parts, tools and PCs | D162 1–2 | this PR, branch `feat/counter-store-0550` |
-| 0.56.0 | Claude | The testing bay's **magnifying glass** (the tool; fault types come later) | D162 3 | next, stacked on 0.55.0 |
+| 0.56.0 | Claude | The testing bay's **magnifying glass** (the tool; fault types come later; `PartCondition.needs_lens`) | D162 3 | built, branch `feat/bay-lens-0560`, stacked on 0.55.0 |
 | 0.57.0 | **Codex** | **Anti-virus dynamism**: garbled mixed-script/mojibake names, fast-changing text, rainbow and italic rows, haze, look-alike names; rows and controls never move; a **reduce-flashing setting** | D162 5, top of `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | Codex may start from main now (it does not touch the bay or the counter) |
 | 0.58.0 | **Codex** | **A goofy test per part type** replacing the quick and long tests; short; failing costs night time | D162 4, `docs/PART_TESTS_DESIGN.md` | start after 0.56.0 merges (both edit `testing_bay_view.gd`) |
 

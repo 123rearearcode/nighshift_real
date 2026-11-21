@@ -92,6 +92,46 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.56.0 - 2026-11-21 - The testing bay's magnifying glass
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: 0.55.0 (PR #69, open; this branch is stacked on it).
+- Type: minor (D162 point 3).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
+is recorded under Checks performed. No graphical playtest yet; the lens is placeholder drawing.
+
+### Added
+- **The magnifying glass** in the testing bay: pick it up, hold it over a spot on the part, and after a
+  moment it takes a close look (one night minute, noted on the part as before). Esc or right-click puts it
+  down. Spots already looked at are ticked and cost nothing more. The cursor hides while the glass is
+  over the part.
+- `PartCondition.needs_lens(kind, spot)`: today every spot needs the glass; later fault types that show to
+  the bare eye can say otherwise (the user: "there will be multiple types").
+
+### Changed
+- The "Look: <spot>" buttons are gone; the glass replaces them. The quick and long tests are unchanged
+  (Codex replaces them with the part tests in 0.58.0).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/night/testing_bay_view.gd` | M | The magnifying glass replaces the spot buttons |
+| `scripts/rules/part_condition.gd` | M | `needs_lens` |
+| `tools/test_testing_bay.gd` | M | The glass with real mouse input (hover, pick up, dwell, Esc) |
+| `README.md`, `project.godot`, `CHANGELOG.md`, `HANDOFF.md` | M | Version 0.56.0; the bay passes to Codex after merge |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed. `python3 -I tools/check_bug_register.py`: 0 problems.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- Dwell 0.6 seconds, lens radius 58 px, spots marked faintly until the parts have art.
+
+### Next action
+After the user merges 0.55.0 and 0.56.0, `testing_bay_view.gd` passes to Codex for the part tests (0.58.0).
+
 ## 0.55.0 - 2026-11-21 - The store down the street and storage under the counter
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

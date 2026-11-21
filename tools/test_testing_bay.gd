@@ -29,6 +29,14 @@ func _part(gs: Node, uid: String, kind: String, model: String, condition: String
 
 
 # A real mouse click through the viewport (as Codex's anti-virus suite does), not a direct callback.
+func hover(at: Vector2) -> void:
+    var move := InputEventMouseMotion.new()
+    move.position = at
+    move.global_position = at
+    root.push_input(move, true)
+    await process_frame
+
+
 func press(button: Button) -> void:
     for down: bool in [true, false]:
         var event := InputEventMouseButton.new()
@@ -166,9 +174,26 @@ func run_checks() -> void:
     await process_frame
     check(bay.list_buttons.has("bay_ram") and bay.list_buttons.size() == gs.bay_parts().size(), "the bay lists every stock part in the drawer")
     bay._select("bay_ram")
-    var first: Button = bay.spot_buttons[0]
-    await press(first)
-    check(gs.night_minutes == 31 and first.text.begins_with("✓"), "clicking a spot on the part inspects it (one night minute) and ticks it off")
+    # 0.56.0 (D162): spots are looked at with the magnifying glass, held over the spot for a moment.
+    check(bay.get_node_or_null("MagnifierButton") != null and not bay.lens_held, "the bay has a magnifying glass, lying down")
+    await hover(bay.spot_center(0))
+    for f in range(40): await process_frame
+    check(gs.night_minutes == 30 and not bay.looked(0), "without the glass in hand, hovering a spot does nothing")
+    await press(bay.lens_button)
+    check(bay.lens_held and bay.lens_button.text.contains("down"), "the glass is picked up")
+    await hover(bay.spot_center(0))
+    var started: int = Time.get_ticks_msec()
+    while not bay.looked(0) and Time.get_ticks_msec() - started < 5000: await process_frame
+    check(gs.night_minutes == 31 and bay.looked(0), "holding it over a spot takes a close look (one night minute) and ticks the spot off")
+    for f in range(60): await process_frame
+    check(gs.night_minutes == 31, "resting on a spot already looked at costs nothing more")
+    await hover(bay.spot_center(1) + Vector2(200, 200))
+    var key := InputEventKey.new()
+    key.keycode = KEY_ESCAPE
+    key.pressed = true
+    root.push_input(key, true)
+    await process_frame
+    check(not bay.lens_held and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE, "Esc puts the glass down and the cursor comes back")
     await press(bay.quick_button)
     check(gs.night_minutes == 36 and str(bay.message.text).to_lower().contains("memory test"), "the quick test runs from its button")
     check(_leaks(bay.card_text.text).is_empty() and bay.card_text.text.contains("Untested"), "the part card shows what you know, never the real condition")

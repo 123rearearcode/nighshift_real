@@ -1,4 +1,7 @@
-# Nightshift - Godot Foundation Trial (v0.55.0)
+# Nightshift - Godot Foundation Trial (v0.56.0)
+
+0.56.0: the testing bay has a **magnifying glass**. Pick it up and hold it over a spot on the part for a
+close look (placeholder drawing until the parts have art).
 
 0.55.0: the tool catalogue left the counter; tool upgrades are sold at **the store** down the street
 (outside, next to the parts supplier, which is a different place still to come). Under the counter window
