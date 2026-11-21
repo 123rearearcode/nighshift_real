@@ -1,4 +1,13 @@
-# Nightshift - Godot Foundation Trial (v0.53.0)
+# Nightshift - Godot Foundation Trial (v0.54.0)
+
+0.54.0 fixes delivered component identity/condition loss: individual shop-part records transfer with
+the PC before stock is consumed. Dead/degraded parts keep their real behaviour after collection and
+reload; removed/refitted parts retain uid/defect; comeback receipts and the customer's loose-parts bag
+retain the same records. Marked labels remain player knowledge, not physical repairs.
+
+This is stacked after PR #66 (Rooms), preserving #64 builds and #65 reviews. L1 legacy original-part
+migration and L2 orphan recovery remain open; the clock and drawer-overflow tasks are now separate
+L4/L5 entries. Next structural review remains 0.60.0. See HANDOFF.md for Claude's resume instructions.
 
 0.53.0 removes the menus. You start at the **shop counter**: the front door on the left takes you
 outside (your van drives to the salvage dump), the back door takes you into the workshop (repair bench,

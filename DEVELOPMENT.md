@@ -90,6 +90,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |
+| `tools/test_delivered_parts.gd` | tooling | Same-model identity/health, collection, comeback receipts, undo/refit, return to stock, all six kinds and reload |
 | `project.godot` | config | Settings, `config/version`, main scene `start.tscn`, autoloads `GameState` and `AudioFeedback` |
 | `.gitignore` | config | Ignores `.godot/` cache and export files |
 | `README.md` | docs | How to import and run; what each screen does |
@@ -875,3 +877,24 @@ over, an overpriced build; plus a working original kept) and queues `Reviews.dis
 with `found:<kind>` faults, which `Morning.sanitize_pending` keeps. `fake_orders` holds purchase nights;
 the review site's check runs in `end_night` before arrivals. Every roll is seeded from `world_seed`.
 Recorded by Claude (Opus 5.5).
+
+## Delivered physical records — 0.54.0
+
+`job.part_instances`: optional slot -> {uid, model, kind, owner, condition, defect?, known}; keys are
+GPU/cooler service kinds or canonical hardware slots (cpu, psu_bay, pcie_2, ram_1..3, m2_1..2).
+The models/placement projection remains `job.parts`. `PcBuild.shop_condition` reads the stock-derived
+cache only while that slot has actual temporary custody; otherwise it reads the matching permanent
+record. Hidden effects, effective stats and boot observations continue after ownership transfer.
+Never display actual condition directly. The shared PartCondition sanitizers own condition/knowledge.
+
+Collection copies physical records before consuming stock and is idempotent. New loose entries may
+include `instance`; CustomerPC.apply moves it with the physical part and compacts record positions
+alongside model arrays. A retained migrated original returns to stock with its existing uid/condition,
+marked untested under D158. The same uid is not minted again or inferred from a matching model.
+
+`comebacks[].pc_snapshot` optionally stores immutable physical delivery receipts; the pending-comeback
+sanitizer and due report preserve them. They do not introduce a new editable PC store or automatic
+repair ticket. Old saves lack these optional fields; SAVE_FORMAT stays 1. Already-lost condition is
+not guessed. The new delivered-parts suite is required in CI alongside all prior suites.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

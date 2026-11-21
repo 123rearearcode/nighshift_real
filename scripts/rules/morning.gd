@@ -10,6 +10,7 @@ const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const PickupScore = preload("res://scripts/rules/pickup_score.gd")
 const Reviews = preload("res://scripts/rules/reviews.gd")
+const Instances = preload("res://scripts/rules/part_instances.gd")
 
 # Felt only after a few days at home. Everything else is felt at pickup.
 const DELAYED: Array = [InstallFaults.GPU_LOOSE, Overclock.UNSTABLE, Overclock.CRASHING, PartCondition.UNSTABLE_FAULT]   # 0.50.0: a crashing part left in
@@ -84,4 +85,6 @@ static func sanitize_pending(raw: Variant) -> Array:
         if faults.is_empty() or not typeof(nights) in [TYPE_INT, TYPE_FLOAT]: continue
         out.append({"customer_id": str(item.get("customer_id", "")), "customer": str(item.get("customer", "")),
             "ticket": str(item.get("ticket", "")), "faults": faults, "nights_left": clampi(int(nights), 1, 30)})
+        var snapshot: Dictionary = Instances.sanitize_snapshot(item.get("pc_snapshot", null))
+        if not snapshot.is_empty(): out.back()["pc_snapshot"] = snapshot
     return out

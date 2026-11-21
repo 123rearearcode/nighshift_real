@@ -34,6 +34,7 @@ const SalvageStock = preload("res://scripts/rules/salvage_stock.gd")
 const NightClock = preload("res://scripts/rules/night_clock.gd")
 const BuildRequest = preload("res://scripts/rules/build_request.gd")
 const Reviews = preload("res://scripts/rules/reviews.gd")
+const Instances = preload("res://scripts/rules/part_instances.gd")
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -141,6 +142,7 @@ func _make_job() -> Dictionary:
         "cooler_film_peeled": false, # D130: the clear plastic film on the cooler base was taken off
         "damaged_parts": [],      # D150 (0.46.2): parts the player VISIBLY damaged (a subset of broken_parts; may be shown)
         "shop_condition": {},     # 0.50.0: DERIVED copy of fitted shop parts' real condition (authority: the stock record)
+        "part_instances": {},     # Physical records handed over from stock; legacy originals remain unmigrated.
         "shop_fitted": {},        # D150: slot -> {uid, model}: shop parts fitted for a test; still the shop's until collection
         "shop_custody": [],       # D150: "gpu"/"cooler" whose first-slot replacement is still the shop's until collection
         "dead_slots": [],         # D150: slots holding a customer part that does not work (hidden; today only "pcie_2")
@@ -216,6 +218,11 @@ func damage_service_part(part_id: String) -> bool:
         return false
     job["broken_parts"].append(part_id)
     if not part_id in job["damaged_parts"]: job["damaged_parts"].append(part_id)   # D150: the player saw it happen
+    var instance: Dictionary = Instances.get_part(job, part_id)
+    if not instance.is_empty():
+        instance["condition"] = PcBuild.BROKEN
+        instance.erase("defect")
+        job["part_instances"][part_id] = instance
     note(Findings.WORK, "%s visibly damaged while handling it." % part_id.to_upper(), "repair_bench")
     save_game()
     return true
@@ -245,8 +252,11 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
     var build: bool = PcBuild.is_build(job)
     if build and (assembly_blocker(part_id) != "" or (part_id == Ids.COOLER and str(BuildRequest.fitted_parts(job)["cpu"]) == "")): return false
     if not build:
-        (job["loose_parts"] as Array).append({"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, part_id)), "broken": part_id in job["broken_parts"],
-            "damaged": part_id in job["damaged_parts"], "original_of": part_id})
+        var original: Dictionary = {"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, part_id)), "broken": part_id in job["broken_parts"],
+            "damaged": part_id in job["damaged_parts"], "original_of": part_id}
+        var instance: Dictionary = Instances.take(job, part_id)
+        if not instance.is_empty(): original["instance"] = instance
+        (job["loose_parts"] as Array).append(original)
     record["fitted_in"] = str(job["id"])
     record["slot"] = part_id
     inventory_layout.erase(uid)
@@ -800,6 +810,7 @@ func load_game() -> bool:
     # D148 (0.45.0): the parts are the truth; pc_specs is derived from them. Old saves get the customer's PC.
     var default_pc: Dictionary = person(str(job.get("customer_id", ""))).get("pc", {})
     job["parts"] = PcBuild.sanitize(job["parts"] if job.get("parts", null) is Dictionary else default_pc)
+    job["part_instances"] = Instances.sanitize(job.get("part_instances", {}))
     job["pc_specs"] = PcBuild.specs(job["parts"])
     job["loose_parts"] = CustomerPC.loose(job)
     if person(str(job.get("customer_id", ""))).is_empty():
@@ -988,10 +999,10 @@ func collect_active() -> Dictionary:
     job["temp"] = temp
     if not (faults["later"] as Array).is_empty():
         comebacks.append({"customer_id": str(job["customer_id"]), "customer": str(job["customer"]), "ticket": str(job["id"]),
-            "faults": faults["later"], "nights_left": Morning.COMEBACK_NIGHTS})
+            "faults": faults["later"], "nights_left": Morning.COMEBACK_NIGHTS, "pc_snapshot":Instances.snapshot(job)})
     for f: Dictionary in found:   # each deception they will find out comes back on its own morning
         comebacks.append({"customer_id": str(job["customer_id"]), "customer": str(job["customer"]), "ticket": str(job["id"]),
-            "faults": [str(f["fault"])], "nights_left": int(f["nights"])})
+            "faults": [str(f["fault"])], "nights_left": int(f["nights"]), "pc_snapshot":Instances.snapshot(job)})
     save_game()
     var score: int = int(pickup.get("score", 0))
     return {"kind": "collected", "ticket": str(job["id"]), "customer": str(job["customer"]), "customer_id": str(job["customer_id"]),
@@ -1022,6 +1033,7 @@ func advance_comebacks() -> Array:
         cards.append({"kind": "comeback", "ticket": str(entry["ticket"]), "customer": str(entry["customer"]), "customer_id": str(entry["customer_id"]),
             "misses": complaints, "trust": int(state["trust"]), "trust_change": change, "review": review, "points": -lost,
             "reaction": ("Found out what you did on ticket %s, and wrote about it." if scam else "Came back about the repair of ticket %s.") % entry["ticket"]})
+        if entry.has("pc_snapshot"): cards.back()["pc_snapshot"] = Instances.sanitize_snapshot(entry["pc_snapshot"])
     save_game()
     return cards
 
@@ -1112,9 +1124,10 @@ func apply_bench(snapshot: Dictionary) -> bool:
     if PcBuild.board_out(job):   # 0.48.1: with the motherboard out, nothing can sit on a slot
         for key: Variant in snapshot:
             if snapshot[key] is Dictionary and str((snapshot[key] as Dictionary).get("location", "drawer")) != "drawer": return false
-    var before: String = str([job.get("parts", {}), job.get("loose_parts", []), job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", [])])
+    var before: String = str([job.get("parts", {}), job.get("loose_parts", []), job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", []), job.get("part_instances", {})])
     var configured: Array = Findings.configuration(job)
     var result: Dictionary = CustomerPC.apply(job, snapshot)
+    var instances: Dictionary = result["part_instances"]
     var loose: Array = result["loose_parts"]
     var p: Dictionary = result["parts"]
     # A customer's own card or cooler dropped on the first slot takes over from the one that was there.
@@ -1124,8 +1137,13 @@ func apply_bench(snapshot: Dictionary) -> bool:
             loose.append(entry)
             continue
         # D150: health never decides this; a part that does not work goes in and simply does not work.
-        loose.append({"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, kind)), "broken": kind in job["broken_parts"],
-            "damaged": kind in job["damaged_parts"], "original_of": ""})
+        var original: Dictionary = {"id": CustomerPC.catalog_id(job, CustomerPC.uid(job, kind)), "broken": kind in job["broken_parts"],
+            "damaged": kind in job["damaged_parts"], "original_of": ""}
+        var instance: Dictionary = Instances.get_part(job, kind)
+        if not instance.is_empty(): original["instance"] = instance
+        loose.append(original)
+        instances.erase(kind)
+        if entry.has("instance"): instances[kind] = entry["instance"]
         if kind == Ids.GPU: p["gpus"][0] = entry["id"]
         else: p["cooler"] = entry["id"]
         job["service_replacements"].erase(kind)
@@ -1141,10 +1159,11 @@ func apply_bench(snapshot: Dictionary) -> bool:
             job["paste_done"] = false
     for entry: Dictionary in loose: entry.erase("cell")
     job["parts"] = PcBuild.sanitize(p)
+    job["part_instances"] = Instances.sanitize(instances)
     job["pc_specs"] = PcBuild.specs(job["parts"])
     job["loose_parts"] = loose
     job["dead_slots"] = result.get("dead_slots", [])
-    var changed: bool = before != str([job["parts"], job["loose_parts"], job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", [])])
+    var changed: bool = before != str([job["parts"], job["loose_parts"], job.get("service_replacements", {}), job.get("removed_parts", []), job.get("dead_slots", []), job.get("part_instances", {})])
     if changed:
         _note_build(configured)
         save_game()
@@ -1176,6 +1195,7 @@ func _carry_condition(key: String, record: Dictionary) -> void:
 
 # Rebuilds the derived copy from the stock records (load, PC switch).
 func _refresh_shop_condition() -> void:
+    job["part_instances"] = Instances.sanitize(job.get("part_instances", {}))
     job["shop_condition"] = {}
     for kind: String in [Ids.GPU, Ids.COOLER]:
         if kind in job.get("shop_custody", []): _carry_condition(kind, _record(str(job["service_replacement_ids"].get(kind, ""))))
@@ -1641,6 +1661,8 @@ func return_replacement(part_id: String) -> bool:
     var loose: Array = CustomerPC.loose(job)
     for i in range(loose.size()):
         if str(loose[i]["original_of"]) == part_id:
+            var instance: Dictionary = Instances.clean(loose[i].get("instance", {}))
+            if not instance.is_empty(): job["part_instances"][part_id] = instance
             if part_id == Ids.GPU: job["parts"]["gpus"][0] = str(loose[i]["id"])
             else: job["parts"]["cooler"] = str(loose[i]["id"])
             if bool(loose[i]["broken"]) and not part_id in job["broken_parts"]: job["broken_parts"].append(part_id)
@@ -1692,14 +1714,21 @@ func settle_custody() -> Array:
     var consumed: Array = []
     var types_fitted: Dictionary = {}
     var permanent: Dictionary = PcBuild.sanitize(job.get("parts", {}))
+    var instances: Dictionary = Instances.sanitize(job.get("part_instances", {}))
+    var returned_loose: Array = []
     for part_id: String in job.get("shop_custody", []):
-        consumed.append(str(job["service_replacement_ids"].get(part_id, "")))
+        var stock_uid: String = str(job["service_replacement_ids"].get(part_id, ""))
+        consumed.append(stock_uid)
+        var physical: Dictionary = Instances.from_stock(_record(stock_uid), str(job.get("customer_id", "")))
+        if not physical.is_empty(): instances[part_id] = physical
         var original: String = str(permanent["gpus"][0]) if part_id == Ids.GPU else str(permanent["cooler"])
         var model: String = PcBuild.model_of(str(job["service_replacements"][part_id]), part_id, original)
         if part_id == Ids.GPU: permanent["gpus"][0] = model
         else: permanent["cooler"] = model
     for slot: String in job.get("shop_fitted", {}):
-        consumed.append(str(job["shop_fitted"][slot]["uid"]))
+        var stock_uid: String = str(job["shop_fitted"][slot]["uid"])
+        consumed.append(stock_uid)
+        var destination: String = slot
         var model: String = str(job["shop_fitted"][slot]["model"])
         var type: String = str(Catalog.part(model).get("type", ""))
         types_fitted[type] = int(types_fitted.get(type, 0)) + 1
@@ -1707,9 +1736,15 @@ func settle_custody() -> Array:
         # be used here: it removes faulty fitted parts, which must still travel with this PC.
         if slot == CustomerPC.CPU_SLOT: permanent["cpu"] = model
         elif slot == CustomerPC.PSU_SLOT: permanent["psu"] = model
-        elif slot in CustomerPC.RAM_SLOTS: (permanent["ram"] as Array).append(model)
-        elif slot in CustomerPC.STORAGE_SLOTS: (permanent["storage"] as Array).append(model)
+        elif slot in CustomerPC.RAM_SLOTS:
+            destination = str(CustomerPC.RAM_SLOTS[(permanent["ram"] as Array).size()])
+            (permanent["ram"] as Array).append(model)
+        elif slot in CustomerPC.STORAGE_SLOTS:
+            destination = str(CustomerPC.STORAGE_SLOTS[(permanent["storage"] as Array).size()])
+            (permanent["storage"] as Array).append(model)
         elif slot == CustomerPC.GPU2_SLOT: (permanent["gpus"] as Array).append(model)
+        var physical: Dictionary = Instances.from_stock(_record(stock_uid), str(job.get("customer_id", "")))
+        if not physical.is_empty(): instances[destination] = physical
     player_inventory = player_inventory.filter(func(record: Dictionary) -> bool: return not str(record["uid"]) in consumed)
     for entry: Dictionary in CustomerPC.loose(job):
         var type: String = str(Catalog.part(str(entry["id"])).get("type", ""))
@@ -1721,21 +1756,32 @@ func settle_custody() -> Array:
         # stock with its real condition hidden: the testing bay finds out. (Scam hook: reusing or
         # reselling a customer's old part.) Other loose customer parts leave with the customer.
         if replaced:
-            var uid: String = "player_stock_%d" % inventory_sequence
-            inventory_sequence += 1
-            var actual: String = PcBuild.BROKEN if bool(entry["broken"]) or bool(entry["damaged"]) else PcBuild.WORKING
+            var physical: Dictionary = Instances.clean(entry.get("instance", {}), str(entry["id"]))
+            var uid: String = str(physical.get("uid", ""))
+            if uid == "":
+                uid = "player_stock_%d" % inventory_sequence
+                inventory_sequence += 1
+            var actual: String = str(physical.get("condition", PcBuild.BROKEN if bool(entry["broken"]) or bool(entry["damaged"]) else PcBuild.WORKING))
             var known_now: Dictionary = PartCondition.fresh(PartCondition.UNTESTED, "Taken out of %s's PC (%s)" % [str(job.get("customer", "")), str(job.get("id", ""))])
             if bool(entry["damaged"]):
                 known_now["label"] = PartCondition.DEAD
                 (known_now["notes"] as Array).append("You damaged it while working on it.")
-            player_inventory.append({"uid":uid,"kind":type,"tier":"model","model":str(entry["id"]),"owner":"player","condition":actual,"known":known_now})
+            var stock: Dictionary = {"uid":uid,"kind":type,"tier":"model","model":str(entry["id"]),"owner":"player","condition":actual,"known":known_now}
+            var defect: String = PartCondition.sanitize_defect(type,actual,physical.get("defect", ""))
+            if defect != "": stock["defect"] = defect
+            player_inventory.append(stock)
             kept.append(str(Catalog.part(str(entry["id"]))["name"]))
+        else:
+            # These leave in the customer's bag, not shop stock. Retain their physical records so
+            # the collection/comeback receipt does not silently discard a removed component.
+            returned_loose.append(entry)
     job["parts"] = permanent
+    job["part_instances"] = Instances.sanitize(instances)
     job["pc_specs"] = PcBuild.specs(permanent)
     job["shop_custody"] = []
     job["shop_fitted"] = {}
     job["shop_condition"] = {}
-    job["loose_parts"] = []
+    job["loose_parts"] = returned_loose
     return kept
 
 

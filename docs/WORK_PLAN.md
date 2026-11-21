@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded audit follow-up — 0.54.0, 21 November 2026
+
+The user assigned Codex the delivery-condition/identity correction and ledger split. Codex owns the
+affected GameState/CustomerPC/PcBuild/receipt files for this patch, stacked on #66 head f61583c rather
+than a competing main-based rewrite. Cross-review/integrate #64 -> #65 -> #66 -> this follow-up under
+the user's merge direction, preserving every suite including Delivered parts. Claude then resumes
+the current Rooms/art/playtest work. The full legacy-original identity migration and orphan recovery
+remain L1/L2; clock integration L4 and drawer visibility L5 are separate future tasks. No new clock or
+UI flow is invented. HANDOFF's current section supersedes older ownership and resume claims below.
+
 Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5); approved by the user the same day
 ("go ahead"). Combines Claude's code health review and Codex's improvement list. Each step is one version,
 one pull request, all checks green before merging. A step that should not change behaviour must leave

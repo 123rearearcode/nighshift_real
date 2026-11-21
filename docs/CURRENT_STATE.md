@@ -1,5 +1,22 @@
 # Nightshift — Current State and Technical Handoff
 
+## Current audit follow-up — 0.54.0, 21 November 2026
+
+Codex's user-authorized follow-up preserves individual delivered shop parts through collection,
+reload, removal/refitting, return to stock and immutable comeback receipts. Actual health/defect,
+UID and known evidence survive ownership transfer; hidden condition stays out of hover text.
+Unreplaced loose components leave in the customer's bag with their records intact. The existing
+comeback remains a report, not an automatically spawned repair ticket. See PART_LIFECYCLE's 0.54.0
+stage and HANDOFF for the integration boundaries.
+
+This patch is stacked after open #64 builds, #65 trust/reviews and #66 Rooms. L3 is fixed for future
+handovers (B53); old lost state is not guessed. L1 legacy originals/bench aliases and L2 orphan
+custody remain open. L4 now tracks clock integration, L5 drawer overflow independently. No new time
+charging rules or UI routes are added. Claude resumes the current Rooms/art/playtest work after
+cross-review/user-controlled integration. The scheduled next structural review stays at 0.60.0.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current — 0.53.0 rooms instead of menus, 21 November 2026
 
 Navigation is now places, not menus (D161, `docs/MENU_NAVIGATION.md`): the counter is the main screen,

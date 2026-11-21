@@ -1,6 +1,76 @@
 # Handoff — current state first
 
-## Current — 0.53.0 Rooms instead of menus (Claude), 21 November 2026
+## Current — 0.54.0 delivered physical records and audit follow-up (Codex), 21 November 2026
+
+User assignment: implement the recommendations from the bug-register review: preserve delivered
+condition through collection/comeback/reload, continue stable identity incrementally, split the two
+unrelated L4 issues. The scheduled 0.50.0 review WAS done by Claude on 20 November; this is its targeted
+follow-up, not a claim that it was missed. New regression B53 reproduces loss on the unchanged parent.
+
+### Integration and ownership
+
+- Verified main: 0.50.0 / c04a278. Open chain: #64 builds (0.51.0) -> #65 trust/reviews (0.52.0) ->
+  #66 Rooms (0.53.0). This branch `fix/delivered-part-records-0540` starts from #66 head f61583c,
+  preserving all their changes. Review/integration order is that chain, then this follow-up. Retarget
+  each dependent PR to updated main when its predecessor merges; do not merge/force-push predecessors.
+- The user's current instruction assigns Codex the bounded GameState/CustomerPC/PcBuild/receipt
+  correction and its tests. This supersedes the stale #59 ownership notes for this task only.
+  Do not race a second lifecycle or GameState patch; cross-review this result first.
+- Version 0.54.0 is used because physical saved-record contracts are added compatibly. SAVE_FORMAT
+  stays 1. Existing original parts are not assigned invented historical identities or hidden health.
+
+### What changed
+
+`job.part_instances` retains the original physical stock uid, model, customer owner, actual condition,
+defect and player knowledge when custody ends. Existing `parts` remains the model/placement projection;
+temporary fits still derive condition from shop stock. Actual effects persist after collection,
+including dead RAM/CPU/PSU and degraded GPU/cooler/storage. Matching same-model parts never exchanges
+their health. Measurement fingerprints include physical uid/health, not ownership or knowledge edits.
+
+Removal/refitting/reordering carries each migrated record inside the relevant loose entry. A later
+replacement returns that original to stock with its SAME uid/defect, marked untested under D158. An
+unreplaced removed part leaves in the customer's bag; its record remains in the PC/receipt, not free
+stock. Repeat settlement neither consumes more parts nor heals them. Optional immutable `pc_snapshot`
+receipts survive pending-comeback save/load and due report cards. These are historical receipts; the
+existing comeback flow is report-only, not a newly implemented automatic return-repair ticket.
+
+B53 is fixed with target-engine regression evidence. L3 now points to that fix for future handovers;
+already-lost old condition cannot be recovered honestly. L1 remains Investigating for legacy customer
+originals, stable bench aliases and the full migration/rollback path. L2 remains Investigating: no
+orphan mark was cleared or unlocked. L4 now means salvage/night-clock integration ONLY; L5 separately
+tracks drawer-overflow visibility. Both remain open. B1–B41 are still Fixed, not automatically Verified.
+
+### Claude's next action
+
+1. Check live branches and read this section, PART_LIFECYCLE's 0.54.0 stage and the new changelog.
+2. Cross-review the #64 -> #65 -> #66 chain and this final patch under user-controlled integration.
+   Pay attention to same-model RAM reordering, undoing service replacements, a delivered part returned
+   to stock, bag contents, inactive-PC load and immutable comeback receipts. Keep all prior suites and
+   the new Delivered parts suite; do not weaken the old Part lifecycle journey.
+3. After the user integrates, resume the CURRENT Rooms/art/playtest follow-up in the 0.53.0 section
+   below. Wave 3 through 3.8 is already built on this chain: do not restart the testing bay or builds.
+   The manual, boss malware, interactive reviews and shop upgrades remain deferred as before.
+4. Continue L1 by migrating legacy originals behind adapters, retaining one authoritative identity/
+   condition record and proving rollback/duplicate/orphan scenarios. This patch is one migrated path,
+   not the full registry. Keep L2 locked until a safe recovery policy exists. Design L4 clock charging
+   separately from L5 UI overflow. Neither receives invented gameplay rules in this task.
+5. Next scheduled structural review stays at 0.60.0. Historical review entries are provenance; green
+   CI is not graphical acceptance or proof that the 41 historical fixes were individually reverified.
+
+### Copyable Claude resume prompt
+
+> Read HANDOFF's 0.54.0 section before continuing. The user asked Codex to implement the audit
+> recommendations. This stacked follow-up fixes B53/L3: physical stock uid/condition/defect/knowledge
+> survive delivery, removal/refit, return to stock, bag contents and comeback receipts. It preserves
+> your #64/#65/#66 chain; integrate in that order under the user's merge instructions. Cross-review
+> the new Delivered parts suite alongside all existing lifecycle/native tests. Then resume Rooms/art/
+> playtesting, not old Wave 3 steps. L1 legacy originals/bench aliases and L2 orphan recovery remain
+> open; L4 clock and L5 drawer overflow are separate. Keep the manual deferred and the 0.60.0 review.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution evidence: CHANGELOG 0.54.0. Native Godot checks are not a graphical/user acceptance claim.
+
+## Previous — 0.53.0 Rooms instead of menus (Claude), 21 November 2026
 
 Read first: done. #64 (0.51.0) and #65 (0.52.0) are open; this branch `feat/rooms-0530` is stacked on
 #65 (merge #64, then #65, then this; retarget each to main as the one below merges). The user asked for a

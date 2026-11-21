@@ -26,7 +26,7 @@ const SYMPTOMS: Dictionary = {
 # {fitted, working, damaged, tier, text}. `working` is INTERNAL truth for rules; never show it.
 static func state(job: Dictionary, part_id: String) -> Dictionary:
     var fitted: bool = not part_id in job.get("removed_parts", [])
-    var working: bool = not part_id in job.get("broken_parts", [])
+    var working: bool = not part_id in job.get("broken_parts", []) and str(PcBuild.shop_condition(job, part_id)["condition"]) != PcBuild.BROKEN
     var damaged: bool = part_id in job.get("damaged_parts", [])
     var tier: String = str(job.get("service_replacements", {}).get(part_id, ""))
     var missing: String = BUILD_MISSING_TEXT if PcBuild.is_build(job) else MISSING_TEXT   # 0.51.0: a build has no original to refit
