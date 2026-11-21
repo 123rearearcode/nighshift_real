@@ -37,6 +37,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Code checker: B55 and B56 filed — 2026-11-21 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), Claude Code cloud session.
+- Based on: main 0.54.2 (2b346c1). The integrator assigns the version.
+- Added: `docs/BUGS.md` rows and details for B55 (PR #70: cursor stays hidden in the pause menu while the
+  magnifying glass is over the part) and B56 (PR #69: stock room draws under-counter items at its origin).
+  Both Open, found by code review only and not reproduced.
+- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run.
+- Checks: `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py` (results in the PR).
+- Next action: the owner of PRs #69/#70 (Claude) answers the findings; this PR's BUGS index rows sit next
+  to #69's B54 row, so whichever merges second has a one-line merge to resolve.
+
 ### Scheduled Code checker role — 2026-11-21 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
