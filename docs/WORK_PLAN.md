@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Art coordination — 0.56.2, 23 November 2026
+
+The user will assign asset creation to Claude/Gemini using ART_DIRECTION.md and FIRST_DAY_ART_CHECKLIST.
+Read those first; work in bounded ART IDs/draft folders with one common layout/anchor/pixel contract.
+Environment/layout and character/prop packets are suggestions for assignment, not work already started.
+This docs-only task launches no agents and reserves no runtime hot files. Separate any layered-screen/
+hover-storage implementation from asset delivery, preserve the existing 20 x 10 shared storage model,
+and coordinate with pending Codex 0.57.0/0.58.0 before overlapping files. Checker PR #73 is untouched.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current integration — 0.54.1, 21 November 2026
 
 User-authorized merges #64–#67 are complete. PR #19 is being resolved as historical proposal archival,

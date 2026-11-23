@@ -1,5 +1,16 @@
 # Nightshift — Project Brief
 
+## Current art brief — 0.56.2, 23 November 2026
+
+The user's first-day art task is documented in ART_DIRECTION.md and FIRST_DAY_ART_CHECKLIST.md
+(D165), with existing PNG references under art/references/. Read them before creating/integrating art.
+Preserve layered scenes, latest readable dusk/Balkan direction, clipboard-only initial tabletop and one
+20 x 10 under-counter grid (visible or proposed look-under). No art/runtime/save change is implemented
+by this documentation pass. Existing repair screens may remain placeholders for the first playable
+counter slice. Opening-day intake is not falsely claimed built; current new game starts at night 1.
+Earlier release/branch status below is historical; HANDOFF's newest section controls the current task.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current audit follow-up — 0.54.0, 21 November 2026
 
 Codex's user-authorized follow-up preserves individual delivered shop parts through collection,

@@ -709,3 +709,18 @@ The user played 0.53.0 and asked for these changes; the follow-up answers are th
    rows or controls (the 0.49.0 calm-demo boundary still holds). A **reduce-flashing setting** will exist.
 6. Work split: Claude builds 1–3 (0.55.0 counter and store, 0.56.0 lens); **Codex builds 5 (0.57.0) and
    4 (0.58.0)**. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+### D165 — First-day art direction and counter storage (user, 23 November 2026)
+
+The user keeps the latest look provisionally: layered 2D, pixel rooms/characters with clear illustrated
+hardware close-ups, contemporary Balkan/postmodern character without most overused tropes; full-height
+blue-grey tiles, no indoor plants/counter-wall shelves, larger street window and readable gloomy dusk.
+First tabletop dressing is only the clipboard. People, PCs, contents and paper/UI text stay dynamic.
+Under-counter spatial storage remains mandatory, like the user's Probably Stolen interaction reference:
+allow sufficient visible space OR a hover look-under treatment. Existing orientation/capacity is 20 x 10;
+no new storage economy, ownership or duplication rule. The brief recommends a larger look-under view,
+but exact presentation/hover timing/pixel scale remain working proposals, not final user choices.
+User requested an asset checklist and mandatory art reference/handoff; no new art in this task.
+See ART_DIRECTION.md and FIRST_DAY_ART_CHECKLIST.md. D163/164 remain reserved for the earlier Codex
+anti-virus/part-test work. Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
