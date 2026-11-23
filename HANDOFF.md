@@ -1,6 +1,51 @@
 # Handoff — current state first
 
-## Current — 0.57.1 prior-PR integration, 23 November 2026
+## Current — 0.57.2 permanent art progress and human-approval rule, 23 November 2026
+
+User authorized merging prior PRs and creating this NEW documentation PR. #74, #75 and #73 are now
+merged, baseline main 0.57.1 / fd07993: art brief/credits, customer-first opening, checker performance
+report/B57. This patch adds no art/runtime changes and does not approve any existing draft for the game.
+
+### Art agents: required entry point and next work
+
+Read `docs/ART_PRODUCTION_PROGRESS.md` FIRST, then ART_DIRECTION and ART_ASSET_LOG. It is the durable
+router/continuing queue. Current phase FIRST_DAY_ACTIVE routes to FIRST_DAY_ART_CHECKLIST (0/18 created).
+Next dependency is the shared ART-01 composition + ART-05 storage-capacity layout; assign one owner.
+No new art is requested by this governance-only task. The clipboard-only top and 20 x 10 storage remain.
+
+Once first-day creation is complete, the coordinating agent must move remaining reviews/approval/
+integration work and the next user-authorized art scope into the permanent queue, switch live AGENTS/
+HANDOFF/guide pointers, notify/remind the user and retire the old file. Keep a brief redirect while
+branches migrate; delete it once the permanent tracker's explicit retirement conditions hold. Preserve
+credits, approvals and completed history; do not delete the incomplete checklist now or keep two lists.
+
+### Human approval is mandatory BEFORE art enters gameplay
+
+No agent may push artwork into the playable game before a HUMAN approves its exact revision/use.
+Record approver/date/evidence/file hashes in ART_ASSET_LOG; changes to approved art need renewed
+approval. Created is not approved or integrated. Draft/reference paths may hold review material only
+while disconnected from runtime loaders/scenes/code. Existing concept acceptance is not blanket
+approval to install its art. The rule is documented policy; no automated approval CI gate is claimed.
+
+A daily condition-watch is active to check first-day completion/obsolescence and remind the user of
+migration/retirement and prepare docs-only transition PRs when conditions hold. It must never approve
+or install art or merge PRs. Delivery-time agents still
+manage the routing change; the reminder is a backstop, not a replacement for maintaining these docs.
+
+### Copyable resume instruction
+
+> Read ART_PRODUCTION_PROGRESS first and follow its ACTIVE list, not an old handoff's phase. Update
+> creation status and per-file credits in ART_ASSET_LOG. Submit exact asset revisions for HUMAN review
+> before any runtime installation. After first-day creation completes, migrate agent pointers to the
+> continuing queue, carry over pending approvals/integration, tell the user the old checklist is obsolete,
+> and retire/delete it only after all live references and branch dependencies have migrated.
+
+Pending gameplay stays anti-virus 0.58.0 / per-part tests 0.59.0; opening 0.57.0 is merged. No hot file
+is reserved by this docs task. Scheduled checker owns the next structural marker, 0.60.0. B55/B56/B57
+stay Open; B58 stays Verified. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## Previous — 0.57.1 prior-PR integration, 23 November 2026
 
 User authorized merging the prior PRs. #74 (art/checklist/credits, 0.56.3) and #75 (customer-first
 opening, 0.57.0) are merged on main 8342874. This docs-only integration resolves checker #73's bug

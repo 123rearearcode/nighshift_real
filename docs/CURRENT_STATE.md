@@ -1,5 +1,15 @@
 # Nightshift — Current State and Technical Handoff
 
+## Permanent art workflow — 0.57.2, 23 November 2026
+
+D167: art agents start from ART_PRODUCTION_PROGRESS for current creation work, then ART_DIRECTION and
+ART_ASSET_LOG for look/credits/approvals. First-day creation checklist remains active (0/18); after it
+completes, migrate future work/live references to the permanent queue, notify the user and eventually
+retire the obsolete file without losing history. No art enters gameplay before HUMAN approval of its
+exact revision/use; changed art needs renewed approval. Created/Approved/Integrated/Accepted differ.
+Prior #73/#74/#75 are merged on main 0.57.1 / fd07993; this governance patch adds no art/runtime changes.
+Pending features/checker scope stay unchanged. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## First-day opening — 0.57.0 branch, 23 November 2026
 
 User-authorized separate gameplay follow-up after #74's 0.56.3 art-credit/checklist push: New game now

@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Permanent art coordination — 0.57.2, 23 November 2026
+
+User rule: NO artwork enters gameplay without prior human approval of the exact revision/use. Agents
+read ART_PRODUCTION_PROGRESS first, follow its active creation list and record creator/edit history and
+human approvals in ART_ASSET_LOG. First-day list remains current until creation completes; Codex or the
+assigned coordinator then migrates live agent references and remaining work to the permanent queue,
+reminds the user and eventually removes the obsolete file under documented retirement conditions.
+This docs task creates/installs no art and reserves no runtime hot files. Prior #73/#74/#75 are merged;
+pending gameplay slots and scheduled checker role remain unchanged. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Current first-day assignment — 0.57.0, 23 November 2026
 
 After pushing creator/checklist tracking to #74 (0.56.3), the user assigned Codex the bounded first-day

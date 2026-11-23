@@ -1,5 +1,15 @@
 # Nightshift art reference — first counter test
 
+## Permanent routing and human approval — 0.57.2
+
+Read ART_PRODUCTION_PROGRESS.md FIRST to find the active art task list. FIRST_DAY_ART_CHECKLIST is a
+temporary detail list for the current milestone; migrate agents to the permanent queue and retire it
+when that milestone completes, retaining all constraints here and credits/approvals in ART_ASSET_LOG.
+No art enters the playable game before a HUMAN approves its exact revision/use. Draft/reference files
+stay disconnected from live scenes and automatic asset paths. Changed artwork needs renewed approval.
+The current look/drafts are references, not a blanket runtime approval. This update creates no art.
+
+
 Current art brief, 23 November 2026. Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 Read this BEFORE producing or integrating art. It records the user's latest instructions, not a request to implement new gameplay. Asset tasks and acceptance: [FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md). Existing room loading instructions: [ROOM_ART_GUIDE.md](ROOM_ART_GUIDE.md). Lifecycle/navigation remain authoritative for behaviour.
 
@@ -49,7 +59,7 @@ Separate components, back to front:
 7. Runtime paper text, hover/focus feedback, dialogue and storage look-down view.
 8. Separate light masks/effects; don't bake incompatible day/night light into sprites.
 
-Mandatory credits/status: update FIRST_DAY_ART_CHECKLIST checkboxes and ART_ASSET_LOG.md with the actual creator, tool/model, date, per-file paths and original/edit history. Creation is separate from integration.
+Mandatory credits/status: update FIRST_DAY_ART_CHECKLIST checkboxes and ART_ASSET_LOG.md with the actual creator, tool/model, date, per-file paths, original/edit history and exact-revision human approval evidence. Creation is separate from integration.
 
 For every delivery provide: stable asset ID, owned files, source resolution, logical dimensions, anchor/pivot, transparent bounds, screen placement guide, intended layer, permitted motion/rotation, states, local lighting assumptions and what remains dynamic. Full-screen layers share a canvas/origin; individual props get transparent margins plus explicit anchors. Export PNG with real alpha, not a checkerboard background; retain editable source if available. No sample ticket text, money, stars, fault labels or item counts in image pixels. No arbitrary coloured inventory cells baked into the art. Use `art/drafts/<task-id>/` for new drafts, not live auto-loaded paths, until integration is authorized. Do not overwrite references or other contributors' assets.
 
