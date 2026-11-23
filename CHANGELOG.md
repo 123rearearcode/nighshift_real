@@ -92,6 +92,48 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.56.3 - 2026-11-23 - Track art creators and checkable creation status
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: PR #74 head 50311ff (0.56.2); main remains 0.56.1 / 960b847.
+- Type: patch (checklist/credit documentation and version-only metadata).
+
+### Execution status
+No new art and no Godot run. Runtime, scenes, tests, tools, CI and existing images are unchanged.
+User-authorized customer-first opening is recorded for a separate gameplay PR, not claimed built.
+
+### Added / Changed / Fixed / Removed
+- Add 18 real Markdown creation checkboxes and mandatory per-file creator/model/tool/date logging.
+- Add ART_ASSET_LOG with uncreated production tasks, actual existing-reference credits and an append-only delivery/edit-history template. Created and Integrated are distinct.
+- Update art-agent instructions and handoff before beginning the separately requested opening feature.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/FIRST_DAY_ART_CHECKLIST.md | M | Checkboxes, credits duty and authorized separate customer-start task |
+| docs/ART_ASSET_LOG.md | A | Creation/credit ledger and delivery history template |
+| docs/ART_DIRECTION.md | M | Credit/status requirement and opening feature boundary |
+| AGENTS.md | M | Require art contributor status and attribution updates |
+| HANDOFF.md | M | Checklist-first completion and separate gameplay follow-up |
+| DEVELOPMENT.md | M | Register new ledger |
+| README.md | M | Version and ledger link |
+| project.godot | M | Version only, 0.56.3 |
+| CHANGELOG.md | M | This signed release record |
+
+### Checks performed
+Project checker passed: 155 scripts, 819 references, 233 mapped files; zero problems. Bug checker passed; 12 bug-register and 9 CI-scope fixtures passed. Whitespace passed; all 18 creation checkboxes are initially unchecked and the credit ledger is linked.
+
+### Decisions proposed (not approved)
+No new visual or gameplay proposal. User has approved a customer-first opening in a separate PR.
+
+### Known issues and open items
+Production art remains Not created; existing drafts keep their reference-only status. Pending runtime
+opening, existing bugs/limitations and the 0.60.0 structural marker remain unchanged.
+
+### Next action
+Push checklist update to PR #74 first. Then implement customer-first opening in its own PR, preserving
+existing repair flow and save compatibility. Art creators fill credits and checkboxes on delivery.
+
 ## 0.56.2 - 2026-11-23 - Art creation reference and first-day asset checklist
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

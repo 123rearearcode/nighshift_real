@@ -7,9 +7,46 @@ Mandatory companion: [ART_DIRECTION.md](ART_DIRECTION.md), including existing im
 
 First target: a readable counter scene with a customer, clipboard/ticket interaction and REAL under-counter storage. The only initial loose tabletop prop is the clipboard; PCs/items appear only when gameplay places them. Keep existing interactions accessible.
 
-Second target: one existing repair-cycle slice — select a customer PC, move it to the workshop, do its supported repair/tests using current screens, return/check/collect through the current flow, close/end night and continue/reload. New art for every minigame is NOT required for this test; functional placeholders remain valid. This is NOT a promise that an opening intake day or all planned day trading/story interactions already exist. `GameState.new_game()` currently starts at night 1 with an existing repair job; verify the actual fresh-session route before scripting an art demonstration. Add a morning prologue only in a separately authorized gameplay task.
+Second target: one existing repair-cycle slice — select a customer PC, move it to the workshop, do its supported repair/tests using current screens, return/check/collect through the current flow, close/end night and continue/reload. New art for every minigame is NOT required for this test; functional placeholders remain valid. This is NOT a promise that an opening intake day or all planned day trading/story interactions already exist. `GameState.new_game()` currently starts at night 1 with an existing repair job; verify the actual fresh-session route before scripting an art demonstration. The user has now authorized a separate gameplay PR so the first day starts with a customer; this checklist update records that requirement, not implementation completion.
 
 The first two scripted customer records are Mara V. (`t001_mara`, regular, hurried hotel front-desk clerk) and Relu D. (`t002_relu`, gamer/student). Their appearance is not defined by the old reference man. Use their identity/personality data, ask for look approval through sketches later; never silently rename the reference man to either. A generic fallback can support generated visitors without requiring a complete crowd.
+
+## Creation status and credits — mandatory for every contributor
+
+The user requires a **created / not-created checkable list** and a record of **who created each asset**.
+Use the checkboxes below as the shared creation ledger; [ART_ASSET_LOG.md](ART_ASSET_LOG.md) holds
+creator credits and delivery history. A checked box means the required files have been delivered with
+paths and metadata, not that the asset is integrated or playable. Track integration/visual acceptance
+separately. Existing references/drafts do not silently satisfy production tasks.
+
+Before work, claim the ART ID and owner in the log to avoid overlap. On delivery, record creator name
+(or AI assistant + model/tool and exact ID if known; write unknown explicitly), date, files, reference
+sources, creation method and subsequent edits with their authors. For a multi-file task, list each file's
+creator; preserve the original credit when someone else edits it. No anonymous generated artwork.
+Check the box only after file paths and the delivery manifest exist. Keep it unchecked while missing,
+in progress or reference-only; the log may describe progress without claiming creation complete.
+
+- [ ] ART-01 — Counter composition / anchor sheet.
+- [ ] ART-02 — Production room shell and exterior matte.
+- [ ] ART-03 — Glazing, front-door and hanging-sign layers.
+- [ ] ART-04 — Production counter foreground and masks.
+- [ ] ART-05 — Usable 20 x 10 under-counter storage art kit.
+- [ ] ART-06 — Production clipboard object.
+- [ ] ART-07 — Clipboard / ticket close-up skin.
+- [ ] ART-08 — Initial scripted customer sprites (Mara and Relu).
+- [ ] ART-09 — Separate customer PC exterior.
+- [ ] ART-10 — Storage item silhouettes and rotations.
+- [ ] ART-11 — Workshop entry / navigation and shutter states.
+- [ ] ART-12 — Lighting layers and readable UI contrast samples.
+- [ ] ART-13 — Workshop room and station masks (P1).
+- [ ] ART-14 — Open case / board presentation kit (P1).
+- [ ] ART-15 — First close-up hardware family (P1).
+- [ ] ART-16 — Tool skins and effect masks (P1).
+- [ ] ART-17 — Dust / paste / fan / damage layers (P1).
+- [ ] ART-18 — Existing monitor / test / phone UI skin where needed (P1).
+
+All production tasks start **not created**. The four already-existing reference images have their own
+credits in ART_ASSET_LOG; they remain references, with no new artwork made by this update.
 
 ## 2. P0 — first counter test, concrete asset tasks
 
@@ -61,7 +98,7 @@ These are proposed work packets, not a claim either contributor has started or a
 
 ### Copyable shared prompt
 
-> Read HANDOFF's newest art section, docs/ART_DIRECTION.md and docs/FIRST_DAY_ART_CHECKLIST.md, then inspect the actual images in art/references/. Treat the newest written user instructions as higher priority than the populated concept and empty-cubby draft. Work only on the assigned ART IDs in art/drafts/<task-id>/. Keep the same canvas/pixel density, palette, anchors and lighting as the agreed composition. Preserve the 20-column x 10-row under-counter grid: continuous readable capacity or the proposed look-under view, never decorative cubby-sized inventory. The clipboard is the only initial loose tabletop prop. No baked customer, PC, stored contents or UI text. Return source/PNG plus dimensions, alpha, anchor, z-layer and state manifest; list unresolved alignment issues. Do not implement gameplay, edit another contributor's art, change stock/ownership/hidden condition, or overwrite the reference images. Ask for look review before finalising named character designs.
+> Read HANDOFF's newest art section, docs/ART_DIRECTION.md and docs/FIRST_DAY_ART_CHECKLIST.md, then inspect the actual images in art/references/. Treat the newest written user instructions as higher priority than the populated concept and empty-cubby draft. Work only on the assigned ART IDs in art/drafts/<task-id>/. Keep the same canvas/pixel density, palette, anchors and lighting as the agreed composition. Preserve the 20-column x 10-row under-counter grid: continuous readable capacity or the proposed look-under view, never decorative cubby-sized inventory. The clipboard is the only initial loose tabletop prop. No baked customer, PC, stored contents or UI text. Update the creation checkboxes and docs/ART_ASSET_LOG.md with creator/model/tool/date and per-file paths, preserving original and edit credits. Return source/PNG plus dimensions, alpha, anchor, z-layer and state manifest; list unresolved alignment issues. Do not implement gameplay, edit another contributor's art, change stock/ownership/hidden condition, or overwrite the reference images. Ask for look review before finalising named character designs.
 
 ## 6. Integration checks before calling it playable
 

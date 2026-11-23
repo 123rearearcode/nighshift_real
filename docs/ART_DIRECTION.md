@@ -49,6 +49,8 @@ Separate components, back to front:
 7. Runtime paper text, hover/focus feedback, dialogue and storage look-down view.
 8. Separate light masks/effects; don't bake incompatible day/night light into sprites.
 
+Mandatory credits/status: update FIRST_DAY_ART_CHECKLIST checkboxes and ART_ASSET_LOG.md with the actual creator, tool/model, date, per-file paths and original/edit history. Creation is separate from integration.
+
 For every delivery provide: stable asset ID, owned files, source resolution, logical dimensions, anchor/pivot, transparent bounds, screen placement guide, intended layer, permitted motion/rotation, states, local lighting assumptions and what remains dynamic. Full-screen layers share a canvas/origin; individual props get transparent margins plus explicit anchors. Export PNG with real alpha, not a checkerboard background; retain editable source if available. No sample ticket text, money, stars, fault labels or item counts in image pixels. No arbitrary coloured inventory cells baked into the art. Use `art/drafts/<task-id>/` for new drafts, not live auto-loaded paths, until integration is authorized. Do not overwrite references or other contributors' assets.
 
 ## 4. Under-counter storage: capacity before decoration
@@ -83,6 +85,6 @@ Working layout proposal for B at 1280 x 720 (not locked coordinates):
 
 This task creates documentation and copies existing references ONLY. No new art, screenshot assembly, engine code, save contract, hover UI or campaign change. Current room loader still supports a flat background plus hotspots; it does NOT yet implement this layered composition. ROOM_ART_GUIDE's one-image workflow remains the shipped fallback, not the final layered contract.
 
-Keep existing phone/reviews, cash/status, tickets, shutter/end-night, pause, navigation and storage reachable during a staged art swap. Do not remove working functions because their decorative props were omitted. A temporary unobtrusive existing control is preferable to inventing new tabletop furniture; any new permanent presentation is discussed separately. First-day intake/walk-in narrative is not added by art. Current new game starts on the night-1 repair setup; an opening morning scene would be a separate gameplay task.
+Keep existing phone/reviews, cash/status, tickets, shutter/end-night, pause, navigation and storage reachable during a staged art swap. Do not remove working functions because their decorative props were omitted. A temporary unobtrusive existing control is preferable to inventing new tabletop furniture; any new permanent presentation is discussed separately. First-day intake/walk-in narrative is not added by art. The user now authorizes a separate gameplay PR for starting with a customer; until it merges, current new game still starts on the night-1 repair setup.
 
 No new clothing stereotypes, new plot, customer identity rewrite, catalogue, fault inference, police system, physical sales rules, upgrades or minigame mechanics. Preserve manual deferral, scheduled checker role and 0.60.0 structural marker. The suggested Claude/Gemini art batches are instructions for the user to assign, not autonomous agents launched/contacted by this task.

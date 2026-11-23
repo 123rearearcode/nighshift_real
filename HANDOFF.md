@@ -1,6 +1,18 @@
 # Handoff — current state first
 
-## Current — 0.56.2 art reference and first-day asset brief, 23 November 2026
+## Current — 0.56.3 checklist credits/status first, 23 November 2026
+
+The user asked to update the art checklist FIRST, then create a separate gameplay PR so a fresh first
+day starts with a customer. This commit implements the documentation half only. Read FIRST_DAY_ART_CHECKLIST
+and ART_ASSET_LOG: 18 actual Markdown creation checkboxes, named per-file creator/model/tool/date,
+retained original/edit credits and separate integration status. All production tasks are initially
+Not created; the four existing references are credited separately. No new art or gameplay change.
+The customer-start implementation follows on a separate branch/PR; it is not already built here.
+Keep the art direction, 20 x 10 storage and earlier pending feature work; don't seize shared hot files
+for unrelated work. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## Previous — 0.56.2 art reference and first-day asset brief, 23 November 2026
 
 User assignment: document the accepted-for-now visual direction, plan a playable first-day art slice,
 keep REAL under-counter storage (Probably Stolen video reference), and make the reference mandatory
