@@ -1,6 +1,19 @@
 # Handoff — current state first
 
-## Current — 0.57.0 first-day customer opening (separate gameplay PR), 23 November 2026
+## Current — 0.57.1 prior-PR integration, 23 November 2026
+
+User authorized merging the prior PRs. #74 (art/checklist/credits, 0.56.3) and #75 (customer-first
+opening, 0.57.0) are merged on main 8342874. This docs-only integration resolves checker #73's bug
+ledger conflict while preserving B57 Open and B58 Verified. It retains Claude's recorded profiling
+measurements/proposals and author attribution; Codex did not rerun or take over the scheduled review.
+No runtime/art/save change, only version metadata and documentation. The next user task is a separate
+PR for permanent art-progress routing, checklist retirement and mandatory human approval before art
+is installed in the playable game; that governance work is not built by this merge commit.
+Pending gameplay slots stay anti-virus 0.58.0 and part tests 0.59.0, checker structural review 0.60.0.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## Previous — 0.57.0 first-day customer opening (separate gameplay PR), 23 November 2026
 
 The user authorized: update checklist FIRST, then make a NEW PR so the first day starts with a
 customer. Checklist/credits were pushed to #74 at a0551f8 (0.56.3) before this runtime work began.

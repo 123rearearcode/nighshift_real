@@ -86,7 +86,7 @@ Next structural review: **0.60.0**.
 | B54 | Verified | Medium | Test harness | The Rooms suite preloaded a view script, which then failed to compile (no autoloads yet); the scene later loaded without its script, the test errored mid-coroutine and CI hung for 30+ minutes | 0.55.0 | Automated: Rooms suite under the suite timeout (CI run 44857271062) |
 | B55 | Open | Medium | Input | Pausing (F10) with the magnifying glass over the part leaves the mouse cursor hidden for the whole pause menu | — | Not reproduced; code review of PR #70 head 6df5f89 |
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
-
+| B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
 
 ## Known limitations and design debt (not closed bugs)
@@ -809,6 +809,15 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: nothing from under the counter is drawn in the stock room / a small coloured mark per kept item at the room origin (presentation only; hit-testing returns no rect, so it cannot be grabbed).
 - Regression / evidence: none yet. Suggested fix: skip placements whose `_world_item` has no area in `_draw_room`. Not reproduced by the checker (no Godot run, no graphical check).
 
+### B57 — Build-request drawing blocks the morning step when the shop is low on cash
+
+- Found: Code checker performance review, 23 November 2026, main `960b847` (0.56.1). The code came in with 0.51.0 (PR #64).
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), measured with a scratch timing script (not committed)
+- Fixed in: —
+- Root cause: from code, consistent with the timings: `scripts/rules/ticket_generator.gd` `draw_build()` calls `BuildRequest.cheapest()` twice per attempt (once without wants, once with them), for up to `DRAWS` = 12 attempts. It checks affordability (`base.cost > money + deposit`) only after both calls. `cheapest()` in `scripts/rules/build_request.gd` is an uncached brute-force search over CPUs × GPU sets × cases × cooler/PSU options, at 9–60 ms per call in this container. `night_session.gd` `_arrivals()` runs `draw_build` synchronously for each build-request slot, up to 3 per morning.
+- Reproduction (run): a SceneTree script at `960b847`, Godot 4.7.2.stable.official headless, 4-vCPU cloud container. It calls `TicketGenerator.draw_build(GameState.make_ticket_job(""), new_person, money, night, rng_for(12345, night, slot))` for nights 4/6/8/12 × slots 0–5. Two runs: at money 500, mean 18.3 / 18.8 ms, max 47 ms. At money 0, mean 165 / 166 ms, p95 282 / 262 ms, max 306 / 317 ms, and 17 of 24 slots found no affordable request.
+- Expected / actual: the morning step finishes without a noticeable stall / with a low-cash shop it can stall for roughly 0.5–1 s (up to 3 slots × 165–317 ms). This is estimated from the per-slot timings; the full morning step was not timed, and no game was played.
+- Regression / evidence: none yet. Suggested fixes, ranked in `docs/PERFORMANCE.md` (2026-11-23): check affordability before the second search, and memoise `cheapest()`. Results must stay identical, because arrivals are deterministic per save, night and slot.
 
 ### B58 — Night-workshop fixture skipped the new customer intake
 

@@ -37,6 +37,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled performance review — 2026-11-23 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.56.1 (960b847). Compared against main 0.50.0 (c04a278). The integrator assigns the version.
+- Added: the first dated section under "Scheduled performance reviews" in `docs/PERFORMANCE.md`. No reproducible
+  regression in `profile_bench`/`profile_salvage_physics`. Filed bug **B57** (Low, Performance): with a
+  low-cash shop, each build-request arrival stalls the morning step for about 165 ms, up to 317 ms.
+  The section ranks 5 optimisation proposals; none are implemented.
+- Files changed: docs/PERFORMANCE.md (M), docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: Godot 4.7.2.stable.official headless was run by the checker for the profilers on both commits,
+  plus a scratch timing script (not committed). No game code, test, tool or CI change.
+- Next action: the gameplay owner picks up B57 / proposals 1–2; Claude may add a morning-step profiler case (proposal 5).
+
 ### Scheduled Code checker role — 2026-11-21 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
@@ -91,6 +104,46 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
+
+## 0.57.1 - 2026-11-23 - Integrate scheduled performance review and B57
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), original scheduled performance review; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.57.0 / 8342874 after #74/#75, plus checker #73 head 637ff15.
+- Type: patch (documentation-only integration and version metadata).
+
+### Execution status
+No new Godot run by Codex for this docs-only integration. Runtime is unchanged from #75, whose 34
+Godot 4.7.2 suites passed 2,436 checks. Original profiling was run by Claude as recorded in PERFORMANCE;
+its claims are retained as his evidence, not rerun or newly verified by the integrator.
+
+### Added / Changed / Fixed / Removed
+- Integrate #73's scheduled performance report and optimisation proposals without implementing them.
+- Preserve B57 Open and B58 Verified through the ledger conflict; neither is silently reclassified.
+- Record user-authorized prior merges and release this documentation with its own patch number.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| docs/PERFORMANCE.md | M | Original dated checker measurements/proposals |
+| docs/BUGS.md | M | Integrate B57 without losing B58 |
+| HANDOFF.md | M | Current prior-PR integration status |
+| README.md | M | Version/integration note |
+| project.godot | M | Version only, 0.57.1 |
+| CHANGELOG.md | M | Original Unreleased provenance and this integration record |
+
+### Checks performed
+Project checker passed (156 scripts, 827 references, 234 mapped files); bug checker passed; 12 bug fixtures and 9 CI-scope fixtures passed. Whitespace against main passed. Only Markdown and config/version differ from merged 0.57.0; runtime is identical.
+
+### Decisions proposed (not approved)
+Original optimisation proposals remain proposals; no performance code or new review was commissioned.
+
+### Known issues and open items
+B55/B56/B57 remain Open; lifecycle limitations unchanged. Separate user-requested art governance PR
+follows this merge; no new art is created or installed here.
+
+### Next action
+Merge #73 under the user's instruction, then create the separate art-governance PR. Retain current
+art brief/credits and pending gameplay slots; scheduled checker marker stays 0.60.0.
 
 ## 0.57.0 - 2026-11-23 - Begin the first day with customers at the counter
 

@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.57.0)
+# Nightshift - Godot Foundation Trial (v0.57.1)
+
+0.57.1 integrates the scheduled checker’s performance report and B57 documentation after the customer-opening release. Runtime behaviour is unchanged.
 
 0.57.0 starts New game with untimed customer intake at the counter, then night one. Acceptance progress survives Continue; existing saves skip the opening. Art creation credits/checklists remain required.
 
