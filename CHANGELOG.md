@@ -37,6 +37,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled performance review — 2026-11-23 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.56.1 (960b847). Compared against main 0.50.0 (c04a278). The integrator assigns the version.
+- Added: the first dated section under "Scheduled performance reviews" in `docs/PERFORMANCE.md`. No reproducible
+  regression in `profile_bench`/`profile_salvage_physics`. Filed bug **B57** (Low, Performance): with a
+  low-cash shop, each build-request arrival stalls the morning step for about 165 ms, up to 317 ms.
+  The section ranks 5 optimisation proposals; none are implemented.
+- Files changed: docs/PERFORMANCE.md (M), docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: Godot 4.7.2.stable.official headless was run by the checker for the profilers on both commits,
+  plus a scratch timing script (not committed). No game code, test, tool or CI change.
+- Next action: the gameplay owner picks up B57 / proposals 1–2; Claude may add a morning-step profiler case (proposal 5).
+
 ### Scheduled Code checker role — 2026-11-21 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
