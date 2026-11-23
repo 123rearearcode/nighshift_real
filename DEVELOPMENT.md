@@ -90,6 +90,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
 | `tools/test_first_customer.gd` | tooling | Native first-day intake, cold Continue, duplicate/identity/payment safeguards and legacy saves |
 | `docs/ART_ASSET_LOG.md` | docs | Per-asset creator credits, creation status, file manifests and preserved edit history |
 | `docs/ART_DIRECTION.md` | docs | Mandatory art creation reference, latest user directions, layer contract and storage geometry |
@@ -924,3 +925,13 @@ end-night routes remain gated. No payment, night increment or repair/condition m
 Required First customer suite covers native title/pause/acceptance/Continue, actual cold reload,
 identity/stock/cash conservation, rejected repetition, legacy and malformed optional data. The art
 checkbox/credit contract is independent of this feature's implementation status.
+
+
+## Art production lifecycle — 0.57.2
+
+Art agents start from ART_PRODUCTION_PROGRESS, which routes to the current active creation list;
+ART_DIRECTION owns visual constraints and ART_ASSET_LOG owns file-level creator/approval history.
+First-day checklist is temporary: after its creation tasks complete, migrate remaining work and live
+pointers to the permanent queue, notify the user and retire/delete the obsolete file under the stated
+conditions. Human approval of exact revisions/use precedes any live asset/scene binding; Created or
+AI review/CI does not confer it. No automatic CI approval gate or new runtime support is implemented.

@@ -105,6 +105,86 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.2 - 2026-11-23 - Permanent art progress and human approval
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Based on: main 0.57.1 / fd079934b5f0361c48f8e6e14b22ba292f868f5a after merging #74, #75 and #73.
+- Type: patch (documentation and version metadata only).
+
+### Execution status
+
+No Godot run for this documentation-only patch. No artwork, runtime, save, test or CI implementation
+changed. The runtime remains the merged 0.57.0 first-customer implementation; its earlier 34 required
+Godot 4.7.2 suites / 2,436 checks are prior baseline evidence, not a new run or graphical acceptance.
+
+### Added / Changed / Fixed / Removed
+
+- Added permanent ART_PRODUCTION_PROGRESS as the agent entry point and future continuing queue.
+  While first-day production is incomplete, it routes to the existing 18-task checklist; none is
+  marked Created by this patch. Credits remain in ART_ASSET_LOG, with an explicit human-approval field.
+- Recorded the user's mandatory rule: human approval of identified revisions/use must precede any
+  artwork entering the playable game, including feature branches and auto-loaded paths. Drafts stay
+  disconnected; changed art needs renewed approval. Creation, approval, integration and visual
+  acceptance are distinct. This is documented policy, not an automated approval-enforcement feature.
+- Defined the completion-triggered migration: transfer unfinished work and authorized future scope,
+  update live agent pointers, remind the user, briefly redirect the obsolete checklist while branches
+  migrate, then delete it once links, dependencies and retained history are accounted for.
+- Updated the handoff, agent rules, guides and five core documents. Existing concept references are
+  not promoted to approved runtime art. The incomplete checklist is retained.
+- Created a daily 19:00 Europe/Bucharest condition-watch to check completion/obsolescence, prepare
+  deduplicated documentation transition/retirement PRs and remind the user. It must not merge PRs,
+  approve/install art or change runtime, and stops after retirement notification. Agents still check
+  these conditions at delivery; scheduling does not replace the repository workflow.
+
+### Files changed
+
+| File | Change | What |
+| --- | --- | --- |
+| `AGENTS.md` | M | Mandatory tracker routing and human approval before runtime art |
+| `DEVELOPMENT.md` | M | File map and permanent art workflow contract |
+| `HANDOFF.md` | M | Current resume prompt, merged baseline and retirement obligations |
+| `README.md` | M | 0.57.2 version and permanent art entry point |
+| `art/references/README.md` | M | Reference-only status and approval routing |
+| `docs/ART_ASSET_LOG.md` | M | Per-revision human approval evidence and retained creator credits |
+| `docs/ART_DIRECTION.md` | M | Permanent tracker and approval precedence |
+| `docs/ART_PRODUCTION_PROGRESS.md` | A | Permanent queue, first-day transition, retirement criteria and reminder |
+| `docs/CURRENT_STATE.md` | M | Current art governance state |
+| `docs/DECISIONS.md` | M | D167 user-approved workflow and human-approval rule |
+| `docs/DESIGN.md` | M | Current art governance contract |
+| `docs/FIRST_DAY_ART_CHECKLIST.md` | M | Temporary lifecycle and updated agent prompt |
+| `docs/PROJECT_BRIEF.md` | M | Current art coordination contract |
+| `docs/ROADMAP.md` | M | Art transition and retirement milestone |
+| `docs/ROOM_ART_GUIDE.md` | M | Mandatory approval before runtime installation instructions |
+| `docs/WORK_PLAN.md` | M | Active art routing and coordinating-agent responsibilities |
+| `project.godot` | M | Version metadata only |
+| `CHANGELOG.md` | M | This delivery and verification evidence |
+
+### Checks performed
+
+- Project/version/file-map checker and bug-register checker: passed, zero problems.
+- Bug-register fixtures: 12 passed; CI-scope fixtures: 9 passed.
+- Changed-document local links, 18 unchecked creation rows / no invented approvals, and reference
+  image SHA-256 preservation checked. Only Markdown and project.godot version metadata differ from main.
+- git diff --check passed. No new Godot or human graphical acceptance claimed.
+
+### Decisions proposed (not approved)
+
+None added. D167 records the user's explicit progress/retirement/human-approval instructions. Future
+creative scope and individual artwork approvals remain for the user; no new artwork is commissioned.
+
+### Known issues and open items
+
+First-day production remains 0/18 Created, with no runtime art approval recorded. The old checklist is
+still useful. B55/B56/B57 remain Open; B58 remains Verified. Approval evidence must be maintained by
+agents; this patch adds no CI enforcement. Exact deployment model id is unavailable in this session.
+
+### Next action
+
+Review this separate governance PR. Art contributors read ART_PRODUCTION_PROGRESS first and claim the
+ART-01/ART-05 shared layout dependency before production. Present exact revisions for human approval
+before integration. The coordinating agent manages the future transition and user reminder. Pending
+gameplay remains 0.58.0 anti-virus effects, 0.59.0 per-part tests; scheduled checker owns 0.60.0 review.
+
 ## 0.57.1 - 2026-11-23 - Integrate scheduled performance review and B57
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), original scheduled performance review; integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

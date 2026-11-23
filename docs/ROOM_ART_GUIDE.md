@@ -1,5 +1,13 @@
 # Room art guide — replacing the placeholders (0.53.0, D161)
 
+## Mandatory before installing room art — 0.57.2
+
+Start with ART_PRODUCTION_PROGRESS.md for current task routing and retirement state, then ART_DIRECTION
+and ART_ASSET_LOG. The historical drop-in instructions below may ONLY be used after human approval of
+the exact artwork revision/use is recorded. Merely copying into an auto-loaded room path installs art;
+unapproved drafts must stay non-loaded. After first-day completion, agents use the permanent queue.
+
+
 ## Art direction update — 0.56.2
 
 Before creating any art, read [ART_DIRECTION.md](ART_DIRECTION.md) and

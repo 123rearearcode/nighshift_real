@@ -736,3 +736,16 @@ Optional pending ticket-ID queue persists in the main save; existing saves do no
 This does not add full negotiation/trading day systems or new artwork. Earlier anti-virus/part-test
 requirements remain pending with version slots moved to 0.58.0/0.59.0; 0.57.0 is the opening feature.
 Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+### D167 — Permanent art progress, checklist retirement and human approval (user, 23 November 2026)
+
+Create a separate continuing art progress document so agents know what to create next. The first-day
+creation checklist is temporary: once complete, agents must reference the new queue thereafter,
+remaining work/history must be carried forward, the old file must eventually be removed and the user
+reminded when it is no longer useful. ART_PRODUCTION_PROGRESS is the durable router/continuing queue;
+ART_ASSET_LOG retains file-level creator/edit/approval records. Do not delete the incomplete list now.
+**No art is to be pushed into the game without human approval first.** Approval is exact revision/use,
+not inferred from an AI, checked task or generic concept acceptance; edited art requires renewed human
+approval. Draft/reference material stays non-loaded until approved. The task also authorizes prior PR
+merges and a new governance PR, not new artwork. Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

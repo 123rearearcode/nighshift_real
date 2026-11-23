@@ -29,11 +29,12 @@ Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADM
    hub, tab rows or a service-menu detour. Rooms are art + hotspots (`docs/ROOM_ART_GUIDE.md`). Reuse
    shared navigation and run its native-input tests.
 
-9. Before any art creation or art integration, read `docs/ART_DIRECTION.md` and
-   `docs/FIRST_DAY_ART_CHECKLIST.md`, then inspect `art/references/`. Newest written instructions
-   outrank incidental concept props. Preserve the 20 x 10 under-counter storage and dynamic layers;
-   only the clipboard is an initial loose tabletop prop. Follow assigned ART IDs and coordinate files.
-
-10. Art contributors must update FIRST_DAY_ART_CHECKLIST creation checkboxes and docs/ART_ASSET_LOG.md
-    with actual per-file creator/model/tool/date and edit history. Existing reference drafts are not
-    created production assets; Created and Integrated are separate states.
+9. Before any art creation/integration, read `docs/ART_PRODUCTION_PROGRESS.md` FIRST for the active list,
+   then ART_DIRECTION and ART_ASSET_LOG and inspect art/references. FIRST_DAY_ART_CHECKLIST is temporary;
+   follow the permanent tracker's migration/retirement procedure when it completes and remind the user.
+10. Art contributors update ACTIVE creation checkboxes and ART_ASSET_LOG with actual per-file creator,
+    model/tool/date and edit history. Keep Created, Human approved, Integrated and Visually accepted separate.
+11. NO ART may be pushed into the playable game before HUMAN approval of that exact revision/use is
+    recorded with evidence/hashes. AI review, a Created checkbox, CI or reference/concept acceptance is
+    not human runtime approval. Keep unapproved drafts/reference files non-loaded; changed art needs
+    renewed human approval. Never replace a runtime asset or bind scenes/code to unapproved artwork.
