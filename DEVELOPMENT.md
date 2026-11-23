@@ -90,6 +90,11 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `tools/test_first_customer.gd` | tooling | Native first-day intake, cold Continue, duplicate/identity/payment safeguards and legacy saves |
+| `docs/ART_ASSET_LOG.md` | docs | Per-asset creator credits, creation status, file manifests and preserved edit history |
+| `docs/ART_DIRECTION.md` | docs | Mandatory art creation reference, latest user directions, layer contract and storage geometry |
+| `docs/FIRST_DAY_ART_CHECKLIST.md` | docs | Bounded ART tasks for the first counter/day slice, suggested contributor packets and acceptance |
+| `art/references/README.md` | docs | Existing copied image provenance and reference-only status |
 | `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
 | `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
 | `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |
@@ -904,3 +909,18 @@ repair ticket. Old saves lack these optional fields; SAVE_FORMAT stays 1. Alread
 not guessed. The new delivered-parts suite is required in CI alongside all prior suites.
 
 Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## First-day save/entry contract — 0.57.0
+
+Optional main-save `opening_customers: Array[String]` contains still-pending initial ticket IDs in visit
+order. Actual GameState field is an Array sanitized to unique nonempty Strings (max 64). Missing or
+wrong container defaults `[]`, so legacy saves do not replay a new opening. IDs must resolve against
+the existing night manifest; no customer/PC is generated to repair a missing reference. SAVE_FORMAT 1.
+`NightSession.start(gs, introduce_customers=false)` keeps its existing demo/test API; the title's
+New game passes true. `opening_cards` reads existing jobs, `accept_opening_customer` validates the
+front ID and checkpoints the shortened queue. Continue prefers Counter while pending; work/PC-switch/
+end-night routes remain gated. No payment, night increment or repair/condition mutation on acceptance.
+Required First customer suite covers native title/pause/acceptance/Continue, actual cold reload,
+identity/stock/cash conservation, rejected repetition, legacy and malformed optional data. The art
+checkbox/credit contract is independent of this feature's implementation status.

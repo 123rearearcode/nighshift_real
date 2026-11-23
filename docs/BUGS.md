@@ -87,6 +87,7 @@ Next structural review: **0.60.0**.
 | B55 | Open | Medium | Input | Pausing (F10) with the magnifying glass over the part leaves the mouse cursor hidden for the whole pause menu | — | Not reproduced; code review of PR #70 head 6df5f89 |
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
+| B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -817,3 +818,13 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction (run): a SceneTree script at `960b847`, Godot 4.7.2.stable.official headless, 4-vCPU cloud container. It calls `TicketGenerator.draw_build(GameState.make_ticket_job(""), new_person, money, night, rng_for(12345, night, slot))` for nights 4/6/8/12 × slots 0–5. Two runs: at money 500, mean 18.3 / 18.8 ms, max 47 ms. At money 0, mean 165 / 166 ms, p95 282 / 262 ms, max 306 / 317 ms, and 17 of 24 slots found no affordable request.
 - Expected / actual: the morning step finishes without a noticeable stall / with a low-cash shop it can stall for roughly 0.5–1 s (up to 3 slots × 165–317 ms). This is estimated from the per-slot timings; the full morning step was not timed, and no game was played.
 - Regression / evidence: none yet. Suggested fixes, ranked in `docs/PERFORMANCE.md` (2026-11-23): check affordability before the second search, and memoise `cheapest()`. Results must stay identical, because arrivals are deterministic per save, night and slot.
+
+### B58 — Night-workshop fixture skipped the new customer intake
+
+- Found: local Godot 4.7.2 regression run during 0.57.0 development, 23 November 2026. B57 is already allocated by open checker PR #73.
+- Reported by: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Fixed in: 0.57.0
+- Root cause: the existing fixture called the product title's New game, forced a storage scene and proceeded directly into night work. The new opening gate correctly rejected its later PC switch; the fixture then assumed its bench return reopened a bench and accessed `paste` on storage_view, stopping the coroutine before the suite could finish. This is a test setup compatibility bug, not a reason to weaken the opening gate.
+- Reproduction: run the unchanged parent `tools/test_night_workshop.gd` against the opening runtime. The bounded local probe reports Invalid access to property or key 'paste' on storage_view at the old fixture's line 193; it was stopped after 12 seconds instead of waiting indefinitely. Earlier save-error warnings are intentional failure-injection checks.
+- Expected / actual: fixture serves initial customers then tests all night routes / it skipped intake and assumed the old night-ready setup.
+- Regression / evidence: the fixture now accepts the two seeded customers in a bounded loop and asserts the queue is empty before continuing. All prior assertions remain. Godot 4.7.2 Night workshop: 57 checks, zero failures; the new native/cold-reload First customer suite: 32 checks, zero failures. No graphical acceptance claim.

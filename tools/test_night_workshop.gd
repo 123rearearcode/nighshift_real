@@ -134,6 +134,13 @@ func run_checks() -> void:
     await process_frame
     await process_frame
     check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and night.tickets.size() == 2,"New game opens the shop counter with two playable tickets")
+    # New game now has real opening intake. Serve the seeded customers before this suite's
+    # existing night-work journey instead of bypassing its new navigation gate.
+    for visit in range(2):
+        if current_scene.visiting():
+            current_scene._next_visit()
+            await process_frame
+    check(gs.opening_customers.is_empty(), "opening customers are accepted before the night-work fixture proceeds")
     night.run_id = ""
     change_scene_to_file("res://scenes/storage.tscn")
     await process_frame

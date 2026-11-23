@@ -1,6 +1,115 @@
 # Handoff — current state first
 
-## Current — 0.56.1 merge completion and checker reports, 21 November 2026
+## Current — 0.57.1 prior-PR integration, 23 November 2026
+
+User authorized merging the prior PRs. #74 (art/checklist/credits, 0.56.3) and #75 (customer-first
+opening, 0.57.0) are merged on main 8342874. This docs-only integration resolves checker #73's bug
+ledger conflict while preserving B57 Open and B58 Verified. It retains Claude's recorded profiling
+measurements/proposals and author attribution; Codex did not rerun or take over the scheduled review.
+No runtime/art/save change, only version metadata and documentation. The next user task is a separate
+PR for permanent art-progress routing, checklist retirement and mandatory human approval before art
+is installed in the playable game; that governance work is not built by this merge commit.
+Pending gameplay slots stay anti-virus 0.58.0 and part tests 0.59.0, checker structural review 0.60.0.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## Previous — 0.57.0 first-day customer opening (separate gameplay PR), 23 November 2026
+
+The user authorized: update checklist FIRST, then make a NEW PR so the first day starts with a
+customer. Checklist/credits were pushed to #74 at a0551f8 (0.56.3) before this runtime work began.
+This feature branch is stacked on that exact head; merge #74 first and retarget this PR to main.
+Main remains 0.56.1 / 960b847; independent checker #73 is untouched. No new art was generated.
+
+New game through the title now shows the existing first customer at the counter (Mara on a fresh
+shop), then the other already-seeded repair customer. Each presents the recorded complaint, uses,
+timing and existing repair fee; accepting the PC advances the queue. Intake is untimed and gates
+night navigation, PC switching and end-night until complete. Then night ONE begins at zero minutes,
+with exactly the same two jobs/PCs, stock, money and repair rules. No generator, payment, review,
+repair, deadline or simulation runs merely to introduce/accept a customer. Existing assets/placeholder
+portraits are reused. This is a bounded first-day introduction, not the full future trading/negotiation day.
+
+`GameState.opening_customers` is an optional list of still-pending EXISTING ticket IDs, stored in the
+main save; legacy/missing/wrong-container input defaults empty and IDs are filtered/deduplicated.
+SAVE_FORMAT remains 1. Cold Continue resumes the unaccepted customer; accepted customers are not
+replayed. Pending opening forces Continue to the counter. The normal later-morning path is unchanged.
+Direct NightSession.start(gs) demo/test callers retain the old immediate-night default; the product
+New game explicitly requests introduction. No second inventory/PC model is added.
+
+### Ownership and next action
+
+Codex owns the bounded GameState/NightSession/counter/title/resume patch for this user assignment.
+Do not race another change to those files until cross-review/integration. Keep first-customer, existing
+morning/room/navigation and lifecycle tests. B58 records the corrected night-workshop fixture
+that previously bypassed intake; B57 remains allocated in checker #73. Recheck branches before
+allocating further bug IDs. Art agents still read ART_DIRECTION, FIRST_DAY_ART_CHECKLIST
+and ART_ASSET_LOG, update checkboxes/actual per-file creator credits and keep only the clipboard as
+initial tabletop dressing. Runtime implementation does not mark any production artwork Created.
+
+Version slots are revised because the user prioritised this new visible feature: 0.57.0 is this opening;
+Codex anti-virus effects/reduce-flashing moves to 0.58.0, per-part goofy tests to 0.59.0. Those features
+remain pending, not built here. Their D163/D164 reservations remain; this opening records D166.
+No gameplay brief is dropped. Next structural review remains 0.60.0, scheduled Code checker only.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution evidence: newest CHANGELOG and required First customer suite. Headless execution is not
+finished art, animation or human graphical acceptance. No automatic merge in this task.
+
+
+## Previous — 0.56.3 checklist credits/status first, 23 November 2026
+
+The user asked to update the art checklist FIRST, then create a separate gameplay PR so a fresh first
+day starts with a customer. This commit implements the documentation half only. Read FIRST_DAY_ART_CHECKLIST
+and ART_ASSET_LOG: 18 actual Markdown creation checkboxes, named per-file creator/model/tool/date,
+retained original/edit credits and separate integration status. All production tasks are initially
+Not created; the four existing references are credited separately. No new art or gameplay change.
+The customer-start implementation follows on a separate branch/PR; it is not already built here.
+Keep the art direction, 20 x 10 storage and earlier pending feature work; don't seize shared hot files
+for unrelated work. Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+## Previous — 0.56.2 art reference and first-day asset brief, 23 November 2026
+
+User assignment: document the accepted-for-now visual direction, plan a playable first-day art slice,
+keep REAL under-counter storage (Probably Stolen video reference), and make the reference mandatory
+for art agents. **No new art now.** This patch changes docs/version metadata and copies four existing
+reference images unchanged; it does not install them in live scenes, implement hover UI or change saves.
+Based on main 960b847 / 0.56.1. Open #73 is the scheduled checker's independent performance/B57 docs
+PR, untouched; no merge is requested by this task. Do not claim B55/B56/B57 fixed by artwork.
+
+### Required read before ANY art creation or integration
+
+1. `docs/ART_DIRECTION.md`: latest user design instructions, actual images/provenance, layering,
+   native-pixel working proposal, written-instruction precedence and under-counter storage geometry.
+2. `docs/FIRST_DAY_ART_CHECKLIST.md`: ART-01–18 priorities, suggested Claude/Gemini batches,
+   copyable prompt, existing first-night versus proposed opening-day boundary and acceptance checks.
+3. Inspect `art/references/` images. Latest empty drafts are not ready game assets. The filled look
+   reference is not authority to recreate clutter. Only the clipboard is initial tabletop dressing;
+   customer PCs, items, paper text and stored contents are dynamic. No plants/counter-wall shelves.
+
+Storage remains ONE 20-column x 10-row unit for parts/tools/PCs. The four-cubby draft cannot shrink
+or partition it. The user permits visible storage OR looking under the counter on hover; the brief
+recommends a larger look-under view but does not pretend that choice/gesture is final or implemented.
+Existing separate storage close-up remains functional. The referenced 16.6 s video was inspected at
+2/8/14 s; it supports the below-top continuous grid relationship, not a claimed hover gesture.
+
+### Resume / ownership
+
+The user will assign asset creation to Claude/Gemini. Suggested environment and prop/character work
+packets and a shared prompt are in the checklist; nobody was launched or contacted. Art work stays
+in assigned draft files. Agree the layout/anchors/storage area before final sprites. Runtime integration
+is a separate bounded version with one file owner. Keep existing phones/reviews/cash/end-night/routes
+reachable even while decorative props are omitted. Original Codex 0.57.0 anti-virus and 0.58.0 part-test
+briefs remain pending, not built or cancelled here; the art task does not seize their hot files. Do not
+reclaim the scheduled checker's structural/performance role; next structural marker remains 0.60.0.
+
+Copyable art-agent prompt: FIRST_DAY_ART_CHECKLIST section 5. Check current live main/branches before
+starting, then deliver only assigned ART IDs and provenance/dimensions/alpha/anchor/state manifests.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/reference-copy pass only; checks recorded in CHANGELOG 0.56.2.
+
+
+## Previous — 0.56.1 merge completion and checker reports, 21 November 2026
 
 The user authorized merging all current PRs. #69 (0.55.0 store/under-counter storage) and #70
 (0.56.0 magnifying glass) are merged in order on main, baseline b4d6841. This docs/version patch

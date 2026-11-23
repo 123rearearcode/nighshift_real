@@ -28,3 +28,12 @@ Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADM
    room navigation, D161). The game moves through rooms and objects, not menus: do not reintroduce a
    hub, tab rows or a service-menu detour. Rooms are art + hotspots (`docs/ROOM_ART_GUIDE.md`). Reuse
    shared navigation and run its native-input tests.
+
+9. Before any art creation or art integration, read `docs/ART_DIRECTION.md` and
+   `docs/FIRST_DAY_ART_CHECKLIST.md`, then inspect `art/references/`. Newest written instructions
+   outrank incidental concept props. Preserve the 20 x 10 under-counter storage and dynamic layers;
+   only the clipboard is an initial loose tabletop prop. Follow assigned ART IDs and coordinate files.
+
+10. Art contributors must update FIRST_DAY_ART_CHECKLIST creation checkboxes and docs/ART_ASSET_LOG.md
+    with actual per-file creator/model/tool/date and edit history. Existing reference drafts are not
+    created production assets; Created and Integrated are separate states.

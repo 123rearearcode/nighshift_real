@@ -22,7 +22,7 @@ func _ready() -> void:
     load_button.tooltip_text = "Resume your saved demo." if not load_button.disabled else "No readable save yet. Start a new game."
     _button("Achievements", 400, _on_achievements)
     _button("Settings", 458, _on_settings)
-    status_label = _label("New game opens the shop counter. Walk through the doors to work.", Vector2(424, 578), Vector2(432, 56), 13)
+    status_label = _label("New game starts with your first customer at the counter. Take in the PCs, then begin night work.", Vector2(424, 578), Vector2(432, 56), 13)
     _label("v%s" % GameState.game_version(), Vector2(440, 660), Vector2(400, 24), 13)
     replace_dialog = ConfirmationDialog.new()
     replace_dialog.title = "Start a new game?"
@@ -74,7 +74,10 @@ func _on_new_game() -> void:
 
 func _start_new_game() -> void:
     GameState.new_game()
-    NightSession.start(GameState)
+    if not NightSession.start(GameState, true):
+        status_label.text = NightSession.status
+        load_button.disabled = not GameState.has_saved_game()
+        return
     get_tree().change_scene_to_file(DEMO)
 
 
