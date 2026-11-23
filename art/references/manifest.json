@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-23",
+  "kind": "existing references copied byte-for-byte; no art generated or edited",
+  "images": [
+    {
+      "path": "art/references/look-reference.png",
+      "source_name": "exec-602d41dd-eefd-4815-82af-9844d3afa951.png",
+      "library_file_id": "libfile_0a9bb171def88191878962cbcd4a8f80",
+      "sha256": "607685bffba3d8ac67e591ad33faa31266437783188f51816185d46bd5d12c36",
+      "bytes": 2280092,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "alpha_range": null,
+      "status": "Approved-for-now look; populated composition, not a prop list"
+    },
+    {
+      "path": "art/references/counter-room-draft.png",
+      "source_name": "exec-f875503b-06c8-43cb-a9da-33f04347a6aa.png",
+      "library_file_id": "libfile_68de44b9426881919c67956ded623458",
+      "sha256": "7ad8f2dadab02e333d123c748c0b10a7af4e5ae0baadec58976294a5bfa3b358",
+      "bytes": 2051787,
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha_range": null,
+      "status": "Latest empty room draft; door/glass/lighting separation still required"
+    },
+    {
+      "path": "art/references/counter-foreground-draft.png",
+      "source_name": "exec-54b54974-d05b-4c76-a463-084fdeff705f.png",
+      "library_file_id": "libfile_6366d9f5723081918fd99bbcbe6f6ce5",
+      "sha256": "f3ed480fb33bdeffefb9783951c56e6ba377750b256f033264672a063f3f43c4",
+      "bytes": 744950,
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "status": "Latest foreground draft; cubbies do not define storage grid geometry"
+    },
+    {
+      "path": "art/references/clipboard-draft.png",
+      "source_name": "exec-3f37948b-d687-4593-a9ef-6b4a55434f74.png",
+      "library_file_id": "libfile_1c8cece9d46c819192ef23f858c7c651",
+      "sha256": "e4e6b56e6c34600416126c35cccc629dd5505ba3b7c85a9bd9799631031d4c43",
+      "bytes": 1489962,
+      "size": [
+        1086,
+        1448
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "status": "Latest blank clipboard draft; align scale/perspective and add live UI separately"
+    }
+  ]
+}

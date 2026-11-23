@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.56.1)
+# Nightshift - Godot Foundation Trial (v0.56.2)
+
+0.56.2 documents the first-day art slice: [art direction](docs/ART_DIRECTION.md), [asset checklist](docs/FIRST_DAY_ART_CHECKLIST.md) and existing references. No new art or runtime changes.
 
 0.56.1 integrates the checker reports B55/B56 after the store/storage and magnifying-glass releases. Both reports remain Open and unverified; runtime is unchanged from 0.56.0.
 

@@ -1,5 +1,16 @@
 # Room art guide — replacing the placeholders (0.53.0, D161)
 
+## Art direction update — 0.56.2
+
+Before creating any art, read [ART_DIRECTION.md](ART_DIRECTION.md) and
+[FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md), and inspect `art/references/`.
+They define the current art target: layered pixel scenes, precise close-up hardware, only a clipboard
+as initial tabletop dressing, dynamic people/items and sufficient space for one 20 x 10 storage grid.
+The one-picture procedure below describes the SHIPPED loader/fallback, not completed layered support.
+Its old counter prop list is a list of functional hotspots, not a mandate to paint till/phone/clutter.
+Do not drop the reference PNGs into live auto-loaded room paths; they still need alignment/layer work.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 The game has no menus between places anymore: every place is **one picture with clickable spots on it**.
 Right now each place is drawn with placeholder boxes. This guide is how you swap in your own art and line
 the clickable spots up with it. You never need to touch code for this.

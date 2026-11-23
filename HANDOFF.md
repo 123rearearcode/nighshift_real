@@ -1,6 +1,48 @@
 # Handoff — current state first
 
-## Current — 0.56.1 merge completion and checker reports, 21 November 2026
+## Current — 0.56.2 art reference and first-day asset brief, 23 November 2026
+
+User assignment: document the accepted-for-now visual direction, plan a playable first-day art slice,
+keep REAL under-counter storage (Probably Stolen video reference), and make the reference mandatory
+for art agents. **No new art now.** This patch changes docs/version metadata and copies four existing
+reference images unchanged; it does not install them in live scenes, implement hover UI or change saves.
+Based on main 960b847 / 0.56.1. Open #73 is the scheduled checker's independent performance/B57 docs
+PR, untouched; no merge is requested by this task. Do not claim B55/B56/B57 fixed by artwork.
+
+### Required read before ANY art creation or integration
+
+1. `docs/ART_DIRECTION.md`: latest user design instructions, actual images/provenance, layering,
+   native-pixel working proposal, written-instruction precedence and under-counter storage geometry.
+2. `docs/FIRST_DAY_ART_CHECKLIST.md`: ART-01–18 priorities, suggested Claude/Gemini batches,
+   copyable prompt, existing first-night versus proposed opening-day boundary and acceptance checks.
+3. Inspect `art/references/` images. Latest empty drafts are not ready game assets. The filled look
+   reference is not authority to recreate clutter. Only the clipboard is initial tabletop dressing;
+   customer PCs, items, paper text and stored contents are dynamic. No plants/counter-wall shelves.
+
+Storage remains ONE 20-column x 10-row unit for parts/tools/PCs. The four-cubby draft cannot shrink
+or partition it. The user permits visible storage OR looking under the counter on hover; the brief
+recommends a larger look-under view but does not pretend that choice/gesture is final or implemented.
+Existing separate storage close-up remains functional. The referenced 16.6 s video was inspected at
+2/8/14 s; it supports the below-top continuous grid relationship, not a claimed hover gesture.
+
+### Resume / ownership
+
+The user will assign asset creation to Claude/Gemini. Suggested environment and prop/character work
+packets and a shared prompt are in the checklist; nobody was launched or contacted. Art work stays
+in assigned draft files. Agree the layout/anchors/storage area before final sprites. Runtime integration
+is a separate bounded version with one file owner. Keep existing phones/reviews/cash/end-night/routes
+reachable even while decorative props are omitted. Original Codex 0.57.0 anti-virus and 0.58.0 part-test
+briefs remain pending, not built or cancelled here; the art task does not seize their hot files. Do not
+reclaim the scheduled checker's structural/performance role; next structural marker remains 0.60.0.
+
+Copyable art-agent prompt: FIRST_DAY_ART_CHECKLIST section 5. Check current live main/branches before
+starting, then deliver only assigned ART IDs and provenance/dimensions/alpha/anchor/state manifests.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution: documentation/reference-copy pass only; checks recorded in CHANGELOG 0.56.2.
+
+
+## Previous — 0.56.1 merge completion and checker reports, 21 November 2026
 
 The user authorized merging all current PRs. #69 (0.55.0 store/under-counter storage) and #70
 (0.56.0 magnifying glass) are merged in order on main, baseline b4d6841. This docs/version patch
