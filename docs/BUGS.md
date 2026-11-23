@@ -87,6 +87,8 @@ Next structural review: **0.60.0**.
 | B55 | Open | Medium | Input | Pausing (F10) with the magnifying glass over the part leaves the mouse cursor hidden for the whole pause menu | — | Not reproduced; code review of PR #70 head 6df5f89 |
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 
+| B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
+
 ## Known limitations and design debt (not closed bugs)
 
 | ID | Status | Priority | Limitation | Next action |
@@ -806,3 +808,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction (expected path, not run): keep one or more items under the counter, open the stock room, zoom in at the top-left of the room view.
 - Expected / actual: nothing from under the counter is drawn in the stock room / a small coloured mark per kept item at the room origin (presentation only; hit-testing returns no rect, so it cannot be grabbed).
 - Regression / evidence: none yet. Suggested fix: skip placements whose `_world_item` has no area in `_draw_room`. Not reproduced by the checker (no Godot run, no graphical check).
+
+
+### B58 — Night-workshop fixture skipped the new customer intake
+
+- Found: local Godot 4.7.2 regression run during 0.57.0 development, 23 November 2026. B57 is already allocated by open checker PR #73.
+- Reported by: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Fixed in: 0.57.0
+- Root cause: the existing fixture called the product title's New game, forced a storage scene and proceeded directly into night work. The new opening gate correctly rejected its later PC switch; the fixture then assumed its bench return reopened a bench and accessed `paste` on storage_view, stopping the coroutine before the suite could finish. This is a test setup compatibility bug, not a reason to weaken the opening gate.
+- Reproduction: run the unchanged parent `tools/test_night_workshop.gd` against the opening runtime. The bounded local probe reports Invalid access to property or key 'paste' on storage_view at the old fixture's line 193; it was stopped after 12 seconds instead of waiting indefinitely. Earlier save-error warnings are intentional failure-injection checks.
+- Expected / actual: fixture serves initial customers then tests all night routes / it skipped intake and assumed the old night-ready setup.
+- Regression / evidence: the fixture now accepts the two seeded customers in a bounded loop and asserts the queue is empty before continuing. All prior assertions remain. Godot 4.7.2 Night workshop: 57 checks, zero failures; the new native/cold-reload First customer suite: 32 checks, zero failures. No graphical acceptance claim.

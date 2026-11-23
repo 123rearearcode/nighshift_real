@@ -32,12 +32,12 @@ func _tag(job: Dictionary,id: String,pc_id: String,kind: String = "repair") -> v
 func _path(gs: Node) -> String:
     return gs.save_path+".night.json"
 
-func start(gs: Node) -> bool:
+func start(gs: Node, introduce_customers: bool = false) -> bool:
     run_id = Crypto.new().generate_random_bytes(12).hex_encode()
     bound_path = gs.save_path
     read_only = false
     status = ""
-    visits_pending = false   # 0.53.0: a new run has nobody waiting at the counter
+    visits_pending = false   # No later-morning report; opening intake has its own saved queue.
     last_report = {}
     tickets = []
     active_id = str(gs.job["id"])
@@ -60,6 +60,9 @@ func start(gs: Node) -> bool:
     Malware.infect(other, Malware.ADWARE)   # D132: the second demo PC arrives with adware (the hint is in the complaint)
     _tag(other,str(other["id"]),run_id+":pc:2")
     tickets.append(other)
+    # Introduce these SAME PCs, not generated copies, before the first night. Direct demo/test
+    # callers retain the existing start() contract; the title's New game opts into the opening.
+    gs.opening_customers = tickets.map(func(entry: Dictionary) -> String: return str(entry["id"])) if introduce_customers else []
     gs.ticket_sequence += 1
     gs.save_game()
     if not _main_saved(gs):
@@ -171,7 +174,7 @@ func checkpoint(gs: Node) -> bool:
 func _main_saved(gs: Node) -> bool:
     var raw: Variant = Store.read(gs.save_path)
     if not raw is Dictionary: return false
-    for key: String in ["job","money","player_inventory","inventory_layout","inventory_sequence","ticket_sequence","upgrades","owned_games","customer_state","tickets_taken"]:
+    for key: String in ["job","money","player_inventory","inventory_layout","inventory_sequence","ticket_sequence","upgrades","owned_games","customer_state","tickets_taken","opening_customers"]:
         if raw.get(key,null) != JSON.parse_string(JSON.stringify(gs.get(key))): return false
     return true
 
@@ -182,6 +185,9 @@ func jobs(gs: Node) -> Array:
     return tickets.duplicate(true)
 
 func switch_pc(gs: Node,id: String) -> bool:
+    if not gs.opening_customers.is_empty():
+        status = "Serve the opening day's customers at the counter before starting night work."
+        return false
     if not ensure(gs) or id == active_id: return id == active_id and not read_only
     var target: Dictionary = {}
     for entry: Dictionary in tickets:
@@ -233,6 +239,34 @@ func ticket_action(gs: Node,id: String,action: String) -> Dictionary:
     return result
 
 # ----- the morning (D136, Wave 3 session 3.2) -----
+
+# Opening intake uses existing jobs and public customer facts, not an end-night report. Its only
+# persistent progress is GameState.opening_customers, saved with the main campaign record.
+func opening_cards(gs: Node) -> Array:
+    var cards: Array = []
+    for id: String in gs.opening_customers:
+        var entry: Dictionary = ticket_job(gs, id)
+        if entry.is_empty() or entry.get("state", "open") == "done":
+            status = "An opening customer has no matching repair ticket. Restore the saved ticket manifest before continuing."
+            return []
+        cards.append({"kind":"new", "ticket":id, "customer_id":str(entry["customer_id"]),
+            "customer":str(entry["customer"]), "complaint":str(entry["complaint"]), "payout":int(entry["payout"])})
+    return cards
+
+func accept_opening_customer(gs: Node, id: String) -> bool:
+    if gs.opening_customers.is_empty() or gs.opening_customers[0] != id:
+        status = "That is not the customer waiting at the counter."
+        return false
+    if not ensure(gs) or opening_cards(gs).is_empty(): return false
+    var before: Array = gs.opening_customers.duplicate()
+    gs.opening_customers.pop_front()
+    if not checkpoint(gs):
+        var failure: String = status
+        gs.opening_customers = before
+        gs.save_game() # Restore pending progress if the main write succeeded but the manifest did not.
+        status = failure
+        return false
+    return true
 
 # One of tonight's tickets is a PC still in the shop (open, with a physical PC).
 func _open_tickets() -> Array:
@@ -296,6 +330,8 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
 # Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
 # night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
 func end_night(gs: Node) -> Dictionary:
+    if not gs.opening_customers.is_empty():
+        return {"ok":false,"message":"Serve the opening day's customers before closing the night."}
     if not ensure(gs): return {"ok":false,"message":status}
     if not checkpoint(gs): return {"ok":false,"message":status}
     var night: int = int(gs.night_number)

@@ -78,6 +78,7 @@ jobs:
           SUITES="test_data_schemas|Data schema
           test_regressions|Regression
           test_start_screen|Start screen
+          test_first_customer|First customer
           test_dust_flow|Dust flow
           test_bench_interactions|Bench interaction
           test_bench_feedback|Bench feedback

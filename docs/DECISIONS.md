@@ -724,3 +724,15 @@ but exact presentation/hover timing/pixel scale remain working proposals, not fi
 User requested an asset checklist and mandatory art reference/handoff; no new art in this task.
 See ART_DIRECTION.md and FIRST_DAY_ART_CHECKLIST.md. D163/164 remain reserved for the earlier Codex
 anti-virus/part-test work. Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+
+### D166 — First day begins with a customer (user, 23 November 2026)
+
+User confirmed the first day must start with a customer and requested a separate gameplay PR after
+updating the art checklist with creator credits and checkable creation status. Bounded implementation:
+introduce the existing initial repair jobs one at a time at the counter, show public customer description
+and existing repair fee, accept each PC, then begin night one without advancing time/payment/stock.
+Optional pending ticket-ID queue persists in the main save; existing saves do not replay opening.
+This does not add full negotiation/trading day systems or new artwork. Earlier anti-virus/part-test
+requirements remain pending with version slots moved to 0.58.0/0.59.0; 0.57.0 is the opening feature.
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

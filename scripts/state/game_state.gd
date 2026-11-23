@@ -64,6 +64,7 @@ var inventory_sequence: int = 10
 var ticket_sequence: int = 1
 var night_minutes: int = 0     # D133: night minutes spent on timed monitor tests (night_clock.gd); reset each morning (0.44.0)
 var night_number: int = 1      # D136 (0.44.0): which night this is; +1 every morning
+var opening_customers: Array = [] # Opening day: existing ticket IDs still to introduce; [] on legacy saves.
 var comebacks: Array = []      # D136 (0.44.0): delayed hidden faults waiting to bring a customer back (morning.gd)
 var money: int = START_MONEY
 var job: Dictionary = {}
@@ -97,6 +98,7 @@ func new_game(persist: bool = true) -> void:
     ticket_sequence = 1
     night_minutes = 0
     night_number = 1
+    opening_customers = []
     comebacks = []
     job = _make_job()
     player_inventory = _starter_inventory()
@@ -657,6 +659,7 @@ func save_game() -> void:
         "tickets_taken": tickets_taken,
         "night_minutes": night_minutes,
         "night_number": night_number,
+        "opening_customers": opening_customers,
         "comebacks": comebacks,
         "job": job,
     }
@@ -769,6 +772,12 @@ func load_game() -> bool:
     tickets_taken = maxi(0, int(data.get("tickets_taken", 0)))
     night_minutes = maxi(0, int(data.get("night_minutes", 0))) if typeof(data.get("night_minutes", 0)) in [TYPE_INT, TYPE_FLOAT] else 0
     night_number = maxi(1, int(data.get("night_number", 1))) if typeof(data.get("night_number", 1)) in [TYPE_INT, TYPE_FLOAT] else 1
+    opening_customers = []
+    var pending_opening: Variant = data.get("opening_customers", [])
+    if pending_opening is Array:
+        for id: Variant in pending_opening:
+            if id is String and id != "" and not id in opening_customers and opening_customers.size() < 64:
+                opening_customers.append(id)
     comebacks = Morning.sanitize_pending(data.get("comebacks", []))
     job = _make_job()
     var saved: Variant = data.get("job", {})

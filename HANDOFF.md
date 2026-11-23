@@ -1,6 +1,48 @@
 # Handoff — current state first
 
-## Current — 0.56.3 checklist credits/status first, 23 November 2026
+## Current — 0.57.0 first-day customer opening (separate gameplay PR), 23 November 2026
+
+The user authorized: update checklist FIRST, then make a NEW PR so the first day starts with a
+customer. Checklist/credits were pushed to #74 at a0551f8 (0.56.3) before this runtime work began.
+This feature branch is stacked on that exact head; merge #74 first and retarget this PR to main.
+Main remains 0.56.1 / 960b847; independent checker #73 is untouched. No new art was generated.
+
+New game through the title now shows the existing first customer at the counter (Mara on a fresh
+shop), then the other already-seeded repair customer. Each presents the recorded complaint, uses,
+timing and existing repair fee; accepting the PC advances the queue. Intake is untimed and gates
+night navigation, PC switching and end-night until complete. Then night ONE begins at zero minutes,
+with exactly the same two jobs/PCs, stock, money and repair rules. No generator, payment, review,
+repair, deadline or simulation runs merely to introduce/accept a customer. Existing assets/placeholder
+portraits are reused. This is a bounded first-day introduction, not the full future trading/negotiation day.
+
+`GameState.opening_customers` is an optional list of still-pending EXISTING ticket IDs, stored in the
+main save; legacy/missing/wrong-container input defaults empty and IDs are filtered/deduplicated.
+SAVE_FORMAT remains 1. Cold Continue resumes the unaccepted customer; accepted customers are not
+replayed. Pending opening forces Continue to the counter. The normal later-morning path is unchanged.
+Direct NightSession.start(gs) demo/test callers retain the old immediate-night default; the product
+New game explicitly requests introduction. No second inventory/PC model is added.
+
+### Ownership and next action
+
+Codex owns the bounded GameState/NightSession/counter/title/resume patch for this user assignment.
+Do not race another change to those files until cross-review/integration. Keep first-customer, existing
+morning/room/navigation and lifecycle tests. B58 records the corrected night-workshop fixture
+that previously bypassed intake; B57 remains allocated in checker #73. Recheck branches before
+allocating further bug IDs. Art agents still read ART_DIRECTION, FIRST_DAY_ART_CHECKLIST
+and ART_ASSET_LOG, update checkboxes/actual per-file creator credits and keep only the clipboard as
+initial tabletop dressing. Runtime implementation does not mark any production artwork Created.
+
+Version slots are revised because the user prioritised this new visible feature: 0.57.0 is this opening;
+Codex anti-virus effects/reduce-flashing moves to 0.58.0, per-part goofy tests to 0.59.0. Those features
+remain pending, not built here. Their D163/D164 reservations remain; this opening records D166.
+No gameplay brief is dropped. Next structural review remains 0.60.0, scheduled Code checker only.
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+Execution evidence: newest CHANGELOG and required First customer suite. Headless execution is not
+finished art, animation or human graphical acceptance. No automatic merge in this task.
+
+
+## Previous — 0.56.3 checklist credits/status first, 23 November 2026
 
 The user asked to update the art checklist FIRST, then create a separate gameplay PR so a fresh first
 day starts with a customer. This commit implements the documentation half only. Read FIRST_DAY_ART_CHECKLIST

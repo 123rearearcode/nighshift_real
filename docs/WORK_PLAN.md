@@ -1,5 +1,16 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current first-day assignment — 0.57.0, 23 November 2026
+
+After pushing creator/checklist tracking to #74 (0.56.3), the user assigned Codex the bounded first-day
+customer opening in a separate PR. Codex owns GameState/NightSession/counter/title/resume for this
+patch; do not overlap those hot files. Existing two repair jobs are introduced without duplicating PCs,
+charging time or paying. New pending-ID queue is compatible optional save data; existing saves skip it.
+Version reservations move: opening 0.57.0, anti-virus effects 0.58.0, per-part tests 0.59.0. Earlier
+numbered briefs remain historical, their gameplay requirements remain pending. Art task/status/credits
+are retained. Main/branch integration and current instructions: HANDOFF. Checker marker 0.60.0 unchanged.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Art coordination — 0.56.2, 23 November 2026
 
 The user will assign asset creation to Claude/Gemini using ART_DIRECTION.md and FIRST_DAY_ART_CHECKLIST.
