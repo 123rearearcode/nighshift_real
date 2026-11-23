@@ -4,6 +4,7 @@
 # the clock, and the shutter that closes the shop for the night. 0.55.0 (D162): the tool catalogue left the
 # counter (tools are bought at the store down the street); storage under the counter window took its place.
 #
+# 0.57.0: title New game starts with untimed opening intake, then the existing first night.
 # Mornings (user, 21 November 2026): every customer walks in at the start of the day, one at a time, and
 # the board shows how many came in. There is no clock on this; it is about their stories. Their visit is
 # the old morning report's card, spoken across the counter (morning_text.gd).
@@ -33,6 +34,7 @@ var portrait: TextureRect
 var visits: Array = []
 var visit_index: int = -1
 var arrived: int = 0
+var opening_visits: bool = false
 
 
 func _room_ready() -> void:
@@ -51,7 +53,10 @@ func _room_ready() -> void:
     phone.z_index = 20
     phone.hide()
     add_child(phone)
-    if NightSession.visits_pending: _begin_visits()
+    if not GameState.opening_customers.is_empty():
+        _begin_opening()
+    elif NightSession.visits_pending:
+        _begin_visits()
 
 
 func visiting() -> bool:
@@ -88,6 +93,7 @@ func _till_text() -> String:
 
 
 func _board_text() -> String:
+    if not GameState.opening_customers.is_empty(): return "DAY 1 · customer intake. Night work begins after the customers leave."
     return "Night %d · %s · %.1f★ online · %s · %d open ticket%s." % [GameState.night_number, NightClock.label(GameState.night_minutes),
         GameState.shop_rating(), GameState.standing_text(), _open_tickets().size(), "" if _open_tickets().size() == 1 else "s"]
 
@@ -97,13 +103,13 @@ func _refresh_room() -> void:
     _badge("Till", "$%d" % GameState.money)
     _badge("TicketClipboard", "%d open" % _open_tickets().size())
     _badge("Phone", "%.1f★" % GameState.shop_rating())
-    _badge("WallBoard", ("%d came in" % arrived) if visiting() else "Night %d · %s" % [GameState.night_number, NightClock.label(GameState.night_minutes)])
+    _badge("WallBoard", "Day 1 · customer intake" if opening_visits else (("%d came in" % arrived) if visiting() else "Night %d · %s" % [GameState.night_number, NightClock.label(GameState.night_minutes)]))
     _badge("Shutter", "06:00: close up" if over else "%d to collect" % _called().size())
     _badge("CustomerWindow", str(visits[visit_index].get("customer", "")) if visiting() else "")
     # While customers are at the counter, serve them first: the rest of the shop waits.
     for h: Variant in hotspots.values():
         var spot: Hotspot = h
-        var waiting_on_customers: bool = visiting() and str(spot.name) != "CustomerWindow"
+        var waiting_on_customers: bool = (visiting() or not GameState.opening_customers.is_empty()) and str(spot.name) != "CustomerWindow"
         spot.disabled = waiting_on_customers or (spot.closed_at_dawn and over)
         spot.tooltip_text = "Serve the customers at the counter first." if waiting_on_customers else ("06:00: the night is over. Close the shutter." if spot.closed_at_dawn and over else spot.label)
     queue_redraw()
@@ -132,6 +138,21 @@ func _end_night() -> void:
 
 # ---- the morning's customers, one at a time ----
 
+func _begin_opening() -> void:
+    opening_visits = true
+    visits = NightSession.opening_cards(GameState)
+    arrived = visits.size()
+    if visits.is_empty():
+        say(NightSession.status)
+        return
+    _show_visit(0)
+
+func _navigate(path: String) -> bool:
+    if not GameState.opening_customers.is_empty() and not path in [Navigation.COUNTER, "res://scenes/start.tscn"]:
+        say("Serve the customers at the counter first; night work has not begun.")
+        return false
+    return super._navigate(path)
+
 func _begin_visits() -> void:
     var report: Dictionary = NightSession.last_report
     visits = (report.get("cards", []) as Array).filter(func(card: Dictionary) -> bool: return str(card.get("kind", "")) in VISITORS)
@@ -146,9 +167,14 @@ func _show_visit(index: int) -> void:
     visit_index = index
     var card: Dictionary = visits[index]
     var person: Dictionary = GameState.person(str(card.get("customer_id", "")))
-    slip_title.text = "MORNING · %d customer%s came in · %d of %d" % [arrived, "" if arrived == 1 else "s", index + 1, arrived]
-    slip_text.text = MorningText.card_text(card)
-    next_button.text = "Next customer ▸" if index < visits.size() - 1 else "That's everyone: open up for the night"
+    if opening_visits:
+        slip_title.text = "DAY 1 · NEW CUSTOMER · %d of %d" % [index + 1, arrived]
+        slip_text.text = MorningText.opening_text(card, person)
+        next_button.text = "Accept PC · next customer" if index < visits.size() - 1 else "Accept PC · begin night 1"
+    else:
+        slip_title.text = "MORNING · %d customer%s came in · %d of %d" % [arrived, "" if arrived == 1 else "s", index + 1, arrived]
+        slip_text.text = MorningText.card_text(card)
+        next_button.text = "Next customer ▸" if index < visits.size() - 1 else "That's everyone: open up for the night"
     slip.show()
     if portrait != null:
         portrait.texture = RoomArt.customer(person)
@@ -157,8 +183,18 @@ func _show_visit(index: int) -> void:
 
 
 func _next_visit() -> void:
+    if opening_visits and not NightSession.accept_opening_customer(GameState, str(visits[visit_index]["ticket"])):
+        say(NightSession.status)
+        return
     AudioFeedback.request(self, "ui.click")
     if visit_index < visits.size() - 1: _show_visit(visit_index + 1)
+    elif opening_visits:
+        visit_index = -1
+        opening_visits = false
+        slip.hide()
+        if portrait != null: portrait.hide()
+        say("Intake complete. Night 1 begins: the PCs and their tickets are in the shop. Go to the workshop when ready.")
+        refresh()
     else: _end_visits()
 
 

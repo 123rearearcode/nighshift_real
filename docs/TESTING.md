@@ -237,3 +237,12 @@ views, real timed-test pause, busy/save refusal, sound settings, new-run reset a
 UI preferences. Existing scene tests replace obsolete hub/Save/Refresh assertions, retaining their
 storage/ownership/repair coverage. See MENU_NAVIGATION.md before adding any future menu.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work.
+
+
+## First customer — 0.57.0
+
+`tools/test_first_customer.gd` is required. Drive the actual New game, Pause/Title/Continue and customer
+accept buttons; verify untimed complaint/fee presentation without hidden budget/condition, gated night
+routes, per-customer progress through cold reload, no duplicate jobs/PCs/stock/payment/night advance,
+legacy no-replay and malformed optional queue handling. Retain all prior suite checks and the new
+main-save optional-field contract; do not mark production art Created from headless results.

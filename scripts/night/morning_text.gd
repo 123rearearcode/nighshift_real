@@ -7,6 +7,17 @@ const Reviews = preload("res://scripts/rules/reviews.gd")
 const COLORS: Dictionary = {"collected":Color("6fcf97"),"comeback":Color("eb5757"),"waiting":Color("f2c94c"),"new":Color("8eafc3"),"notice":Color("bb6bd9")}
 const TITLES: Dictionary = {"collected":"COLLECTED","comeback":"CAME BACK","waiting":"STILL HERE","new":"NEW TICKET","notice":"REVIEW SITE"}
 
+# First-day introduction: only what the customer says and the existing agreed repair fee. In
+# particular, don't turn actual broken parts, infection, condition or true budget into dialogue.
+static func opening_text(card: Dictionary, person: Dictionary) -> String:
+    var lines: Array = ["%s · %s" % [str(card.get("customer", "")), str(card.get("ticket", ""))],
+        "Reported problem: %s" % str(card.get("complaint", ""))]
+    if str(person.get("uses", "")) != "": lines.append("Used for: %s" % str(person["uses"]))
+    if str(person.get("patience", "")) != "": lines.append("Customer's timing: %s" % str(person["patience"]))
+    lines.append("Repair fee: $%d, paid when collected." % int(card.get("payout", 0)))
+    lines.append("Accept the PC and put its ticket on the clipboard. No money changes hands now.")
+    return "\n\n".join(lines)
+
 static func card_text(card: Dictionary) -> String:
     var kind: String = str(card.get("kind","new"))
     var lines: Array = ["%s · %s · %s"%[TITLES.get(kind,""),str(card.get("customer","")),str(card.get("ticket",""))],str(card.get("reaction",""))]

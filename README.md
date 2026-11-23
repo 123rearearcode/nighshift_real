@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.56.3)
+# Nightshift - Godot Foundation Trial (v0.57.0)
+
+0.57.0 starts New game with untimed customer intake at the counter, then night one. Acceptance progress survives Continue; existing saves skip the opening. Art creation credits/checklists remain required.
 
 0.56.3 adds [asset credits/status](docs/ART_ASSET_LOG.md) and checkable creation tasks to the first-day checklist. Customer-first opening is authorized for a separate gameplay PR.
 

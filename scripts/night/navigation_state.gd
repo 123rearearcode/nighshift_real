@@ -35,6 +35,7 @@ static func enter(gs: Node,path: String) -> bool:
         data["workbench_views"] = views
     return _write(gs,data)
 static func resume_path(gs: Node) -> String:
+    if not gs.opening_customers.is_empty(): return COUNTER
     var path: Variant = _read(gs).get("scene",COUNTER)
     if path is String and path == LEGACY_HUB: return COUNTER   # 0.52.0 and older preferences
     if not path is String or not path in PATHS: return COUNTER

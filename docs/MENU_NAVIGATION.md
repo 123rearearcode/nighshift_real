@@ -1,5 +1,15 @@
 # Room navigation rules — approved 0.53.0 (D161)
 
+## First-day entry — 0.57.0 (D166)
+
+Title New game enters the counter with a customer, then introduces the other already-seeded repair
+customer. The untimed first-day intake shows public complaints/uses/timing and existing repair fees;
+acceptance advances the durable pending-ID queue. Work doors, PC switching and closing night remain
+gated until intake ends, then the existing night-1 routes open at zero minutes. Pause/Title/Continue
+remain available; pending intake always resumes at the counter. Legacy saves do not replay it.
+This changes no later morning visits or room path. No new art/hub/menus are introduced.
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 User, 21 November 2026: "I want to get rid of the menus ... everything ties together visually instead of
 with menus. The main screen is the shop till, and you see the customers coming in. If you press on the
 door on the left, you could go outside." Answers: all customers walk in at the beginning of the day (you
