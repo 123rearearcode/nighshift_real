@@ -88,6 +88,7 @@ Next structural review: **0.60.0**.
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
+| B59 | Open | Medium | Save / Navigation | A missing or damaged ticket manifest while day-one intake is pending locks the save at the counter: no customer can be accepted and every door, PC switch and close-up stays blocked | — | Reproduced: scratch Godot 4.7.2 probe at main 1897eda (0.57.2) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -828,3 +829,15 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run the unchanged parent `tools/test_night_workshop.gd` against the opening runtime. The bounded local probe reports Invalid access to property or key 'paste' on storage_view at the old fixture's line 193; it was stopped after 12 seconds instead of waiting indefinitely. Earlier save-error warnings are intentional failure-injection checks.
 - Expected / actual: fixture serves initial customers then tests all night routes / it skipped intake and assumed the old night-ready setup.
 - Regression / evidence: the fixture now accepts the two seeded customers in a bounded loop and asserts the queue is empty before continuing. All prior assertions remain. Godot 4.7.2 Night workshop: 57 checks, zero failures; the new native/cold-reload First customer suite: 32 checks, zero failures. No graphical acceptance claim.
+
+### B59 — Damaged ticket manifest during day-one intake locks the save at the counter
+
+- Found: Code checker change review of main `8342874` (PR #75, 0.57.0), 24 November 2026; reproduced on main `1897eda` (0.57.2).
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled).
+- Fixed in: —
+- Root cause: from code, consistent with the probe: when the `.night.json` manifest is missing, damaged or from another run, `NightSession.ensure()` goes through `_protect()`, which keeps only the active job (`tickets = [gs.job]`) and sets `read_only`. The 0.57.0 opening then has no way forward. `opening_cards()` returns `[]` because the second pending ticket (T002) is not in `tickets` (`scripts/night/night_session.gd:245-254`). `accept_opening_customer()` refuses because `ensure()` is false (`:256-260`). `switch_pc()` and `end_night()` refuse while `opening_customers` is non-empty (`:188`, `:333`). `counter_room.gd` disables every hotspot except the empty CustomerWindow (`:112`) and `_navigate` refuses every room except the title (`:150-154`). `resume_path()` always returns to the counter (`navigation_state.gd:38`). Before 0.57.0, protected mode still let the player work on the recovered active PC. Now nothing in the game clears the queue; only New game, which replaces the save, gets out.
+- Reproduction (run): a scratch SceneTree script, not committed, Godot 4.7.2.stable.official headless. `gs.new_game()`, `NightSession.start(gs, true)` (pending `["T001","T002"]`), delete `<save>.night.json`, reset the session's `bound_path`/`run_id`/`tickets`, `gs.load_game()`, `NightSession.ensure(gs)` (the title's Continue path), then open `counter.tscn`. Observed: `read_only=true`, `opening_cards()` size 0 with the message "An opening customer has no matching repair ticket. Restore the saved ticket manifest before continuing.", `accept_opening_customer("T001")` false, `switch_pc` false, `end_night` ok=false, `visiting()` false, BackDoor disabled, `_navigate(workshop)` false.
+- Expected / actual: a protected save still leaves the recovered active PC workable, as it did before 0.57.0 (for example, intake shows what is recoverable or is skipped with a warning) / the save is stuck at the counter for good, with no customer slip and no working door.
+- Note: `tools/test_first_customer.gd` asserts that a missing pending ticket is "not manufactured or silently consumed". The fix should keep that protection and add a way out. How to recover is the gameplay owner's design call.
+- Regression / evidence: none yet. Suggested regression: the probe above, asserting that some route to night work or recovery stays available.
+

@@ -37,6 +37,17 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Code checker change review — 2026-11-24 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.57.2 (1897eda). The integrator assigns the version.
+- Added: bug **B59** (Open, Medium, Save / Navigation) to `docs/BUGS.md`. If the ticket manifest is missing or damaged
+  while 0.57.0 day-one intake is pending, the save is locked at the counter. Reproduced with a scratch Godot 4.7.2 probe (not committed).
+- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: bug-register checks and `check_project.py` pass. Godot 4.7.2 First customer (32 checks) and Night workshop
+  (57 checks) passed with 0 failures at 1897eda. No game code, test, tool or CI change.
+- Next action: the owner of the 0.57.0 opening (Codex) decides how a protected save leaves intake and adds the regression.
+
 ### Scheduled performance review — 2026-11-23 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
