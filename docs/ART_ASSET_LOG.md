@@ -2,24 +2,24 @@
 
 23 November 2026. Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 Permanent credits/approval record. Read ART_PRODUCTION_PROGRESS.md for the active creation list; every creator updates this log and the ACTIVE checkboxes.
-This documentation pass creates no art. Do not replace verified file paths with claims of completion.
+Batch A v2 and Batch B source approvals are recorded below. Created, branch integration, merged state and human in-game visual acceptance remain separate.
 
 ## Production tasks
 
 | Task | Creation status | Assigned owner / creator | Delivered files / revision | Created / edited date | Human approval (exact revision) | Integration status |
 | --- | --- | --- | --- | --- | --- | --- |
-| ART-01 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-02 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-03 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-04 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-05 | Not created | Unassigned | — | — | Not requested | Not integrated |
+| ART-01 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
+| ART-02 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
+| ART-03 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
+| ART-04 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
+| ART-05 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-06 | Created | Claude (Batch B, assigned by the user 23 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/props/clipboard_resting.png`, `art/props/clipboard_upright.png` (rev 2) | 23 Nov 2026 (rev 1 + rev 2) | **Approved** by the user, 25 Nov 2026, rev 2 (hashes below) | Integrated 0.57.3 (`feat/batch-b-art-0573`); visual acceptance pending a human playtest |
 | ART-07 | Created | Claude (Batch B, assigned by the user 23 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/ui/ticket_clipboard.png` (rev 2) | 23 Nov 2026 (rev 1 + rev 2) | **Approved** by the user, 25 Nov 2026, rev 2 (hashes below) | Integrated 0.57.3 (`feat/batch-b-art-0573`); visual acceptance pending a human playtest |
 | ART-08 | Created | Claude (Batch B, assigned by the user 23 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/customers/t001_mara.png`, `art/customers/t002_relu.png` (rev 2) | 23 Nov 2026 (rev 1 + rev 2) | **Approved** by the user, 25 Nov 2026, rev 2 (hashes below) | Integrated 0.57.3 (`feat/batch-b-art-0573`); visual acceptance pending a human playtest |
 | ART-09 | Created | Claude (Batch B, assigned by the user 23 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/props/pc_tower_closed.png` (rev 2) | 23 Nov 2026 (rev 1 + rev 2) | **Approved** by the user, 25 Nov 2026, rev 2 (hashes below) | Integrated 0.57.3 (`feat/batch-b-art-0573`); visual acceptance pending a human playtest |
 | ART-10 | Created | Claude (Batch B, assigned by the user 23 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/storage/` (56 files: 14 items x 4 turns) (rev 2) | 23 Nov 2026 (rev 1 + rev 2) | **Approved** by the user, 25 Nov 2026, rev 2 (hashes below) | Integrated 0.57.3 (`feat/batch-b-art-0573`); visual acceptance pending a human playtest |
-| ART-11 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-12 | Not created | Unassigned | — | — | Not requested | Not integrated |
+| ART-11 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
+| ART-12 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-13 | Not created | Unassigned | — | — | Not requested | Not integrated |
 | ART-14 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
 | ART-15 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
@@ -180,6 +180,32 @@ in their source notes while crediting the actual new creator/editor.
 | `art/storage/vacuum_r1.png` | 44 x 88 | RGBA | `76c72773af498c08e42458304e34b2555409e38276fdca65646415dd83833f38` |
 | `art/storage/vacuum_r2.png` | 88 x 44 | RGBA | `a34c87ecafa820b7e7380a8190ab5ec41a56b8e3172b3e384c16c1106e10f9a5` |
 | `art/storage/vacuum_r3.png` | 44 x 88 | RGBA | `25f22fc0fde76e8e27308cfbf5d8c672f24cff2a0319e0581b7b5c89c6ef0cb6` |
+
+
+## Human-approved Batch A revision 02 — integration 0.57.5, 25 November 2026
+
+User / creative director reviewed the revision-02 pack and authorized runtime use: “Aight u can put it in”, followed by “art reviewed, look sgood. claude already created some art in an open pr (i think) so merge that and then create a new PR.” Claude’s Batch B PR #79 was reviewed and merged first at 87dd2b690ad5fc242edee2f1b991d6b91cc33390.
+
+Covered: all fourteen original source PNGs enumerated in [the exact approval manifest](../art/rooms/counter_batch_a/manifest.json), from Batch A v2 / local review commit 4d0453b. Existing raster creator credits and original source hashes are retained there. Integration by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work. No new artwork or pixel editing is authorized or claimed. Placement/UV cropping uses these unchanged sources; source pixel-density polish remains a separate task.
+
+| Installed file | Source ART ID | Approved SHA-256 |
+| --- | --- | --- |
+| `art/rooms/counter_batch_a/room-shell-v2.png` | ART-02 | `2f95436467077002d638417f7b083b4c2b9092d9115643ffe3fa20bf5d223d71` |
+| `art/rooms/counter_batch_a/counter-foreground-v2.png` | ART-04 | `3dde7bb671032911acce90c2c2a59eb10ad0ae725f01370cd020db7c2868cad6` |
+| `art/rooms/counter_batch_a/exterior-dusk-v2.png` | ART-02 | `20b0d5ba5fe7546b241eee91ffefae6345f02210874bdd6ac0c5d1c17bd04da2` |
+| `art/rooms/counter_batch_a/front-door-closed-v2.png` | ART-03 | `844c514ffdf7d4627c604d17dac79984374826e4b533a2df2920f32f60c4ccbb` |
+| `art/rooms/counter_batch_a/front-door-open-v2.png` | ART-03 | `6b9e226efb74ac1366add49417b5bfe6f8d678cb5bb5592818abc76774c2b8eb` |
+| `art/rooms/counter_batch_a/hanging-sign-v2.png` | ART-03 | `10dcd5eedfef802ee1ff098100fc636cf921a117e7d55c4ac83ca6dfc2066d6d` |
+| `art/rooms/counter_batch_a/storage-interior-v2.png` | ART-05 | `9c80eab45f64dae51791893e8c424415a54d703275a1ffca5ebabbdf4a507bb1` |
+| `art/rooms/counter_batch_a/workshop-door-closed-v2.png` | ART-11 | `21e802e19c62b24e55d0463722b72f762500fa3b8b66b0b48afea7436fce51e6` |
+| `art/rooms/counter_batch_a/shutter-down-v2.png` | ART-11 | `fcb297cd71430f1291b9461584125436c66ffe83d813f1db678d0ee9021b8c95` |
+| `art/rooms/counter_batch_a/storage-rim-v2.png` | ART-05 | `27b43e2466c3b6efd600d0bdb45a45d0228d4db52b6948905b00ac8cc964ca94` |
+| `art/rooms/counter_batch_a/workshop-door-open-v2.png` | ART-11 | `9c1eedb9f43b8833332d51bba85890d3880f34119fd5bb01b5b30603e5aceb33` |
+| `art/rooms/counter_batch_a/shutter-up-v2.png` | ART-11 | `17af01f391ee58ba447b9ee26321eec18dda943a050c20d9d6109044e98260cd` |
+| `art/rooms/counter_batch_a/exterior-morning-v2.png` | ART-12 | `ca6eca61f404c7f65a125894e7e40e5cc2cad11f5055eebfd95b3fb84aec4f74` |
+| `art/rooms/counter_batch_a/light-overlay-v2.png` | ART-12 | `4e5848cfb4d4cc41d9e16c21a8cd0de43ed098fa47cd8c18114fa353d91778a0` |
+
+Approval: Approved for this integration. Integration state: implementation/testing in the new PR, not yet merged. Human in-game visual acceptance: not yet recorded. Existing Batch B approval and hashes remain unchanged.
 
 ## Delivery — Batch C drafts, ART-14 to ART-18 (0.57.6, pending approval)
 

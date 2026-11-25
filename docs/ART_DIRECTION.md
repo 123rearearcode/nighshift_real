@@ -1,5 +1,17 @@
 # Nightshift art reference — first counter test
 
+## Approved source-art integration — 0.57.5 / 25 November 2026
+
+User reviewed Batch A v2 and explicitly authorized it for the game. Exact hashes, quotes and original
+creator/model credits are in ART_ASSET_LOG and art/rooms/counter_batch_a/manifest.json. Sources stay
+unchanged. The current approved prototype maps the common 1672×941 background origin to the existing
+1280×720 viewport; Batch B character/prop pixels stay at exactly 2×. This is the specific current
+mapping, not a claim that source images have been repainted onto the earlier suggested 640×360 grid.
+Final pixel-density polish remains separate. Shared anchors are in layout.json. Counter-only initial
+loose dressing remains the clipboard; PC/customer layers appear dynamically. Existing till/phone/
+shift functions are unobtrusive live UI controls rather than additional painted tabletop objects.
+The original 20×10 / 44 px grid and item scale are preserved under separately mapped interior/rim art.
+
 ## Permanent routing and human approval — 0.57.2
 
 Read ART_PRODUCTION_PROGRESS.md FIRST to find the active art task list. FIRST_DAY_ART_CHECKLIST is a

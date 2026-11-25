@@ -90,6 +90,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
+| `scripts/rooms/counter_art.gd` | view | Approved Batch A source loading, background/foreground layers, endpoint crops and decorative storage mapping |
+| `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors and full 20×10 storage art contract |
+| `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
 | `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
 | `tools/test_first_customer.gd` | tooling | Native first-day intake, cold Continue, duplicate/identity/payment safeguards and legacy saves |
 | `docs/ART_ASSET_LOG.md` | docs | Per-asset creator credits, creation status, file manifests and preserved edit history |

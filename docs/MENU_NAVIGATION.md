@@ -1,5 +1,13 @@
 # Room navigation rules — approved 0.53.0 (D161)
 
+## Approved counter art — 0.57.5
+
+No destinations, pause, clock, save or intake rules change. The existing counter hotspots are aligned
+to Batch A's approved environment; the clipboard/PC/customer stay dynamic. Cash/phone/shift have
+visible compact UI labels. The separate under-counter close-up remains click/keyboard navigation;
+no hover-open mechanic is introduced. Door hover and shutter-confirmation art are visual endpoints
+only. Canceling the existing shutter confirmation does not end or charge a night.
+
 ## First-day entry — 0.57.0 (D166)
 
 Title New game enters the counter with a customer, then introduces the other already-seeded repair

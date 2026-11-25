@@ -1,0 +1,66 @@
+{
+  "version": "0.57.5",
+  "creator": "Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work",
+  "source_canvas": [
+    1672,
+    941
+  ],
+  "logical_canvas": [
+    1280,
+    720
+  ],
+  "raster_edits": "None; all fourteen approved PNG hashes preserved",
+  "customer": {
+    "center_x": 680,
+    "waist_y": 488,
+    "pixel_scale": 2
+  },
+  "customer_pc": {
+    "base": [
+      1030,
+      550
+    ],
+    "pixel_scale": 2
+  },
+  "clipboard": {
+    "center": [
+      830,
+      543
+    ],
+    "pixel_scale": 2
+  },
+  "occlusion": {
+    "room": -10,
+    "customer": 1,
+    "counter": 2,
+    "pc": 3,
+    "hotspots_and_clipboard_prop": 4,
+    "status": 20,
+    "paper_and_phone": 30
+  },
+  "storage": {
+    "columns": 20,
+    "rows": 10,
+    "cell_px": 44,
+    "grid_rect": [
+      40,
+      140,
+      880,
+      440
+    ],
+    "source_interior": [
+      120,
+      276,
+      1420,
+      500
+    ],
+    "mapping": "Scale decorative interior/rim around the existing grid only; item/UID/data coordinates unchanged"
+  },
+  "doors": "counter_art.gd CROPS and draw_room map approved endpoint regions around fixed hinge sides; no PNG export",
+  "lighting": "morning during intake/visits; dusk after visits; separate 0.25-opacity spill",
+  "shutter": "down only as existing confirmation preview; cancel restores up without advancing clock",
+  "limits": [
+    "Source art is not normalized to one native 640x360 grid",
+    "No continuous animation or human in-game acceptance claimed"
+  ]
+}

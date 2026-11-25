@@ -20,6 +20,7 @@ const Sources = preload("res://scripts/storage/storage_sources.gd")
 const Store = preload("res://scripts/storage/storage_store.gd")
 const Navigation = preload("res://scripts/night/night_navigation.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
+const CounterArt = preload("res://scripts/rooms/counter_art.gd")
 const CELL: int = 44
 const GRID := Rect2(40, 140, 880, 440)          # 20 x 10 cells
 const LIST_RECT := Rect2(944, 140, 308, 440)
@@ -35,6 +36,7 @@ var info: Label
 var status: Label
 var send_button: Button
 var _art: Dictionary = {}          # "<name>_r<turn>" -> Texture2D or null
+var environment := CounterArt.new()
 
 
 func _ready() -> void:
@@ -224,11 +226,12 @@ func _input(event: InputEvent) -> void:
 
 func _draw() -> void:
     draw_rect(Rect2(0, 0, 1280, 720), Color("151e27"))
-    draw_rect(GRID.grow(6), Color("3d3229"))
+    if environment.available(): environment.draw_storage(self, GRID)
+    else: draw_rect(GRID.grow(6), Color("3d3229"))
     for x in range(Data.COUNTER["size"].x + 1):
-        draw_line(GRID.position + Vector2(x * CELL, 0), GRID.position + Vector2(x * CELL, GRID.size.y), Color("2a2218"), 1.0)
+        draw_line(GRID.position + Vector2(x * CELL, 0), GRID.position + Vector2(x * CELL, GRID.size.y), Color("597175"), 1.0)
     for y in range(Data.COUNTER["size"].y + 1):
-        draw_line(GRID.position + Vector2(0, y * CELL), GRID.position + Vector2(GRID.size.x, y * CELL), Color("2a2218"), 1.0)
+        draw_line(GRID.position + Vector2(0, y * CELL), GRID.position + Vector2(GRID.size.x, y * CELL), Color("597175"), 1.0)
     var font: Font = ThemeDB.fallback_font
     for uid: Variant in here():
         if str(uid) == model.held: continue
@@ -252,3 +255,9 @@ func _draw() -> void:
         if held_tex != null: draw_texture_rect(held_tex, ghost, false, Color(1, 1, 1, 0.7))
         draw_rect(ghost, Color(0.4, 0.9, 0.5, 0.25) if ok else Color(0.95, 0.35, 0.35, 0.3))
         draw_rect(ghost, Color("6fcf97") if ok else Color("eb5757"), false, 2.0)
+    if environment.available():
+        environment.draw_storage(self, GRID, true)
+        # Live controls stay on a readable backing, outside all 200 usable cells.
+        draw_rect(Rect2(0, 0, 1280, 110), Color("13232b"))
+        draw_rect(Rect2(934, 110, 346, 478), Color("13232b"))
+        draw_rect(Rect2(0, 588, 1280, 132), Color("13232b"))

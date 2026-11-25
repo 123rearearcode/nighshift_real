@@ -18,8 +18,9 @@ const TicketRule = preload("res://scripts/rules/ticket.gd")
 const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const MorningText = preload("res://scripts/night/morning_text.gd")
 const Phone = preload("res://scripts/night/phone_panel.gd")
+const CounterArt = preload("res://scripts/rooms/counter_art.gd")
 const VISITORS: Array = ["collected", "comeback", "new"]   # cards of people who walk in (waiting ones did not come)
-const SLIP_RECT := Rect2(820, 84, 430, 470)
+const SLIP_RECT := Rect2(24, 176, 416, 374)
 # 0.57.3: the ticket clipboard close-up is the approved skin (art/ui/ticket_clipboard.png, 300 x 350 at
 # 2x). The paper rectangle is where the game writes; the clip and the board edge stay clear.
 const CLIPBOARD_RECT := Rect2(660, 10, 600, 700)
@@ -27,12 +28,16 @@ const CLIPBOARD_PAPER := Rect2(56, 136, 488, 492)
 const CLIPBOARD_SKIN := "ticket_clipboard"
 # 0.57.3: customers stand behind the counter; a pixel-art customer (ART-08) is shown at exactly 2x with
 # the bottom of the sprite (the waist) on the counter-top line. Larger painted portraits keep the old fit.
-const COUNTER_TOP_Y: float = 410.0
-const PORTRAIT_FIT := Rect2(470, 96, 340, 304)
+const COUNTER_TOP_Y: float = CounterArt.COUNTER_TOP_Y
+const PORTRAIT_FIT := Rect2(510, 144, 340, 344)
 const PIXEL_SPRITE_MAX_HEIGHT: int = 200
 # The customer's PC on the counter while they are at the window (ART-09), base on the counter top.
 const CUSTOMER_PC_PROP := "pc_tower_closed"
-const CUSTOMER_PC_BASE := Vector2(456, 440)     # bottom centre
+const CUSTOMER_PC_BASE := CounterArt.CUSTOMER_PC_BASE     # bottom centre on the foreground worktop
+
+var counter_art := CounterArt.new()
+var room_layer: CounterArt.Layer
+var counter_layer: CounterArt.Layer
 
 var phone: Panel
 var end_dialog: ConfirmationDialog
@@ -65,7 +70,7 @@ func _room_ready() -> void:
     if customer_pc.texture != null:
         customer_pc.size = Vector2(customer_pc.texture.get_size()) * RoomArt.PIXEL_SCALE
         customer_pc.position = (CUSTOMER_PC_BASE - Vector2(customer_pc.size.x * 0.5, customer_pc.size.y)).round()
-    customer_pc.z_index = 1
+    customer_pc.z_index = 3
     customer_pc.hide()
     add_child(customer_pc)
     end_dialog = ConfirmationDialog.new()
@@ -81,10 +86,67 @@ func _room_ready() -> void:
     phone.z_index = 20
     phone.hide()
     add_child(phone)
+    _setup_counter_art()
     if not GameState.opening_customers.is_empty():
         _begin_opening()
     elif NightSession.visits_pending:
         _begin_visits()
+
+
+func _setup_counter_art() -> void:
+    # Preserve the existing explicit flat-background override used by artists and fallback tests.
+    var flat_background: TextureRect = get_node_or_null("Background")
+    if flat_background != null and flat_background.texture != null: return
+    if not counter_art.available(): return
+    placeholders = false
+    for h: Variant in hotspots.values():
+        var spot: Hotspot = h
+        spot.placeholder = false
+        spot.mouse_entered.connect(_sync_counter_art)
+        spot.mouse_exited.connect(_sync_counter_art)
+        spot.queue_redraw()
+    get_node("Hotspots").z_index = 4
+    room_layer = CounterArt.Layer.new()
+    room_layer.name = "BatchARoom"
+    room_layer.art = counter_art
+    room_layer.z_index = -10
+    add_child(room_layer)
+    counter_layer = CounterArt.Layer.new()
+    counter_layer.name = "BatchACounter"
+    counter_layer.art = counter_art
+    counter_layer.foreground = true
+    counter_layer.z_index = 2     # the customer's lower body is behind the counter, their PC is above it
+    add_child(counter_layer)
+    for rect: Rect2 in [Rect2(0, 0, 1280, 54), Rect2(0, 652, 1280, 68)]:
+        var backing := ColorRect.new()
+        backing.position = rect.position
+        backing.size = rect.size
+        backing.color = Color("13232b")
+        backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        backing.z_index = -2 if rect.position.y == 0 else 10
+        add_child(backing)
+    title.z_index = 20
+    title.position = Vector2(24, 14)
+    message.z_index = 20
+    clipboard.z_index = 30
+    slip.z_index = 30
+    phone.z_index = 30
+    end_dialog.visibility_changed.connect(_sync_counter_art)
+    _sync_counter_art()
+
+
+func _sync_counter_art() -> void:
+    if room_layer == null: return
+    var front: Hotspot = hotspot("FrontDoor")
+    var back: Hotspot = hotspot("BackDoor")
+    room_layer.morning = visiting()
+    room_layer.front_open = front != null and front.hovered and not front.disabled
+    room_layer.workshop_open = back != null and back.hovered and not back.disabled
+    # Closing is a visual preview while the existing confirmation is open. Cancel restores the up state.
+    room_layer.shutter_down = is_instance_valid(end_dialog) and end_dialog.visible
+    counter_layer.morning = room_layer.morning
+    room_layer.queue_redraw()
+    counter_layer.queue_redraw()
 
 
 func visiting() -> bool:
@@ -140,6 +202,7 @@ func _refresh_room() -> void:
         var waiting_on_customers: bool = (visiting() or not GameState.opening_customers.is_empty()) and str(spot.name) != "CustomerWindow"
         spot.disabled = waiting_on_customers or (spot.closed_at_dawn and over)
         spot.tooltip_text = "Serve the customers at the counter first." if waiting_on_customers else ("06:00: the night is over. Close the shutter." if spot.closed_at_dawn and over else spot.label)
+    _sync_counter_art()
     queue_redraw()
 
 
