@@ -1,6 +1,33 @@
 # Handoff — current state first
 
-## Current — 0.57.2 permanent art progress and human-approval rule, 23 November 2026
+## Current — 0.57.3 first approved art in the game (Batch B), 25 November 2026
+
+The user assigned Batch B (ART-06 to ART-10) to Claude and Batch A (ART-01 to ART-05, 11, 12) to ChatGPT,
+reviewed Claude's art in chat (rev 1: "refine the tools, and the vase/clipboard. Parts are supposed to be
+in a completely different style; comic book but semi-realistic ... the headphones are the wrong way
+around"), then approved rev 2: "they are heading the right way, and you can add this art to the game. I
+think they are big enough." Approval, revision history and the SHA-256 of all 62 files are in
+ART_ASSET_LOG; D168 records the decision and the parts style.
+
+What is in the game now (branch `feat/batch-b-art-0573`, until the user merges it):
+- Mara and Relu at the counter window (pixel sprites, 2x, waist on the counter line y 410); their PC on the
+  counter while they are there; the clipboard prop on the counter (hotspot `prop`/`prop_hover`); the
+  ticket clipboard close-up skin (600 x 700, rows on `CLIPBOARD_PAPER`); storage pictures in the
+  under-counter grid, now 44 px cells (parts illustrated 1:1, PCs/tools pixel 2x, box fallback).
+- Editable sources: `tools/art_batch_b/` regenerate the exact approved bytes. Changing any pixel needs
+  new human approval (D167).
+
+For Batch A (ChatGPT): leave the clipboard spot clear in the counter picture (it is a separate prop), keep
+customers standing behind a counter top at about y 410 or tell the integrator the new line, and publish
+ART-01 anchors so the interim placements (customer centre, PC base (456, 440), clipboard spot) can follow
+them. For close-up hardware (ART-15): match the comic-book, semi-realistic parts in `art/storage/`.
+
+Versions: 0.58.0 anti-virus and 0.59.0 part tests stay Codex's; 0.60.0 the checker's. Open checker PRs
+#77 (B59) and #78 (performance) do not touch these files. Next free bug id after #77: B60. Signed:
+Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.2 permanent art progress and human-approval rule, 23 November 2026
 
 User authorized merging prior PRs and creating this NEW documentation PR. #74, #75 and #73 are now
 merged, baseline main 0.57.1 / fd07993: art brief/credits, customer-first opening, checker performance

@@ -135,6 +135,12 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/CODE_CHECKER.md` | docs | The scheduled Code checker: 6-hourly change review, structural bug review, performance review every 2 days; what it may and may not do |
 | `docs/BUGS.md` | docs | The bug register: every bug found, its root cause, and the every-10-versions structural review |
 | `docs/PART_LIFECYCLE.md` | docs | Component identity/custody invariants, staged migration acceptance and cross-AI integration boundaries |
+| `tools/art_batch_b/px.py` | art source | 0.57.3: pixel-art helpers (aliased drawing, outline, fixed top-left light) for the Batch B art |
+| `tools/art_batch_b/storage_items.py` | art source | 0.57.3: draws the pixel storage pictures (PCs, tools) in four turns: `python3 -I storage_items.py <out>` |
+| `tools/art_batch_b/parts_comic.py` | art source | 0.57.3: draws the comic-style part pictures in four turns: `python3 -I parts_comic.py <out>` |
+| `tools/art_batch_b/props.py` | art source | 0.57.3: draws the clipboard (lying, picked up), the ticket close-up skin and the customer PC |
+| `tools/art_batch_b/people.py` | art source | 0.57.3: draws Mara and Relu (neutral sprites) |
+| `tools/art_batch_b/sheets.py` | art source | 0.57.3: rebuilds the review sheets shown to the user (not game art) |
 | `tools/check_bug_register.py` | tooling | Validate one bug index, statuses, detail/evidence links and the next review marker |
 | `tools/test_bug_register.py` | tooling | Malformed register fixtures protecting the ledger checker |
 | `tools/test_part_lifecycle.gd` | tooling | Cross-PC same-model spare identity, damage, custody, collection, reload and malformed external data journeys |
@@ -307,7 +313,10 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `scenes/rooms/workshop.tscn` | scene | The workshop: Background + hotspots |
 | `scenes/rooms/outside.tscn` | scene | Outside: Background + hotspots |
 | `art/rooms/README.md` | art | Where room pictures go (counter.png, workshop.png, outside.png) |
-| `art/customers/README.md` | art | Where customer portraits go (by person id or profession) |
+| `art/customers/README.md` | art | Where customer portraits go (by person id or profession); 0.57.3: Mara and Relu's approved sprites, shown at 2x |
+| `art/props/README.md` | art | 0.57.3: loose objects drawn over a room (the clipboard, the customer PC), pixel art at 2x, user-approved |
+| `art/storage/README.md` | art | 0.57.3: storage pictures per item and quarter turn (comic-style parts 1:1, pixel PCs/tools at 2x) |
+| `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
 | `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |

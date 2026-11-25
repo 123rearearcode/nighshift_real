@@ -51,6 +51,12 @@ func run_checks() -> void:
     check(counter.slip_title.text.contains("DAY 1") and counter.slip_text.text.contains("Mara V.") and counter.slip_text.text.contains("overheats"), "first customer introduces her existing reported complaint")
     check(counter.slip_text.text.contains("$60") and not counter.slip_text.text.contains("$90"), "agreed fee is shown; hidden true budget is not")
     check(counter.next_button.text.contains("Accept PC") and gs.opening_customers.size() == 2, "opening requires deliberate acceptance and retains both existing customers")
+    # 0.57.3 (ART-08/09, approved 25 November 2026): Mara's own sprite and her PC are at the counter.
+    var portrait: TextureRect = counter.get_node("CustomerPortrait")
+    check(portrait.visible and portrait.texture != null and portrait.texture.resource_path.get_file() == "t001_mara.png" and Vector2i(portrait.texture.get_size()) == Vector2i(120, 172), "Mara's approved sprite stands at the counter window")
+    check(portrait.size == Vector2(240, 344) and is_equal_approx(portrait.position.y + portrait.size.y, 410.0) and portrait.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "she is shown at exactly 2x with her waist on the counter top, pixels kept sharp")
+    var pc_prop: TextureRect = counter.get_node("CustomerPC")
+    check(pc_prop.visible and pc_prop.texture != null and pc_prop.size == Vector2(128, 196), "her PC stands on the counter at 2x while she is there")
     var jobs: Array = night.jobs(gs)
     var ids: Array = jobs.map(func(j: Dictionary) -> String: return str(j["id"]))
     var pcs: Array = jobs.map(func(j: Dictionary) -> String: return str(j["hardware_trial"]["night_session"]["pc"]))
@@ -88,6 +94,8 @@ func run_checks() -> void:
     night.read_only = false
     await press(counter.next_button)
     check(counter.visiting() and counter.slip_text.text.contains("Relu D.") and gs.opening_customers == [ids[1]], "accepting Mara presents the second existing customer")
+    var relu_sprite: TextureRect = counter.get_node("CustomerPortrait")
+    check(relu_sprite.visible and relu_sprite.texture != null and relu_sprite.texture.resource_path.get_file() == "t002_relu.png", "Relu's own sprite replaces Mara's")
     check(not counter.slip_text.text.to_lower().contains("adware") and infection != "", "the customer's dialogue does not reveal his hidden infection")
     await cold_continue(gs, night)
     counter = current_scene
@@ -95,6 +103,7 @@ func run_checks() -> void:
     check(not night.accept_opening_customer(gs, str(ids[0])) and gs.opening_customers == [ids[1]], "repeated/out-of-order acceptance is rejected")
     await press(counter.next_button)
     check(not counter.visiting() and not counter.opening_visits and gs.opening_customers.is_empty() and not counter.slip.visible, "last acceptance ends opening intake")
+    check(not counter.get_node("CustomerPortrait").visible and not counter.get_node("CustomerPC").visible, "when the last customer leaves, the window and the counter top are empty again")
     check(gs.night_number == 1 and gs.night_minutes == 0 and counter.message.text.contains("Night 1 begins"), "night one starts without charging time or advancing a night")
     check(gs.money == money and gs.player_inventory == stock and gs.ticket_sequence == seq and night.jobs(gs).map(func(j: Dictionary) -> String: return str(j["id"])) == ids, "acceptance adds no money, stock or extra tickets")
     check(night.jobs(gs).map(func(j: Dictionary) -> String: return str(j["hardware_trial"]["night_session"]["pc"])) == pcs, "physical PC identities survive the opening and reloads")

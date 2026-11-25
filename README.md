@@ -1,8 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.57.2)
+# Nightshift - Godot Foundation Trial (v0.57.3)
 
 Art contributors start with [ART_PRODUCTION_PROGRESS](docs/ART_PRODUCTION_PROGRESS.md). Human approval of exact artwork revisions is required before in-game installation; the first-day list will be retired after migration.
 
-0.57.2 adds permanent art-progress routing, checklist retirement and the human-approval rule. Prior #73/#74/#75 are merged; runtime behaviour is unchanged.
+0.57.3 puts the first approved art in the game: Mara and Relu at the counter window, the ticket clipboard and its close-up, the customer PC on the counter, and pictures for everything in the under-counter storage (comic-style parts, pixel-art PCs and tools). 0.57.2 added permanent art-progress routing and the human-approval rule.
 
 0.57.0 starts New game with untimed customer intake at the counter, then night one. Acceptance progress survives Continue; existing saves skip the opening. Art creation credits/checklists remain required.
 

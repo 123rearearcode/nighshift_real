@@ -121,6 +121,17 @@ func run_checks() -> void:
     await process_frame
     var open_tickets: int = night.jobs(gs).filter(func(j: Dictionary) -> bool: return j.get("state", "open") != "done").size()
     check(counter.clipboard.visible and counter.clipboard_list.get_child_count() == open_tickets, "the clipboard lists every open ticket")
+    # 0.57.3 (ART-06/07, approved 25 November 2026): the clipboard is its own picture on the counter, and
+    # the close-up is the approved skin at exactly 2x with the tickets written on its paper.
+    var clip_spot: Hotspot = counter.hotspot("TicketClipboard")
+    var resting: Texture2D = clip_spot.prop_texture(clip_spot.prop)
+    var lifted: Texture2D = clip_spot.prop_texture(clip_spot.prop_hover)
+    check(resting != null and Vector2i(resting.get_size()) == Vector2i(54, 36) and lifted != null and Vector2i(lifted.get_size()) == Vector2i(36, 48), "the clipboard on the counter is the approved prop, with its picked-up picture for hover")
+    check(counter.clipboard.get_theme_stylebox("panel") is StyleBoxTexture and counter.clipboard.size == Vector2(600, 700) and counter.clipboard.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "the ticket close-up uses the approved clipboard skin at exactly 2x")
+    if counter.clipboard_list.get_child_count() > 0:
+        var paper_rect: Rect2 = counter.get_script().get_script_constant_map()["CLIPBOARD_PAPER"]
+        var paper: Rect2 = Rect2(counter.clipboard.global_position + paper_rect.position, paper_rect.size)
+        check(paper.grow(1).encloses(counter.clipboard_list.get_child(0).get_global_rect()), "ticket rows are written on the paper, clear of the clip and the board edge")
     if counter.clipboard_list.get_child_count() > 0:
         await press(counter.clipboard_list.get_child(0))
         await process_frame
@@ -206,6 +217,22 @@ func run_checks() -> void:
     # B54: never preload a view script from a test (autoloads such as GameState do not exist yet when the
     # test script compiles); read the constant from the running scene's script instead.
     var grid: Rect2 = under.get_script().get_script_constant_map()["GRID"]
+    # 0.57.3 (ART-10, approved 25 November 2026): 44 px cells, the size the storage pictures were made for.
+    var consts: Dictionary = under.get_script().get_script_constant_map()
+    check(consts["CELL"] == 44 and grid == Rect2(40, 140, 880, 440) and grid.size == Vector2(StorageData.COUNTER["size"]) * 44, "the under-counter grid is still 20 x 10, now in 44 px cells")
+    var pictured: int = 0
+    var fits: bool = true
+    for uid: Variant in under.model.items:
+        if under.art_name(under.model.items[uid]) == "": continue
+        pictured += 1
+        for turn in range(4):
+            if under.item_texture(str(uid), turn) == null: fits = false
+    check(pictured >= 6 and fits, "PCs, tools and parts with art show their picture in every quarter turn, exactly fitting their footprint")
+    var all_art: bool = true
+    for name: String in ["pc_tower", "pc_compact", "gpu", "ram", "cpu", "cooler", "psu", "storage_hdd", "storage_ssd", "vacuum", "brush", "pick", "cloth", "syringe"]:
+        for turn in range(4):
+            if RoomArt.storage_item(name, turn) == null: all_art = false
+    check(all_art, "all 56 approved storage pictures are present (14 items x 4 turns)")
     var to: Vector2 = grid.end - under.item_rect(brought).size
     for step: Array in [[true, from], [false, to]]:
         var drag := InputEventMouseButton.new()

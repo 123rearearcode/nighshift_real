@@ -44,11 +44,11 @@ in progress or reference-only; the log may describe progress without claiming cr
 - [ ] ART-03 — Glazing, front-door and hanging-sign layers.
 - [ ] ART-04 — Production counter foreground and masks.
 - [ ] ART-05 — Usable 20 x 10 under-counter storage art kit.
-- [ ] ART-06 — Production clipboard object.
-- [ ] ART-07 — Clipboard / ticket close-up skin.
-- [ ] ART-08 — Initial scripted customer sprites (Mara and Relu).
-- [ ] ART-09 — Separate customer PC exterior.
-- [ ] ART-10 — Storage item silhouettes and rotations.
+- [x] ART-06 — Production clipboard object. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
+- [x] ART-07 — Clipboard / ticket close-up skin. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
+- [x] ART-08 — Initial scripted customer sprites (Mara and Relu). Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
+- [x] ART-09 — Separate customer PC exterior. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
+- [x] ART-10 — Storage item silhouettes and rotations. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
 - [ ] ART-11 — Workshop entry / navigation and shutter states.
 - [ ] ART-12 — Lighting layers and readable UI contrast samples.
 - [ ] ART-13 — Workshop room and station masks (P1).
@@ -58,7 +58,7 @@ in progress or reference-only; the log may describe progress without claiming cr
 - [ ] ART-17 — Dust / paste / fan / damage layers (P1).
 - [ ] ART-18 — Existing monitor / test / phone UI skin where needed (P1).
 
-All production tasks start **not created**. The four already-existing reference images have their own
+0.57.3: ART-06 to ART-10 (Batch B) are created, human-approved and integrated; the rest start **not created**. The four already-existing reference images have their own
 credits in ART_ASSET_LOG; they remain references, with no new artwork made by this update.
 
 ## 2. P0 — first counter test, concrete asset tasks

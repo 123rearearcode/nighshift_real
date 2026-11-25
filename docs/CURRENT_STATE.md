@@ -1,5 +1,14 @@
 # Nightshift — Current State and Technical Handoff
 
+## First approved art in the game — 0.57.3, 25 November 2026
+
+Batch B (ART-06 to ART-10), drawn by Claude and approved by the user on 25 November 2026 (D168, hashes in
+ART_ASSET_LOG), is integrated: Mara and Relu at the counter window (pixel sprites at 2x, waist on the
+counter top), their PC on the counter while they are there, the clipboard prop on the counter (picked up on
+hover), the ticket clipboard close-up skin, and storage pictures in the under-counter grid (now 44 px cells;
+parts comic-style 1:1, PCs/tools pixel art 2x, boxes for anything without art). The rooms are still
+placeholders until Batch A (ChatGPT). Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Permanent art workflow — 0.57.2, 23 November 2026
 
 D167: art agents start from ART_PRODUCTION_PROGRESS for current creation work, then ART_DIRECTION and

@@ -105,6 +105,78 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.3 - 2026-11-25 - First approved art: Batch B counter items
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.2 (1897eda).
+- Type: patch (approved art plus the small presentation code that shows it; 0.58.0 and 0.59.0 are
+  reserved for Codex's anti-virus and part-test work, 0.60.0 for the checker).
+
+### Execution status
+Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
+is recorded under Checks performed. Headless runs have no graphics, so placement was checked on static
+composites built from the scene coordinates, not in a running game. No human in-game visual acceptance yet.
+
+### Added / Changed / Fixed / Removed
+- **The first art in the game, approved by the user** (D168; exact files and SHA-256 hashes in
+  `docs/ART_ASSET_LOG.md`; drawn by Claude with code, sources in `tools/art_batch_b/`):
+  - **Mara and Relu (ART-08)** stand at the counter window during intake and morning visits: pixel
+    sprites at exactly 2x, centred on the window, waist on the counter top, sharp pixels. Larger painted
+    portraits keep the old fit-to-window behaviour.
+  - **The customer's PC (ART-09)** stands on the counter while its owner is at the window.
+  - **The ticket clipboard (ART-06)** is its own picture on the counter (hotspots gained `prop` and
+    `prop_hover`; hovering shows it picked up). It replaces the placeholder box for that spot.
+  - **The ticket close-up (ART-07)**: the clipboard panel is the approved skin at exactly 2x (600 x 700),
+    with the ticket list written on its paper.
+  - **Storage pictures (ART-10)**: the under-counter grid draws each PC, tool and part with its picture
+    in all four turns. Parts are comic-book, semi-realistic illustrations (user, 23 November 2026); PCs
+    and tools are pixel art. The grid is still 20 x 10 but now uses 44 px cells (the pictures' size); the
+    stock-room list moved to the right. Items without a fitting picture (an NVMe drive) keep the box.
+- `RoomArt` gained `prop`, `ui`, `storage_item` and `PIXEL_SCALE`; new README-anchored folders
+  `art/props/`, `art/ui/`, `art/storage/`.
+- Art docs: ART-06 to ART-10 Created and approved in the checklist and the log, router counts 5/18,
+  the parts style in ART_DIRECTION, the guide's Prop fields and portrait rules, D168.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `art/customers/t001_mara.png`, `art/customers/t002_relu.png` | A | ART-08 approved sprites |
+| `art/props/clipboard_resting.png`, `art/props/clipboard_upright.png`, `art/props/pc_tower_closed.png` | A | ART-06 and ART-09 approved props |
+| `art/ui/ticket_clipboard.png` | A | ART-07 approved close-up skin |
+| `art/storage/*_r0-3.png` (56 files) | A | ART-10 approved storage pictures, 14 items x 4 turns |
+| `art/props/README.md`, `art/ui/README.md`, `art/storage/README.md` | A | Folder anchors: what goes there, scale, approval rule |
+| `tools/art_batch_b/*.py` (6 files) | A | Editable source that regenerates the exact approved bytes, and the review-sheet builder |
+| `scripts/rooms/room_art.gd` | M | Prop, UI-skin and storage-picture lookups; `PIXEL_SCALE` |
+| `scripts/rooms/hotspot.gd` | M | `prop` / `prop_hover`, drawn at 2x (also in the editor) |
+| `scripts/rooms/counter_room.gd` | M | Customer sprite at 2x on the counter line, customer PC, clipboard skin and paper layout |
+| `scripts/rooms/under_counter_view.gd` | M | 44 px cells, storage pictures, picture ghost while dragging |
+| `scenes/rooms/counter.tscn` | M | The clipboard spot's props and art hint |
+| `tools/test_rooms.gd` | M | Clipboard prop and skin, rows on the paper, 44 px grid, pictures in every turn, all 56 files |
+| `tools/test_first_customer.gd` | M | Mara's and Relu's sprites at 2x on the counter line, the PC, both gone after intake |
+| `docs/ART_ASSET_LOG.md` | M | Credits, revision history, approval quote and 62 file hashes |
+| `docs/FIRST_DAY_ART_CHECKLIST.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | ART-06 to ART-10 checked; 5/18; approval state |
+| `docs/ART_DIRECTION.md`, `docs/ROOM_ART_GUIDE.md` | M | Parts style; Prop fields, portrait rules, storage and skin |
+| `docs/DECISIONS.md` | M | D168 |
+| `docs/CURRENT_STATE.md`, `README.md`, `HANDOFF.md`, `DEVELOPMENT.md`, `project.godot`, `CHANGELOG.md` | M | State, version 0.57.3, handoff, file map, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py` and `python3 -I tools/check_bug_register.py`: passed, zero problems.
+- Approved bytes: all 62 installed files compared by SHA-256 with the reviewed outputs (0 mismatches); the
+  sources regenerated all 90 outputs byte-identically.
+- Static composites of the counter (customer, PC, clipboard) and the clipboard close-up from the scene
+  coordinates: no overlap with the slip, till or phone; rows sit on the paper.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- Interim placements (customer centre, PC at (456, 440), the clipboard centred in its spot) are mine; they
+  should follow Batch A's ART-01 anchors when the room art lands.
+
+### Known issues and open items
+- No human in-game visual acceptance yet. The stock room still draws plain boxes. NVMe drives have no
+  storage picture. The rooms stay placeholders until Batch A. B55/B56/B57/B59 untouched.
+
+### Next action
+- The user merges the PR and playtests the counter and the under-counter storage. Batch A (ChatGPT) next.
+
 ## 0.57.2 - 2026-11-23 - Permanent art progress and human approval
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

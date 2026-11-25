@@ -749,3 +749,16 @@ ART_ASSET_LOG retains file-level creator/edit/approval records. Do not delete th
 not inferred from an AI, checked task or generic concept acceptance; edited art requires renewed human
 approval. Draft/reference material stays non-loaded until approved. The task also authorizes prior PR
 merges and a new governance PR, not new artwork. Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+### D168 — Batch B counter art approved; hardware parts are comic-book, semi-realistic (user, 23 and 25 November 2026)
+
+The user assigned Batch B (ART-06 to ART-10: clipboard, ticket close-up skin, Mara and Relu, the customer
+PC, storage pictures) to Claude, with Batch A going to ChatGPT, and asked to review the art in chat first.
+On the first revision: "Parts are supposed to be in a completely different style; comic book but
+semi-realistic" (tools and the clipboard to be refined, Relu's headphones turned the right way). So:
+hardware parts are illustrated, inked, full-resolution pictures; rooms, people, PCs, tools and props stay
+pixel art at 2x. On the second revision, 25 November 2026: "they are heading the right way, and you can
+add this art to the game. I think they are big enough" — approval of the exact rev 2 files (hashes in
+ART_ASSET_LOG) for the counter, the ticket close-up and the under-counter storage, and of the customers'
+real-life scale. Integrated in 0.57.3; the under-counter grid moved to 44 px cells to show the pictures at
+their exact size. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
