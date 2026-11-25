@@ -152,6 +152,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/art_batch_c/tools_comic.py` | art source | 0.57.6: ART-16 tool skins in the tool frame (tip at Rig.TIP), cloth/hose textures, clamp, bin, effects |
 | `tools/art_batch_c/layers.py` | art source | 0.57.6: ART-17 dust films and bunnies, paste stage/ramp/old paste, fan rotor/frame/blur, damage overlays |
 | `tools/art_batch_c/tools_pixel.py` | art source | 0.57.6: ART-16 rev 2, pixel-art tools with 24 RotSprite turns, pixel hose/clamp/bin/cloth |
+| `tools/art_batch_c/cables_case.py` | art source | 0.57.7: drafts for review: 24-pin and 8-pin cables (textures, plugs, combs) and the case's inner walls |
+| `tools/art_batch_c/outside.py` | art source | 0.57.7: draft for review: the Outside room at street level (pixel art) and its hotspot layout |
+| `tools/art_batch_c/mock_case.py` | art source | 0.57.7: review mock of the open case with cables (not game art) |
 | `tools/art_batch_c/ui_skins.py` | art source | 0.57.6: ART-18 monitor and phone frames (pixel art) |
 | `tools/art_batch_c/sheets_c1.py` | art source | 0.57.6: Batch C round-1 review sheets (not game art) |
 | `tools/art_batch_c/sheets_c2.py` | art source | 0.57.6: Batch C round-2 review sheets (not game art) |

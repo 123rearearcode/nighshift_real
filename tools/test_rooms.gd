@@ -35,6 +35,15 @@ func scene(path: String) -> void:
     for f in range(3): await process_frame
 
 
+
+# 0.57.7: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
+func settle_storage(counter: Node) -> void:
+    var until: int = Time.get_ticks_msec() + 3000
+    await process_frame
+    while counter.storage_tween != null and counter.storage_tween.is_running() and Time.get_ticks_msec() < until:
+        await process_frame
+    await process_frame
+
 func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var night: Node = root.get_node("NightSession")
@@ -218,7 +227,7 @@ func run_checks() -> void:
     over_edge.position = edge.get_global_rect().get_center()
     over_edge.global_position = over_edge.position
     root.push_input(over_edge, true)
-    for f in range(30): await process_frame
+    await settle_storage(counter_room)
     var under: Node = counter_room.storage_drawer
     check(counter_room.storage_open and is_equal_approx(under.position.y, 0.0) and current_scene == counter_room, "hovering the edge pulls the storage up over the counter")
     check(under.embedded and under.get_node_or_null("BackButton") == null and under.get_node_or_null("ClickBlocker") != null, "pulled up, it has no exit button and clicks on it do not reach the counter")
@@ -310,7 +319,7 @@ func run_checks() -> void:
     up.position = Vector2(640, 20)
     up.global_position = up.position
     root.push_input(up, true)
-    for f in range(30): await process_frame
+    await settle_storage(counter_room)
     check(not counter_room.storage_open and not under.visible and current_scene == counter_room, "moving the mouse up slides the storage back down")
     await scene(Nav.UNDER_COUNTER)                       # the separate close-up still works for old links
     check(current_scene.get_node("BackButton").text == "← Counter", "the separate storage close-up keeps its way back")

@@ -1,6 +1,23 @@
 # Handoff — current state first
 
-## Current — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
+## Current — 0.57.7 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
+
+User decisions (D170): stay 2D; every item uses ONE model drawn from on top (and from the side only where a
+scene needs it) via `scripts/view/item_art.gd`, used by storage, hardware board, repair bench and testing
+bay; the repair bench shows the PC lying open on its side; tools are pixel art (rev 2 approved: "So that
+works"); no storage button: the bottom edge of the counter pulls the storage up; items under the counter
+must turn (click-to-hold + R/Q/E/right-click/wheel). Done in 0.57.7, plus the workshop door fit and the
+window framed at street level. No hot file (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) was edited:
+all drawing changes are in the renderers.
+
+Waiting for the user's review (drafts, not loaded): the two power connectors (24-pin, 8-pin) with clean
+routing, the case's inner walls, and the Outside room at street level (`art/drafts/`). After approval: route
+the cables in code (Line2D with the cable textures, plugs at the 24-pin and the GPU power connector), put the
+walls over the case, install the Outside picture and move its hotspots to `outside_layout.json`.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
 
 The user gave Claude Batch C (ART-14 to ART-18) and asked for a PR with all the new graphics. They are
 drafts in `art/drafts/ART-14/` to `ART-18/` (81 files, hashes in `art/drafts/batch_c_manifest.json`,

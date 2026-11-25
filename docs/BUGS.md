@@ -88,6 +88,7 @@ Next structural review: **0.60.0**.
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
+| B60 | Fixed | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.7 | Pending CI rerun: Rooms and Counter art suites |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -828,3 +829,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run the unchanged parent `tools/test_night_workshop.gd` against the opening runtime. The bounded local probe reports Invalid access to property or key 'paste' on storage_view at the old fixture's line 193; it was stopped after 12 seconds instead of waiting indefinitely. Earlier save-error warnings are intentional failure-injection checks.
 - Expected / actual: fixture serves initial customers then tests all night routes / it skipped intake and assumed the old night-ready setup.
 - Regression / evidence: the fixture now accepts the two seeded customers in a bounded loop and asserts the queue is empty before continuing. All prior assertions remain. Godot 4.7.2 Night workshop: 57 checks, zero failures; the new native/cold-reload First customer suite: 32 checks, zero failures. No graphical acceptance claim.
+
+### B60 — Storage pull-up checks ran before the slide finished
+
+- Found: 0.57.7 development, GitHub Actions run 45702481532 on `e8eea57` (push to `feat/art-integration-0577`, not a PR)
+- Reported by: CI log: `FAIL: hovering the edge pulls the storage up over the counter`, `FAIL: moving the mouse up slides the storage back down` (Rooms) and `FAIL: moving the mouse up slides the storage away, back at the same counter` (Counter art)
+- Fixed in: 0.57.7 (before release)
+- Root cause: the tests waited a fixed 30 frames for the 0.22-second tween. Headless Godot runs frames with tiny deltas, so 30 frames were not 0.22 s and the drawer was still sliding (later checks that needed it open passed once it arrived). Test defect, not game behaviour.
+- Reproduction: run the Rooms suite at 0.57.7 WIP `e8eea57` headless.
+- Expected / actual: the checks see the drawer fully open / closed / the checks see it mid-slide.
+- Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Evidence pending the CI rerun; no user verification claimed.
+

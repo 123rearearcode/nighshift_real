@@ -34,6 +34,15 @@ func hover(button: Button) -> void:
     for f in range(3): await process_frame
 
 
+
+# 0.57.7: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
+func settle_storage(counter: Node) -> void:
+    var until: int = Time.get_ticks_msec() + 3000
+    await process_frame
+    while counter.storage_tween != null and counter.storage_tween.is_running() and Time.get_ticks_msec() < until:
+        await process_frame
+    await process_frame
+
 func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var night: Node = root.get_node("NightSession")
@@ -84,7 +93,7 @@ func run_checks() -> void:
         check(counter.hotspot(name).ui_label and not counter.hotspot(name).disabled, "%s remains discoverable without painting another tabletop object" % name)
     # 0.57.7 (user): no storage button; hovering the bottom edge pulls the storage up over the counter.
     await hover(counter.hotspot("UnderCounter"))
-    for f in range(30): await process_frame
+    await settle_storage(counter)
     check(counter.storage_open and counter.storage_drawer.visible and is_equal_approx(counter.storage_drawer.position.y, 0.0) and current_scene == counter, "hovering the bottom edge pulls the same storage up over the counter")
     var under: Node = counter.storage_drawer
     var constants: Dictionary = under.get_script().get_script_constant_map()
@@ -105,7 +114,7 @@ func run_checks() -> void:
     up.position = Vector2(640, 20)
     up.global_position = up.position
     root.push_input(up, true)
-    for f in range(30): await process_frame
+    await settle_storage(counter)
     check(not counter.storage_open and not counter.storage_drawer.visible and current_scene == counter and not counter.visiting(), "moving the mouse up slides the storage away, back at the same counter")
     restore_save(gs)
     for path: String in [manifest, preferences]: _remove_save_files(path)

@@ -105,6 +105,85 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.7 - 2026-11-25 - Batch C in the game; one picture per item; storage pulls up from the edge
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.6 (842d0c2).
+- Type: patch (approved art integration and presentation fixes; 0.58.0/0.59.0 stay reserved for Codex,
+  0.60.0 for the checker).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. Headless runs draw nothing, so how it looks was checked only on static composites; no human
+in-game visual acceptance yet.
+
+### Added / Changed / Fixed / Removed
+- **One picture per item (D170, user: stay 2D, top and side drawings):** `scripts/view/item_art.gd` is the
+  single lookup every scene uses: storage, hardware board, repair bench and testing bay now show the same
+  approved drawings. It also serves tool frames and bench layers, and keeps pixel art sharp and dust films
+  tiling on any canvas (CanvasTexture filtering).
+- **Repair bench, the PC lying open on its side (user):** the approved tower case and L board; the CPU,
+  cooler (fan spinning), RAM, GPU and PSU drawn with the board-scale pictures; the case fan as a spinning
+  rotor in its frame; a dust film on every dusty surface that fades as it is cleaned (follows lifted
+  parts, hidden under covering parts); the pixel tools from 24 pre-turned frames (brush bristles and the
+  cloth's shape still move, now with dark bristles and the pixel cloth texture); pixel hose clamp and bin.
+- **Paste:** the approved socket stage behind the simulation; normal paste is grey (super-paste and
+  toothpaste keep their tints).
+- **Hardware board:** the approved case, board and part pictures (turn-correct, light stays top-left);
+  the pixel screwdriver.
+- **Testing bay:** the approved inspection close-up per kind; lens spots sit on their real details; a clue
+  overlay appears only after the lens has revealed that clue; the lens really magnifies (2x).
+- **Monitor and phone:** the approved frames (the phone keeps its crack).
+- **Storage under the counter (user: no button, an edge to hover):** hovering the bottom edge pulls the
+  storage up over the counter; moving the mouse to the top (or Esc with nothing held) slides it down.
+  Clicks on it never reach the counter. The separate close-up still opens from old links.
+- **Turning items under the counter (user: "I cannot rotate items"):** a click picks an item up and keeps
+  it in hand until the next click (dragging still works); R / E / right-click / wheel down turn clockwise,
+  Q / wheel up back; with nothing held, R turns the selected item where it lies if it fits; a blocked spot
+  keeps the item in hand with a message.
+- **Counter fixes (user):** the workshop door leaf now fills its painted doorway with its hinge side on
+  the frame; the shop window frames the approved street at eye level (pavement, parked car, road and
+  ground-floor shops) instead of the upper floors.
+- **Drafts for review (not in the game):** the two power connectors (24-pin, 8-pin) with clean routing,
+  the case's inner walls, and the Outside room at street level (`art/drafts/`).
+- Approval of the pixel tools (rev 2) recorded from "So that works"; integration hashes in ART_ASSET_LOG.
+- **B60 (fixed, test harness):** the first CI run of this branch checked the storage pull-up a fixed 30
+  frames after hovering; headless frames outran the 0.22 s slide. The tests now wait for the slide.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/view/item_art.gd` | A | The one item picture lookup |
+| `scripts/view/pc_renderer.gd`, `scripts/view/tool_renderer.gd`, `scripts/view/cleaning_renderer.gd`, `scripts/view/paste_renderer.gd`, `scripts/view/workshop_view.gd` | M | Bench, tools, dust, paste and hardware board drawn with the approved art |
+| `scripts/night/testing_bay_view.gd`, `scripts/night/hardware_view.gd`, `scripts/night/software_view.gd`, `scripts/night/phone_panel.gd` | M | Inspection art, spots, clues, magnifier; pixel screwdriver; monitor and phone frames |
+| `scripts/rooms/under_counter_view.gd`, `scripts/rooms/counter_room.gd`, `scenes/rooms/counter.tscn` | M | Pull-up storage from the bottom edge, click-to-hold, turning |
+| `scripts/rooms/counter_art.gd` | M | Workshop door fit; street at eye level in the window |
+| `art/hardware/`, `art/bench/`, `art/tools/` (82 files + READMEs), `art/ui/monitor_bezel.png`, `art/ui/phone_shell.png` | A | Approved Batch C runtime copies |
+| `art/drafts/connectors/`, `art/drafts/case_walls/`, `art/drafts/outside/`, 2 review sheets | A | Drafts for review |
+| `tools/art_batch_c/cables_case.py`, `outside.py`, `mock_case.py` | A | Source of the drafts |
+| `tools/test_item_art.gd`, `.github/workflows/tests.yml` | A/M | New Item art suite (required) |
+| `tools/test_rooms.gd`, `tools/test_counter_art.gd` | M | Pull-up storage, click-to-hold and turning checks |
+| `docs/BUGS.md` | M | B60 |
+| `docs/ART_ASSET_LOG.md`, `docs/FIRST_DAY_ART_CHECKLIST.md`, `docs/ART_PRODUCTION_PROGRESS.md`, `docs/DECISIONS.md`, `docs/ROOM_ART_GUIDE.md`, `docs/MENU_NAVIGATION.md`, `art/drafts/README.md`, `art/ui/README.md` | M | Approval and integration record, D170, guides |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.7, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`: passed.
+- All 84 runtime art files are byte-identical copies of approved drafts (hashes found in the manifest);
+  draft sources regenerate their outputs byte-identically.
+- Static composites of the counter (door, window) and of the open case.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- "So that works" read as approval of the pixel tools. Hose texture, dust bunnies, old dried paste, fan
+  blur and the effects are installed but not wired yet.
+
+### Known issues and open items
+- No human visual acceptance. The compact case has no art yet (drawn fallback). Connectors, case walls and
+  the Outside picture await review; then the cables get routed in code and the walls go over the case.
+
+### Next action
+- The user reviews the drafts and playtests the counter storage and the bench.
+
 ## 0.57.6 - 2026-11-25 - Batch C art (ART-14 to ART-18): approved drafts, pixel tools pending
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.57.3 (87dd2b6), then main 0.57.5 (65b8476, Batch A #80) merged in at the user's choice; 0.58.0 and 0.59.0 stay

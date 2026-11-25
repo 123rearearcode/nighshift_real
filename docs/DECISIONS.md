@@ -776,3 +776,19 @@ selected. Batch B sprites keep 2× and item cells 44 px; counter capacity remain
 source art and branch integration do not claim human in-game visual acceptance or uniform native
 pixel polish. Existing D167 approval governance and D168 Batch B style/credits are preserved.
 Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+### D170 — One model per item in 2D, the PC lies open on the bench, storage pulls up from the bottom edge (user, 25 November 2026)
+
+The user: "the hardware bench and the repair bench should all use the same models ... throughout the game,
+when an item is spawned in a scene, it should use the model of that and be represented either from on top
+or from the side"; asked whether that needs 3D, then decided: "Yes, happy staying 2d" and "repair bench is
+with the PC lying on it's side, open". So every item has 2D drawings from on top (and from the side only
+where a scene needs it), served by ONE lookup (`scripts/view/item_art.gd`) that every scene uses. Also:
+"the tools should be pixel art" (ART-16 rev 2, approved: "So that works"); "I don't want there to be a
+button I must press, but rather an edge in the bottom of the screen I can hover over to pull it up" (the
+under-counter storage slides up from the bottom edge, no button); items under the counter turn with
+R/Q/E, right-click or the wheel and can be clicked up and down; "the door to the workshop is slightly off"
+and the outside view should be "a street-level view" (door fitted, window framed at eye level; the
+Outside room gets a street-level picture, drafted for review). "Add connectors (only 2 kinds for now), but
+make sure they look clean" (drafted for review: 24-pin and 8-pin power cables). Recorded by Claude (Opus
+5.5, model id claude-opus-5-5).
