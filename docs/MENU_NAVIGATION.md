@@ -32,7 +32,7 @@ Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
 
 | Place | Scene | Reached from | Leads to |
 | --- | --- | --- | --- |
-| **Counter** (main screen) | `scenes/rooms/counter.tscn` | New game, Continue fallback, morning | front door → Outside; back door → Workshop; under the window → Under the counter; shutter → end of night |
+| **Counter** (main screen) | `scenes/rooms/counter.tscn` | New game, Continue fallback, morning | front door (the glass door on the left of the flat front wall, 0.57.9 D171) → Outside; back door → Workshop; under the window → Under the counter; shutter (the box over the glass) → end of night |
 | **Workshop** | `scenes/rooms/workshop.tscn` | Counter back door | repair bench, hardware board, monitor (the PC on the bench), testing bay, stock room door, door to Counter |
 | **Outside** | `scenes/rooms/outside.tscn` | Counter front door | van → Salvage dump; the store → Store; shop door → Counter; parts supplier (later, a separate place) |
 | Stock room (close-up) | `scenes/storage.tscn` | Workshop | ← Workshop; Resume work → a bench |

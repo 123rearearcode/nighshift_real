@@ -1,5 +1,13 @@
 # Room art guide — replacing the placeholders (0.53.0, D161)
 
+## Counter room layout — 0.57.9 (D171)
+
+The counter room is one-point: you stand behind the counter facing the shop's front wall, which is flat.
+On the left one glass block (glass front door on the floor line, the shop window beside it) under one flat
+shutter box; the workshop door on the right; the counter across the front. Screen positions live in
+`scripts/rooms/counter_art.gd` (GLASS, DOOR, SHUTTER, FLOOR_Y 505). New counter art must follow this layout;
+the user's sketch and the reference mockups are in `art/references/counter_flat_layout/`.
+
 ## Counter Batch A layers — 0.57.5
 
 The approved counter now uses `scripts/rooms/counter_art.gd` and the unchanged PNGs under

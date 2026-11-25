@@ -101,6 +101,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/ART_DIRECTION.md` | docs | Mandatory art creation reference, latest user directions, layer contract and storage geometry |
 | `docs/FIRST_DAY_ART_CHECKLIST.md` | docs | Bounded ART tasks for the first counter/day slice, suggested contributor packets and acceptance |
 | `art/references/README.md` | docs | Existing copied image provenance and reference-only status |
+| `art/references/counter_flat_layout/README.md` | docs | 0.57.9: the user's counter-room sketch, Claude's reading and mockups, and a static preview of the flat front-wall layout (reference only, not loaded) |
 | `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
 | `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
 | `scripts/rules/part_instances.gd` | rules | Canonical physical records for delivered shop parts; shared record/receipt sanitizers and ownership transfer helpers |

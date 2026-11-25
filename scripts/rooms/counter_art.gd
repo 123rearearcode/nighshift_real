@@ -1,6 +1,7 @@
 # Approved Batch A revision 02 (0.57.5). Original PNG bytes and human approval are recorded in
 # art/rooms/counter_batch_a/manifest.json. This is presentation only: no clock, inventory or PC state.
 # Source art is mapped at draw time; it has not been repainted onto a different native pixel grid.
+# 0.57.9: the same approved pixels laid out on a flat front wall (see draw_room).
 extends RefCounted
 
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
@@ -26,6 +27,20 @@ const CROPS := {
     "shutter_up": Rect2(82, 87, 1611, 142), "shutter_down": Rect2(82, 87, 1610, 717),
     "sign": Rect2(269, 249, 486, 984)
 }
+
+# 0.57.9 flat front wall (user's sketch, 26 November 2026). Screen positions; FLOOR_Y is the shell's floor line.
+const FLOOR_Y: float = 505.0
+const GLASS := Rect2(52, 106, 552, 399)             # door + shop window, from the top rail to the floor
+const DOOR := Rect2(52, 106, 161, 399)              # the approved glass door, its own frame on the left
+const FRAME_W: float = 18.0
+const DOOR_STILE := Rect2(242, 450, 60, 650)        # a hinge-free stretch of the door's left stile (source px)
+const DOOR_RAIL := Rect2(330, 107, 300, 64)         # a stretch of the door's top rail (source px)
+const SHUTTER := Rect2(44, 56, 568, 50)             # the shutter box, flat over the whole glass
+const SHUTTER_BAND := Vector2(291, 698)             # ten whole slats of the down shutter (source y)
+const SIGN := Rect2(390, 128, 60, 122)
+const TILE_STRIP := Rect2(606, 0, 169, 941)         # five whole tiles of the shell's flat wall (source px)
+const TILE_ROWS: Array = [28, 62, 95, 128, 161, 193, 226, 257, 288, 319, 349, 381, 412, 445, 478, 511, 544, 577, 610]
+const TILE_SHIFTS: Array = [0, 6, 13, 3, 9]         # row index each strip starts its tiles from
 
 var textures: Dictionary = {}
 
@@ -75,22 +90,85 @@ func _sprite(canvas: CanvasItem, key: String, destination: Rect2) -> void:
 
 func draw_room(canvas: CanvasItem, morning: bool, front_open: bool, workshop_open: bool, shutter_down: bool) -> void:
     canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color("15232b"))
-    # Exterior is limited to the left glazing. The room's genuine alpha holes reveal it.
-    var outside: Texture2D = textures.get("morning" if morning else "dusk")
-    var glazing := Rect2(0, 0, 464, 610)
-    # 0.57.8 (user, 25 November 2026: the outside should be at street level): frame the street at eye level:
-    # the far pavement meets the room's floor line, with the parked cars, road and ground-floor shops behind.
-    var sample := Rect2(Vector2(280, 302), glazing.size * 1.032)
-    if outside != null: canvas.draw_texture_rect_region(outside, glazing, sample)
     _full(canvas, "shell")
-    _sprite(canvas, "front_open" if front_open else "front_closed", Rect2(60, 115, 132 if front_open else 172, 450))
-    _sprite(canvas, "sign", Rect2(262, 128, 60, 122))
-    # 0.57.8 (user: "the door to the workshop is slightly off"): the leaf now fills the painted doorway
+    # 0.57.9 (user, 26 November 2026, approving the layout from their sketch: "the design of the layout looks
+    # good. we will push this as a change to the layout of things, with the existing current assets"): the
+    # front wall faces the player flat. The shell's painted corner glazing is covered by its own flat tiles,
+    # and the glass door, shop window, shutter and street all sit flat on that wall. Existing pixels only.
+    _flat_wall(canvas)
+    var outside: Texture2D = textures.get("morning" if morning else "dusk")
+    # The street at eye level (0.57.8 mapping kept): source = (280, 302) + screen position * 1.032.
+    if outside != null:
+        canvas.draw_texture_rect_region(outside, GLASS, Rect2(Vector2(280, 302) + GLASS.position * 1.032, GLASS.size * 1.032))
+    _glass_frame(canvas)
+    if front_open:
+        var closed: Rect2 = CROPS["front_closed"]
+        var opened: Rect2 = CROPS["front_open"]
+        var leaf: Vector2 = opened.size * (DOOR.size.y / closed.size.y)
+        _sprite(canvas, "front_open", Rect2(DOOR.position.x, DOOR.position.y - (leaf.y - DOOR.size.y) * 0.5, leaf.x, leaf.y))
+    else:
+        _sprite(canvas, "front_closed", DOOR)
+    _sprite(canvas, "sign", SIGN)
+    # 0.57.8 (user: "the door to the workshop is slightly off"): the leaf fills the painted doorway
     # (1062..1248 x 118..490) with its hinge side on the frame, closed and open alike.
     _sprite(canvas, "workshop_open" if workshop_open else "workshop_closed",
         Rect2(1109, 100, 139, 395) if workshop_open else Rect2(1062, 118, 186, 372))
-    _sprite(canvas, "shutter_down" if shutter_down else "shutter_up",
-        Rect2(48, 58, 416, 530) if shutter_down else Rect2(48, 58, 416, 37))
+    if shutter_down: _shutter_down(canvas)
+    else: _sprite(canvas, "shutter_up", SHUTTER)
+
+
+# The shell's own flat wall (5 whole tiles, source x 606..775), repeated leftwards over the painted corner.
+# Each strip moves its tile rows round by a whole number of rows so stains do not line up; the grimy last row
+# and the floor stay in place, so the floor line stays level at FLOOR_Y.
+func _flat_wall(canvas: CanvasItem) -> void:
+    var tex: Texture2D = textures.get("shell")
+    if tex == null: return
+    var k: Vector2 = SCREEN / SOURCE
+    var w: float = TILE_STRIP.size.x * k.x
+    var top: float = float(TILE_ROWS[0])
+    var body_end: float = float(TILE_ROWS[TILE_ROWS.size() - 1])
+    var i: int = 0
+    var x: float = TILE_STRIP.position.x * k.x - w
+    while x > -w:
+        var cut: float = float(TILE_ROWS[int(TILE_SHIFTS[i % TILE_SHIFTS.size()])])
+        var pieces: Array = [Vector2(0, top), Vector2(cut, body_end), Vector2(top, cut), Vector2(body_end, SOURCE.y)]
+        var y: float = 0.0
+        for p: Vector2 in pieces:
+            if p.y <= p.x: continue
+            var h: float = (p.y - p.x) * k.y
+            canvas.draw_texture_rect_region(tex, Rect2(x, y, w + 0.5, h + 0.5), Rect2(TILE_STRIP.position.x, p.x, TILE_STRIP.size.x, p.y - p.x))
+            y += h
+        x -= w
+        i += 1
+
+
+# Jambs, the mullion beside the door and the top rail: stretches of the approved door's own frame.
+func _glass_frame(canvas: CanvasItem) -> void:
+    var tex: Texture2D = textures.get("front_closed")
+    if tex == null: return
+    for x: float in [GLASS.position.x, DOOR.end.x - FRAME_W, GLASS.end.x - FRAME_W]:
+        canvas.draw_texture_rect_region(tex, Rect2(x, GLASS.position.y, FRAME_W, GLASS.size.y), DOOR_STILE)
+    canvas.draw_texture_rect_region(tex, Rect2(GLASS.position, Vector2(GLASS.size.x, FRAME_W + 1)), DOOR_RAIL)
+
+
+# The down shutter over the whole glass: its box and first slats, whole slat bands repeated, its bottom bar
+# on the floor line. Same horizontal scale throughout, so the slats keep their shape.
+func _shutter_down(canvas: CanvasItem) -> void:
+    var tex: Texture2D = textures.get("shutter_down")
+    if tex == null: return
+    var crop: Rect2 = CROPS["shutter_down"]
+    var s: float = SHUTTER.size.x / crop.size.x
+    var head: float = SHUTTER_BAND.x - crop.position.y
+    var tail: float = crop.end.y - SHUTTER_BAND.y
+    var y: float = SHUTTER.position.y
+    canvas.draw_texture_rect_region(tex, Rect2(SHUTTER.position.x, y, SHUTTER.size.x, head * s), Rect2(crop.position.x, crop.position.y, crop.size.x, head))
+    y += head * s
+    var end: float = FLOOR_Y - tail * s
+    while y < end - 0.5:
+        var h: float = minf((SHUTTER_BAND.y - SHUTTER_BAND.x) * s, end - y)
+        canvas.draw_texture_rect_region(tex, Rect2(SHUTTER.position.x, y, SHUTTER.size.x, h + 0.5), Rect2(crop.position.x, SHUTTER_BAND.x, crop.size.x, h / s))
+        y += h
+    canvas.draw_texture_rect_region(tex, Rect2(SHUTTER.position.x, end, SHUTTER.size.x, tail * s), Rect2(crop.position.x, SHUTTER_BAND.y, crop.size.x, tail))
 
 
 func draw_counter(canvas: CanvasItem, morning: bool) -> void:
