@@ -1,0 +1,24 @@
+{
+ "style": "pixel art, native half size, shown at exactly 2x",
+ "frame": [
+  64,
+  64
+ ],
+ "origin": [
+  32,
+  32
+ ],
+ "tip": [
+  23.0,
+  44.0
+ ],
+ "turn_frames": 24,
+ "turn_step_degrees": 15,
+ "turn_direction": "frame k = k x 15 degrees clockwise (Godot's positive angle)",
+ "bristle_a": "#2c2a2a",
+ "bristle_b": "#4a4744",
+ "kept_from_rev1": [
+  "fx_suction.png",
+  "fx_dust_puff.png"
+ ]
+}

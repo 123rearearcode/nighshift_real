@@ -105,6 +105,65 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.6 - 2026-11-25 - Batch C art (ART-14 to ART-18): approved drafts, pixel tools pending
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.3 (87dd2b6), then main 0.57.5 (65b8476, Batch A #80) merged in at the user's choice; 0.58.0 and 0.59.0 stay
+  reserved for Codex's anti-virus and part tests, 0.60.0 for the checker.
+- Type: patch (art drafts, their source and docs; no runtime change).
+
+### Execution status
+Godot was not run: nothing the game loads changed. The drafts sit under `art/drafts/` with a `.gdignore`, so
+Godot does not import them and no scene or script refers to them. GitHub Actions runs the usual suites.
+
+### Added / Changed / Fixed / Removed
+- **Batch C by Claude, shown in chat 25 November 2026; approved by the user at 21:31 ("the art is reviewed and
+  okay, the tools should be pixel art, i like the phone crack") except the tools, which were redrawn:**
+  - ART-14: the tower case interior and the demo L board, every connector on its cells (the empty slot
+    shows when a part is lifted out).
+  - ART-15: the hardware family at board scale (the approved storage drawings, larger, plus a bare CPU),
+    and one testing-bay inspection picture per part kind with the lens spot positions.
+  - ART-16: tool skins drawn to the bench's tool frame (tip at Rig.TIP), cloth and hose textures, clamp,
+    dust bin, suction glow and dust puff.
+  - ART-17: dust films and bunnies, the paste socket stage, paste ramp and old dried paste, fan rotor,
+    frame and blur, and an overlay for every fault clue and red herring (shown only when revealed).
+  - ART-18: frames for the diagnostic monitor and the phone, with transparent screens.
+- **ART-16 revision 2:** the five tools as pixel art at 2x with 24 pre-turned frames each (RotSprite), plus
+  pixel hose, clamp, dust bin and cloth texture (`art/drafts/ART-16/rev2/`); approval pending.
+- `tools/art_batch_c/` regenerates all 96 draft files byte-identically; the shared helper in
+  `tools/art_batch_b/parts_comic.py` now also accepts tuple colours (approved ART-10 bytes unchanged).
+- Art docs: ART-14 to ART-18 Created; approval recorded per file (manifest) with the user's quote; ART-16
+  tools revision 2 pending.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `art/drafts/ART-14/` … `art/drafts/ART-18/` (96 files incl. `ART-16/rev2/`) | A | Batch C drafts, not loaded |
+| `art/drafts/batch_c_review/` (8 files) | A | The review sheets shown in chat |
+| `art/drafts/batch_c_manifest.json`, `art/drafts/README.md`, `art/drafts/.gdignore` | A | Hashes, what drafts are, keep Godot from importing them |
+| `tools/art_batch_c/*.py` (9 files) | A | Source for the drafts and the sheets |
+| `tools/art_batch_b/parts_comic.py` | M | Tuple colours accepted (no change to approved outputs) |
+| `docs/ART_ASSET_LOG.md`, `docs/FIRST_DAY_ART_CHECKLIST.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | Creation and pending-approval state |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md`, `.gitignore` | M | File map, handoff, version 0.57.6, this entry, ignore new Python caches |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`: passed.
+- Sources regenerated 81 rev 1 and 15 rev 2 Batch C files identical to the reviewed outputs; ART-10 parts regenerated
+  identical to `art/storage/` after the helper change.
+- Test merge with #80 conflicted only in docs/version; the user chose "merge #80 first, then fix #81". After #80
+  merged, main was merged into this branch keeping both sides (0.57.6 after 0.57.5; 17 of 18 tasks created).
+- GitHub Actions on Godot 4.7.2 (headless), PR #81: passed on `4a49842` (run 45684327080) and, after merging
+  main, on `50f814d` (run 45685036706). No runtime file changed, so no new game behaviour was tested.
+
+### Decisions proposed (not approved)
+- ART-16 rev 2 (pixel tools) awaits approval. Integration plan: bench/tool drawing (hot files, none held by
+  another agent today), per-kind lens spots, damage overlays only when revealed.
+
+### Known issues and open items
+- Not in the game. ART-13 (workshop room) is the last first-day task not created.
+
+### Next action
+- The user approves the pixel tools; then the integration PR.
+
 ## 0.57.5 - 2026-11-25 - Integrate approved Batch A after merged Batch B
 
 - Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work. Original Batch A rasters: OpenAI built-in image generation, directed by Codex; exact image-model ID not exposed. Existing Batch B art/credit remains Claude's.

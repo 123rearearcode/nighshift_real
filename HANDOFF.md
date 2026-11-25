@@ -1,6 +1,23 @@
 # Handoff — current state first
 
-## Current — 0.57.5 approved Batch A integration, 25 November 2026
+## Current — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
+
+The user gave Claude Batch C (ART-14 to ART-18) and asked for a PR with all the new graphics. They are
+drafts in `art/drafts/ART-14/` to `ART-18/` (81 files, hashes in `art/drafts/batch_c_manifest.json`,
+source `tools/art_batch_c/`), NOT loaded by the game (`.gdignore`). The user approved them at 21:31 ("the
+art is reviewed and okay, the tools should be pixel art, i like the phone crack"): everything except the
+ART-16 tools, which were redrawn as pixel art in `art/drafts/ART-16/rev2/` (24 pre-turned frames each;
+approval pending). Per-file status and hashes: `art/drafts/batch_c_manifest.json`.
+
+When approved, integration needs: the repair bench drawing the case/board/parts/dust/fan art and the tool
+sprites (tip at Rig.TIP; `bench_view.gd` and `tool_rig.gd` are single-owner hot files, check WORK_PLAN),
+the hardware board drawing the board/parts, the testing bay using per-kind lens spots from
+`inspect_spots.json` and showing a damage overlay only when its clue is revealed, and the monitor/phone
+frames. ART-13 (workshop room) is the last first-day task not created; Batch A is merged (#80, 0.57.5).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.5 approved Batch A integration, 25 November 2026
 
 User reviewed Batch A revision 02 and said “Aight u can put it in”, then “art reviewed, look sgood.
 claude already created some art in an open pr (i think) so merge that and then create a new PR.”

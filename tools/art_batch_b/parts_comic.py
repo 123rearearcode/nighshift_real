@@ -12,6 +12,7 @@ INK = (21, 22, 26, 255)
 
 
 def C(h, a=255):
+    if isinstance(h, tuple): return h if len(h) == 4 else tuple(h) + (a,)
     return (int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16), a)
 
 

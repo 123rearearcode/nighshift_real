@@ -1,0 +1,18 @@
+{
+ "frame": [
+  160,
+  200
+ ],
+ "origin": [
+  80,
+  100
+ ],
+ "tip": [
+  44,
+  148
+ ],
+ "scale_in_game": 0.5,
+ "bristle_a": "#2c2a2a",
+ "bristle_b": "#4a4744",
+ "note": "brush bristles stay code-drawn (brush_shape.gd); use these two colours instead of the old tan pair"
+}
