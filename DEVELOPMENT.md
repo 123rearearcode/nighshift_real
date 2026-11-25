@@ -118,6 +118,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `docs/PERFORMANCE.md` | docs | Measured 0.22.0/0.22.1 comparison, cache/wake contracts and profiling limits |
+| `docs/REVIEW_CONSOLIDATION.md` | docs | 0.57.7 critical consolidation of checker #77/#78 against 0.57.6: B59 matrix, corrected performance claims and proposal dispositions |
 | `docs/WORK_PLAN.md` | docs | Approved code-health plan (17 steps, 5 phases) and the Codex/Claude split with hot-file ownership rules |
 | `docs/HAND_STATES.md` | docs | The bench's eight hand states, their derivation and the allowed moves (enforced by `scripts/bench/hand_state.gd`) |
 | `docs/CODEX_PROMPT_WORK_PLAN.md` | docs | Ready-to-paste prompt telling Codex about the work plan and split |
@@ -189,6 +190,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/playtest_bench.gd` | tooling | Scripted playtest: drives the real bench with a scripted pointer (brush strokes, vacuum holds, hose reach at several angles) and prints a table; never fails the build; also a frame-time table (physics tick and redraw, average and worst) |
 | `tools/test_performance.gd` | tooling | Cache invalidation, clamped hose wake/sleep, static redraw and UI correctness; no timing gates |
 | `tools/profile_bench.gd` | tooling | Short isolated CPU physics/draw/save profile with nearest-rank p50/p95/p99 |
+| `tools/reproduce_b59.gd` | tooling | Opt-in diagnostic using unique disposable saves for manifest/intake protection and fallback cases; reports observations, not a fixed-bug CI regression |
 | `scripts/view/bench_backdrop.gd` | view | Static background, case grid and tray on a separately redrawn CanvasItem |
 | `tools/test_support.gd` | tooling | Shared base for the test suites: check(), disposable save path, click(), finish() summary line; each suite extends it |
 | `scripts/bench/dust_snapshot.gd` | sim/state | Atomic validated physical dust snapshot capture/restore; old fractional saves remain compatible |

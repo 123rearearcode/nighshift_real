@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.57.6)
+# Nightshift - Godot Foundation Trial (v0.57.7)
 
 0.57.6 adds the Batch C art (open case and board, close-up hardware, pixel-art tools, dust/paste/fan/damage layers, screen frames) as approved drafts; the pixel tools await approval and nothing is in the game yet.
 
