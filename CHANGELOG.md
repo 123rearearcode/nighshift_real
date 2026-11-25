@@ -152,7 +152,8 @@ visual acceptance yet.
 - No installed raster changed: all fourteen Batch A hashes still match their approval manifest (checked by
   the Counter art suite).
 - Static composite of the four states from the same drawing steps (Python/PIL).
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless): run 45713592643 on `c743545` passed, every suite including
+  Counter art with the new layout checks.
 
 ### Decisions proposed (not approved)
 - None. The new layout itself is the user's decision (D171).
