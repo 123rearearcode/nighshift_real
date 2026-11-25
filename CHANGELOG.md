@@ -37,6 +37,19 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled performance review — 2026-11-25 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.57.2 (1897eda). Compared against main 0.56.1 (960b847). The integrator assigns the version.
+- Added: a dated section under "Scheduled performance reviews" in `docs/PERFORMANCE.md`. No reproducible
+  regression in `profile_bench`/`profile_salvage_physics` across the 0.57.0 first-day intake. No bug filed.
+  The section notes the synchronous checkpoint on each "Accept PC" click and the quadratic ticket copies in
+  `opening_cards()`, and ranks 4 proposals. None are implemented. B57 is still open.
+- Files changed: docs/PERFORMANCE.md (M), CHANGELOG.md (M).
+- Execution: the checker ran Godot 4.7.2.stable.official headless for both profilers on both commits
+  (bench 8× and salvage 2× per commit). No game code, test, tool or CI changed.
+- Next action: the gameplay owner picks up B57 and the night_session.gd / counter_room.gd proposals as wanted.
+
 ### Scheduled performance review — 2026-11-23 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
