@@ -762,3 +762,17 @@ add this art to the game. I think they are big enough" — approval of the exact
 ART_ASSET_LOG) for the counter, the ticket close-up and the under-counter storage, and of the customers'
 real-life scale. Integrated in 0.57.3; the under-counter grid moved to 44 px cells to show the pictures at
 their exact size. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D169 — Batch A revision 02 approved for the game after Batch B merge (user, 25 November 2026)
+
+The user reviewed the delivered Batch A v2 pack and said “Aight u can put it in”, then “art reviewed,
+look sgood. claude already created some art in an open pr (i think) so merge that and then create a
+new PR.” Claude's Batch B #79 was reviewed and merged first; Batch A integration is a new PR.
+
+Approval covers the fourteen unchanged source PNGs enumerated with hashes/quotes in
+art/rooms/counter_batch_a/manifest.json. Renderer mapping/anchors are recorded in layout.json; no
+pixel repaint, new UI flow, game rule, storage unit, ownership/save contract or hover-open gesture is
+selected. Batch B sprites keep 2× and item cells 44 px; counter capacity remains 20×10. Approval of
+source art and branch integration do not claim human in-game visual acceptance or uniform native
+pixel polish. Existing D167 approval governance and D168 Batch B style/credits are preserved.
+Recorded by Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

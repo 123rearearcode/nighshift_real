@@ -30,6 +30,9 @@ extends Button
         queue_redraw()
 ## At 06:00 the night is over: hotspots that start new work close (doors to work, the salvage run).
 @export var closed_at_dawn: bool = false
+## A compact, always-visible UI label for a function without painted furniture (cash, phone, clock).
+## This keeps existing actions discoverable while the counter artwork remains empty.
+@export var ui_label: bool = false
 ## 0.57.3: a loose object drawn on this spot, art/props/<name>.png (pixel art, shown at 2x, centred).
 ## Props are separate from the room picture (the clipboard is not painted into the counter art).
 @export var prop: String = "":
@@ -120,6 +123,12 @@ func _draw() -> void:
     if art != null:
         var shown := Vector2(art.get_size()) * 2.0
         draw_texture_rect(art, Rect2(((r.size - shown) * 0.5).round(), shown), false, Color(0.6, 0.6, 0.6) if disabled and not editor else Color.WHITE)
+    if ui_label and not editor and not placeholder:
+        draw_rect(r, Color("1c3541") if hovered and not disabled else Color("172b35"))
+        draw_rect(r, Color("71969b"), false, 1.0)
+        var caption: String = label + ("" if badge == "" else "  ·  " + badge)
+        draw_string(font, Vector2(10, r.size.y * 0.5 + 5), caption, HORIZONTAL_ALIGNMENT_LEFT,
+            r.size.x - 20, 14, Color("f1ecdf") if not disabled else Color("9aa9ae"))
     if hovered and not disabled and not editor:
         draw_rect(r.grow(2.0), Color("ffd27a"), false, 3.0)
         var tag: String = label + ("" if badge == "" or (placeholder and art == null) else "  ·  " + badge)

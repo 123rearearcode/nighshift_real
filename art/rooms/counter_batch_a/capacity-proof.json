@@ -1,0 +1,118 @@
+{
+  "kind": "Exact static capacity/geometry proof for Batch A v2; not gameplay test evidence",
+  "grid": [
+    20,
+    10
+  ],
+  "logical_cell": 38,
+  "mixed_items": [
+    {
+      "label": "Tower PC 8x6",
+      "cell": [
+        0,
+        0
+      ],
+      "size": [
+        8,
+        6
+      ],
+      "source": "scripts/storage/storage_sources.gd"
+    },
+    {
+      "label": "GPU 8x1",
+      "cell": [
+        9,
+        0
+      ],
+      "size": [
+        8,
+        1
+      ],
+      "source": "scripts/data/hardware_catalog.gd"
+    },
+    {
+      "label": "CPU 3x3",
+      "cell": [
+        9,
+        2
+      ],
+      "size": [
+        3,
+        3
+      ],
+      "source": "scripts/data/hardware_catalog.gd"
+    },
+    {
+      "label": "RAM 1x4",
+      "cell": [
+        13,
+        2
+      ],
+      "size": [
+        1,
+        4
+      ],
+      "source": "scripts/data/hardware_catalog.gd"
+    },
+    {
+      "label": "Vacuum rotated 2x4",
+      "cell": [
+        15,
+        2
+      ],
+      "size": [
+        2,
+        4
+      ],
+      "source": "scripts/storage/storage_data.gd; quarter turn of 4x2"
+    },
+    {
+      "label": "Brush 3x1",
+      "cell": [
+        9,
+        7
+      ],
+      "size": [
+        3,
+        1
+      ],
+      "source": "scripts/storage/storage_data.gd"
+    }
+  ],
+  "mixed_used_cells": 80,
+  "mixed_free_cells": 120,
+  "near_full": {
+    "occupied": 196,
+    "free_cells": [
+      [
+        18,
+        8
+      ],
+      [
+        19,
+        8
+      ],
+      [
+        18,
+        9
+      ],
+      [
+        19,
+        9
+      ]
+    ],
+    "rejected": "8x1 GPU cannot fit in remaining 2x2 hole"
+  },
+  "blocked_drop": {
+    "cell": [
+      19,
+      8
+    ],
+    "size": [
+      2,
+      4
+    ],
+    "result": "out of bounds; must be rejected by existing game rules"
+  },
+  "empty_cells": 200
+}

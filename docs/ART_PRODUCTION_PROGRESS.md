@@ -1,5 +1,12 @@
 # Art production progress — permanent queue and agent entry point
 
+## Current delivery — approved Batch A v2 / 0.57.5
+
+The user reviewed and authorized installation of revision 02. The new integration PR follows the
+requested merge of Claude's #79. ART-01–12 now have the current slice's required files and metadata;
+ART-13–18 do not. Created means delivered, not final pixel polish, merged status or human in-game
+acceptance. Follow FIRST_DAY_ART_CHECKLIST for the remaining six tasks; do not retire it yet.
+
 23 November 2026. Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 This is the permanent place agents read to find **what art to create next**. Read ART_DIRECTION for the look and ART_ASSET_LOG for credits, revisions and human approvals. Do not infer active tasks from old handoffs or completed checklists.
 
@@ -9,9 +16,9 @@ This is the permanent place agents read to find **what art to create next**. Rea
 | --- | --- |
 | Lifecycle phase | FIRST_DAY_ACTIVE |
 | Active creation list | [FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md) |
-| Creation status | 5 / 18 created (ART-06 to ART-10, Batch B, Claude, 0.57.3); the others unchecked |
-| Human approval for in-game art | ART-06 to ART-10 rev 2 approved by the user 25 Nov 2026 (hashes in ART_ASSET_LOG) and integrated in 0.57.3; nothing else. Reference/look acceptance is not installation approval |
-| Next creation dependency | ART-01 composition/anchors with ART-05 storage-capacity layout: Batch A, assigned by the user to ChatGPT (23 Nov 2026). Batch B props currently use interim placements in the placeholder counter; align them to ART-01 anchors when it lands |
+| Creation status | 12 / 18 created: ART-01–05 and ART-11/12 (approved Batch A v2, Codex, 0.57.5 branch), ART-06–10 (Claude, merged 0.57.3); ART-13–18 unchecked |
+| Human approval for in-game art | ART-01–12 source revisions approved by the user 25 Nov 2026. Batch B merged via #79; Batch A integration is in 0.57.5 PR. Exact hashes/evidence in ART_ASSET_LOG; human in-game visual acceptance pending |
+| Next creation dependency | Review/merge the staged approved counter integration and perform human in-game visual acceptance. Shared anchors and full storage capacity are delivered; source pixel polish remains separate |
 | Next asset work after layout | Follow the first-day list's minimum counter subset and P0/P1 dependencies; no new tabletop props |
 | Ongoing authority | ART_DIRECTION + this routing/queue + ART_ASSET_LOG |
 | Retirement state | First-day list still useful; do NOT delete now |

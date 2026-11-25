@@ -105,6 +105,111 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.5 - 2026-11-25 - Integrate approved Batch A after merged Batch B
+
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work. Original Batch A rasters: OpenAI built-in image generation, directed by Codex; exact image-model ID not exposed. Existing Batch B art/credit remains Claude's.
+- Based on: main 0.57.3 / 87dd2b6, after user-authorized merge of Claude's PR #79 (head 6bddbb3).
+- Type: patch (approved art installation/presentation alignment, no game-rule or save change).
+
+### Execution status
+
+Godot 4.7.2.stable.official was run locally headless by Codex. Source files have user approval for
+this exact revision/use; hashes and quotes are recorded. Headless checks do not provide graphical
+or human in-game visual acceptance. Existing Batch B PR CI was green before merge, and local
+pre-merge Rooms 77 / First customer 37 both passed. Final integration checks are recorded below.
+
+### Added / Changed / Fixed / Removed
+
+- Installed fourteen byte-identical approved Batch A v2 PNGs with source approval/creator manifest.
+  Mapped architecture/exterior/doors/sign/shutter behind customers, counter above bodies and below
+  PC/clipboard props, with existing live UI above the scene. Source pixel grid is not repainted.
+- Morning exterior follows existing intake/visit state; dusk afterwards. Hover uses door endpoints.
+  Existing shutter confirmation previews down; cancel restores up without advancing or charging time.
+- Aligned separate Batch B sprites to shared anchors; all keep their approved 2× sizing. Cash,
+  phone and shift remain discoverable compact controls without adding painted tabletop furniture.
+- Storage interior/rim decorate the existing 20×10 grid at 44 px/cell. Capacity, item rotation,
+  data/UID ownership, stock transfer and save model remain unchanged. Flat-art and placeholder fallbacks retained.
+- Added a Counter art native suite to required CI without removing any existing suite. Updated the
+  former placeholder expectation and the approved counter line in existing room/intake tests.
+- Recorded D169, exact human approval, authors, shared anchors, creator/checklist/progress state and
+  handoff. ART-01–12 creation files are delivered; ART-13–18 remain open and the checklist stays active.
+
+### Files changed
+
+| File | Change | What |
+| --- | --- | --- |
+| `.github/workflows/tests.yml` | M | Approved art / presentation / native test / integration record |
+| `CHANGELOG.md` | M | Approved art / presentation / native test / integration record |
+| `DEVELOPMENT.md` | M | Approved art / presentation / native test / integration record |
+| `HANDOFF.md` | M | Approved art / presentation / native test / integration record |
+| `README.md` | M | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/README.md` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/capacity-proof.json` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/capacity-proof.svg` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/counter-foreground-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/exterior-dusk-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/exterior-morning-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/front-door-closed-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/front-door-open-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/hanging-sign-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/layout.json` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/light-overlay-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/manifest.json` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/room-shell-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/shutter-down-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/shutter-up-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/storage-interior-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/storage-rim-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/workshop-door-closed-v2.png` | A | Approved art / presentation / native test / integration record |
+| `art/rooms/counter_batch_a/workshop-door-open-v2.png` | A | Approved art / presentation / native test / integration record |
+| `docs/ART_ASSET_LOG.md` | M | Approved art / presentation / native test / integration record |
+| `docs/ART_DIRECTION.md` | M | Approved art / presentation / native test / integration record |
+| `docs/ART_PRODUCTION_PROGRESS.md` | M | Approved art / presentation / native test / integration record |
+| `docs/CURRENT_STATE.md` | M | Approved art / presentation / native test / integration record |
+| `docs/DECISIONS.md` | M | Approved art / presentation / native test / integration record |
+| `docs/DESIGN.md` | M | Approved art / presentation / native test / integration record |
+| `docs/FIRST_DAY_ART_CHECKLIST.md` | M | Approved art / presentation / native test / integration record |
+| `docs/MENU_NAVIGATION.md` | M | Approved art / presentation / native test / integration record |
+| `docs/PROJECT_BRIEF.md` | M | Approved art / presentation / native test / integration record |
+| `docs/ROADMAP.md` | M | Approved art / presentation / native test / integration record |
+| `docs/ROOM_ART_GUIDE.md` | M | Approved art / presentation / native test / integration record |
+| `docs/WORK_PLAN.md` | M | Approved art / presentation / native test / integration record |
+| `project.godot` | M | Approved art / presentation / native test / integration record |
+| `scenes/rooms/counter.tscn` | M | Approved art / presentation / native test / integration record |
+| `scripts/rooms/counter_art.gd` | A | Approved art / presentation / native test / integration record |
+| `scripts/rooms/counter_room.gd` | M | Approved art / presentation / native test / integration record |
+| `scripts/rooms/hotspot.gd` | M | Approved art / presentation / native test / integration record |
+| `scripts/rooms/under_counter_view.gd` | M | Approved art / presentation / native test / integration record |
+| `tools/test_counter_art.gd` | A | Approved art / presentation / native test / integration record |
+| `tools/test_first_customer.gd` | M | Approved art / presentation / native test / integration record |
+| `tools/test_rooms.gd` | M | Approved art / presentation / native test / integration record |
+
+### Checks performed
+
+- Original Batch B approval ledger: 62 file hashes match; its PR CI passed; local pre-merge Rooms 77 and First customer 37 passed.
+- Batch A: fourteen approved source hashes match; source panes are transparent and rim clears every grid boundary.
+- Local Godot 4.7.2 initial Counter art: 22 checks, 0 failures; First customer: 37 checks, 0 failures.
+- Godot 4.7.2 headless: Rooms 78, Counter art 22, Menu navigation 38, Morning report 28, Storage 82, Room workshop 31 and First customer 37; 316 checks total, 0 failures.
+- Project checker passed (0 problems), CI-scope tests passed (9), bug-register checker passed (0 problems), bug-register tests passed (12), git diff --check passed. All 76 Batch A/Batch B approved source hashes match. CI on the new PR will run all existing suites plus Counter art.
+- No graphical/human visual-acceptance claim, no live game-rule/ownership/save changes.
+
+### Decisions proposed (not approved)
+
+The source-art placement is the implementation of the approved integration; future native pixel
+cleanup or changed PNG bytes need fresh human approval. No new gameplay proposal is implemented.
+
+### Known issues and open items
+
+Source art remains pixel-like rather than a uniform native 640×360 repaint. Endpoint changes are
+static, without continuous door/shutter animation. Human in-game visual acceptance remains pending.
+Workshop/outside and ART-13–18 still use their existing presentation. Existing B55/B56/B57/B59 are
+not fixed by this art patch. Checker PRs #77/#78 and reserved future feature versions are untouched.
+
+### Next action
+
+Review and merge this new Batch A integration PR, then playtest the counter/intake/storage scene.
+Do not merge it automatically under the user's earlier instruction to merge only Claude's PR.
+
 ## 0.57.3 - 2026-11-25 - First approved art: Batch B counter items
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.57.2 (1897eda).

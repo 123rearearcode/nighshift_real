@@ -1,5 +1,15 @@
 # Nightshift — Roadmap
 
+## Current counter art — 0.57.5 / 25 November 2026
+
+User-approved Batch A revision 02 is integrated on the new PR branch after Claude's Batch B #79 was
+merged. Counter architecture, morning/dusk, independent doors/sign/shutter, foreground occlusion and
+decorative storage interior/rim use unchanged approved PNGs. Shared customer/PC/clipboard anchors
+are in art/rooms/counter_batch_a/layout.json; Batch B sprites keep 2× scale and the storage grid keeps
+20×10 cells at 44 px. Existing gameplay, inventory identity, clock and save rules remain unchanged.
+Creation files are 12/18 for the current slice, with branch/merge and human in-game acceptance tracked
+separately. Final pixel polish and ART-13–18 remain future work; no full release/art-completion claim.
+
 ## Permanent art workflow — 0.57.2, 23 November 2026
 
 D167: art agents start from ART_PRODUCTION_PROGRESS for current creation work, then ART_DIRECTION and
