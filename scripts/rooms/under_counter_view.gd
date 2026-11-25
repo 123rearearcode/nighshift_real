@@ -21,6 +21,8 @@ const Store = preload("res://scripts/storage/storage_store.gd")
 const Navigation = preload("res://scripts/night/night_navigation.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const CounterArt = preload("res://scripts/rooms/counter_art.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: one picture lookup for every scene
+const DRAG_START: float = 6.0       # px: a press that moves farther than this is a drag, else a click
 const CELL: int = 44
 const GRID := Rect2(40, 140, 880, 440)          # 20 x 10 cells
 const LIST_RECT := Rect2(944, 140, 308, 440)
@@ -37,15 +39,29 @@ var status: Label
 var send_button: Button
 var _art: Dictionary = {}          # "<name>_r<turn>" -> Texture2D or null
 var environment := CounterArt.new()
+# 0.57.7 (user, 25 November 2026: "an edge in the bottom of the screen I can hover over to pull it up"):
+# the counter slides this view up over itself. Embedded, it has no exit button of its own and only takes
+# input while it is open; the counter opens and closes it.
+var embedded: bool = false
+var is_open: bool = true
+var press_at := Vector2.ZERO
+var dragging: bool = false          # the left button is down on the held item (a drag, until released)
 
 
 func _ready() -> void:
     if not GameState.job.get("hardware_trial", {}).get("night_session", {}).is_empty(): NightSession.ensure(GameState)
     model.setup(Sources.collect(GameState), store.read())
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    _label("UNDER THE COUNTER", Vector2(210, 24), Vector2(760, 36), 26)
-    Navigation.exit(self, "Counter", Navigation.COUNTER)
-    _label("Keep anything close at hand: parts, tools, PCs. Drag to arrange; R, Q or E turns what you hold; Esc puts it back.", Vector2(40, 74), Vector2(1180, 30), 16)
+    if embedded:                  # over the counter: clicks on the storage must not reach the counter's spots
+        var blocker := ColorRect.new()
+        blocker.name = "ClickBlocker"
+        blocker.color = Color(0, 0, 0, 0)
+        blocker.size = Vector2(1280, 720)
+        blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+        add_child(blocker)
+    _label("UNDER THE COUNTER" + ("  ·  move the mouse up here to close" if embedded else ""), Vector2(40 if embedded else 210, 24), Vector2(1000, 36), 26 if not embedded else 22)
+    if not embedded: Navigation.exit(self, "Counter", Navigation.COUNTER)
+    _label("Keep anything close at hand: parts, tools, PCs. Click to pick up, click to put down (or drag); R, Q, E, right-click or the wheel turns it; Esc puts it back.", Vector2(40, 74), Vector2(1180, 30), 15)
     _label("IN THE STOCK ROOM · click to bring it here", LIST_RECT.position - Vector2(0, 30), Vector2(LIST_RECT.size.x, 26), 15)
     var scroll := ScrollContainer.new()
     scroll.position = LIST_RECT.position
@@ -150,12 +166,7 @@ static func art_name(item: Dictionary) -> String:
     match str(item.get("category", "")):
         "pc": return "pc_compact" if item.get("size", Vector2i.ZERO) == Vector2i(7, 5) else "pc_tower"
         "tool": return kind if kind in Data.TOOL_SIZES else ""
-        "part":
-            if kind in PART_ART: return kind
-            if kind == "storage":
-                var model_name: String = str(item.get("model", "")).to_upper()
-                if "HDD" in model_name: return "storage_hdd"
-                if "SSD" in model_name: return "storage_ssd"
+        "part": return ItemArt.part_name(kind, str(item.get("model", "")))
     return ""
 
 
@@ -167,7 +178,7 @@ func item_texture(uid: String, rotation: int) -> Texture2D:
     if name == "": return null
     var key: String = "%s_r%d" % [name, posmod(rotation, 4)]
     if not _art.has(key):
-        var tex: Texture2D = RoomArt.storage_item(name, rotation)
+        var tex: Texture2D = ItemArt.storage(name, rotation)
         var cells: Vector2i = Data.footprint(item, rotation)
         if tex != null and not Vector2i(tex.get_size()) in [cells * CELL, cells * CELL / RoomArt.PIXEL_SCALE]: tex = null
         _art[key] = tex
@@ -193,35 +204,81 @@ func _navigate(path: String) -> bool:
 
 
 func _input(event: InputEvent) -> void:
+    if embedded and not is_open: return
+    if event is InputEventMouse: pointer = get_global_transform().affine_inverse() * event.position
     if event is InputEventMouseMotion:
-        pointer = event.position
         if model.held != "": queue_redraw()
     elif event is InputEventKey and event.pressed and not event.echo:
         if event.keycode == KEY_ESCAPE and model.held != "":
             model.cancel()
+            dragging = false
             _refresh()
-        elif model.held != "" and event.keycode in [KEY_R, KEY_Q, KEY_E]:
-            model.rotate(-1 if event.keycode == KEY_Q else 1)
-            grab = Vector2(grab.y, grab.x)
-            queue_redraw()
+            get_viewport().set_input_as_handled()     # Esc puts the item back; only a second Esc closes the storage
+        elif event.keycode in [KEY_R, KEY_Q, KEY_E]:
+            if model.held != "": turn_held(-1 if event.keycode == KEY_Q else 1)
+            else: turn_selected(-1 if event.keycode == KEY_Q else 1)
+    elif event is InputEventMouseButton and event.pressed and model.held != "" and event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+        turn_held(-1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
     elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-        pointer = event.position
         if store.read_only: return
-        if event.pressed and GRID.has_point(pointer) and model.held == "":
-            var uid: String = _hit(pointer)
-            selected = uid
-            if uid != "" and model.begin(uid):
-                grab = ((pointer - item_rect(uid).position) / CELL).floor()
-                AudioFeedback.request(self, "handling.pickup")
-            _refresh()
-        elif not event.pressed and model.held != "":
-            var moved: String = model.held
-            if GRID.has_point(pointer) and model.drop(Data.COUNTER_ID, 0, _cell_under(pointer)):
-                selected = moved
-                _save()
+        if event.pressed:
+            if model.held == "":
+                if not GRID.has_point(pointer): return
+                var uid: String = _hit(pointer)
+                selected = uid
+                if uid != "" and model.begin(uid):
+                    grab = ((pointer - item_rect(uid).position) / CELL).floor()
+                    press_at = pointer
+                    dragging = true
+                    AudioFeedback.request(self, "handling.pickup")
+                _refresh()
             else:
-                model.cancel()
-            _refresh()
+                place_held()                  # it was picked up with a click: this click puts it down
+        elif model.held != "" and dragging:
+            dragging = false
+            if pointer.distance_to(press_at) > DRAG_START: place_held()   # a drag: dropped where released
+            # otherwise it was a click: the item stays in your hand until the next click
+
+
+# 0.57.7: turning what you hold (R / E / right-click / wheel down = clockwise; Q / wheel up = back).
+func turn_held(step: int) -> void:
+    if model.held == "": return
+    model.rotate(step)
+    grab = Vector2(grab.y, grab.x)
+    queue_redraw()
+
+
+# 0.57.7: with nothing in your hand, R / Q / E turns the selected item where it lies, if it still fits.
+func turn_selected(step: int) -> bool:
+    if store.read_only or selected == "" or not selected in here() or model.held != "": return false
+    var cell: Vector2i = model.placements[selected]["cell"]
+    if not model.begin(selected): return false
+    model.rotate(step)
+    if model.drop(Data.COUNTER_ID, 0, cell):
+        _save()
+        status.text = "Turned it."
+        _refresh()
+        return true
+    model.cancel()
+    status.text = "No room to turn it here: pick it up and put it down turned somewhere else."
+    _refresh()
+    return false
+
+
+# Puts the held item down at the pointer. Outside the grid it goes back where it was; on a blocked spot it
+# stays in your hand so you can turn it or try elsewhere.
+func place_held() -> void:
+    var moved: String = model.held
+    if moved == "": return
+    if not GRID.has_point(pointer):
+        model.cancel()
+    elif model.drop(Data.COUNTER_ID, 0, _cell_under(pointer)):
+        selected = moved
+        _save()
+    else:
+        status.text = "It doesn't fit there: turn it (R) or try another spot. Esc puts it back."
+    dragging = false
+    _refresh()
 
 
 func _draw() -> void:

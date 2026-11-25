@@ -367,7 +367,7 @@ func _draw() -> void:
     _text(SCREWDRIVER_TRAY.position + Vector2(10, 18), "SCREWDRIVER TRAY" if not screwdriver_held else "Click here to put it down", 12)
     if not screwdriver_held:
         draw_set_transform(SCREWDRIVER_TRAY.position + Vector2(190, 36), -1.15)
-        ToolRenderer.draw_screwdriver(self)
+        if not ToolRenderer.draw_tool_sprite(self, "screwdriver", SCREWDRIVER_TRAY.position + Vector2(190, 36), -1.15): ToolRenderer.draw_screwdriver(self)
         draw_set_transform(Vector2.ZERO)
     var job: Dictionary = GameState.job
     for i in range(inventory.items.size()):
@@ -391,7 +391,7 @@ func _draw() -> void:
             _text(Vector2(bracket.position.x - 40.0, (centers[0] as Vector2).y + 4.0), "loose", 12, COLOR_BAD)
     if screwdriver_held:
         draw_set_transform(pointer - Vector2(-18, 24) * 1.0)
-        ToolRenderer.draw_screwdriver(self)
+        if not ToolRenderer.draw_tool_sprite(self, "screwdriver", pointer - Vector2(-18, 24), 0.0): ToolRenderer.draw_screwdriver(self)
         draw_set_transform(Vector2.ZERO)
 
 # "Rearrange drawer" repacks the drawer only: what is fitted in the PC stays fitted.

@@ -1,5 +1,7 @@
 # Wave 2 first slice: live diagnostic desktop. The rules own reports; views never finish a job.
 extends "res://scripts/night/night_screen.gd"
+const ItemArt = preload("res://scripts/view/item_art.gd")
+const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const Checks = preload("res://scripts/rules/software_checks.gd")
 const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
 const Games = preload("res://scripts/data/games.gd")
@@ -401,10 +403,15 @@ func _lab_done(load: float) -> void:
 
 func _draw() -> void:
     super._draw()
-    draw_rect(Rect2(32,88,878,550),Color("384653"))
+    var bezel: Texture2D = ItemArt.pixel(RoomArt.ui("monitor_bezel"))
+    if bezel == null:
+        draw_rect(Rect2(32,88,878,550),Color("384653"))
     draw_rect(Rect2(48,104,846,516),Color("10191d") if _powered() else Color("0a0d10"))
-    draw_rect(Rect2(420,638,100,17),Color("52606b"))
-    draw_rect(Rect2(364,654,212,8),Color("52606b"))
+    if bezel != null:             # 0.57.7: the approved monitor frame (ART-18): bezel, neck and foot, screen left open
+        draw_texture_rect(bezel, Rect2(32,88,878,574), false)
+    else:
+        draw_rect(Rect2(420,638,100,17),Color("52606b"))
+        draw_rect(Rect2(364,654,212,8),Color("52606b"))
     draw_rect(Rect2(1016,159,190,140),Color("283541"))
     draw_rect(Rect2(1030,173,144,112),Color("11191f"))
     draw_circle(Vector2(1190,186),5,Color("75d4b0") if _powered() else Color("56616b"))

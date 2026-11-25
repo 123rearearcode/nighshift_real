@@ -79,7 +79,8 @@ Layers, from the bottom up. A layer may only use layers listed before it.
 | rules | `scripts/rules/` | Pure functions: is this allowed, and why not; text for hover cards | draw, read input, hold state |
 | sim | `scripts/bench/` | Physics and scoring for cleaning and paste | draw, read input |
 | state | `scripts/state/` | The `GameState` autoload: cash, ticket, save/load | draw, know about views |
-| view | `scripts/view/` | Drawing, mouse and keyboard input, labels and buttons | decide compatibility or physics |
+| view | `scripts/view/item_art.gd` | view | 0.57.7: the ONE picture lookup for items (storage, board, inspect, side views), tools frames and bench layers |
+| `scripts/view/` | Drawing, mouse and keyboard input, labels and buttons | decide compatibility or physics |
 
 Screens are built in code on a bare `Node2D`; the `.tscn` files only attach a script. Simulation
 runs in `_physics_process` (fixed 60 Hz), drawing happens in `_draw` after `queue_redraw()`.
@@ -91,6 +92,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | File | Layer | Purpose |
 | --- | --- | --- |
 | `scripts/rooms/counter_art.gd` | view | Approved Batch A source loading, background/foreground layers, endpoint crops and decorative storage mapping |
+| `tools/test_item_art.gd` | tooling | 0.57.7: the one item picture lookup and the approved Batch C files (sizes, turns, lens spots, clue overlays, tool frames) |
 | `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors and full 20×10 storage art contract |
 | `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
 | `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
@@ -329,6 +331,9 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `art/props/README.md` | art | 0.57.3: loose objects drawn over a room (the clipboard, the customer PC), pixel art at 2x, user-approved |
 | `art/storage/README.md` | art | 0.57.3: storage pictures per item and quarter turn (comic-style parts 1:1, pixel PCs/tools at 2x) |
 | `art/drafts/README.md` | art | 0.57.6: review-only drafts, never loaded (`.gdignore`); Batch C (ART-14 to ART-18): approved 25 Nov 2026 except the ART-16 pixel tools (rev 2, pending) |
+| `art/hardware/README.md` | art | 0.57.7: approved close-up hardware (case, board, parts, inspection pictures, clue overlays) |
+| `art/bench/README.md` | art | 0.57.7: approved repair-bench layers (dust, paste stage, fan) |
+| `art/tools/README.md` | art | 0.57.7: approved pixel-art bench tools with 24 pre-turned frames, hose, clamp, bin, cloth |
 | `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |

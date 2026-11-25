@@ -210,10 +210,18 @@ func run_checks() -> void:
     check(m.to_room(keep) and not keep in m.in_unit(StorageData.COUNTER_ID), "and can go back to the stock room")
     await scene(Nav.COUNTER)
     check(current_scene.hotspot("UnderCounter") != null and not current_scene.hotspot("UnderCounter").closed_at_dawn, "the counter has storage under its window, usable at any hour")
-    await press(current_scene.hotspot("UnderCounter"))
-    await process_frame
-    var under: Node = current_scene
-    check(under.scene_file_path == Nav.UNDER_COUNTER and under.get_node("BackButton").text == "← Counter", "it opens under the counter, with the way back")
+    # 0.57.7 (user, 25 November 2026): no button: the bottom edge pulls the storage up over the counter.
+    var counter_room: Node = current_scene
+    var edge: Button = counter_room.hotspot("UnderCounter")
+    check(edge.position.y >= 690.0 and edge.size.x >= 1200.0 and edge.action == "open:storage", "the storage spot is the bottom edge of the screen")
+    var over_edge := InputEventMouseMotion.new()
+    over_edge.position = edge.get_global_rect().get_center()
+    over_edge.global_position = over_edge.position
+    root.push_input(over_edge, true)
+    for f in range(30): await process_frame
+    var under: Node = counter_room.storage_drawer
+    check(counter_room.storage_open and is_equal_approx(under.position.y, 0.0) and current_scene == counter_room, "hovering the edge pulls the storage up over the counter")
+    check(under.embedded and under.get_node_or_null("BackButton") == null and under.get_node_or_null("ClickBlocker") != null, "pulled up, it has no exit button and clicks on it do not reach the counter")
     var rows: int = under.list_box.get_child_count()
     check(rows == under.model.items.size() - under.here().size(), "the stock room's things are listed to bring over")
     await press(under.list_box.get_child(0))
@@ -253,10 +261,60 @@ func run_checks() -> void:
         root.push_input(drag, true)
         await process_frame
     check(under.model.placements[brought]["cell"] != Vector2i.ZERO and brought in under.here(), "dragging rearranges it on the grid")
+    # 0.57.7 (user: "I cannot rotate items"): a click picks it up and keeps it in hand; R turns it; a click puts it down.
+    var small: String = "tool:kit:pick"
+    if not small in under.here(): under._bring(small)
+    await process_frame
+    await process_frame
+    var turn_before: int = int(under.model.placements[small]["rotation"])
+    var at: Vector2 = under.item_rect(small).get_center()
+    for down: bool in [true, false]:
+        var click := InputEventMouseButton.new()
+        click.button_index = MOUSE_BUTTON_LEFT
+        click.pressed = down
+        click.position = at
+        click.global_position = at
+        root.push_input(click, true)
+        await process_frame
+    check(under.model.held == small, "a click picks the item up and it stays in hand")
+    var key_r := InputEventKey.new()
+    key_r.keycode = KEY_R
+    key_r.pressed = true
+    root.push_input(key_r, true)
+    await process_frame
+    check(under.model.held_rotation == posmod(turn_before + 1, 4), "R turns the held item")
+    var put_at: Vector2 = grid.position + Vector2(44 * 3 + 22, 44 * 3 + 22)
+    for down: bool in [true, false]:
+        var click2 := InputEventMouseButton.new()
+        click2.button_index = MOUSE_BUTTON_LEFT
+        click2.pressed = down
+        click2.position = put_at
+        click2.global_position = put_at
+        root.push_input(click2, true)
+        await process_frame
+    check(under.model.held == "" and int(under.model.placements[small]["rotation"]) == posmod(turn_before + 1, 4), "the next click puts it down, turned")
+    var turned_once: int = int(under.model.placements[small]["rotation"])
+    root.push_input(key_r, true)
+    await process_frame
+    check(under.model.held == "" and int(under.model.placements[small]["rotation"]) == posmod(turned_once + 1, 4), "with nothing in hand, R turns the selected item where it lies")
+    under.selected = small
+    under._refresh()
+    await press(under.send_button)
+    await process_frame
+    under.selected = brought
+    under._refresh()
     await press(under.send_button)
     await process_frame
     check(not brought in under.here(), "Back to the stock room sends it back")
-    await press(under.get_node("BackButton"))
+    var up := InputEventMouseMotion.new()
+    up.position = Vector2(640, 20)
+    up.global_position = up.position
+    root.push_input(up, true)
+    for f in range(30): await process_frame
+    check(not counter_room.storage_open and not under.visible and current_scene == counter_room, "moving the mouse up slides the storage back down")
+    await scene(Nav.UNDER_COUNTER)                       # the separate close-up still works for old links
+    check(current_scene.get_node("BackButton").text == "← Counter", "the separate storage close-up keeps its way back")
+    await press(current_scene.get_node("BackButton"))
     await process_frame
     check(current_scene.scene_file_path == Nav.COUNTER, "← Counter returns to the counter")
     if had_layout:

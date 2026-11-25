@@ -10,6 +10,7 @@ extends "res://scripts/night/night_screen.gd"
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: approved inspection pictures and clues
 
 const LIST_RECT := Rect2(32, 132, 360, 500)
 const PART_RECT := Rect2(420, 132, 450, 300)
@@ -146,7 +147,26 @@ func _after(text: String) -> void:
 
 func spot_center(i: int) -> Vector2:
     var at: Vector2 = SPOT_AT[i]
+    # 0.57.7: with the approved inspection picture, each spot sits on its real detail (ART-15).
+    var record: Dictionary = _record()
+    if not record.is_empty():
+        var kind: String = _kind(record)
+        var spots: Array = PartCondition.spots(kind)
+        if i < spots.size() and ItemArt.inspect(kind) != null:
+            at = (ItemArt.INSPECT_SPOTS.get(kind, {}) as Dictionary).get(str(spots[i]), at)
     return PART_RECT.position + Vector2(PART_RECT.size.x * at.x, PART_RECT.size.y * at.y)
+
+
+# 0.57.7: the clue overlay (ART-17) for a spot the player has already looked at, or null. Only what the
+# lens actually showed: a healthy part, an unlooked spot or "Nothing unusual" never gets one.
+func clue_texture(i: int) -> Texture2D:
+    var record: Dictionary = _record()
+    if record.is_empty() or not looked(i): return null
+    var kind: String = _kind(record)
+    var spots: Array = PartCondition.spots(kind)
+    if i >= spots.size() or PartCondition.spot_text(record, str(spots[i])) == PartCondition.NEUTRAL: return null
+    var condition: String = PartCondition.sanitize_condition(record.get("condition", "working"))
+    return ItemArt.clue("%s_%s" % [kind, "herring" if condition == "working" else condition])
 
 
 func looked(i: int) -> bool:
@@ -258,9 +278,16 @@ func _draw() -> void:
     var kind: String = _kind(record)
     var body := Rect2(PART_RECT.position + PART_RECT.size * Vector2(0.1, 0.12), PART_RECT.size * Vector2(0.8, 0.76))
     var colour: Color = KIND_COLOURS.get(kind, Color("7a8a90"))
-    draw_rect(body, colour.darkened(0.25))
-    draw_rect(body, colour.lightened(0.3), false, 3.0)
-    _draw_part_shape(kind, body, colour)
+    var picture: Texture2D = ItemArt.inspect(kind)
+    if picture != null:           # 0.57.7: the approved close-up (always a healthy-looking part) + revealed clues
+        draw_texture_rect(picture, PART_RECT, false)
+        for i in range(PartCondition.spots(kind).size()):
+            var clue: Texture2D = clue_texture(i)
+            if clue != null: draw_texture_rect(clue, PART_RECT, false)
+    else:
+        draw_rect(body, colour.darkened(0.25))
+        draw_rect(body, colour.lightened(0.3), false, 3.0)
+        _draw_part_shape(kind, body, colour)
     _draw_spots(record)
     if lens_held: _draw_lens(record, kind, body, colour)
 
@@ -299,8 +326,19 @@ func _draw_spots(record: Dictionary) -> void:
 func _draw_lens(_record_shown: Dictionary, kind: String, body: Rect2, colour: Color) -> void:
     var c: Vector2 = lens_at
     var font: Font = ThemeDB.fallback_font
-    # The glass: a magnified look at what is under it (placeholder: the part's colour, the spot made big).
-    draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.16) if not body.has_point(c) else colour.lightened(0.15))
+    # The glass: a magnified look at what is under it. With the approved picture it really magnifies (2x).
+    var picture: Texture2D = ItemArt.inspect(kind)
+    if picture != null and PART_RECT.grow(LENS_RADIUS).has_point(c):
+        var ring := PackedVector2Array()
+        var uvs := PackedVector2Array()
+        for k in range(40):
+            var p: Vector2 = c + Vector2.from_angle(k * TAU / 40.0) * LENS_RADIUS
+            ring.append(p)
+            uvs.append(((c + (p - c) * 0.5) - PART_RECT.position) / PART_RECT.size)
+        draw_polygon(ring, PackedColorArray([Color.WHITE]), uvs, picture)
+        draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.10))
+    else:
+        draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.16) if not body.has_point(c) else colour.lightened(0.15))
     var i: int = spot_under_lens()
     if i >= 0:
         var spots: Array = PartCondition.spots(kind)
