@@ -9,6 +9,11 @@ No art enters the playable game before a HUMAN approves its exact revision/use. 
 stay disconnected from live scenes and automatic asset paths. Changed artwork needs renewed approval.
 The current look/drafts are references, not a blanket runtime approval. This update creates no art.
 
+**Hardware parts style (user, 23 November 2026, D168):** "Parts are supposed to be in a completely different
+style; comic book but semi-realistic." Parts (GPU, RAM, CPU, cooler, PSU, drives) are illustrated, inked
+pictures at full resolution, not pixel art; rooms, people, PCs, tools and props stay pixel art. The approved
+ART-10 storage parts set this look; close-up hardware (ART-15) must match it.
+
 
 Current art brief, 23 November 2026. Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 Read this BEFORE producing or integrating art. It records the user's latest instructions, not a request to implement new gameplay. Asset tasks and acceptance: [FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md). Existing room loading instructions: [ROOM_ART_GUIDE.md](ROOM_ART_GUIDE.md). Lifecycle/navigation remain authoritative for behaviour.
@@ -68,7 +73,7 @@ For every delivery provide: stable asset ID, owned files, source resolution, log
 ### Existing implementation, checked on main 960b847 (0.56.1)
 
 - `scripts/storage/storage_data.gd`: one `counter` unit, **20 columns x 10 rows**, accepting PCs, tools and parts. The earlier user wording was 10 x 20; the shipped orientation is 20 wide x 10 high. Preserve it unless explicitly changed.
-- `scripts/rooms/under_counter_view.gd`: separate close-up opened from the counter, grid `Rect2(40,140,600,300)` at 30 pixels/cell. Real item footprints, dragging and R/Q/E rotation already exist.
+- `scripts/rooms/under_counter_view.gd`: separate close-up opened from the counter. 0.57.3: grid `Rect2(40,140,880,440)` at **44 pixels/cell**, the cell size of the approved ART-10 storage pictures (art/storage/). Real item footprints, dragging and R/Q/E rotation already exist.
 - Same storage layout/UIDs as stock room, no second inventory, duplicated item or ownership transfer by moving it. Storage UI reads allowed known condition, not hidden actual faults. Keep rollback/save behaviour.
 - Hover pull-up/peek is NOT implemented. New layering, art and opening gestures require a bounded UI implementation later; do not claim that the artwork alone adds this.
 

@@ -30,11 +30,26 @@ extends Button
         queue_redraw()
 ## At 06:00 the night is over: hotspots that start new work close (doors to work, the salvage run).
 @export var closed_at_dawn: bool = false
+## 0.57.3: a loose object drawn on this spot, art/props/<name>.png (pixel art, shown at 2x, centred).
+## Props are separate from the room picture (the clipboard is not painted into the counter art).
+@export var prop: String = "":
+    set(value):
+        prop = value
+        _prop_cache.clear()
+        queue_redraw()
+## Optional: the prop shown while the mouse is over the spot (the clipboard, picked up).
+@export var prop_hover: String = "":
+    set(value):
+        prop_hover = value
+        _prop_cache.clear()
+        queue_redraw()
 
 var placeholder: bool = true    # set by the room: true while the room has no picture
 var outline: bool = false       # F3: show every hotspot's outline
 var badge: String = ""          # a short live line under the placeholder label ("$120", "3 tickets")
 var hovered: bool = false
+var _prop_cache: Dictionary = {}
+const PROPS_README := "res://art/props/README.md"
 
 
 func _ready() -> void:
@@ -52,6 +67,29 @@ func _ready() -> void:
         hovered = false
         queue_redraw())
     resized.connect(queue_redraw)
+    if prop != "": texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
+
+# The prop's picture (loaded here rather than through room_art.gd so it also shows in the editor).
+func prop_texture(name: String) -> Texture2D:
+    if name == "": return null
+    if not _prop_cache.has(name):
+        var path: String = "%s/%s.png" % [PROPS_README.get_base_dir(), name]
+        var found: Texture2D = null
+        if ResourceLoader.exists(path):
+            var res: Resource = load(path)
+            if res is Texture2D: found = res
+        if found == null and FileAccess.file_exists(path):
+            var image := Image.load_from_file(path)
+            if image != null and not image.is_empty(): found = ImageTexture.create_from_image(image)
+        _prop_cache[name] = found
+    return _prop_cache[name]
+
+
+# The prop being shown now (the hover picture while hovered, when there is one).
+func shown_prop() -> Texture2D:
+    var hover_tex: Texture2D = prop_texture(prop_hover) if hovered and not disabled else null
+    return hover_tex if hover_tex != null else prop_texture(prop)
 
 
 func set_badge(value: String) -> void:
@@ -64,9 +102,10 @@ func _draw() -> void:
     var r := Rect2(Vector2.ZERO, size)
     var font: Font = ThemeDB.fallback_font
     var editor: bool = Engine.is_editor_hint()
-    if editor or placeholder:
+    var art: Texture2D = shown_prop()
+    if editor or (placeholder and art == null):     # a spot with its own prop shows the prop, not a box
         var fill: Color = placeholder_color
-        if editor and not placeholder: fill.a = 0.35
+        if editor and (not placeholder or art != null): fill.a = 0.35
         if disabled and not editor: fill = fill.darkened(0.45)
         draw_rect(r, fill)
         draw_rect(r, fill.lightened(0.35), false, 2.0)
@@ -78,9 +117,12 @@ func _draw() -> void:
             draw_string(font, Vector2((r.size.x - width) * 0.5, y + 5.0), str(line), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
                 Color("e8eef2") if not disabled or editor else Color("8a959c"))
             y += 18.0
+    if art != null:
+        var shown := Vector2(art.get_size()) * 2.0
+        draw_texture_rect(art, Rect2(((r.size - shown) * 0.5).round(), shown), false, Color(0.6, 0.6, 0.6) if disabled and not editor else Color.WHITE)
     if hovered and not disabled and not editor:
         draw_rect(r.grow(2.0), Color("ffd27a"), false, 3.0)
-        var tag: String = label + ("" if badge == "" or placeholder else "  ·  " + badge)
+        var tag: String = label + ("" if badge == "" or (placeholder and art == null) else "  ·  " + badge)
         var tag_width: float = font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 16.0
         var at := Vector2(clampf((r.size.x - tag_width) * 0.5, -position.x + 4.0, 1276.0 - position.x - tag_width), -28.0 if position.y > 30.0 else r.size.y + 4.0)
         draw_rect(Rect2(at, Vector2(tag_width, 24.0)), Color(0.07, 0.08, 0.1, 0.92))

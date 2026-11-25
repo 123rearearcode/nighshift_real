@@ -27,7 +27,7 @@ the clickable spots up with it. You never need to touch code for this.
 
 | Place | Scene file (open in Godot) | Picture file | What is on it |
 | --- | --- | --- | --- |
-| The counter (main screen) | `scenes/rooms/counter.tscn` | `art/rooms/counter.png` | front door, customer window, shutter, back door, till, ticket clipboard, phone, storage under the window, bin, wall board |
+| The counter (main screen) | `scenes/rooms/counter.tscn` | `art/rooms/counter.png` | front door, customer window, shutter, back door, till, ticket clipboard (its own prop picture: leave the spot clear), phone, storage under the window, bin, wall board |
 | The workshop | `scenes/rooms/workshop.tscn` | `art/rooms/workshop.png` | door to the counter, stock room door, repair bench, hardware board, monitor, testing bay |
 | Outside | `scenes/rooms/outside.tscn` | `art/rooms/outside.png` | the shop door, your van (salvage dump), the store (tools and upgrades), the parts supplier (later, a different place) |
 
@@ -67,6 +67,8 @@ Tip: in the game, press **F3** to see the outline of every spot at once.
 | **Art Hint** | A note for you: what to paint there |
 | **Closed At Dawn** | At 06:00 the night is over; ticked spots (doors to work) close |
 | **Placeholder Color** | Only used while there is no art |
+| **Prop** (0.57.3) | A loose object drawn on the spot, a file name from `art/props/` without ".png" (pixel art, shown at 2x, centred). The ticket clipboard uses `clipboard_resting`. Don't paint that object into the room picture |
+| **Prop Hover** (0.57.3) | Optional: the picture shown while the mouse is over the spot (the clipboard picked up: `clipboard_upright`) |
 
 Actions: `go:<place>` walks somewhere (`counter`, `workshop`, `outside`, `stock`, `repair`, `hardware`,
 `monitor`, `bay`, `salvage`, `shop` (the store), `under_counter`), `open:<thing>` opens something in that room (the counter knows
@@ -84,8 +86,27 @@ Customers appear in the counter's window when the shutter goes up in the morning
 - `art/customers/<person id>.png` for one particular person (story characters, e.g. `t001_mara.png`),
 - `art/customers/customer.png` for everyone else.
 
-Without a portrait the game draws a grey silhouette. Paint portraits to fit the window
-(about 340 × 300 px at full size), with a transparent background.
+Without a portrait the game draws a grey silhouette.
+
+Two kinds of portrait work (0.57.3):
+
+- **Pixel-art sprites** (no taller than 200 px, like Mara's and Relu's, 120 × 172): shown at exactly 2x with
+  sharp pixels, centred on the window, the bottom edge of the picture (their waist) on the counter-top
+  line. Paint from the top of the head down to the waist; the counter hides the rest.
+- **Larger painted portraits**: fitted into the window (about 340 × 300 px), as before.
+
+Mara (`t001_mara.png`) and Relu (`t002_relu.png`) are approved art (ART-08). While a customer is at the
+window their PC stands on the counter (`art/props/pc_tower_closed.png`, ART-09).
+
+## 4b. Storage under the counter and the ticket close-up (0.57.3)
+
+- The under-counter storage draws every item with its picture from `art/storage/<name>_r<turn>.png`
+  (see that folder's README). Cells are 44 px. Parts are illustrated (comic-book, semi-realistic) at 1:1;
+  PCs and tools are pixel art at 2x. A picture that does not exactly fit its footprint is ignored and the
+  plain box is drawn instead.
+- The ticket clipboard close-up uses `art/ui/ticket_clipboard.png` (300 × 350, shown 600 × 700). The game
+  writes the tickets on its blank paper.
+- These are approved files; a new or changed picture needs the user's approval before it goes in.
 
 ## 5. Ideas already marked as spots
 

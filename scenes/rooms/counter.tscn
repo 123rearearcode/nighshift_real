@@ -102,7 +102,9 @@ offset_bottom = 550.0
 script = ExtResource("2")
 action = "open:tickets"
 label = "Ticket clipboard"
-art_hint = "A clipboard or ticket spike with paper tickets."
+art_hint = "Leave this spot of the counter top clear in the room picture: the clipboard is its own picture (art/props/clipboard_resting.png, picked up on hover: clipboard_upright.png)."
+prop = "clipboard_resting"
+prop_hover = "clipboard_upright"
 placeholder_color = Color(0.541, 0.478, 0.322, 1)
 
 [node name="Phone" type="Button" parent="Hotspots"]

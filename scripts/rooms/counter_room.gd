@@ -20,7 +20,19 @@ const MorningText = preload("res://scripts/night/morning_text.gd")
 const Phone = preload("res://scripts/night/phone_panel.gd")
 const VISITORS: Array = ["collected", "comeback", "new"]   # cards of people who walk in (waiting ones did not come)
 const SLIP_RECT := Rect2(820, 84, 430, 470)
-const CLIPBOARD_RECT := Rect2(300, 96, 520, 500)
+# 0.57.3: the ticket clipboard close-up is the approved skin (art/ui/ticket_clipboard.png, 300 x 350 at
+# 2x). The paper rectangle is where the game writes; the clip and the board edge stay clear.
+const CLIPBOARD_RECT := Rect2(660, 10, 600, 700)
+const CLIPBOARD_PAPER := Rect2(56, 136, 488, 492)
+const CLIPBOARD_SKIN := "ticket_clipboard"
+# 0.57.3: customers stand behind the counter; a pixel-art customer (ART-08) is shown at exactly 2x with
+# the bottom of the sprite (the waist) on the counter-top line. Larger painted portraits keep the old fit.
+const COUNTER_TOP_Y: float = 410.0
+const PORTRAIT_FIT := Rect2(470, 96, 340, 304)
+const PIXEL_SPRITE_MAX_HEIGHT: int = 200
+# The customer's PC on the counter while they are at the window (ART-09), base on the counter top.
+const CUSTOMER_PC_PROP := "pc_tower_closed"
+const CUSTOMER_PC_BASE := Vector2(456, 440)     # bottom centre
 
 var phone: Panel
 var end_dialog: ConfirmationDialog
@@ -31,6 +43,7 @@ var slip_title: Label
 var slip_text: Label
 var next_button: Button
 var portrait: TextureRect
+var customer_pc: TextureRect
 var visits: Array = []
 var visit_index: int = -1
 var arrived: int = 0
@@ -39,7 +52,22 @@ var opening_visits: bool = false
 
 func _room_ready() -> void:
     portrait = get_node_or_null("CustomerPortrait")
-    if portrait != null: portrait.hide()
+    if portrait != null:
+        portrait.z_index = 1       # in front of the window spot's placeholder tint
+        portrait.hide()
+    customer_pc = TextureRect.new()
+    customer_pc.name = "CustomerPC"
+    customer_pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    customer_pc.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    customer_pc.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    customer_pc.stretch_mode = TextureRect.STRETCH_SCALE
+    customer_pc.texture = RoomArt.prop(CUSTOMER_PC_PROP)
+    if customer_pc.texture != null:
+        customer_pc.size = Vector2(customer_pc.texture.get_size()) * RoomArt.PIXEL_SCALE
+        customer_pc.position = (CUSTOMER_PC_BASE - Vector2(customer_pc.size.x * 0.5, customer_pc.size.y)).round()
+    customer_pc.z_index = 1
+    customer_pc.hide()
+    add_child(customer_pc)
     end_dialog = ConfirmationDialog.new()
     end_dialog.name = "EndNightDialog"
     end_dialog.title = "Close the shutter"
@@ -176,10 +204,34 @@ func _show_visit(index: int) -> void:
         slip_text.text = MorningText.card_text(card)
         next_button.text = "Next customer ▸" if index < visits.size() - 1 else "That's everyone: open up for the night"
     slip.show()
-    if portrait != null:
-        portrait.texture = RoomArt.customer(person)
-        portrait.visible = portrait.texture != null
+    _show_customer(person)
     refresh()
+
+
+# The customer at the window and their PC on the counter.
+func _show_customer(person: Dictionary) -> void:
+    if customer_pc != null: customer_pc.visible = customer_pc.texture != null
+    if portrait == null: return
+    var tex: Texture2D = RoomArt.customer(person)
+    portrait.texture = tex
+    portrait.visible = tex != null
+    if tex == null: return
+    if tex.get_height() <= PIXEL_SPRITE_MAX_HEIGHT:
+        var shown := Vector2(tex.get_size()) * RoomArt.PIXEL_SCALE
+        var window: Hotspot = hotspot("CustomerWindow")
+        var centre_x: float = window.position.x + window.size.x * 0.5 if window != null else 640.0
+        portrait.stretch_mode = TextureRect.STRETCH_SCALE
+        portrait.position = Vector2(roundf(centre_x - shown.x * 0.5), COUNTER_TOP_Y - shown.y)
+        portrait.size = shown
+    else:
+        portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        portrait.position = PORTRAIT_FIT.position
+        portrait.size = PORTRAIT_FIT.size
+
+
+func _hide_customer() -> void:
+    if portrait != null: portrait.hide()
+    if customer_pc != null: customer_pc.hide()
 
 
 func _next_visit() -> void:
@@ -192,7 +244,7 @@ func _next_visit() -> void:
         visit_index = -1
         opening_visits = false
         slip.hide()
-        if portrait != null: portrait.hide()
+        _hide_customer()
         say("Intake complete. Night 1 begins: the PCs and their tickets are in the shop. Go to the workshop when ready.")
         refresh()
     else: _end_visits()
@@ -202,7 +254,7 @@ func _end_visits() -> void:
     visit_index = -1
     NightSession.visits_pending = false
     slip.hide()
-    if portrait != null: portrait.hide()
+    _hide_customer()
     var report: Dictionary = NightSession.last_report
     var notes: Array = ["%d customer%s came in this morning; they paid $%d." % [arrived, "" if arrived == 1 else "s", int(report.get("earned", 0))]]
     var waiting: Array = (report.get("cards", []) as Array).filter(func(card: Dictionary) -> bool: return str(card.get("kind", "")) == "waiting")
@@ -273,21 +325,28 @@ func _build_slip() -> void:
 
 func _build_clipboard() -> void:
     clipboard = _paper(CLIPBOARD_RECT, "TicketClipboardPanel")
-    _ink(clipboard, "TICKETS · click one to read it; right-click to mark it ready or call the customer", Vector2(16, 12), Vector2(CLIPBOARD_RECT.size.x - 120, 44), 15)
+    var skin: Texture2D = RoomArt.ui(CLIPBOARD_SKIN)
+    if skin != null:          # the approved clipboard picture, at exactly 2x (no stretching: the rect is 2x its size)
+        var style := StyleBoxTexture.new()
+        style.texture = skin
+        clipboard.add_theme_stylebox_override("panel", style)
+        clipboard.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    var paper: Rect2 = CLIPBOARD_PAPER
+    _ink(clipboard, "TICKETS · click one to read it; right-click to mark it ready or call the customer", paper.position, Vector2(paper.size.x - 100, 48), 15)
     var close := Button.new()
     close.name = "ClipboardClose"
     close.text = "Close"
-    close.position = Vector2(CLIPBOARD_RECT.size.x - 90, 10)
-    close.size = Vector2(76, 32)
+    close.position = Vector2(paper.end.x - 88, paper.position.y)
+    close.size = Vector2(88, 32)
     close.pressed.connect(clipboard.hide)
     clipboard.add_child(close)
     var scroll := ScrollContainer.new()
-    scroll.position = Vector2(14, 62)
-    scroll.size = CLIPBOARD_RECT.size - Vector2(28, 76)
+    scroll.position = paper.position + Vector2(0, 56)
+    scroll.size = paper.size - Vector2(0, 56)
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     clipboard.add_child(scroll)
     clipboard_list = VBoxContainer.new()
-    clipboard_list.custom_minimum_size = Vector2(CLIPBOARD_RECT.size.x - 48, 0)
+    clipboard_list.custom_minimum_size = Vector2(paper.size.x - 16, 0)
     scroll.add_child(clipboard_list)
 
 
@@ -306,7 +365,7 @@ func _fill_clipboard() -> void:
         var id: String = str(job["id"])
         var row := Button.new()
         row.alignment = HORIZONTAL_ALIGNMENT_LEFT
-        row.custom_minimum_size = Vector2(CLIPBOARD_RECT.size.x - 52, 40)
+        row.custom_minimum_size = Vector2(CLIPBOARD_PAPER.size.x - 20, 40)
         row.add_theme_font_size_override("font_size", 15)
         row.text = TicketMenu.identity_text(job)
         row.pressed.connect(func() -> void: TicketMenu.window(self, id, _ticket_changed))
