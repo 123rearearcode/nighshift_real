@@ -147,7 +147,8 @@ Godot does not import them and no scene or script refers to them. GitHub Actions
   identical to `art/storage/` after the helper change.
 - Test merge with #80 conflicted only in docs/version; the user chose "merge #80 first, then fix #81". After #80
   merged, main was merged into this branch keeping both sides (0.57.6 after 0.57.5; 17 of 18 tasks created).
-- GitHub Actions: see the PR.
+- GitHub Actions on Godot 4.7.2 (headless), PR #81: passed on `4a49842` (run 45684327080) and, after merging
+  main, on `50f814d` (run 45685036706). No runtime file changed, so no new game behaviour was tested.
 
 ### Decisions proposed (not approved)
 - Tools illustrated (not pixel) on the bench; the drive's label clue as an illegible scribble with "??";
