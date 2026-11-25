@@ -1,6 +1,21 @@
 # Handoff — current state first
 
-## Current — 0.57.3 first approved art in the game (Batch B), 25 November 2026
+## Current — 0.57.6 Batch C art drafts (ART-14 to ART-18), pending approval, 25 November 2026
+
+The user gave Claude Batch C (ART-14 to ART-18) and asked for a PR with all the new graphics. They are
+drafts in `art/drafts/ART-14/` to `ART-18/` (81 files, hashes in `art/drafts/batch_c_manifest.json`,
+source `tools/art_batch_c/`), NOT loaded by the game (`.gdignore`). Human approval is pending (D167), with
+three open questions: tools illustrated on the bench, the drive's "??" scribble clue, the phone's crack.
+
+When approved, integration needs: the repair bench drawing the case/board/parts/dust/fan art and the tool
+sprites (tip at Rig.TIP; `bench_view.gd` and `tool_rig.gd` are single-owner hot files, check WORK_PLAN),
+the hardware board drawing the board/parts, the testing bay using per-kind lens spots from
+`inspect_spots.json` and showing a damage overlay only when its clue is revealed, and the monitor/phone
+frames. ART-13 (workshop room) is the last first-day task not created; Batch A is in open PR #80 (0.57.5).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.3 first approved art in the game (Batch B), 25 November 2026
 
 The user assigned Batch B (ART-06 to ART-10) to Claude and Batch A (ART-01 to ART-05, 11, 12) to ChatGPT,
 reviewed Claude's art in chat (rev 1: "refine the tools, and the vase/clipboard. Parts are supposed to be

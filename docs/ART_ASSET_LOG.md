@@ -21,11 +21,11 @@ This documentation pass creates no art. Do not replace verified file paths with 
 | ART-11 | Not created | Unassigned | — | — | Not requested | Not integrated |
 | ART-12 | Not created | Unassigned | — | — | Not requested | Not integrated |
 | ART-13 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-14 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-15 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-16 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-17 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-18 | Not created | Unassigned | — | — | Not requested | Not integrated |
+| ART-14 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
+| ART-15 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
+| ART-16 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-16/` (5 tool skins, textures, clamp, bin, 2 effects), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
+| ART-17 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-17/` (dust, paste, fan, 17 damage overlays), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
+| ART-18 | Created (draft) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-18/` (monitor, phone frames), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Pending**: shown in chat 25 Nov 2026; not approved for the game | Not integrated (drafts are not loaded) |
 
 Use Not created / In progress / Created for creation; keep creation separate from Human approved, Integrated and
 Visually accepted. A reference-only or partly delivered task does not get a checked Created box. Owner
@@ -180,3 +180,27 @@ in their source notes while crediting the actual new creator/editor.
 | `art/storage/vacuum_r1.png` | 44 x 88 | RGBA | `76c72773af498c08e42458304e34b2555409e38276fdca65646415dd83833f38` |
 | `art/storage/vacuum_r2.png` | 88 x 44 | RGBA | `a34c87ecafa820b7e7380a8190ab5ec41a56b8e3172b3e384c16c1106e10f9a5` |
 | `art/storage/vacuum_r3.png` | 44 x 88 | RGBA | `25f22fc0fde76e8e27308cfbf5d8c672f24cff2a0319e0581b7b5c89c6ef0cb6` |
+
+## Delivery — Batch C drafts, ART-14 to ART-18 (0.57.6, pending approval)
+
+- **Assignment:** the user, 25 November 2026, chose Batch C = ART-14 to ART-18 for Claude ("ART-14 to
+  ART-18 (Recommended)"; ART-13 stays with the room work), then asked for a PR with all the new graphics.
+- **Creator:** Claude (Opus 5.5, model id claude-opus-5-5). Drawn with Python/PIL code, no image model.
+  Source: `tools/art_batch_c/` (shares helpers with `tools/art_batch_b/`); it regenerates all 81 files
+  byte-identically (checked 25 November 2026). The shared helper gained tuple colours only; the approved
+  ART-10 bytes were regenerated and are unchanged.
+- **Style:** comic-book, semi-realistic for hardware, the case/board, tools and layers (D168); the monitor
+  and phone frames are pixel art at 2x. Tools are illustrated because the bench turns them in 15-degree
+  steps (proposal; the user has not decided yet).
+- **Files:** `art/drafts/ART-14/` to `ART-18/`, 81 files; exact sizes and SHA-256 in
+  `art/drafts/batch_c_manifest.json`. Review sheets: `art/drafts/batch_c_review/` (mockups only).
+- **Manifest:** case 18 x 16 cells and board 10 x 10 at 64 px per cell (master; the game scales to its cell);
+  board parts the same; inspection pictures 900 x 600 for the 450 x 300 bay panel with lens spot fractions in
+  `inspect_spots.json` (names match PartCondition.SPOTS); tool sprites 160 x 200 at 2x, origin (80, 100), tip
+  (44, 148) = Rig.TIP; damage overlays share the inspection canvas and sit on their spot; PSU "smell" has no
+  picture; phone 200 x 300 and monitor 439 x 287 native at 2x with transparent screens.
+- **Revision history:** rev 1 only (round 1 shown 25 Nov 2026 ~20:55, round 2 ~21:10 Bucharest).
+- **Human approval:** Pending. Open questions put to the user: tools illustrated on the bench; the drive's
+  label clue drawn as an illegible scribble ending in "??"; the small crack on the phone frame.
+- **Integration:** none. Needs the user's approval first; then code in the repair bench / tool files
+  (single-owner hot files per WORK_PLAN) and per-kind lens spot positions in the testing bay.

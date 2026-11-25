@@ -52,11 +52,11 @@ in progress or reference-only; the log may describe progress without claiming cr
 - [ ] ART-11 — Workshop entry / navigation and shutter states.
 - [ ] ART-12 — Lighting layers and readable UI contrast samples.
 - [ ] ART-13 — Workshop room and station masks (P1).
-- [ ] ART-14 — Open case / board presentation kit (P1).
-- [ ] ART-15 — First close-up hardware family (P1).
-- [ ] ART-16 — Tool skins and effect masks (P1).
-- [ ] ART-17 — Dust / paste / fan / damage layers (P1).
-- [ ] ART-18 — Existing monitor / test / phone UI skin where needed (P1).
+- [x] ART-14 — Open case / board presentation kit (P1). Created by Claude as drafts in 0.57.6; human approval pending, not integrated.
+- [x] ART-15 — First close-up hardware family (P1). Created by Claude as drafts in 0.57.6; human approval pending, not integrated.
+- [x] ART-16 — Tool skins and effect masks (P1). Created by Claude as drafts in 0.57.6; human approval pending, not integrated.
+- [x] ART-17 — Dust / paste / fan / damage layers (P1). Created by Claude as drafts in 0.57.6; human approval pending, not integrated.
+- [x] ART-18 — Existing monitor / test / phone UI skin where needed (P1). Created by Claude as drafts in 0.57.6; human approval pending, not integrated.
 
 0.57.3: ART-06 to ART-10 (Batch B) are created, human-approved and integrated; the rest start **not created**. The four already-existing reference images have their own
 credits in ART_ASSET_LOG; they remain references, with no new artwork made by this update.

@@ -105,6 +105,61 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.6 - 2026-11-25 - Batch C art drafts (ART-14 to ART-18), pending approval
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.3 (87dd2b6). Numbered after the open Batch A PR #80 (0.57.5); 0.58.0 and 0.59.0 stay
+  reserved for Codex's anti-virus and part tests, 0.60.0 for the checker.
+- Type: patch (art drafts, their source and docs; no runtime change).
+
+### Execution status
+Godot was not run: nothing the game loads changed. The drafts sit under `art/drafts/` with a `.gdignore`, so
+Godot does not import them and no scene or script refers to them. GitHub Actions runs the usual suites.
+
+### Added / Changed / Fixed / Removed
+- **Batch C drafts by Claude, shown to the user in chat on 25 November 2026, approval pending:**
+  - ART-14: the tower case interior and the demo L board, every connector on its cells (the empty slot
+    shows when a part is lifted out).
+  - ART-15: the hardware family at board scale (the approved storage drawings, larger, plus a bare CPU),
+    and one testing-bay inspection picture per part kind with the lens spot positions.
+  - ART-16: tool skins drawn to the bench's tool frame (tip at Rig.TIP), cloth and hose textures, clamp,
+    dust bin, suction glow and dust puff.
+  - ART-17: dust films and bunnies, the paste socket stage, paste ramp and old dried paste, fan rotor,
+    frame and blur, and an overlay for every fault clue and red herring (shown only when revealed).
+  - ART-18: frames for the diagnostic monitor and the phone, with transparent screens.
+- `tools/art_batch_c/` regenerates all 81 files byte-identically; the shared helper in
+  `tools/art_batch_b/parts_comic.py` now also accepts tuple colours (approved ART-10 bytes unchanged).
+- Art docs: ART-14 to ART-18 Created (draft) with approval Pending in the checklist, log and router.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `art/drafts/ART-14/` … `art/drafts/ART-18/` (81 files) | A | Batch C drafts, not loaded |
+| `art/drafts/batch_c_review/` (7 files) | A | The review sheets shown in chat |
+| `art/drafts/batch_c_manifest.json`, `art/drafts/README.md`, `art/drafts/.gdignore` | A | Hashes, what drafts are, keep Godot from importing them |
+| `tools/art_batch_c/*.py` (8 files) | A | Source for the drafts and the sheets |
+| `tools/art_batch_b/parts_comic.py` | M | Tuple colours accepted (no change to approved outputs) |
+| `docs/ART_ASSET_LOG.md`, `docs/FIRST_DAY_ART_CHECKLIST.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | Creation and pending-approval state |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md`, `.gitignore` | M | File map, handoff, version 0.57.6, this entry, ignore new Python caches |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`: passed.
+- Sources regenerated 81 Batch C files identical to the reviewed outputs; ART-10 parts regenerated
+  identical to `art/storage/` after the helper change.
+- Test merge with open PR #80: see the PR description.
+- GitHub Actions: see the PR.
+
+### Decisions proposed (not approved)
+- Tools illustrated (not pixel) on the bench; the drive's label clue as an illegible scribble with "??";
+  the phone frame's small crack. Integration plan: bench/tool code (single-owner hot files) and per-kind
+  lens spots, only after approval.
+
+### Known issues and open items
+- Not in the game. ART-13 (workshop room) is the last first-day task not created.
+
+### Next action
+- The user decides on approval and the open questions; then an integration PR coordinated with the
+  owner of the bench/tool hot files.
+
 ## 0.57.3 - 2026-11-25 - First approved art: Batch B counter items
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.57.2 (1897eda).

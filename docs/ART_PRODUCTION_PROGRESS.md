@@ -9,8 +9,8 @@ This is the permanent place agents read to find **what art to create next**. Rea
 | --- | --- |
 | Lifecycle phase | FIRST_DAY_ACTIVE |
 | Active creation list | [FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md) |
-| Creation status | 5 / 18 created (ART-06 to ART-10, Batch B, Claude, 0.57.3); the others unchecked |
-| Human approval for in-game art | ART-06 to ART-10 rev 2 approved by the user 25 Nov 2026 (hashes in ART_ASSET_LOG) and integrated in 0.57.3; nothing else. Reference/look acceptance is not installation approval |
+| Creation status | 10 / 18 created on main with this PR: ART-06 to ART-10 (Batch B, 0.57.3) and ART-14 to ART-18 (Batch C drafts, Claude, 0.57.6); Batch A (ART-01 to ART-05, 11, 12) is in PR #80 |
+| Human approval for in-game art | ART-06 to ART-10 rev 2 approved by the user 25 Nov 2026 (hashes in ART_ASSET_LOG) and integrated in 0.57.3. ART-14 to ART-18 rev 1: approval pending (drafts, not loaded). Reference/look acceptance is not installation approval |
 | Next creation dependency | ART-01 composition/anchors with ART-05 storage-capacity layout: Batch A, assigned by the user to ChatGPT (23 Nov 2026). Batch B props currently use interim placements in the placeholder counter; align them to ART-01 anchors when it lands |
 | Next asset work after layout | Follow the first-day list's minimum counter subset and P0/P1 dependencies; no new tabletop props |
 | Ongoing authority | ART_DIRECTION + this routing/queue + ART_ASSET_LOG |
