@@ -838,5 +838,5 @@ then-current design wording do not override the current status, D150 or the late
 - Root cause: the tests waited a fixed 30 frames for the 0.22-second tween. Headless Godot runs frames with tiny deltas, so 30 frames were not 0.22 s and the drawer was still sliding (later checks that needed it open passed once it arrived). Test defect, not game behaviour.
 - Reproduction: run the Rooms suite at 0.57.7 WIP `e8eea57` headless.
 - Expected / actual: the checks see the drawer fully open / closed / the checks see it mid-slide.
-- Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Automated evidence: GitHub Actions run 45703005341 on `c3bdaf1` passed (all suites); no user verification claimed.
+- Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Automated evidence: `tools/test_rooms.gd` and `tools/test_counter_art.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/45703005341 on `c3bdaf1` (all suites); no user verification claimed.
 
