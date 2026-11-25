@@ -171,7 +171,9 @@ in-game visual acceptance yet.
 - All 84 runtime art files are byte-identical copies of approved drafts (hashes found in the manifest);
   draft sources regenerate their outputs byte-identically.
 - Static composites of the counter (door, window) and of the open case.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- `python3 -B tools/test_bug_register.py`: passed.
+- GitHub Actions on Godot 4.7.2 (headless): run 45703005341 on `c3bdaf1` passed, every suite including
+  the new Item art suite (the earlier run 45702481532 on `e8eea57` failed on B60).
 
 ### Decisions proposed (not approved)
 - "So that works" read as approval of the pixel tools. Hose texture, dust bunnies, old dried paste, fan
