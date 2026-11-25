@@ -2,6 +2,8 @@
 extends RefCounted
 const Ids = preload("res://scripts/data/ids.gd")
 const Rig = preload("res://scripts/bench/tool_rig.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: the approved pixel-art tools (ART-16 rev 2)
+const BRISTLES: Array = [Color("2c2a2a"), Color("4a4744")]
 static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> void:
     var order: Array = visible.duplicate()
     if rig.selected in order:
@@ -18,7 +20,9 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         canvas.draw_line(Vector2(-18,24),Vector2(19,-32),Color(0,0,0,0.35),17)
         canvas.draw_set_transform(motion.center-Vector2(0,height),motion.angle)
         var tip: Vector2 = Rig.TIP
-        if id == Ids.VACUUM:
+        if draw_tool_sprite(canvas, id, motion.center-Vector2(0,height), motion.angle, rig):
+            pass
+        elif id == Ids.VACUUM:
             canvas.draw_line(tip,Vector2(21,-31),Color("899aa9"),15)
             canvas.draw_line(Vector2(10,-18),Vector2(21,-31),Color("3d657d"),20)
             canvas.draw_circle(tip,10,Color("cad4da"))
@@ -50,6 +54,37 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         canvas.draw_set_transform(Vector2.ZERO)
         if id != rig.selected or not rig.equipped:
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
+
+
+# 0.57.8: a tool's approved pixel sprite, the nearest of its 24 pre-turned frames, origin at `at`, turned by
+# `angle`. The brush keeps its moving bristles and the cloth its moving shape (now with the pixel cloth
+# texture). Leaves the canvas transform at (at, angle) like the code-drawn tools. False when no art.
+static func draw_tool_sprite(canvas: CanvasItem, id: String, at: Vector2, angle: float, rig: RefCounted = null) -> bool:
+    if id == Ids.CLOTH:
+        var cloth: Texture2D = ItemArt.tool("cloth_tile")
+        if cloth == null or rig == null: return false
+        var fabric: PackedVector2Array = rig.cloth_outline()
+        var uvs := PackedVector2Array()
+        for i in range(fabric.size()):
+            fabric[i] += Rig.TIP
+            uvs.append(fabric[i] / 64.0)
+        canvas.draw_polygon(fabric, PackedColorArray([Color.WHITE]), uvs, cloth)
+        canvas.draw_polyline(fabric + PackedVector2Array([fabric[0]]), Color("14161c"), 2.0)
+        return true
+    var frame: Dictionary = ItemArt.tool_frame(id, angle)
+    if frame.is_empty(): return false
+    canvas.draw_set_transform(at, float(frame["rest"]))
+    canvas.draw_texture_rect_region(frame["texture"], Rect2(-ItemArt.TOOL_ORIGIN * 2.0, Vector2.ONE * ItemArt.TOOL_FRAME * 2.0), frame["region"])
+    canvas.draw_set_transform(at, angle)
+    if id == Ids.BRUSH and rig != null:          # the bristles still bend as they touch the dust
+        var tip: Vector2 = Rig.TIP
+        var roots: PackedVector2Array = rig.brush.roots()
+        var tips: PackedVector2Array = rig.brush.tips()
+        for i in range(roots.size()):
+            var root: Vector2 = tip + roots[i]
+            var end: Vector2 = tip + tips[i]
+            canvas.draw_polyline(PackedVector2Array([root, root.lerp(end, 0.45) + rig.brush.bend * 0.12, end]), BRISTLES[i % 2], 2)
+    return true
 
 
 # D131: the screwdriver, in a tool's own frame (tip at the usual tool tip). Also drawn by the hardware bench.
@@ -115,10 +150,15 @@ static func draw_clamp(canvas: CanvasItem, rig: RefCounted) -> void:
     if rig.clamp_dragging and rig.clamp_blocked: color = Color("ed8d79")
     var half: Vector2 = Rig.CLAMP_RECT.size * 0.5
     canvas.draw_set_transform(rig.clamp_position, rig.clamp_angle)
-    canvas.draw_rect(Rect2(-half, half * 2.0), Color("1c2a33"))
-    canvas.draw_rect(Rect2(-half, half * 2.0), color, false, 2.0)
-    canvas.draw_arc(Vector2.ZERO, 7.0, 0.0, PI, 12, color, 3.0, true)
-    canvas.draw_string(ThemeDB.fallback_font, -half + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
+    var clamp_art: Texture2D = ItemArt.tool("hose_clamp")
+    if clamp_art != null:         # 0.57.8: the approved pixel clamp; its outline still shows hover/occupied/blocked
+        canvas.draw_texture_rect(clamp_art, Rect2(-half, half * 2.0), false)
+        if hovered or occupied or (rig.clamp_dragging and rig.clamp_blocked): canvas.draw_rect(Rect2(-half, half * 2.0).grow(2.0), color, false, 2.0)
+    else:
+        canvas.draw_rect(Rect2(-half, half * 2.0), Color("1c2a33"))
+        canvas.draw_rect(Rect2(-half, half * 2.0), color, false, 2.0)
+        canvas.draw_arc(Vector2.ZERO, 7.0, 0.0, PI, 12, color, 3.0, true)
+        canvas.draw_string(ThemeDB.fallback_font, -half + Vector2(5, 12), "HOSE CLAMP", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
     if occupied:
         canvas.draw_circle(Vector2.ZERO, 4.0, Color("d0e5e3"))
     canvas.draw_set_transform(Vector2.ZERO, 0.0)

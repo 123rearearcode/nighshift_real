@@ -116,7 +116,18 @@ Two kinds of portrait work (0.57.3):
 Mara (`t001_mara.png`) and Relu (`t002_relu.png`) are approved art (ART-08). While a customer is at the
 window their PC stands on the counter (`art/props/pc_tower_closed.png`, ART-09).
 
+## 4a. One picture per item, everywhere (0.57.8, D170)
+
+Every scene that shows an item (storage, hardware board, repair bench, testing bay) asks
+`scripts/view/item_art.gd` for its picture: from on top (`art/storage/`, `art/hardware/parts/`), the
+testing-bay close-up (`art/hardware/inspect/`) or, where a scene needs it, from the side (`art/props/`).
+Replace a picture there (after the user approves it) and it changes in every scene at once.
+
 ## 4b. Storage under the counter and the ticket close-up (0.57.3)
+
+0.57.8: there is no storage button any more: hovering the **bottom edge** of the counter screen pulls the
+storage up over the counter (the UnderCounter spot is that edge); moving the mouse to the top slides it
+back down. Leave the bottom strip of the counter picture calm.
 
 - The under-counter storage draws every item with its picture from `art/storage/<name>_r<turn>.png`
   (see that folder's README). Cells are 44 px. Parts are illustrated (comic-book, semi-realistic) at 1:1;

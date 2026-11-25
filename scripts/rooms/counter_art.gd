@@ -78,13 +78,17 @@ func draw_room(canvas: CanvasItem, morning: bool, front_open: bool, workshop_ope
     # Exterior is limited to the left glazing. The room's genuine alpha holes reveal it.
     var outside: Texture2D = textures.get("morning" if morning else "dusk")
     var glazing := Rect2(0, 0, 464, 610)
-    var sample := Rect2(Vector2(230, 0), glazing.size * SOURCE / SCREEN)
+    # 0.57.8 (user, 25 November 2026: the outside should be at street level): frame the street at eye level:
+    # the far pavement meets the room's floor line, with the parked cars, road and ground-floor shops behind.
+    var sample := Rect2(Vector2(280, 302), glazing.size * 1.032)
     if outside != null: canvas.draw_texture_rect_region(outside, glazing, sample)
     _full(canvas, "shell")
     _sprite(canvas, "front_open" if front_open else "front_closed", Rect2(60, 115, 132 if front_open else 172, 450))
     _sprite(canvas, "sign", Rect2(262, 128, 60, 122))
+    # 0.57.8 (user: "the door to the workshop is slightly off"): the leaf now fills the painted doorway
+    # (1062..1248 x 118..490) with its hinge side on the frame, closed and open alike.
     _sprite(canvas, "workshop_open" if workshop_open else "workshop_closed",
-        Rect2(1083, 100, 139, 395) if workshop_open else Rect2(1056, 123, 166, 372))
+        Rect2(1109, 100, 139, 395) if workshop_open else Rect2(1062, 118, 186, 372))
     _sprite(canvas, "shutter_down" if shutter_down else "shutter_up",
         Rect2(48, 58, 416, 530) if shutter_down else Rect2(48, 58, 416, 37))
 

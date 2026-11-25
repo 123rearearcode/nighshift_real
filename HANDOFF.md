@@ -1,6 +1,24 @@
 # Handoff — current state first
 
-## Current — 0.57.7 critical consolidation of checker #77/#78, 25 November 2026
+## Current — 0.57.8 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
+
+User decisions (D170): stay 2D; every item uses ONE model drawn from on top (and from the side only where a
+scene needs it) via `scripts/view/item_art.gd`, used by storage, hardware board, repair bench and testing
+bay; the repair bench shows the PC lying open on its side; tools are pixel art (rev 2 approved: "So that
+works"); no storage button: the bottom edge of the counter pulls the storage up; items under the counter
+must turn (click-to-hold + R/Q/E/right-click/wheel). Done in 0.57.8, plus the workshop door fit and the
+window framed at street level. No hot file (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) was edited:
+all drawing changes are in the renderers.
+
+Waiting for the user's review (drafts, not loaded): the two power connectors (24-pin, 8-pin) with clean
+routing, the case's inner walls, and the Outside room at street level (`art/drafts/`). After approval: route
+the cables in code (Line2D with the cable textures, plugs at the 24-pin and the GPU power connector), put the
+walls over the case, install the Outside picture and move its hotspots to `outside_layout.json`.
+Built on main 0.57.7 (Codex's #82 review consolidation; B59 still Open, see the next section).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.7 critical consolidation of checker #77/#78, 25 November 2026
 
 User asked to critically review both older open reports against the current game, combine them into
 one new PR and leave merging to the user. Base main is 0.57.6 / 842d0c2, after merged #79/#80/#81.

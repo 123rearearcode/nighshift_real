@@ -21,11 +21,11 @@ Batch A v2 and Batch B source approvals are recorded below. Created, branch inte
 | ART-11 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-12 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-13 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-14 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Not integrated yet (approved; integration PR next) |
-| ART-15 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Not integrated yet (approved; integration PR next) |
-| ART-16 | Created (rev 2 pending) | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-16/` rev 1 (effects approved; comic tools superseded) and `art/drafts/ART-16/rev2/` (pixel tools, 24 turns each, hose/clamp/bin/cloth); hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | rev 1: suction glow and dust puff **approved**; tools **revisions requested** ("the tools should be pixel art"). rev 2: **Pending** | Not integrated |
-| ART-17 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-17/` (dust, paste, fan, 17 damage overlays), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Not integrated yet (approved; integration PR next) |
-| ART-18 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-18/` (monitor, phone frames), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Not integrated yet (approved; integration PR next) |
+| ART-14 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-15 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-16 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-16/` rev 1 (effects approved; comic tools superseded) and `art/drafts/ART-16/rev2/` (pixel tools, 24 turns each, hose/clamp/bin/cloth); hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | rev 1: suction glow and dust puff **approved**; tools **revisions requested** ("the tools should be pixel art"). rev 2: **Approved** 25 Nov 2026 22:10 (\"So that works\") | Integrated 0.57.8 (pixel tools rev 2 + rev 1 effects); visual acceptance pending |
+| ART-17 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-17/` (dust, paste, fan, 17 damage overlays), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-18 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-18/` (monitor, phone frames), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
 
 Use Not created / In progress / Created for creation; keep creation separate from Human approved, Integrated and
 Visually accepted. A reference-only or partly delivered task does not get a checked Created box. Owner
@@ -239,3 +239,116 @@ Approval: Approved for this integration. Integration state: implementation/testi
   = Rig.TIP. Source `tools/art_batch_c/tools_pixel.py`. Approval: **Pending** (sheet shown ~21:40).
 - **Integration:** none. Needs the user's approval first; then code in the repair bench / tool files
   (single-owner hot files per WORK_PLAN) and per-kind lens spot positions in the testing bay.
+
+## Approval of ART-16 revision 2 and integration of Batch C (0.57.8)
+
+- **ART-16 rev 2 (pixel tools) approval:** the user, 25 November 2026 22:10 (Bucharest), replying to the
+  pixel-tool review sheet: "So that works, but the problems I can identify so far are: ..." (the rest of the
+  message is about integration, the door, the outside view and storage turning). Read by Claude as approval
+  of the pixel tools as shown; recorded here so the user can correct it.
+- **Integrated in 0.57.8** (branch `feat/art-integration-0577`): every file below is a byte-identical copy of
+  an approved draft (its SHA-256 appears in `art/drafts/batch_c_manifest.json` with approval "approved" or
+  rev 2): case and board on the hardware board and the repair bench (the PC lying open on its side), board
+  parts on both, fans spinning on the bench, dust films on dusty surfaces, the paste socket stage and grey
+  paste, the testing-bay inspection pictures with per-kind lens spots, clue overlays only after the lens
+  revealed that clue, the pixel tools with 24 pre-turned frames, clamp, bin and cloth texture, and the
+  monitor and phone frames. Not yet used: hose texture, dust bunnies/mote, old dried paste, fan blur,
+  suction glow, dust puff (installed for later wiring, approved).
+- **Visual acceptance:** none yet (headless CI only).
+
+| Installed file | SHA-256 |
+| --- | --- |
+| `art/hardware/board_demo_l.png` | `6c93fe104af48d1c22e5793632bfe3e08f5cca50990b403ec205b28e3747c3e7` |
+| `art/hardware/case_tower_interior.png` | `b94c9b369bddd92e6984d889939497d1315907079c59c14c003694e5dc28224a` |
+| `art/hardware/clues/cooler_broken.png` | `2006362dae59f6f9f939bf4bd376064749fd71cebf9e8958b83fbcfe4a175a95` |
+| `art/hardware/clues/cooler_degraded.png` | `000db14bb9a96adacefadc9f17a505da6f7c6f6d544fb942dde850bc185e953d` |
+| `art/hardware/clues/cooler_herring.png` | `4fbcc2aad97ac7c9947308063dee8f2f6c07b8f65161274e27a3f3405f5a9c80` |
+| `art/hardware/clues/cpu_broken.png` | `7ffeeddcfca44e8ad5fcea00e9d2c0906a1b45365ed7b6914ad9f85e0dabb419` |
+| `art/hardware/clues/cpu_degraded.png` | `d383ec4e674c538d65b9d6ec878390841bf3b661d330bbc31f26b0f4fbc35850` |
+| `art/hardware/clues/cpu_herring.png` | `bb4a0a8dcf41a2f47cd362657542c4c2d12467c948f39edc780f10f553141ce7` |
+| `art/hardware/clues/gpu_broken.png` | `c945b348c4a23d32014c19d133000dc79923196f5707811b62d0d602fbee4288` |
+| `art/hardware/clues/gpu_degraded.png` | `7f67f2c2774e253850f281a9e12bfd05b22103a27d77fb34e3fac31227795835` |
+| `art/hardware/clues/gpu_herring.png` | `c0b375b824a0e675f616d47b5d82aec4cfa6be1b5b7f89e5c9dc675d0aa9153d` |
+| `art/hardware/clues/psu_degraded.png` | `c9fde7337a51700b86507515356ac87b420616c364aa6f28c728d3cad1b6ab4e` |
+| `art/hardware/clues/psu_herring.png` | `2a9e985d975a6863d4e6d63115902ac483604b03a9ceead3f2bd5a43c32405f8` |
+| `art/hardware/clues/ram_broken.png` | `34dad1f6e059501d058d2d167b2731d4870ed914e69cba20f337045d4975e86e` |
+| `art/hardware/clues/ram_degraded.png` | `9206ca644291cfb022d2d8f97c4ea9779e37379b27b705bbd5b94993ef2a3658` |
+| `art/hardware/clues/ram_herring.png` | `8ba53d42ef7a3f258fb7c43042a3af3205fdbe2f8e3c4ccc4a121ddc792262ec` |
+| `art/hardware/clues/storage_broken.png` | `9f76e4f97506544eb2cbd0625ebb5e4f42de3907d33a520716d445050bbe99a3` |
+| `art/hardware/clues/storage_degraded.png` | `9cc66d31c9a176da236c8acc56fa05a0c5ee06cfc7e474e2c44f11de8f05e1d3` |
+| `art/hardware/clues/storage_herring.png` | `68006d09719334276abfb9433d0486eec2c374bc49a63bea41cac0da14024bbc` |
+| `art/hardware/inspect/inspect_cooler.png` | `3d5dbd8a2f183186282d0737cffb742d213bb69ada97e51ef644dd115230b2da` |
+| `art/hardware/inspect/inspect_cpu.png` | `d3831fa0393bb65a18ddcc46c317aa5e45d1983fa93660c15af39b7b4fafea4c` |
+| `art/hardware/inspect/inspect_gpu.png` | `09a22deced403eb774bddb9a493dd3b38a27f138b38a1b60bb26a9aa6be74c8a` |
+| `art/hardware/inspect/inspect_psu.png` | `d61b5cd60a82f77c29456c48f649764f70a089216cd8bbe5a55b9b9d4c623130` |
+| `art/hardware/inspect/inspect_ram.png` | `b87518d364ad901aca44e0a1355e275b8a29724cdee03add5557313af75118e8` |
+| `art/hardware/inspect/inspect_storage.png` | `253ecc669045080ed9179597b49d8dfbdafba0f888090f5a8e61b11704abd70e` |
+| `art/hardware/parts/cooler_r0.png` | `c5d104a7db27990b9856f46cf28109df7672678a59fc4293beb30eaeb733433f` |
+| `art/hardware/parts/cooler_r1.png` | `a95845ec3e8aaab5b5f8c778298752bbef2b4a5c316ba2ecc916734d9ddf4d53` |
+| `art/hardware/parts/cooler_r2.png` | `ad50e5b26b0d4b5ffa2879b4b93a23fa79a311a1aeae0916ce44b37cb1b071e1` |
+| `art/hardware/parts/cooler_r3.png` | `8ce1ddb0e27d10094d88d06ee1741732b5aa251596c6c7240c6054099eff2a00` |
+| `art/hardware/parts/cpu_bare_r0.png` | `c1f0b68e891c236dec7ec3f43528f37c1e5d2e6809cb44c1f9c1acabb4bcf0b4` |
+| `art/hardware/parts/cpu_bare_r1.png` | `127589133692a14c1c8a409cada361866ce856c70661735c187c49f4e075eb8b` |
+| `art/hardware/parts/cpu_bare_r2.png` | `abbb382b0e82d967bc83bb439a05a799796266e40e876bcaa5f7f4eeacf920e9` |
+| `art/hardware/parts/cpu_bare_r3.png` | `2d7c920a0568a6c867b4175ecc5f8bae4bf628a1d80869cef2445d1d5b51c804` |
+| `art/hardware/parts/gpu_r0.png` | `7303e83c38cd2bd24f9bc7d0cb76abd75e17ba9a9b8def78b4f8c893c1fb9b68` |
+| `art/hardware/parts/gpu_r1.png` | `5bae53feab251e5192959f8874d7d5ce50be2f2b7822591a2a72b66e409e78f6` |
+| `art/hardware/parts/gpu_r2.png` | `85f59a36f6ce9f1ca25907e9c93f1384ae64cc03a9831ad041645ef7f96c2195` |
+| `art/hardware/parts/gpu_r3.png` | `4a7a347d2b69fe4cdb73488c5758a3accd8431938860081cd20ea1463254d169` |
+| `art/hardware/parts/psu_r0.png` | `2ebc26f553663c6f9379fd9bd3e1dacbd147a64de5deff5ca7638bd1d58f7e60` |
+| `art/hardware/parts/psu_r1.png` | `e86b97c32cfa97e0771e55b7401e3c13f1859c5fb981ae97ff4b8170615445c8` |
+| `art/hardware/parts/psu_r2.png` | `a5c008492837822b3d04732cecc397f35e021729045a008b6671979fec1e3e15` |
+| `art/hardware/parts/psu_r3.png` | `f3c1af23fb08575a83a210a9a6e0fdaa954af622ddb2a1657c1eb5a8d9b70020` |
+| `art/hardware/parts/ram_r0.png` | `a51ac8077e47847041f155792567de0379e64c3d1c40657e475a6495aa6599dc` |
+| `art/hardware/parts/ram_r1.png` | `11d7cfcb20da83088afeffd03302ca22c811085d1677e8b7557866915fbdf36a` |
+| `art/hardware/parts/ram_r2.png` | `fd3b97b4eeb844f7c4bb36d46de9318d9531c9fb13be8289b8194998cb605076` |
+| `art/hardware/parts/ram_r3.png` | `7ed3b13ca6bacda44c577c3b94ec32320646151da942676037fcf6abc37ca6a5` |
+| `art/hardware/parts/storage_hdd_r0.png` | `a720f75bda87d3d10bd7b474033914d680982485153830e3c9fe68232c6e80cb` |
+| `art/hardware/parts/storage_hdd_r1.png` | `f8eb736fc7222965fc621abb753eb4cf536879b377150c54eeb097cba3ff4574` |
+| `art/hardware/parts/storage_hdd_r2.png` | `5634342900c5d23c2a6968645ff29987b9239d9254a4b25bbeadaf2b1ad92cd1` |
+| `art/hardware/parts/storage_hdd_r3.png` | `06f36bd07e74a52d0921bc30b3339101c1faa6d20a82d50c5f0ea2be86dc483b` |
+| `art/hardware/parts/storage_ssd_r0.png` | `80c0e1444ff090c584a69c036dc2c067f890fe87661a36b4f9cae1cfbf85efd2` |
+| `art/hardware/parts/storage_ssd_r1.png` | `96a27a82a8e182c40742d1a1e0742e0b67129b0cb04f5fbd477e1e06f877163f` |
+| `art/hardware/parts/storage_ssd_r2.png` | `74ad4f3c0fec9baafa74361829148cc85e6d97f3fed9b544041f10d2fc0c7659` |
+| `art/hardware/parts/storage_ssd_r3.png` | `2e62bc5d7c681ae2d685a9e5dad7720eb36241a0ecd49f0662afa953b6b022c5` |
+| `art/bench/dust/dust_bunny_1.png` | `9704836d4b1cbcbd3033f0d78ec1125fa9444cd69875a983f104a14385033b4e` |
+| `art/bench/dust/dust_bunny_2.png` | `f4430800cd51498ceea5bcd3dcf43a5e57cea97275c42ce618e7e3c81b0de39c` |
+| `art/bench/dust/dust_bunny_3.png` | `c760f1aa31cef180f826a0de074c3b164796cc9944c638de0386c1e1a8411bc3` |
+| `art/bench/dust/dust_film_heavy.png` | `d75ba26b754b036e1ede7c27275e6dc0526ef96cddc8e17544fb494ff77f6d92` |
+| `art/bench/dust/dust_film_light.png` | `3a895a1a432a158edefd203c15726e432643d3a68021729e3dda9075c990ee9a` |
+| `art/bench/dust/dust_film_medium.png` | `90c760d1eeb7a5b4326f189b57b763a6c8f2ade4d0507c47f21fc01e607d3577` |
+| `art/bench/dust/dust_mote.png` | `9c6a7805d43058bae716de222301bdc9431486a09ac87c55dbe56c9e1a858760` |
+| `art/bench/fan/fan_blur.png` | `1331120fa4e40a56e0d56a547b6eae2ca5bfc72605eb60f51b81ee7bc2cc3ce9` |
+| `art/bench/fan/fan_frame.png` | `8c6f966b2f3ce7a1654bee6628caf87c2282ec811f2a0b803855afae90686686` |
+| `art/bench/fan/fan_rotor.png` | `88da2055bd00ddb3cac29c9ab959a9603e1f9bab46962796ed45f3ce247cc960` |
+| `art/bench/paste/paste_old_dried.png` | `02635d463a644d103b1401be4524e58b394a5d69093840b890dcd519987d57c6` |
+| `art/bench/paste/paste_socket_stage.png` | `82ceb232794fea78aac57efb59dd5555cbd74a3295204b42e87392075281da1f` |
+| `art/bench/paste/paste_thickness_ramp.png` | `a1197b375beba3c0b1832edc3667cbea8663bddeebf039578f1182fa9a67d66f` |
+| `art/tools/cloth_tile.png` | `3dd8312e0bd9fd02c79b70119f8b67a6126036dc7e36a06a16fa7f34b2545707` |
+| `art/tools/dust_bin_body.png` | `7befa680abd24fb7a0a34692571d9f89384ed34b72eb1999ba75e91be79d9313` |
+| `art/tools/fx_dust_puff.png` | `9d2da409930b975d14cc509715871975c71f2c5b7de1cd1bcc0c8c3db746da4a` |
+| `art/tools/fx_suction.png` | `12cd4e276a7a738909aa9beac74d8a417b28bb8e66b01254c67ada3b949cecd8` |
+| `art/tools/hose_clamp.png` | `41ac4cf82e815737c3694737345291f990836e4c84fde5b4456202e371426882` |
+| `art/tools/hose_tile.png` | `500780b0aa2da70d63afbc2813116c82870b496fb9fe3dd9173e8b1028513e90` |
+| `art/tools/tool_brush.png` | `209e48c93fe520bdba1215b47ce9ae15e01729be7ab8fc51c08c775cbe3b78f9` |
+| `art/tools/tool_brush_turns.png` | `92d2a9b413470d093541fce294a5f1d3b1a9bb950ba469bd40592eb2e14ee2e6` |
+| `art/tools/tool_pick.png` | `0cdfcb0f0bb1e06751c147bc93b354e243413a23c923ffb87425dadf4ac59477` |
+| `art/tools/tool_pick_turns.png` | `cfda2e395312d0a9cfdafcb6d2ac2bc43b432b5a494ee9aaac2d9c610ac85355` |
+| `art/tools/tool_screwdriver.png` | `419d16d422ba98cac213e30cc42e01ffaee430ff29c763e541e41d55715cfa99` |
+| `art/tools/tool_screwdriver_turns.png` | `223e4c484ad989f356020ddeb9f7ab54c63206ce73bd7244a5b3fb0002ed5e81` |
+| `art/tools/tool_syringe.png` | `42a1ef7f476dfd03fc204117587dd5bd8abce5999e6f78677826e977e85bf6b4` |
+| `art/tools/tool_syringe_turns.png` | `e9ba7f44e2ca0343717f568ea80153d4193779e520485ca6e51f4beb58386994` |
+| `art/tools/tool_vacuum.png` | `9240e5653bdaae356504c35da39e00f336ce0173fd4c64f7356c5f5adcfaa0c4` |
+| `art/tools/tool_vacuum_turns.png` | `9272c4cf8ceb83747b95f940d929c35d1df0d7ea4fede375a4793ca63bc7126c` |
+| `art/ui/monitor_bezel.png` | `1839d7fed38806cc86bc53680034b5d12c6d76053b4ddc9d5523321a68c74093` |
+| `art/ui/phone_shell.png` | `48c45d42381d4279983d1f7c80f576f3f8a52934bbb1030705338486da47ecec` |
+
+## Drafts for review (0.57.8, pending approval)
+
+- `art/drafts/connectors/`: the two power connectors the user asked for ("Add connectors (only 2 kinds for
+  now), but make sure they look clean"), read as the 24-pin motherboard and 8-pin graphics-card cables:
+  sleeved cable textures (tile along a route), plugs and combs. `art/drafts/case_walls/case_tower_walls.png`:
+  the case's inner walls and cut rim for the PC lying open on its side. `art/drafts/outside/outside.png`:
+  the Outside room at street level (pixel art 640 x 360 at 2x) with its hotspot layout. Creator Claude
+  (Opus 5.5, model id claude-opus-5-5), drawn with code (`tools/art_batch_c/cables_case.py`, `outside.py`),
+  25 November 2026. Review sheets `c9_connectors_case.png`, `c10_outside.png`. Approval: **Pending**.

@@ -7,6 +7,7 @@
 extends Panel
 
 const Reviews = preload("res://scripts/rules/reviews.gd")
+const RoomArt = preload("res://scripts/rooms/room_art.gd")   # 0.57.8: the approved phone frame (ART-18)
 const SIZE := Vector2(400, 600)
 
 var header: Label
@@ -55,6 +56,18 @@ func _ready() -> void:
     add_child(buy_button)
     _label("ReviewBoost: cheap, fast, anonymous. %s checks new reviews every morning." % Reviews.SITE, Vector2(24, 520), Vector2(SIZE.x - 48, 36), 12)
     status = _label("", Vector2(24, 556), Vector2(SIZE.x - 48, 36), 13)
+    var shell_art: Texture2D = RoomArt.ui("phone_shell")
+    if shell_art != null:         # the frame (with its small crack) over the screen's edge; the screen stays live
+        style.set_border_width_all(0)
+        var shell := TextureRect.new()
+        shell.name = "PhoneShell"
+        shell.texture = shell_art
+        shell.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        shell.stretch_mode = TextureRect.STRETCH_SCALE
+        shell.size = SIZE
+        shell.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        add_child(shell)
     refresh()
 
 

@@ -34,6 +34,15 @@ func hover(button: Button) -> void:
     for f in range(3): await process_frame
 
 
+
+# 0.57.8: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
+func settle_storage(counter: Node) -> void:
+    var until: int = Time.get_ticks_msec() + 3000
+    await process_frame
+    while counter.storage_tween != null and counter.storage_tween.is_running() and Time.get_ticks_msec() < until:
+        await process_frame
+    await process_frame
+
 func run_checks() -> void:
     var gs: Node = root.get_node("GameState")
     var night: Node = root.get_node("NightSession")
@@ -82,9 +91,11 @@ func run_checks() -> void:
     check(not counter.room_layer.shutter_down and gs.money == money and gs.night_minutes == minutes, "canceling the preview restores the shutter without ending or charging the night")
     for name: String in ["WallBoard", "Till", "Phone"]:
         check(counter.hotspot(name).ui_label and not counter.hotspot(name).disabled, "%s remains discoverable without painting another tabletop object" % name)
-    await press(counter.hotspot("UnderCounter"))
-    check(current_scene.scene_file_path == Nav.UNDER_COUNTER, "the original storage hotspot still opens the same close-up")
-    var under: Node = current_scene
+    # 0.57.8 (user): no storage button; hovering the bottom edge pulls the storage up over the counter.
+    await hover(counter.hotspot("UnderCounter"))
+    await settle_storage(counter)
+    check(counter.storage_open and counter.storage_drawer.visible and is_equal_approx(counter.storage_drawer.position.y, 0.0) and current_scene == counter, "hovering the bottom edge pulls the same storage up over the counter")
+    var under: Node = counter.storage_drawer
     var constants: Dictionary = under.get_script().get_script_constant_map()
     var grid: Rect2 = constants["GRID"]
     check(constants["CELL"] == 44 and grid.size == Vector2(880, 440) and under.environment.available(), "all 200 square cells retain Batch B's 44-pixel item scale under the approved storage art")
@@ -99,8 +110,12 @@ func run_checks() -> void:
     var mapped: Rect2 = Art.storage_rect(under.environment.textures["rim"], grid)
     var ratio: Vector2 = grid.size / Art.STORAGE_INNER.size
     check((mapped.position + Art.STORAGE_INNER.position * ratio).is_equal_approx(grid.position), "decorative source mapping starts exactly at the existing grid origin")
-    await press(under.get_node("BackButton"))
-    check(current_scene.scene_file_path == Nav.COUNTER and not current_scene.visiting(), "storage returns to the same counter after intake without replaying customers")
+    var up := InputEventMouseMotion.new()
+    up.position = Vector2(640, 20)
+    up.global_position = up.position
+    root.push_input(up, true)
+    await settle_storage(counter)
+    check(not counter.storage_open and not counter.storage_drawer.visible and current_scene == counter and not counter.visiting(), "moving the mouse up slides the storage away, back at the same counter")
     restore_save(gs)
     for path: String in [manifest, preferences]: _remove_save_files(path)
     finish("Counter art")

@@ -6,16 +6,17 @@ extends RefCounted
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: the approved socket stage (ART-17)
 
 const COLOR_CPU := Color(0.26, 0.32, 0.47)
 const COLOR_CPU_EDGE := Color(0.62, 0.70, 0.88)
-const PASTE_THIN := Color(0.55, 0.85, 0.95)
-const PASTE_THICK := Color(1.0, 1.0, 1.0)
+const PASTE_THIN := Color8(110, 118, 126)    # 0.57.8: real grey paste, the approved thickness ramp (ART-17)
+const PASTE_THICK := Color8(214, 220, 226)
 const TOOTH_THIN := Color(0.70, 0.95, 0.85)    # toothpaste: minty white
 const TOOTH_THICK := Color(0.98, 1.0, 0.98)
 const SUPER_THIN := Color(0.62, 0.75, 0.96)
 const SUPER_THICK := Color(0.94, 0.93, 1.0)
-const PASTE_EDGE := Color(0.20, 0.55, 0.70)
+const PASTE_EDGE := Color8(62, 66, 72)
 const COLOR_BARE := Color(1.0, 0.25, 0.25, 0.55)
 const COLOR_SQUEEZED := Color(1.0, 0.72, 0.2, 0.95)
 
@@ -62,22 +63,26 @@ static func refresh_image(paste: PasteSim, image: Image, texture: ImageTexture, 
 static func draw_stage(canvas: CanvasItem, paste: PasteSim, texture: ImageTexture, origin: Vector2, cell_px: int, mount: MountSession) -> void:
     var side: float = PasteSim.GRID * cell_px
     var region := Rect2(origin, Vector2(side, side))
-    canvas.draw_rect(region.grow(14.0), Color(0.16, 0.17, 0.2))
-    canvas.draw_rect(region, Color(0.07, 0.08, 0.10))
     var cpu_pos: Vector2 = origin + Vector2(PasteSim.CPU_MIN, PasteSim.CPU_MIN) * cell_px
     var cpu_side: float = (PasteSim.CPU_MAX - PasteSim.CPU_MIN) * cell_px
     var cpu := Rect2(cpu_pos, Vector2(cpu_side, cpu_side))
-    canvas.draw_rect(cpu, COLOR_CPU)
-    canvas.draw_rect(cpu, COLOR_CPU_EDGE, false, 3.0)
+    var stage: Texture2D = ItemArt.bench("paste/paste_socket_stage")
+    if stage != null:             # the socket, substrate and heat spreader; the spreader covers cells 8..43 exactly
+        canvas.draw_texture_rect(stage, region, false)
+    else:
+        canvas.draw_rect(region.grow(14.0), Color(0.16, 0.17, 0.2))
+        canvas.draw_rect(region, Color(0.07, 0.08, 0.10))
+        canvas.draw_rect(cpu, COLOR_CPU)
+        canvas.draw_rect(cpu, COLOR_CPU_EDGE, false, 3.0)
     # Aim guide: faint crosshair and ring at the centre, hidden once paste is down.
     var mid: Vector2 = cpu.get_center()
     if paste.total_deposited < 25.0 and not mount.active:
-        var guide := Color(1, 1, 1, 0.28)
+        var guide := Color(0.08, 0.1, 0.13, 0.5) if stage != null else Color(1, 1, 1, 0.28)
         canvas.draw_line(mid + Vector2(-20, 0), mid + Vector2(20, 0), guide, 2.0)
         canvas.draw_line(mid + Vector2(0, -20), mid + Vector2(0, 20), guide, 2.0)
         canvas.draw_arc(mid, 24.0, 0.0, TAU, 32, guide, 2.0)
         UiStyle.label(canvas, mid + Vector2(-34, 46), "aim here", 13, Color(1, 1, 1, 0.5))
-    UiStyle.label(canvas, cpu.position + Vector2(8, 20), "CPU heat spreader", 14, Color(0.85, 0.9, 1.0))
+    if stage == null: UiStyle.label(canvas, cpu.position + Vector2(8, 20), "CPU heat spreader", 14, Color(0.85, 0.9, 1.0))
     canvas.draw_texture_rect(texture, region, false)
     UiStyle.label(canvas, region.position + Vector2(0, -22), "CPU SOCKET (top view)", 16)
     if mount.active:

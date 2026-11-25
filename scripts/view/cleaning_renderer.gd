@@ -8,12 +8,14 @@ const Layout = preload("res://scripts/data/layout.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: approved bin and dust art
 
 const COLOR_DUST := Color(0.86, 0.76, 0.58, 1.0)
 const COLOR_DUST_LOOSENED := Color(1.0, 0.92, 0.72, 1.0)
 
 
 static func draw_dust(canvas: CanvasItem, dust: DustSim) -> void:
+    draw_dust_films(canvas, dust)
     for b in range(dust.count):
         var st: int = dust.b_state[b]
         if st == DustSim.GONE: continue
@@ -118,17 +120,37 @@ static func draw_motes(canvas: CanvasItem, motes: DustMotes) -> void:
 static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
     var rect: Rect2 = DustBin.RECT
     var level: float = bin.fraction()
-    canvas.draw_rect(rect.grow(2), Color("171d22"))
-    canvas.draw_rect(rect, Color("46535e"))
+    var bin_art: Texture2D = ItemArt.tool("dust_bin_body")
     var meter := Rect2(rect.position + Vector2(8, 16), Vector2(rect.size.x - 16, 8))
+    if bin_art != null:           # the pixel bin; the fill shows in its clear window
+        canvas.draw_texture_rect(bin_art, rect, false)
+        meter = Rect2(rect.position + Vector2(12, 22), Vector2(rect.size.x - 24, 8))
+    else:
+        canvas.draw_rect(rect.grow(2), Color("171d22"))
+        canvas.draw_rect(rect, Color("46535e"))
     canvas.draw_rect(meter, Color("0e1317"))
     var tone: Color = UiStyle.TONE_COLORS[2] if level >= DustBin.WARN_AT else COLOR_DUST
     var filled: float = meter.size.x * level
     canvas.draw_rect(Rect2(meter.position, Vector2(filled, meter.size.y)), tone)
     canvas.draw_rect(meter, Color("8aa0ad"), false, 1.0)
-    canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
+    if bin_art == null: canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 12)), Color("5d6d7a"))
     UiStyle.label(canvas, rect.position + Vector2(4, 10), "BIN %d%%" % roundi(level * 100.0), 10)
     if bin.is_full():
         UiStyle.label(canvas, rect.position + Vector2(-92, 30), "FULL: Empty bin button", 12, UiStyle.TONE_COLORS[2])
     elif hovered and bin.fill > 0.0:
         UiStyle.label(canvas, rect.position + Vector2(-82, 30), "click to empty", 12)
+
+
+# 0.57.8: a film of dust (ART-17) on every dusty surface, fading as that surface is cleaned. It follows the
+# surface (a lifted part carries its dust) and is skipped where a part covers it.
+static func draw_dust_films(canvas: CanvasItem, dust: DustSim) -> void:
+    var film: Texture2D = ItemArt.tiled(ItemArt.bench("dust/dust_film_heavy"))
+    if film == null: return
+    for z in range(mini(dust.zone_count(), dust.zone_center.size())):
+        if dust.hidden_zones.has(z) or dust.zone_weight[z] <= 0.00001: continue
+        var left: float = 1.0 - dust.removed_fraction(z)
+        if left <= 0.02: continue
+        var half: Vector2 = dust.zone_half[z]
+        canvas.draw_set_transform(dust.zone_center[z], dust.zone_angle[z])
+        canvas.draw_texture_rect(film, Rect2(-half, half * 2.0), true, Color(1, 1, 1, 0.85 * left))
+    canvas.draw_set_transform(Vector2.ZERO)

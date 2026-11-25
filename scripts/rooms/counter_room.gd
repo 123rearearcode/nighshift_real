@@ -36,6 +36,12 @@ const CUSTOMER_PC_PROP := "pc_tower_closed"
 const CUSTOMER_PC_BASE := CounterArt.CUSTOMER_PC_BASE     # bottom centre on the foreground worktop
 
 var counter_art := CounterArt.new()
+# 0.57.8 (user, 25 November 2026): no storage button; hovering the bottom edge pulls the storage up.
+const STORAGE_SLIDE: float = 0.22       # seconds to slide fully open or closed
+const STORAGE_CLOSE_Y: float = 64.0     # moving the mouse above this line (with nothing held) slides it back down
+var storage_drawer: Node2D
+var storage_open: bool = false
+var storage_tween: Tween
 var room_layer: CounterArt.Layer
 var counter_layer: CounterArt.Layer
 
@@ -87,6 +93,7 @@ func _room_ready() -> void:
     phone.hide()
     add_child(phone)
     _setup_counter_art()
+    _build_storage_drawer()
     if not GameState.opening_customers.is_empty():
         _begin_opening()
     elif NightSession.visits_pending:
@@ -165,8 +172,54 @@ func _action(action_name: String, _spot: Hotspot) -> bool:
             if visiting(): say("%s is at the counter." % str(visits[visit_index].get("customer", "")))
             else: say("Nobody at the counter. Customers come in when the shutter goes up in the morning.")
         "end_night": _ask_end_night()
+        "open:storage": open_storage()
         _: return false
     return true
+
+
+# ---- 0.57.8: the storage under the counter, pulled up from the bottom edge ----
+
+func _build_storage_drawer() -> void:
+    storage_drawer = load(Navigation.UNDER_COUNTER).instantiate()
+    storage_drawer.name = "StorageDrawer"
+    storage_drawer.embedded = true
+    storage_drawer.is_open = false
+    storage_drawer.position = Vector2(0, 720)
+    storage_drawer.z_index = 40
+    storage_drawer.visible = false
+    add_child(storage_drawer)
+    var edge: Hotspot = hotspot("UnderCounter")
+    if edge != null: edge.mouse_entered.connect(func() -> void: if not edge.disabled: open_storage())
+
+
+func open_storage() -> void:
+    if storage_drawer == null or storage_open: return
+    storage_open = true
+    storage_drawer.visible = true
+    storage_drawer.is_open = true
+    _slide_storage(0.0)
+
+
+func close_storage() -> bool:
+    if storage_drawer == null or not storage_open or storage_drawer.model.held != "": return false
+    storage_open = false
+    storage_drawer.is_open = false
+    _slide_storage(720.0)
+    return true
+
+
+func _slide_storage(target_y: float) -> void:
+    if storage_tween != null and storage_tween.is_valid(): storage_tween.kill()
+    storage_tween = create_tween()
+    storage_tween.tween_property(storage_drawer, "position:y", target_y, STORAGE_SLIDE)
+    if target_y > 0.0: storage_tween.tween_callback(func() -> void: if not storage_open: storage_drawer.visible = false)
+
+
+func _input(event: InputEvent) -> void:
+    if not storage_open: return
+    if event is InputEventMouseMotion and event.position.y < STORAGE_CLOSE_Y: close_storage()
+    elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and storage_drawer.model.held == "":
+        close_storage()
 
 
 func _open_tickets() -> Array:

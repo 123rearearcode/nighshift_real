@@ -93,6 +93,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
 | B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
+| B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -874,3 +875,14 @@ then-current design wording do not override the current status, D150 or the late
   plus restoration check at 842d0c2; four healthy controls accepted normally, damaged queues stayed
   unchanged, and money/inventory/active job were preserved (zero setup/ownership failures). The
   diagnostic reports observations and is not a required CI test asserting that a lock should persist.
+
+### B60 — Storage pull-up checks ran before the slide finished
+
+- Found: 0.57.8 development (then numbered 0.57.7), GitHub Actions run 45702481532 on `e8eea57` (push to `feat/art-integration-0577`, not a PR)
+- Reported by: CI log: `FAIL: hovering the edge pulls the storage up over the counter`, `FAIL: moving the mouse up slides the storage back down` (Rooms) and `FAIL: moving the mouse up slides the storage away, back at the same counter` (Counter art)
+- Fixed in: 0.57.8 (before release; developed as 0.57.7, renumbered after #82 took 0.57.7)
+- Root cause: the tests waited a fixed 30 frames for the 0.22-second tween. Headless Godot runs frames with tiny deltas, so 30 frames were not 0.22 s and the drawer was still sliding (later checks that needed it open passed once it arrived). Test defect, not game behaviour.
+- Reproduction: run the Rooms suite at WIP `e8eea57` headless.
+- Expected / actual: the checks see the drawer fully open / closed / the checks see it mid-slide.
+- Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Automated evidence: `tools/test_rooms.gd` and `tools/test_counter_art.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/45703005341 on `c3bdaf1` (all suites); no user verification claimed.
+

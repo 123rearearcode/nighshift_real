@@ -52,11 +52,11 @@ in progress or reference-only; the log may describe progress without claiming cr
 - [x] ART-11 — Workshop entry / navigation and shutter states. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
 - [x] ART-12 — Lighting layers and readable UI contrast samples. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
 - [ ] ART-13 — Workshop room and station masks (P1).
-- [x] ART-14 — Open case / board presentation kit (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integration next.
-- [x] ART-15 — First close-up hardware family (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integration next.
-- [x] ART-16 — Tool skins and effect masks (P1). Created by Claude (0.57.6); effects approved, tools redrawn as pixel art (rev 2) awaiting approval.
-- [x] ART-17 — Dust / paste / fan / damage layers (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integration next.
-- [x] ART-18 — Existing monitor / test / phone UI skin where needed (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integration next.
+- [x] ART-14 — Open case / board presentation kit (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integrated 0.57.8.
+- [x] ART-15 — First close-up hardware family (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integrated 0.57.8.
+- [x] ART-16 — Tool skins and effect masks (P1). Created by Claude (0.57.6); pixel tools (rev 2) approved 25 Nov 2026; integrated 0.57.8.
+- [x] ART-17 — Dust / paste / fan / damage layers (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integrated 0.57.8.
+- [x] ART-18 — Existing monitor / test / phone UI skin where needed (P1). Created by Claude (0.57.6); human-approved 25 Nov 2026; integrated 0.57.8.
 
 0.57.5: ART-01–12 files for the approved current slice are Created (12/18). Batch B is merged through #79; Batch A is integrated on the new PR branch. Pixel-density polish and human in-game acceptance remain open; ART-13–18 are not created. This is not first-day checklist completion. The four already-existing reference images have their own
 credits in ART_ASSET_LOG; they remain references, with no new artwork made by this update.

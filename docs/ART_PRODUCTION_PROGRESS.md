@@ -17,8 +17,8 @@ This is the permanent place agents read to find **what art to create next**. Rea
 | Lifecycle phase | FIRST_DAY_ACTIVE |
 | Active creation list | [FIRST_DAY_ART_CHECKLIST.md](FIRST_DAY_ART_CHECKLIST.md) |
 | Creation status | 17 / 18 created: ART-01–05 and ART-11/12 (approved Batch A v2, Codex, 0.57.5), ART-06–10 (Batch B, Claude, 0.57.3), ART-14–18 (Batch C drafts, Claude, 0.57.6); only ART-13 (workshop room) unchecked |
-| Human approval for in-game art | ART-01–12 source revisions approved by the user 25 Nov 2026 and integrated (Batch B 0.57.3, Batch A 0.57.5). ART-14, 15, 17, 18 and ART-16's effects approved 25 Nov 2026 (integration next); ART-16 tools rev 2 (pixel art) pending. Exact hashes/evidence in ART_ASSET_LOG; human in-game visual acceptance pending |
-| Next creation dependency | ART-13 (workshop room) is the last first-day task. Then approval of the ART-16 pixel tools and the Batch C integration, in-game visual acceptance of the counter, and the first-day transition below. Source pixel polish of Batch A remains separate |
+| Human approval for in-game art | ART-01–12 source revisions approved by the user 25 Nov 2026 and integrated (Batch B 0.57.3, Batch A 0.57.5). ART-14 to ART-18 approved 25 Nov 2026 (tools as pixel art, rev 2) and integrated in 0.57.8. Drafts pending review: connectors, case walls, street-level outside. Exact hashes/evidence in ART_ASSET_LOG; human in-game visual acceptance pending |
+| Next creation dependency | ART-13 (workshop room) is the last first-day task. Then review of the connectors / case walls / outside drafts, in-game visual acceptance of the counter, and the first-day transition below. Source pixel polish of Batch A remains separate |
 | Next asset work after layout | Follow the first-day list's minimum counter subset and P0/P1 dependencies; no new tabletop props |
 | Ongoing authority | ART_DIRECTION + this routing/queue + ART_ASSET_LOG |
 | Retirement state | First-day list still useful; do NOT delete now |
