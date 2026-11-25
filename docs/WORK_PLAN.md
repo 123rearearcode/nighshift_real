@@ -1,5 +1,14 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.57.5, 25 November 2026
+
+The user reviewed Batch A v2, authorized installation, and requested Claude's art PR be merged first.
+#79 is now merged at 87dd2b6. Codex owns the bounded counter/Hotspot/storage-presentation integration
+in a new PR, including source approvals/credits, coordinates and affected native-input checks. No
+GameState/bench/tool-rig ownership is claimed. Keep #77/#78 and deferred 0.58.0/0.59.0/checker 0.60.0
+scope unchanged. Read current HANDOFF and ART_PRODUCTION_PROGRESS before continuing.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
 ## Permanent art coordination — 0.57.2, 23 November 2026
 
 User rule: NO artwork enters gameplay without prior human approval of the exact revision/use. Agents

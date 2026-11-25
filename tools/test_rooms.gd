@@ -50,7 +50,10 @@ func run_checks() -> void:
         var room: Node = load(path).instantiate()
         root.add_child(room)
         await process_frame
-        check(not room.hotspots.is_empty() and room.placeholders and room.hotspots.values().all(func(h: Variant) -> bool: return h.placeholder), "%s draws placeholders while it has no art" % path.get_file())
+        if path == Nav.COUNTER:
+            check(not room.hotspots.is_empty() and not room.placeholders and room.get_node_or_null("BatchARoom") != null and room.hotspots.values().all(func(h: Variant) -> bool: return not h.placeholder), "the counter uses its approved layered art and hides placeholder furniture")
+        else:
+            check(not room.hotspots.is_empty() and room.placeholders and room.hotspots.values().all(func(h: Variant) -> bool: return h.placeholder), "%s draws placeholders while it has no art" % path.get_file())
         for h: Variant in room.hotspots.values():
             var spot: Hotspot = h
             var action: String = spot.action
@@ -68,6 +71,13 @@ func run_checks() -> void:
     await process_frame
     check(not painted.placeholders and painted.get_node("Background").visible and painted.hotspots.values().all(func(h: Variant) -> bool: return not h.placeholder), "with art in place the placeholders disappear and the hotspots go invisible")
     painted.queue_free()
+    await process_frame
+    var fallback: Node = load(Nav.COUNTER).instantiate()
+    fallback.counter_art.textures.clear()
+    root.add_child(fallback)
+    await process_frame
+    check(fallback.placeholders and fallback.hotspots.values().all(func(h: Variant) -> bool: return h.placeholder), "if the approved counter kit is unavailable, every original hotspot still has its playable placeholder")
+    fallback.queue_free()
     await process_frame
     image.save_png("user://rooms_test_art.png")
     check(RoomArt.texture("user://rooms_test_art.png") != null and RoomArt.room("does_not_exist") == null and RoomArt.customer({"id": "nobody", "profession": "nobody"}) == null, "pictures load from their file; a missing picture means placeholder")

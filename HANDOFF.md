@@ -1,6 +1,43 @@
 # Handoff — current state first
 
-## Current — 0.57.3 first approved art in the game (Batch B), 25 November 2026
+## Current — 0.57.5 approved Batch A integration, 25 November 2026
+
+User reviewed Batch A revision 02 and said “Aight u can put it in”, then “art reviewed, look sgood.
+claude already created some art in an open pr (i think) so merge that and then create a new PR.”
+Claude's Batch B PR #79 was cross-reviewed and merged first (87dd2b6; head 6bddbb3). Its CI passed;
+Codex also ran Godot 4.7.2 Rooms 77 and First customer 37, both with zero failures before merging.
+PRs #77 (B59) and #78 (performance docs) remain untouched. This new PR is for Batch A integration.
+
+Read ART_PRODUCTION_PROGRESS FIRST, then ART_DIRECTION, ART_ASSET_LOG and
+art/rooms/counter_batch_a/manifest.json, layout.json and README.md. All 14 source PNGs retain the
+exact human-approved revision-02 hashes; quotes, creator/model provenance and source pack are
+recorded. No new pixels or changed Batch B art. The prior review packet used metadata 0.57.4;
+this distinct runtime presentation change uses 0.57.5, not a reused build number.
+
+Counter layers: street/architecture/door endpoints behind the customer, foreground countertop over
+the customer's body, PC and clipboard above it, UI above the scene. Native hover chooses door
+endpoints. The existing end-night dialog previews the down shutter; cancel restores it without
+changing time. Morning exterior is used during intake/visits, dusk afterwards. Existing open/close,
+pause, save and room paths are retained. No hover-open storage mechanic is introduced.
+
+Shared layout: logical 1280×720, room sources from common 1672×941 origin; customer center x680,
+waist y488, PC bottom-center (1030,550), clipboard center (830,543). Batch B sprites stay 2× nearest
+and item pictures stay at 44 px/cell. Under-counter GRID remains Rect2(40,140,880,440), exactly 20×10.
+Decorative interior/rim UV mapping is around those cells, never another storage model. A flat
+Background override and missing-art placeholders remain supported.
+
+Created status is 12/18 for the approved current slice (ART-01–12); approval, branch integration and
+human in-game visual acceptance are tracked separately. Source pixel-density polish is still open;
+do not call this uniform native 640×360 art or final visual acceptance. ART-13–18 remain uncreated.
+First-day list remains active; retirement conditions have not been reached.
+
+Codex owns this bounded room/presentation patch. No GameState, bench, tool-rig, save, ownership,
+diagnostic or clock-rule changes. Keep reserved anti-virus 0.58.0, part tests 0.59.0 and scheduled
+checker 0.60.0 scope. B55/B56/B57/B59 are not claimed fixed. Execution: Godot 4.7.2 headless;
+checks and remaining limits in newest CHANGELOG. No graphical/human playtest claim.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Previous — 0.57.3 first approved art in the game (Batch B), 25 November 2026
 
 The user assigned Batch B (ART-06 to ART-10) to Claude and Batch A (ART-01 to ART-05, 11, 12) to ChatGPT,
 reviewed Claude's art in chat (rev 1: "refine the tools, and the vase/clipboard. Parts are supposed to be

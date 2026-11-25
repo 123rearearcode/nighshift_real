@@ -1,4 +1,12 @@
-# Nightshift - Godot Foundation Trial (v0.57.3)
+# Nightshift - Godot Foundation Trial (v0.57.5)
+
+0.57.5 integrates the user-approved Batch A revision-02 counter environment on top of Claude's
+merged Batch B PR #79: morning/dusk street, separate door/sign/shutter layers, counter occlusion,
+aligned customers/PC/clipboard and wood storage interior/rim around the existing 20×10 grid.
+Cash, shift and phone remain visible UI controls; the clipboard is the only initial loose tabletop prop.
+Start New game to see Mara and Relu at the counter. Exact source hashes and approval:
+[Batch A manifest](art/rooms/counter_batch_a/manifest.json); [shared anchors](art/rooms/counter_batch_a/layout.json).
+The source artwork is unchanged; native pixel cleanup and a human in-game playtest remain separate.
 
 Art contributors start with [ART_PRODUCTION_PROGRESS](docs/ART_PRODUCTION_PROGRESS.md). Human approval of exact artwork revisions is required before in-game installation; the first-day list will be retired after migration.
 

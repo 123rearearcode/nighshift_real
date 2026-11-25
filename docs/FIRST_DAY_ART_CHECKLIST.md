@@ -39,18 +39,18 @@ creator; preserve the original credit when someone else edits it. No anonymous g
 Check the box only after file paths and the delivery manifest exist. Keep it unchecked while missing,
 in progress or reference-only; the log may describe progress without claiming creation complete.
 
-- [ ] ART-01 — Counter composition / anchor sheet.
-- [ ] ART-02 — Production room shell and exterior matte.
-- [ ] ART-03 — Glazing, front-door and hanging-sign layers.
-- [ ] ART-04 — Production counter foreground and masks.
-- [ ] ART-05 — Usable 20 x 10 under-counter storage art kit.
+- [x] ART-01 — Counter composition / anchor sheet. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
+- [x] ART-02 — Production room shell and exterior matte. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
+- [x] ART-03 — Glazing, front-door and hanging-sign layers. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
+- [x] ART-04 — Production counter foreground and masks. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
+- [x] ART-05 — Usable 20 x 10 under-counter storage art kit. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
 - [x] ART-06 — Production clipboard object. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
 - [x] ART-07 — Clipboard / ticket close-up skin. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
 - [x] ART-08 — Initial scripted customer sprites (Mara and Relu). Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
 - [x] ART-09 — Separate customer PC exterior. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
 - [x] ART-10 — Storage item silhouettes and rotations. Created by Claude; human-approved 25 Nov 2026 and integrated in 0.57.3 (ART_ASSET_LOG).
-- [ ] ART-11 — Workshop entry / navigation and shutter states.
-- [ ] ART-12 — Lighting layers and readable UI contrast samples.
+- [x] ART-11 — Workshop entry / navigation and shutter states. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
+- [x] ART-12 — Lighting layers and readable UI contrast samples. Current approved v2 source files, coordinates and integration metadata delivered by Codex; 0.57.5 branch, merge/visual acceptance tracked in ART_ASSET_LOG.
 - [ ] ART-13 — Workshop room and station masks (P1).
 - [ ] ART-14 — Open case / board presentation kit (P1).
 - [ ] ART-15 — First close-up hardware family (P1).
@@ -58,7 +58,7 @@ in progress or reference-only; the log may describe progress without claiming cr
 - [ ] ART-17 — Dust / paste / fan / damage layers (P1).
 - [ ] ART-18 — Existing monitor / test / phone UI skin where needed (P1).
 
-0.57.3: ART-06 to ART-10 (Batch B) are created, human-approved and integrated; the rest start **not created**. The four already-existing reference images have their own
+0.57.5: ART-01–12 files for the approved current slice are Created (12/18). Batch B is merged through #79; Batch A is integrated on the new PR branch. Pixel-density polish and human in-game acceptance remain open; ART-13–18 are not created. This is not first-day checklist completion. The four already-existing reference images have their own
 credits in ART_ASSET_LOG; they remain references, with no new artwork made by this update.
 
 ## 2. P0 — first counter test, concrete asset tasks

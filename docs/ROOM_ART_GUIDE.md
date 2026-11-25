@@ -1,5 +1,23 @@
 # Room art guide — replacing the placeholders (0.53.0, D161)
 
+## Counter Batch A layers — 0.57.5
+
+The approved counter now uses `scripts/rooms/counter_art.gd` and the unchanged PNGs under
+`art/rooms/counter_batch_a/`. Read manifest.json/ART_ASSET_LOG for the exact source approval before
+changing art. layout.json records the current anchors: customer waist 488 (center 680), PC base
+(1030,550), clipboard center (830,543). Source crops in CounterArt are render-time regions, not new
+raster exports. The foreground counter's alpha provides customer occlusion; props remain separate.
+
+Morning/dusk are selected from existing visit state. Door hover switches endpoints, and the existing
+shutter confirmation previews closed/cancelled states without time or save changes. `ui_label` on a
+Hotspot is an always-visible compact UI backing for existing cash/phone/shift functions that have no
+painted physical prop. All original actions remain; F3 still reveals the world hotspot bounds.
+
+The ordinary flat Background texture override still takes precedence if explicitly provided; missing
+source art retains the old playable placeholders. The below one-image instructions remain valid for
+outside/workshop and that explicit override. Under-counter art is decorative around the unchanged
+44 px / 20×10 grid, so it does not require resizing Batch B item pictures or partitioning capacity.
+
 ## Mandatory before installing room art — 0.57.2
 
 Start with ART_PRODUCTION_PROGRESS.md for current task routing and retirement state, then ART_DIRECTION

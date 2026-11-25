@@ -108,6 +108,7 @@ jobs:
           test_build_requests|Build requests
           test_trust_and_reviews|Trust and reviews
           test_rooms|Rooms
+          test_counter_art|Counter art
           test_delivered_parts|Delivered parts"
           bad=0
           while IFS='|' read -r file name; do
