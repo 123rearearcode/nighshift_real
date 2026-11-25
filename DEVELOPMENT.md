@@ -149,6 +149,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/art_batch_c/inspection.py` | art source | 0.57.6: ART-15 testing-bay inspection pictures and their lens spot positions |
 | `tools/art_batch_c/tools_comic.py` | art source | 0.57.6: ART-16 tool skins in the tool frame (tip at Rig.TIP), cloth/hose textures, clamp, bin, effects |
 | `tools/art_batch_c/layers.py` | art source | 0.57.6: ART-17 dust films and bunnies, paste stage/ramp/old paste, fan rotor/frame/blur, damage overlays |
+| `tools/art_batch_c/tools_pixel.py` | art source | 0.57.6: ART-16 rev 2, pixel-art tools with 24 RotSprite turns, pixel hose/clamp/bin/cloth |
 | `tools/art_batch_c/ui_skins.py` | art source | 0.57.6: ART-18 monitor and phone frames (pixel art) |
 | `tools/art_batch_c/sheets_c1.py` | art source | 0.57.6: Batch C round-1 review sheets (not game art) |
 | `tools/art_batch_c/sheets_c2.py` | art source | 0.57.6: Batch C round-2 review sheets (not game art) |
@@ -327,7 +328,7 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `art/customers/README.md` | art | Where customer portraits go (by person id or profession); 0.57.3: Mara and Relu's approved sprites, shown at 2x |
 | `art/props/README.md` | art | 0.57.3: loose objects drawn over a room (the clipboard, the customer PC), pixel art at 2x, user-approved |
 | `art/storage/README.md` | art | 0.57.3: storage pictures per item and quarter turn (comic-style parts 1:1, pixel PCs/tools at 2x) |
-| `art/drafts/README.md` | art | 0.57.6: review-only drafts, never loaded (`.gdignore`); Batch C (ART-14 to ART-18) pending the user's approval |
+| `art/drafts/README.md` | art | 0.57.6: review-only drafts, never loaded (`.gdignore`); Batch C (ART-14 to ART-18): approved 25 Nov 2026 except the ART-16 pixel tools (rev 2, pending) |
 | `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |

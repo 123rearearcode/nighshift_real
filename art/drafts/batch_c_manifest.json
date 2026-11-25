@@ -7,11 +7,15 @@
   "ART-17",
   "ART-18"
  ],
- "revision": 1,
  "creator": "Claude (Opus 5.5, model id claude-opus-5-5); drawn with code, no image model",
  "created": "2026-11-25",
  "source": "tools/art_batch_c/ (regenerates these exact bytes)",
- "human_approval": "Pending: shown to the user in chat on 25 November 2026; not approved for the game yet",
+ "human_approval": {
+  "approver": "the user (creative director)",
+  "date": "2026-11-25 21:31 Europe/Bucharest",
+  "quote": "the art is reviewed and okay, the tools should be pixel art, i like the phone crack.",
+  "covers": "every file marked 'approved' below, for in-game use as described in docs/ART_ASSET_LOG.md"
+ },
  "loaded_by_game": false,
  "files": [
   {
@@ -21,7 +25,9 @@
     640,
     640
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-14/case_tower_interior.png",
@@ -30,7 +36,9 @@
     1152,
     1024
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cooler_r0.png",
@@ -39,7 +47,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cooler_r1.png",
@@ -48,7 +58,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cooler_r2.png",
@@ -57,7 +69,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cooler_r3.png",
@@ -66,7 +80,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cpu_bare_r0.png",
@@ -75,7 +91,9 @@
     192,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cpu_bare_r1.png",
@@ -84,7 +102,9 @@
     192,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cpu_bare_r2.png",
@@ -93,7 +113,9 @@
     192,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/cpu_bare_r3.png",
@@ -102,7 +124,9 @@
     192,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/gpu_r0.png",
@@ -111,7 +135,9 @@
     512,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/gpu_r1.png",
@@ -120,7 +146,9 @@
     64,
     512
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/gpu_r2.png",
@@ -129,7 +157,9 @@
     512,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/gpu_r3.png",
@@ -138,7 +168,9 @@
     64,
     512
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/psu_r0.png",
@@ -147,7 +179,9 @@
     192,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/psu_r1.png",
@@ -156,7 +190,9 @@
     128,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/psu_r2.png",
@@ -165,7 +201,9 @@
     192,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/psu_r3.png",
@@ -174,7 +212,9 @@
     128,
     192
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/ram_r0.png",
@@ -183,7 +223,9 @@
     64,
     256
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/ram_r1.png",
@@ -192,7 +234,9 @@
     256,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/ram_r2.png",
@@ -201,7 +245,9 @@
     64,
     256
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/ram_r3.png",
@@ -210,7 +256,9 @@
     256,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_hdd_r0.png",
@@ -219,7 +267,9 @@
     128,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_hdd_r1.png",
@@ -228,7 +278,9 @@
     64,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_hdd_r2.png",
@@ -237,7 +289,9 @@
     128,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_hdd_r3.png",
@@ -246,7 +300,9 @@
     64,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_ssd_r0.png",
@@ -255,7 +311,9 @@
     128,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_ssd_r1.png",
@@ -264,7 +322,9 @@
     64,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_ssd_r2.png",
@@ -273,7 +333,9 @@
     128,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/board/storage_ssd_r3.png",
@@ -282,7 +344,9 @@
     64,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_cooler.png",
@@ -291,7 +355,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_cpu.png",
@@ -300,7 +366,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_gpu.png",
@@ -309,7 +377,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_psu.png",
@@ -318,7 +388,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_ram.png",
@@ -327,11 +399,15 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_spots.json",
-   "sha256": "c25733d30528f07386e30cbb70430e3d6ca5dfba8b3b004cd0fff676a1d3bd70"
+   "sha256": "c25733d30528f07386e30cbb70430e3d6ca5dfba8b3b004cd0fff676a1d3bd70",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-15/inspect/inspect_storage.png",
@@ -340,7 +416,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-16/cloth_tile.png",
@@ -349,7 +427,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/dust_bin_body.png",
@@ -358,7 +438,9 @@
     144,
     104
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/fx_dust_puff.png",
@@ -367,7 +449,9 @@
     96,
     96
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-16/fx_suction.png",
@@ -376,7 +460,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-16/hose_clamp.png",
@@ -385,7 +471,9 @@
     176,
     60
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/hose_tile.png",
@@ -394,7 +482,9 @@
     32,
     24
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tool_brush.png",
@@ -403,7 +493,9 @@
     160,
     200
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tool_pick.png",
@@ -412,7 +504,9 @@
     160,
     200
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tool_screwdriver.png",
@@ -421,7 +515,9 @@
     160,
     200
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tool_syringe.png",
@@ -430,7 +526,9 @@
     160,
     200
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tool_vacuum.png",
@@ -439,11 +537,175 @@
     160,
     200
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
   },
   {
    "file": "art/drafts/ART-16/tools_manifest.json",
-   "sha256": "613da4fb886305c2dff79b0ed53d25e0066b23fdcb74d880231dba2e8e006a84"
+   "sha256": "613da4fb886305c2dff79b0ed53d25e0066b23fdcb74d880231dba2e8e006a84",
+   "revision": 1,
+   "approval": "revisions requested: 'the tools should be pixel art' (superseded by rev2)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/cloth_tile.png",
+   "sha256": "3dd8312e0bd9fd02c79b70119f8b67a6126036dc7e36a06a16fa7f34b2545707",
+   "size": [
+    32,
+    32
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/dust_bin_body.png",
+   "sha256": "7befa680abd24fb7a0a34692571d9f89384ed34b72eb1999ba75e91be79d9313",
+   "size": [
+    36,
+    26
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/hose_clamp.png",
+   "sha256": "41ac4cf82e815737c3694737345291f990836e4c84fde5b4456202e371426882",
+   "size": [
+    44,
+    15
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/hose_tile.png",
+   "sha256": "500780b0aa2da70d63afbc2813116c82870b496fb9fe3dd9173e8b1028513e90",
+   "size": [
+    16,
+    12
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_brush.png",
+   "sha256": "209e48c93fe520bdba1215b47ce9ae15e01729be7ab8fc51c08c775cbe3b78f9",
+   "size": [
+    64,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_brush_turns.png",
+   "sha256": "92d2a9b413470d093541fce294a5f1d3b1a9bb950ba469bd40592eb2e14ee2e6",
+   "size": [
+    1536,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_pick.png",
+   "sha256": "0cdfcb0f0bb1e06751c147bc93b354e243413a23c923ffb87425dadf4ac59477",
+   "size": [
+    64,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_pick_turns.png",
+   "sha256": "cfda2e395312d0a9cfdafcb6d2ac2bc43b432b5a494ee9aaac2d9c610ac85355",
+   "size": [
+    1536,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_screwdriver.png",
+   "sha256": "419d16d422ba98cac213e30cc42e01ffaee430ff29c763e541e41d55715cfa99",
+   "size": [
+    64,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_screwdriver_turns.png",
+   "sha256": "223e4c484ad989f356020ddeb9f7ab54c63206ce73bd7244a5b3fb0002ed5e81",
+   "size": [
+    1536,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_syringe.png",
+   "sha256": "42a1ef7f476dfd03fc204117587dd5bd8abce5999e6f78677826e977e85bf6b4",
+   "size": [
+    64,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_syringe_turns.png",
+   "sha256": "e9ba7f44e2ca0343717f568ea80153d4193779e520485ca6e51f4beb58386994",
+   "size": [
+    1536,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_vacuum.png",
+   "sha256": "9240e5653bdaae356504c35da39e00f336ce0173fd4c64f7356c5f5adcfaa0c4",
+   "size": [
+    64,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tool_vacuum_turns.png",
+   "sha256": "9272c4cf8ceb83747b95f940d929c35d1df0d7ea4fede375a4793ca63bc7126c",
+   "size": [
+    1536,
+    64
+   ],
+   "mode": "RGBA",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
+  },
+  {
+   "file": "art/drafts/ART-16/rev2/tools_manifest.json",
+   "sha256": "0eca9e0cf7705b26c22be288ab05b6b442cb63fe6ab90204c1ea72bcf62d4ecf",
+   "revision": 2,
+   "approval": "pending (pixel-art tools, shown 25 Nov 2026 ~21:40)"
   },
   {
    "file": "art/drafts/ART-17/damage/cooler_broken.png",
@@ -452,7 +714,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/cooler_degraded.png",
@@ -461,7 +725,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/cooler_herring.png",
@@ -470,7 +736,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/cpu_broken.png",
@@ -479,7 +747,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/cpu_degraded.png",
@@ -488,7 +758,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/cpu_herring.png",
@@ -497,7 +769,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/gpu_broken.png",
@@ -506,7 +780,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/gpu_degraded.png",
@@ -515,7 +791,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/gpu_herring.png",
@@ -524,7 +802,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/psu_degraded.png",
@@ -533,7 +813,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/psu_herring.png",
@@ -542,7 +824,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/ram_broken.png",
@@ -551,7 +835,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/ram_degraded.png",
@@ -560,7 +846,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/ram_herring.png",
@@ -569,7 +857,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/storage_broken.png",
@@ -578,7 +868,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/storage_degraded.png",
@@ -587,7 +879,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/damage/storage_herring.png",
@@ -596,7 +890,9 @@
     900,
     600
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_bunny_1.png",
@@ -605,7 +901,9 @@
     64,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_bunny_2.png",
@@ -614,7 +912,9 @@
     64,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_bunny_3.png",
@@ -623,7 +923,9 @@
     64,
     64
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_film_heavy.png",
@@ -632,7 +934,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_film_light.png",
@@ -641,7 +945,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_film_medium.png",
@@ -650,7 +956,9 @@
     128,
     128
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/dust/dust_mote.png",
@@ -659,7 +967,9 @@
     12,
     12
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/fan/fan_blur.png",
@@ -668,7 +978,9 @@
     256,
     256
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/fan/fan_frame.png",
@@ -677,7 +989,9 @@
     256,
     256
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/fan/fan_rotor.png",
@@ -686,7 +1000,9 @@
     256,
     256
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/paste/paste_old_dried.png",
@@ -695,7 +1011,9 @@
     816,
     816
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/paste/paste_socket_stage.png",
@@ -704,7 +1022,9 @@
     816,
     816
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-17/paste/paste_thickness_ramp.png",
@@ -713,7 +1033,9 @@
     256,
     8
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-18/monitor_bezel.png",
@@ -722,7 +1044,9 @@
     439,
     287
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   },
   {
    "file": "art/drafts/ART-18/phone_shell.png",
@@ -731,7 +1055,9 @@
     200,
     300
    ],
-   "mode": "RGBA"
+   "mode": "RGBA",
+   "revision": 1,
+   "approval": "approved 25 Nov 2026 21:31"
   }
  ]
 }

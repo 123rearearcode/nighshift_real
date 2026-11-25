@@ -1,6 +1,6 @@
 # Nightshift - Godot Foundation Trial (v0.57.6)
 
-0.57.6 adds the Batch C art drafts (open case and board, close-up hardware, tools, dust/paste/fan/damage layers, screen frames) for review; they are not in the game yet.
+0.57.6 adds the Batch C art (open case and board, close-up hardware, pixel-art tools, dust/paste/fan/damage layers, screen frames) as approved drafts; the pixel tools await approval and nothing is in the game yet.
 
 0.57.5 integrated the user-approved Batch A revision-02 counter environment on top of Claude's
 merged Batch B PR #79: morning/dusk street, separate door/sign/shutter layers, counter occlusion,
@@ -12,7 +12,7 @@ The source artwork is unchanged; native pixel cleanup and a human in-game playte
 
 Art contributors start with [ART_PRODUCTION_PROGRESS](docs/ART_PRODUCTION_PROGRESS.md). Human approval of exact artwork revisions is required before in-game installation; the first-day list will be retired after migration.
 
-0.57.6 adds the Batch C art drafts (open case and board, close-up hardware, tools, dust/paste/fan/damage layers, screen frames) for review; they are not in the game yet. 0.57.3 put the first approved art in the game: Mara and Relu at the counter window, the ticket clipboard and its close-up, the customer PC on the counter, and pictures for everything in the under-counter storage (comic-style parts, pixel-art PCs and tools). 0.57.2 added permanent art-progress routing and the human-approval rule.
+0.57.6 adds the Batch C art (open case and board, close-up hardware, pixel-art tools, dust/paste/fan/damage layers, screen frames) as approved drafts; the pixel tools await approval and nothing is in the game yet. 0.57.3 put the first approved art in the game: Mara and Relu at the counter window, the ticket clipboard and its close-up, the customer PC on the counter, and pictures for everything in the under-counter storage (comic-style parts, pixel-art PCs and tools). 0.57.2 added permanent art-progress routing and the human-approval rule.
 
 0.57.0 starts New game with untimed customer intake at the counter, then night one. Acceptance progress survives Continue; existing saves skip the opening. Art creation credits/checklists remain required.
 
