@@ -2,7 +2,7 @@
 extends RefCounted
 const Ids = preload("res://scripts/data/ids.gd")
 const Rig = preload("res://scripts/bench/tool_rig.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: the approved pixel-art tools (ART-16 rev 2)
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: the approved pixel-art tools (ART-16 rev 2)
 const BRISTLES: Array = [Color("2c2a2a"), Color("4a4744")]
 static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> void:
     var order: Array = visible.duplicate()
@@ -56,7 +56,7 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
             canvas.draw_string(ThemeDB.fallback_font,motion.center+Vector2(-22,48),id,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("c6d7dd"))
 
 
-# 0.57.7: a tool's approved pixel sprite, the nearest of its 24 pre-turned frames, origin at `at`, turned by
+# 0.57.8: a tool's approved pixel sprite, the nearest of its 24 pre-turned frames, origin at `at`, turned by
 # `angle`. The brush keeps its moving bristles and the cloth its moving shape (now with the pixel cloth
 # texture). Leaves the canvas transform at (at, angle) like the code-drawn tools. False when no art.
 static func draw_tool_sprite(canvas: CanvasItem, id: String, at: Vector2, angle: float, rig: RefCounted = null) -> bool:
@@ -151,7 +151,7 @@ static func draw_clamp(canvas: CanvasItem, rig: RefCounted) -> void:
     var half: Vector2 = Rig.CLAMP_RECT.size * 0.5
     canvas.draw_set_transform(rig.clamp_position, rig.clamp_angle)
     var clamp_art: Texture2D = ItemArt.tool("hose_clamp")
-    if clamp_art != null:         # 0.57.7: the approved pixel clamp; its outline still shows hover/occupied/blocked
+    if clamp_art != null:         # 0.57.8: the approved pixel clamp; its outline still shows hover/occupied/blocked
         canvas.draw_texture_rect(clamp_art, Rect2(-half, half * 2.0), false)
         if hovered or occupied or (rig.clamp_dragging and rig.clamp_blocked): canvas.draw_rect(Rect2(-half, half * 2.0).grow(2.0), color, false, 2.0)
     else:

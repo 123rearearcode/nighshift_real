@@ -1,6 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.57.7)
+# Nightshift - Godot Foundation Trial (v0.57.8)
 
-0.57.7 puts Batch C in the game: the PC lies open on the repair bench with the approved case, board, parts, fans, dust, pixel-art tools and paste socket; the hardware board uses the same pictures; the testing bay shows the inspection close-ups with a real magnifying glass; the monitor and phone have frames. Every scene takes item pictures from one place. Storage under the counter now pulls up from the bottom edge (no button), and items there can be clicked up and turned. The workshop door fits its frame and the shop window shows the street at eye level.
+0.57.8 puts Batch C in the game: the PC lies open on the repair bench with the approved case, board, parts, fans, dust, pixel-art tools and paste socket; the hardware board uses the same pictures; the testing bay shows the inspection close-ups with a real magnifying glass; the monitor and phone have frames. Every scene takes item pictures from one place. Storage under the counter now pulls up from the bottom edge (no button), and items there can be clicked up and turned. The workshop door fits its frame and the shop window shows the street at eye level.
+
+0.57.7 reconciled the code-checker and performance reviews against current main (B59 stays open; no gameplay change).
 
 0.57.6 added the Batch C art (open case and board, close-up hardware, pixel-art tools, dust/paste/fan/damage layers, screen frames) as approved drafts; the pixel tools await approval and nothing is in the game yet.
 

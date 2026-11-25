@@ -21,11 +21,11 @@ Batch A v2 and Batch B source approvals are recorded below. Created, branch inte
 | ART-11 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-12 | Created (current approved slice) | Codex / OpenAI built-in image generation; original per-file credits in manifest | `art/rooms/counter_batch_a/manifest.json`, `layout.json`, capacity proof; renderer layers | 25 Nov 2026 | Approved: revision 02, exact hashes/evidence below | Integrated on 0.57.5 branch; new PR pending merge; human in-game acceptance pending |
 | ART-13 | Not created | Unassigned | — | — | Not requested | Not integrated |
-| ART-14 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.7 (`feat/art-integration-0577`); human in-game visual acceptance pending |
-| ART-15 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.7 (`feat/art-integration-0577`); human in-game visual acceptance pending |
-| ART-16 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-16/` rev 1 (effects approved; comic tools superseded) and `art/drafts/ART-16/rev2/` (pixel tools, 24 turns each, hose/clamp/bin/cloth); hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | rev 1: suction glow and dust puff **approved**; tools **revisions requested** ("the tools should be pixel art"). rev 2: **Approved** 25 Nov 2026 22:10 (\"So that works\") | Integrated 0.57.7 (pixel tools rev 2 + rev 1 effects); visual acceptance pending |
-| ART-17 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-17/` (dust, paste, fan, 17 damage overlays), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.7 (`feat/art-integration-0577`); human in-game visual acceptance pending |
-| ART-18 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-18/` (monitor, phone frames), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.7 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-14 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-14/` (case interior, board), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-15 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-15/` (28 board-scale parts, 6 inspection pictures, spot positions), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-16 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-16/` rev 1 (effects approved; comic tools superseded) and `art/drafts/ART-16/rev2/` (pixel tools, 24 turns each, hose/clamp/bin/cloth); hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | rev 1: suction glow and dust puff **approved**; tools **revisions requested** ("the tools should be pixel art"). rev 2: **Approved** 25 Nov 2026 22:10 (\"So that works\") | Integrated 0.57.8 (pixel tools rev 2 + rev 1 effects); visual acceptance pending |
+| ART-17 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-17/` (dust, paste, fan, 17 damage overlays), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
+| ART-18 | Created | Claude (Batch C, assigned by the user 25 Nov 2026) / Claude (Opus 5.5, model id claude-opus-5-5), drawn with code | `art/drafts/ART-18/` (monitor, phone frames), rev 1; hashes in `art/drafts/batch_c_manifest.json` | 25 Nov 2026 | **Approved** by the user 25 Nov 2026 21:31, rev 1 (hashes in `art/drafts/batch_c_manifest.json`) | Integrated 0.57.8 (`feat/art-integration-0577`); human in-game visual acceptance pending |
 
 Use Not created / In progress / Created for creation; keep creation separate from Human approved, Integrated and
 Visually accepted. A reference-only or partly delivered task does not get a checked Created box. Owner
@@ -240,13 +240,13 @@ Approval: Approved for this integration. Integration state: implementation/testi
 - **Integration:** none. Needs the user's approval first; then code in the repair bench / tool files
   (single-owner hot files per WORK_PLAN) and per-kind lens spot positions in the testing bay.
 
-## Approval of ART-16 revision 2 and integration of Batch C (0.57.7)
+## Approval of ART-16 revision 2 and integration of Batch C (0.57.8)
 
 - **ART-16 rev 2 (pixel tools) approval:** the user, 25 November 2026 22:10 (Bucharest), replying to the
   pixel-tool review sheet: "So that works, but the problems I can identify so far are: ..." (the rest of the
   message is about integration, the door, the outside view and storage turning). Read by Claude as approval
   of the pixel tools as shown; recorded here so the user can correct it.
-- **Integrated in 0.57.7** (branch `feat/art-integration-0577`): every file below is a byte-identical copy of
+- **Integrated in 0.57.8** (branch `feat/art-integration-0577`): every file below is a byte-identical copy of
   an approved draft (its SHA-256 appears in `art/drafts/batch_c_manifest.json` with approval "approved" or
   rev 2): case and board on the hardware board and the repair bench (the PC lying open on its side), board
   parts on both, fans spinning on the bench, dust films on dusty surfaces, the paste socket stage and grey
@@ -343,7 +343,7 @@ Approval: Approved for this integration. Integration state: implementation/testi
 | `art/ui/monitor_bezel.png` | `1839d7fed38806cc86bc53680034b5d12c6d76053b4ddc9d5523321a68c74093` |
 | `art/ui/phone_shell.png` | `48c45d42381d4279983d1f7c80f576f3f8a52934bbb1030705338486da47ecec` |
 
-## Drafts for review (0.57.7, pending approval)
+## Drafts for review (0.57.8, pending approval)
 
 - `art/drafts/connectors/`: the two power connectors the user asked for ("Add connectors (only 2 kinds for
   now), but make sure they look clean"), read as the 24-pin motherboard and 8-pin graphics-card cables:

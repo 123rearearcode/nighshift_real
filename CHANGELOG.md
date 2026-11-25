@@ -105,9 +105,10 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
-## 0.57.7 - 2026-11-25 - Batch C in the game; one picture per item; storage pulls up from the edge
+## 0.57.8 - 2026-11-25 - Batch C in the game; one picture per item; storage pulls up from the edge
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: main 0.57.6 (842d0c2).
+- Based on: main 0.57.6 (842d0c2); main 0.57.7 (7419cd7, Codex's review consolidation #82) merged in
+  before merging, so this build is 0.57.8.
 - Type: patch (approved art integration and presentation fixes; 0.58.0/0.59.0 stay reserved for Codex,
   0.60.0 for the checker).
 
@@ -164,7 +165,7 @@ in-game visual acceptance yet.
 | `tools/test_rooms.gd`, `tools/test_counter_art.gd` | M | Pull-up storage, click-to-hold and turning checks |
 | `docs/BUGS.md` | M | B60 |
 | `docs/ART_ASSET_LOG.md`, `docs/FIRST_DAY_ART_CHECKLIST.md`, `docs/ART_PRODUCTION_PROGRESS.md`, `docs/DECISIONS.md`, `docs/ROOM_ART_GUIDE.md`, `docs/MENU_NAVIGATION.md`, `art/drafts/README.md`, `art/ui/README.md` | M | Approval and integration record, D170, guides |
-| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.7, this entry |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, 0.57.8 , this entry |
 
 ### Checks performed
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`: passed.
@@ -174,6 +175,9 @@ in-game visual acceptance yet.
 - `python3 -B tools/test_bug_register.py`: passed.
 - GitHub Actions on Godot 4.7.2 (headless): run 45703005341 on `c3bdaf1` passed, every suite including
   the new Item art suite (the earlier run 45702481532 on `e8eea57` failed on B60).
+- After merging main 0.57.7 (#82; documentation and an opt-in diagnostic only, conflicts only in
+  CHANGELOG/HANDOFF/BUGS, resolved by keeping both sides) the checks above were rerun; CI result for the
+  merge commit is on the PR.
 
 ### Decisions proposed (not approved)
 - "So that works" read as approval of the pixel tools. Hose texture, dust bunnies, old dried paste, fan
@@ -185,6 +189,72 @@ in-game visual acceptance yet.
 
 ### Next action
 - The user reviews the drafts and playtests the counter storage and the bench.
+
+## 0.57.7 - 2026-11-25 - Critically consolidate checker PRs #77 and #78 against current main
+- Author: Codex (GPT-6; exact deployment model id not exposed by this session) in ChatGPT Work.
+  Original discovery and historical measurements: Claude (Opus 5.5, model id claude-opus-5-5),
+  scheduled Code checker / performance reviewer, PRs #77 and #78. Attribution and timing tables retained.
+- Based on: main 0.57.6 / 842d0c2, after merged #79/#80/#81; both source reports used 0.57.2 / 1897eda.
+- Type: patch (review reconciliation, diagnostic tooling and version metadata; no loaded gameplay change).
+
+### Execution status
+Codex ran official Godot 4.7.2.stable.official.ed1daf0bf headless on Linux x86_64: current-manifest
+failure/fallback/restoration fixtures and existing native-input/cold-Continue intake tests. No graphical
+playtest or new comparative performance benchmark is claimed. Claude's recorded benchmark remains
+historical 960b847 → 1897eda evidence, not a measurement of current art/rendering paths.
+
+### Added / Changed / Fixed / Removed
+- Combined older reports in a new review for current main, retaining Claude's authorship and benchmark
+  method/tables. Detailed current-state source comparison and proposal dispositions are versioned.
+- B59 imported once, remains Open, re-triaged High under the register's blocked-loop definition.
+  Confirmed fallback success, wrong-run primary hiding a valid backup, active-only pending slip with
+  failed acceptance, and successful matching-manifest restoration after cold reload. Clearing intake
+  alone still fails protected room checkpoints; do not claim the older game always allowed that route.
+- Performance corrections: two ticket-list copies per ordinary pre-dawn refresh, not four; save p50
+  already exists; the reported save drift is inconclusive; full acceptance/checkpoint latency and new
+  counter art are unmeasured. Reject front-only validation, preserve all missing-ticket/save guards.
+- Added an opt-in disposable-save diagnostic, not a required CI test asserting that B59 should persist.
+  No runtime fix, optimization, asset/approval change or scheduled review-marker advancement.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | Version, attribution, dispositions and actual validation |
+| `DEVELOPMENT.md` | M | Map the consolidation evidence and opt-in diagnostic |
+| `HANDOFF.md` | M | Current task/results; preserve Batch C approval and reserved feature state |
+| `README.md` | M | Header version 0.57.7 |
+| `project.godot` | M | config/version only, 0.57.7 |
+| `docs/BUGS.md` | M | B59 index/detail, current reproduction, severity and recovery qualifications |
+| `docs/CURRENT_STATE.md` | M | Review outcome and current merged art/draft state |
+| `docs/PERFORMANCE.md` | M | Import #78 timing tables/method, clearly corrected conclusions/proposals |
+| `docs/REVIEW_CONSOLIDATION.md` | A | Current comparison, complete B59 matrix, #77/#78 critical dispositions |
+| `tools/reproduce_b59.gd` | A | Unique disposable fixtures; report behavior and check setup/ownership |
+
+### Checks performed
+- Source diff 1897eda → 842d0c2: session/state/save-store/generator/profiler files unchanged; six
+  counter/room/asset-presentation runtime files changed. Pre-0.57.0 room checkpoint guard confirmed.
+- B59 diagnostic on current runtime: ten fixtures plus warm/cold restoration, zero setup/ownership
+  failures. Four healthy controls accepted; damaged queues unchanged; money/stock/active job preserved.
+- Godot 4.7.2 First customer: 37 checks, zero failures.
+- Godot 4.7.2 Night workshop: 57 checks, zero failures; save-failure warnings are intentional fixtures.
+- Bug-register checker: zero problems; all 12 checker fixtures passed.
+- Project checker: zero problems (0.57.7, 159 scripts, 844 references, 259 mapped files).
+- `git diff --check`: passed. Godot import and the three run logs contain no ERROR/FAIL lines.
+
+### Decisions proposed (not approved)
+- Recovery behavior for B59 needs a separate gameplay change addressing both intake and protected
+  room checkpoints. Preserve original files, unrecovered jobs and all pending-ID validation.
+- B57 affordability/memoization, safe lookup/caching and expanded profiling remain proposals;
+  existing save median output needs no new implementation. No art revision is approved here.
+
+### Known issues and open items
+B59 is reproduced, not fixed or Verified; B55/B56/B57 retain their existing status. Current counter
+GPU/asset-load performance, complete checkpoint latency and human visual/feel acceptance are unmeasured.
+Batch C stays ignored drafts; ART-16 pixel rev2 awaits approval and ART-13 remains uncreated.
+
+### Next action
+The user reviews and merges the new combined PR; leave it unmerged. Source #77/#78 are superseded
+reports, not runtime fixes. Anti-virus 0.58.0, part tests 0.59.0 and checker structural 0.60.0 stay reserved.
 
 ## 0.57.6 - 2026-11-25 - Batch C art (ART-14 to ART-18): approved drafts, pixel tools pending
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

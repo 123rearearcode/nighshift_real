@@ -40,7 +40,7 @@ Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
 | Testing bay (close-up) | `scenes/night_bay.tscn` | Workshop | ← Workshop |
 | Salvage dump (close-up) | `scenes/night_salvage.tscn` | Outside (the van) | ← Outside (Drive home keeps its time cost) |
 | Store (close-up, 0.55.0) | `scenes/night_shop.tscn` | Outside (the store down the street) | ← Outside |
-| Under the counter (0.55.0; 0.57.7: pulled up over the counter) | `scenes/under_counter.tscn` | Counter: hover the bottom edge (no button, D170); old links still open the separate close-up | move the mouse to the top (or Esc) to slide it down; the separate close-up keeps ← Counter |
+| Under the counter (0.55.0; 0.57.8: pulled up over the counter) | `scenes/under_counter.tscn` | Counter: hover the bottom edge (no button, D170); old links still open the separate close-up | move the mouse to the top (or Esc) to slide it down; the separate close-up keeps ← Counter |
 
 There is no hub screen, no workbench tab row and no morning report screen. `scenes/activities.tscn` and
 `scenes/morning.tscn` only redirect old links and preferences to the counter.

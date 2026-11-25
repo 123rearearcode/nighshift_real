@@ -3,7 +3,7 @@ extends RefCounted
 const Ids = preload("res://scripts/data/ids.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const Rules = preload("res://scripts/rules/placement_rules.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: approved case, board, parts and fan art
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: approved case, board, parts and fan art
 
 static func fan(canvas: CanvasItem, center: Vector2, radius: float, angle: float) -> void:
     canvas.draw_circle(center, radius, Color("17202a"))
@@ -13,7 +13,7 @@ static func fan(canvas: CanvasItem, center: Vector2, radius: float, angle: float
         canvas.draw_colored_polygon(points, Color("627e9a"))
     canvas.draw_circle(center, radius * 0.17, Color("98b5bd"))
 
-# 0.57.7: the approved fan (ART-17): the rotor the code spins under its frame. False when the art is missing.
+# 0.57.8: the approved fan (ART-17): the rotor the code spins under its frame. False when the art is missing.
 static func fan_art(canvas: CanvasItem, center: Vector2, size: float, angle: float, base: Transform2D = Transform2D.IDENTITY) -> bool:
     var rotor: Texture2D = ItemArt.bench("fan/fan_rotor")
     var frame: Texture2D = ItemArt.bench("fan/fan_frame")
@@ -31,7 +31,7 @@ static func draw_static_pc(canvas: CanvasItem, profile_id: String, area: Rect2) 
     var board: Dictionary = pc["board"]
     var cell: float = layout["cell"]
     var bounds: Rect2 = layout["case_rect"]
-    # 0.57.7: the PC lies open on its side (user, 25 November 2026): the approved case and board pictures.
+    # 0.57.8: the PC lies open on its side (user, 25 November 2026): the approved case and board pictures.
     var case_art: Texture2D = ItemArt.case_interior(profile_id)
     var board_art: Texture2D = ItemArt.board_picture(str(board.get("id", "")))
     if case_art != null and board_art != null:
@@ -92,7 +92,7 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
         canvas.draw_set_transform(Vector2.ZERO)
 
 
-# 0.57.7: a bench zone drawn with its approved picture (the same drawings as the storage and the hardware
+# 0.57.8: a bench zone drawn with its approved picture (the same drawings as the storage and the hardware
 # board). Returns false when there is no picture for it, and the old box is drawn instead.
 static func _draw_zone_art(canvas: CanvasItem, id: String, r: Rect2, base: Transform2D, angle: float) -> bool:
     match id:

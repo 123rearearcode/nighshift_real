@@ -1,4 +1,4 @@
-# 0.57.7: the one picture lookup (scripts/view/item_art.gd) and the approved Batch C files it serves.
+# 0.57.8: the one picture lookup (scripts/view/item_art.gd) and the approved Batch C files it serves.
 # Pure file/lookup checks: every scene that draws an item asks ItemArt, so these pictures are the models.
 extends "res://tools/test_support.gd"
 const ItemArt = preload("res://scripts/view/item_art.gd")

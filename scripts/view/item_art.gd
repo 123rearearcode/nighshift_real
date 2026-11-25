@@ -1,4 +1,4 @@
-# The ONE place every scene asks for an item's picture (0.57.7; user, 25 November 2026: "throughout the
+# The ONE place every scene asks for an item's picture (0.57.8; user, 25 November 2026: "throughout the
 # game, when an item is spawned in a scene, it should use the model of that and be represented either from
 # on top or from the side"). A part looks the same in the storage, on the hardware board, on the repair
 # bench and in the testing bay because all of them take their picture from here. Pure lookup: no rules.

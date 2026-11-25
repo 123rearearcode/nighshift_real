@@ -8,7 +8,7 @@ const Inventory = preload("res://scripts/bench/grid_inventory.gd")
 const PartMotion = preload("res://scripts/view/part_motion.gd")
 const HoverInfo = preload("res://scripts/rules/hover_info.gd")
 const HoverCard = preload("res://scripts/view/hover_card.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: the approved case, board and part pictures
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: the approved case, board and part pictures
 const HELD_BOUNDS: Rect2 = Layout.SCREEN   # a held part is kept inside the window
 const DRAWER_CELL: float = 30.0
 const DRAWER_GRID_ORIGIN: Vector2 = Layout.WORKSHOP_DRAWER_GRID_ORIGIN
@@ -365,7 +365,7 @@ func _draw_part(i: int) -> void:
     var size: Vector2 = Vector2(item["part"]["footprint"])*(_item_rect(i).size.x/float(inventory.footprint(i).x))
     var scale: Vector2 = Vector2.ONE*(1.0+motion.lift*0.045)
     var rect := Rect2(-size*0.5,size)
-    # 0.57.7: the part's approved picture (the same drawing as in storage). The picture for its quarter turn
+    # 0.57.8: the part's approved picture (the same drawing as in storage). The picture for its quarter turn
     # keeps the light top-left; only the leftover sway/throw angle turns the drawing.
     var turn: int = int(item["rotation"])
     var art: Texture2D = ItemArt.board(ItemArt.component_name(item["part"]), turn)
@@ -413,7 +413,7 @@ func _draw_part(i: int) -> void:
 func _draw_case() -> void:
     var bounds: Rect2 = geometry["case_rect"]
     var case_art: Texture2D = ItemArt.case_interior(profile_id)
-    if case_art != null:          # 0.57.7: the approved open case (ART-14); its fan, PSU bay and filter are painted in
+    if case_art != null:          # 0.57.8: the approved open case (ART-14); its fan, PSU bay and filter are painted in
         draw_texture_rect(case_art, bounds, false)
         _text(Vector2(65, 620), "%s / %d x %d cells / depth %d" % [pc["name"], pc["size"].x, pc["size"].y, pc["depth"]], 16)
         return
@@ -434,7 +434,7 @@ func _draw_board() -> void:
     var size: Vector2i = board["size"]
     _text(BOARD_ORIGIN + Vector2(0, -12), str(board["display_name"]), 14)
     var board_art: Texture2D = ItemArt.board_picture(str(board.get("id", "")))
-    if board_art != null:         # 0.57.7: the approved board (ART-14): every slot and socket is painted on its cells
+    if board_art != null:         # 0.57.8: the approved board (ART-14): every slot and socket is painted on its cells
         draw_texture_rect(board_art, Rect2(BOARD_ORIGIN, Vector2(size) * CELL), false)
         _text(BOARD_ORIGIN + Vector2(0, size.y * CELL + 22), "Board %d x %d cells" % [size.x, size.y], 14)
         return

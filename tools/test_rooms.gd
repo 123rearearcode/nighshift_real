@@ -36,7 +36,7 @@ func scene(path: String) -> void:
 
 
 
-# 0.57.7: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
+# 0.57.8: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
 func settle_storage(counter: Node) -> void:
     var until: int = Time.get_ticks_msec() + 3000
     await process_frame
@@ -219,7 +219,7 @@ func run_checks() -> void:
     check(m.to_room(keep) and not keep in m.in_unit(StorageData.COUNTER_ID), "and can go back to the stock room")
     await scene(Nav.COUNTER)
     check(current_scene.hotspot("UnderCounter") != null and not current_scene.hotspot("UnderCounter").closed_at_dawn, "the counter has storage under its window, usable at any hour")
-    # 0.57.7 (user, 25 November 2026): no button: the bottom edge pulls the storage up over the counter.
+    # 0.57.8 (user, 25 November 2026): no button: the bottom edge pulls the storage up over the counter.
     var counter_room: Node = current_scene
     var edge: Button = counter_room.hotspot("UnderCounter")
     check(edge.position.y >= 690.0 and edge.size.x >= 1200.0 and edge.action == "open:storage", "the storage spot is the bottom edge of the screen")
@@ -270,7 +270,7 @@ func run_checks() -> void:
         root.push_input(drag, true)
         await process_frame
     check(under.model.placements[brought]["cell"] != Vector2i.ZERO and brought in under.here(), "dragging rearranges it on the grid")
-    # 0.57.7 (user: "I cannot rotate items"): a click picks it up and keeps it in hand; R turns it; a click puts it down.
+    # 0.57.8 (user: "I cannot rotate items"): a click picks it up and keeps it in hand; R turns it; a click puts it down.
     var small: String = "tool:kit:pick"
     if not small in under.here(): under._bring(small)
     await process_frame

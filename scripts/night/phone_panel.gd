@@ -7,7 +7,7 @@
 extends Panel
 
 const Reviews = preload("res://scripts/rules/reviews.gd")
-const RoomArt = preload("res://scripts/rooms/room_art.gd")   # 0.57.7: the approved phone frame (ART-18)
+const RoomArt = preload("res://scripts/rooms/room_art.gd")   # 0.57.8: the approved phone frame (ART-18)
 const SIZE := Vector2(400, 600)
 
 var header: Label

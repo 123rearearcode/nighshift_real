@@ -21,7 +21,7 @@ const Store = preload("res://scripts/storage/storage_store.gd")
 const Navigation = preload("res://scripts/night/night_navigation.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const CounterArt = preload("res://scripts/rooms/counter_art.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: one picture lookup for every scene
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: one picture lookup for every scene
 const DRAG_START: float = 6.0       # px: a press that moves farther than this is a drag, else a click
 const CELL: int = 44
 const GRID := Rect2(40, 140, 880, 440)          # 20 x 10 cells
@@ -39,7 +39,7 @@ var status: Label
 var send_button: Button
 var _art: Dictionary = {}          # "<name>_r<turn>" -> Texture2D or null
 var environment := CounterArt.new()
-# 0.57.7 (user, 25 November 2026: "an edge in the bottom of the screen I can hover over to pull it up"):
+# 0.57.8 (user, 25 November 2026: "an edge in the bottom of the screen I can hover over to pull it up"):
 # the counter slides this view up over itself. Embedded, it has no exit button of its own and only takes
 # input while it is open; the counter opens and closes it.
 var embedded: bool = false
@@ -240,7 +240,7 @@ func _input(event: InputEvent) -> void:
             # otherwise it was a click: the item stays in your hand until the next click
 
 
-# 0.57.7: turning what you hold (R / E / right-click / wheel down = clockwise; Q / wheel up = back).
+# 0.57.8: turning what you hold (R / E / right-click / wheel down = clockwise; Q / wheel up = back).
 func turn_held(step: int) -> void:
     if model.held == "": return
     model.rotate(step)
@@ -248,7 +248,7 @@ func turn_held(step: int) -> void:
     queue_redraw()
 
 
-# 0.57.7: with nothing in your hand, R / Q / E turns the selected item where it lies, if it still fits.
+# 0.57.8: with nothing in your hand, R / Q / E turns the selected item where it lies, if it still fits.
 func turn_selected(step: int) -> bool:
     if store.read_only or selected == "" or not selected in here() or model.held != "": return false
     var cell: Vector2i = model.placements[selected]["cell"]

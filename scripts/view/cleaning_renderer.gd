@@ -8,7 +8,7 @@ const Layout = preload("res://scripts/data/layout.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
 const DustBin = preload("res://scripts/bench/dust_bin.gd")
 const DustMotes = preload("res://scripts/bench/dust_motes.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: approved bin and dust art
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: approved bin and dust art
 
 const COLOR_DUST := Color(0.86, 0.76, 0.58, 1.0)
 const COLOR_DUST_LOOSENED := Color(1.0, 0.92, 0.72, 1.0)
@@ -141,7 +141,7 @@ static func draw_bin(canvas: CanvasItem, bin: DustBin, hovered: bool) -> void:
         UiStyle.label(canvas, rect.position + Vector2(-82, 30), "click to empty", 12)
 
 
-# 0.57.7: a film of dust (ART-17) on every dusty surface, fading as that surface is cleaned. It follows the
+# 0.57.8: a film of dust (ART-17) on every dusty surface, fading as that surface is cleaned. It follows the
 # surface (a lifted part carries its dust) and is skipped where a part covers it.
 static func draw_dust_films(canvas: CanvasItem, dust: DustSim) -> void:
     var film: Texture2D = ItemArt.tiled(ItemArt.bench("dust/dust_film_heavy"))

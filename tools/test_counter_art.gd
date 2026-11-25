@@ -35,7 +35,7 @@ func hover(button: Button) -> void:
 
 
 
-# 0.57.7: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
+# 0.57.8: wait (real time, at most 3 s) until the storage pull-up has finished sliding.
 func settle_storage(counter: Node) -> void:
     var until: int = Time.get_ticks_msec() + 3000
     await process_frame
@@ -91,7 +91,7 @@ func run_checks() -> void:
     check(not counter.room_layer.shutter_down and gs.money == money and gs.night_minutes == minutes, "canceling the preview restores the shutter without ending or charging the night")
     for name: String in ["WallBoard", "Till", "Phone"]:
         check(counter.hotspot(name).ui_label and not counter.hotspot(name).disabled, "%s remains discoverable without painting another tabletop object" % name)
-    # 0.57.7 (user): no storage button; hovering the bottom edge pulls the storage up over the counter.
+    # 0.57.8 (user): no storage button; hovering the bottom edge pulls the storage up over the counter.
     await hover(counter.hotspot("UnderCounter"))
     await settle_storage(counter)
     check(counter.storage_open and counter.storage_drawer.visible and is_equal_approx(counter.storage_drawer.position.y, 0.0) and current_scene == counter, "hovering the bottom edge pulls the same storage up over the counter")

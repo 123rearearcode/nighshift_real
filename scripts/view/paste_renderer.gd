@@ -6,11 +6,11 @@ extends RefCounted
 const PasteSim = preload("res://scripts/bench/paste_sim.gd")
 const MountSession = preload("res://scripts/bench/mount_session.gd")
 const UiStyle = preload("res://scripts/view/ui_style.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: the approved socket stage (ART-17)
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: the approved socket stage (ART-17)
 
 const COLOR_CPU := Color(0.26, 0.32, 0.47)
 const COLOR_CPU_EDGE := Color(0.62, 0.70, 0.88)
-const PASTE_THIN := Color8(110, 118, 126)    # 0.57.7: real grey paste, the approved thickness ramp (ART-17)
+const PASTE_THIN := Color8(110, 118, 126)    # 0.57.8: real grey paste, the approved thickness ramp (ART-17)
 const PASTE_THICK := Color8(214, 220, 226)
 const TOOTH_THIN := Color(0.70, 0.95, 0.85)    # toothpaste: minty white
 const TOOTH_THICK := Color(0.98, 1.0, 0.98)

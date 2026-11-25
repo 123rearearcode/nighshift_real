@@ -5,6 +5,10 @@ The scheduled structural review was completed at 0.50.0 on 20 November; both ent
 Recorded fixes remain distinct from verification; historical fixes have not all been replayed.
 Next structural review: **0.60.0**.
 
+Targeted consolidation **0.57.7**, 25 November 2026: B59 imported from checker #77, critically
+reproduced on main 0.57.6 / 842d0c2 and re-triaged High (blocked loop). It remains Open; this is
+not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDATION.md](REVIEW_CONSOLIDATION.md).
+
 ## Filing and verification rules
 
 - Add a bug immediately when found, including failures in CI and cross-review. Allocate the next
@@ -88,7 +92,8 @@ Next structural review: **0.60.0**.
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
-| B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.7 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
+| B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
+| B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -830,13 +835,54 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: fixture serves initial customers then tests all night routes / it skipped intake and assumed the old night-ready setup.
 - Regression / evidence: the fixture now accepts the two seeded customers in a bounded loop and asserts the queue is empty before continuing. All prior assertions remain. Godot 4.7.2 Night workshop: 57 checks, zero failures; the new native/cold-reload First customer suite: 32 checks, zero failures. No graphical acceptance claim.
 
+### B59 — Protected ticket manifest during pending opening intake blocks continuation
+
+- Found: Code checker change review of main `8342874` (PR #75, 0.57.0), 24 November 2026;
+  originally reproduced at `1897eda` (0.57.2) and proposed in PR #77.
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled).
+  Critically revalidated for 0.57.7 against main `842d0c2` (0.57.6) by
+  Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+- Status / severity: Open / High. The original report said Medium; the register defines a blocked
+  loop as High. No irrecoverable ownership loss has been demonstrated. This is reproduction, not a fix.
+- Fixed in: —
+- Root cause: `NightSession.ensure()` protects an unavailable/invalid manifest by retaining only the
+  active job and setting `read_only`. Pending intake still forces the counter through `resume_path()`.
+  `opening_cards()` returns no cards when any pending ID has no matching job; if only the recovered
+  active job is pending a card appears, but `accept_opening_customer()` still refuses protected mode.
+  Counter hotspots/navigation, PC switching and end-night retain their intake gates. Clearing only the
+  queue is insufficient: shared `RoomView._navigate()` also requires a successful checkpoint, which
+  refuses protected mode. That shared navigation barrier already existed before 0.57.0.
+- Trigger qualification: `SaveStore.read()` falls back to .bak then .tmp for missing/unparseable files.
+  A valid matching fallback recovers normally; the primary's absence alone does not imply this bug.
+  However, a parsable dictionary with the wrong run is returned before semantic validation, so even a
+  valid matching backup can be hidden by that primary. Both fallback and wrong-run cases were run.
+- Reproduction (run): official Godot 4.7.2.stable.official.ed1daf0bf headless, Linux x86_64,
+  `godot --headless --path . --script res://tools/reproduce_b59.gd`. The versioned diagnostic creates
+  unique disposable saves, starts the existing two-customer opening, removes all three manifest
+  candidates (or writes a wrong-run primary plus a good backup), resets the session binding, loads
+  the main save and enters current counter.tscn. With both IDs pending: ensure false, read_only true,
+  cards 0, visiting false, BackDoor disabled, accept/switch/end-night/workshop navigation all false.
+  Other cases and exact results: [REVIEW_CONSOLIDATION.md](REVIEW_CONSOLIDATION.md).
+- Expected / actual: preserve missing-ticket/ownership protections while exposing a safe recovery or
+  continuation route / these protected intake fixtures provide no in-game continuation. The original
+  “stuck for good / only New game” wording is too strong: restoring the matching manifest and cold
+  reloading recovered both cards. A warm ensure remained false because protection is cached.
+- Fix constraints (proposed, not implemented): address both intake and checkpoint-gated navigation;
+  preserve the original files and every unrecovered job. Do not manufacture jobs, silently consume
+  missing pending IDs, or accept only the front ID while a later job is absent (PR #78 proposal 2).
+  Recovery behavior remains for a separate gameplay change and human review.
+- Regression / evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
+  plus restoration check at 842d0c2; four healthy controls accepted normally, damaged queues stayed
+  unchanged, and money/inventory/active job were preserved (zero setup/ownership failures). The
+  diagnostic reports observations and is not a required CI test asserting that a lock should persist.
+
 ### B60 — Storage pull-up checks ran before the slide finished
 
-- Found: 0.57.7 development, GitHub Actions run 45702481532 on `e8eea57` (push to `feat/art-integration-0577`, not a PR)
+- Found: 0.57.8 development (then numbered 0.57.7), GitHub Actions run 45702481532 on `e8eea57` (push to `feat/art-integration-0577`, not a PR)
 - Reported by: CI log: `FAIL: hovering the edge pulls the storage up over the counter`, `FAIL: moving the mouse up slides the storage back down` (Rooms) and `FAIL: moving the mouse up slides the storage away, back at the same counter` (Counter art)
-- Fixed in: 0.57.7 (before release)
+- Fixed in: 0.57.8 (before release; developed as 0.57.7, renumbered after #82 took 0.57.7)
 - Root cause: the tests waited a fixed 30 frames for the 0.22-second tween. Headless Godot runs frames with tiny deltas, so 30 frames were not 0.22 s and the drawer was still sliding (later checks that needed it open passed once it arrived). Test defect, not game behaviour.
-- Reproduction: run the Rooms suite at 0.57.7 WIP `e8eea57` headless.
+- Reproduction: run the Rooms suite at WIP `e8eea57` headless.
 - Expected / actual: the checks see the drawer fully open / closed / the checks see it mid-slide.
 - Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Automated evidence: `tools/test_rooms.gd` and `tools/test_counter_art.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/45703005341 on `c3bdaf1` (all suites); no user verification claimed.
 

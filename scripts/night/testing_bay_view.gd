@@ -10,7 +10,7 @@ extends "res://scripts/night/night_screen.gd"
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
-const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.7: approved inspection pictures and clues
+const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: approved inspection pictures and clues
 
 const LIST_RECT := Rect2(32, 132, 360, 500)
 const PART_RECT := Rect2(420, 132, 450, 300)
@@ -147,7 +147,7 @@ func _after(text: String) -> void:
 
 func spot_center(i: int) -> Vector2:
     var at: Vector2 = SPOT_AT[i]
-    # 0.57.7: with the approved inspection picture, each spot sits on its real detail (ART-15).
+    # 0.57.8: with the approved inspection picture, each spot sits on its real detail (ART-15).
     var record: Dictionary = _record()
     if not record.is_empty():
         var kind: String = _kind(record)
@@ -157,7 +157,7 @@ func spot_center(i: int) -> Vector2:
     return PART_RECT.position + Vector2(PART_RECT.size.x * at.x, PART_RECT.size.y * at.y)
 
 
-# 0.57.7: the clue overlay (ART-17) for a spot the player has already looked at, or null. Only what the
+# 0.57.8: the clue overlay (ART-17) for a spot the player has already looked at, or null. Only what the
 # lens actually showed: a healthy part, an unlooked spot or "Nothing unusual" never gets one.
 func clue_texture(i: int) -> Texture2D:
     var record: Dictionary = _record()
@@ -279,7 +279,7 @@ func _draw() -> void:
     var body := Rect2(PART_RECT.position + PART_RECT.size * Vector2(0.1, 0.12), PART_RECT.size * Vector2(0.8, 0.76))
     var colour: Color = KIND_COLOURS.get(kind, Color("7a8a90"))
     var picture: Texture2D = ItemArt.inspect(kind)
-    if picture != null:           # 0.57.7: the approved close-up (always a healthy-looking part) + revealed clues
+    if picture != null:           # 0.57.8: the approved close-up (always a healthy-looking part) + revealed clues
         draw_texture_rect(picture, PART_RECT, false)
         for i in range(PartCondition.spots(kind).size()):
             var clue: Texture2D = clue_texture(i)

@@ -1,12 +1,12 @@
 # Handoff — current state first
 
-## Current — 0.57.7 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
+## Current — 0.57.8 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
 
 User decisions (D170): stay 2D; every item uses ONE model drawn from on top (and from the side only where a
 scene needs it) via `scripts/view/item_art.gd`, used by storage, hardware board, repair bench and testing
 bay; the repair bench shows the PC lying open on its side; tools are pixel art (rev 2 approved: "So that
 works"); no storage button: the bottom edge of the counter pulls the storage up; items under the counter
-must turn (click-to-hold + R/Q/E/right-click/wheel). Done in 0.57.7, plus the workshop door fit and the
+must turn (click-to-hold + R/Q/E/right-click/wheel). Done in 0.57.8, plus the workshop door fit and the
 window framed at street level. No hot file (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) was edited:
 all drawing changes are in the renderers.
 
@@ -14,8 +14,35 @@ Waiting for the user's review (drafts, not loaded): the two power connectors (24
 routing, the case's inner walls, and the Outside room at street level (`art/drafts/`). After approval: route
 the cables in code (Line2D with the cable textures, plugs at the 24-pin and the GPU power connector), put the
 walls over the case, install the Outside picture and move its hotspots to `outside_layout.json`.
+Built on main 0.57.7 (Codex's #82 review consolidation; B59 still Open, see the next section).
 Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
+
+## Previous — 0.57.7 critical consolidation of checker #77/#78, 25 November 2026
+
+User asked to critically review both older open reports against the current game, combine them into
+one new PR and leave merging to the user. Base main is 0.57.6 / 842d0c2, after merged #79/#80/#81.
+Read docs/REVIEW_CONSOLIDATION.md for every disposition, source comparisons and reproduction matrix.
+Original finding/measurements remain credited to Claude (Opus 5.5, model id claude-opus-5-5).
+
+B59 remains Open and is re-triaged High for a blocked loop. Godot 4.7.2 reproduction confirms it;
+valid backup/tmp recovery works, wrong-run primary can hide a good backup, active-only pending can
+show a slip but cannot accept, and restoring a matching manifest plus cold reload recovers. Clearing
+the queue alone does not fix protected room checkpoints. No runtime fix or recovery policy is built.
+The optional tools/reproduce_b59.gd uses only uniquely named disposable saves and reports behavior;
+it is not a required regression test asserting that the lock should remain.
+
+Performance report's method/tables are historical 960b847 → 1897eda measurements, not current art
+benchmarks. Corrected refresh copies (two pre-dawn, not four), dropped already-existing save p50 task,
+qualified inconclusive save drift and unmeasured checkpoint latency, rejected front-only acceptance
+validation. Retain B57 affordability/memoization and coverage improvements as proposals. No new
+scheduled audit, optimization or bug-fix claim; checker structural marker remains 0.60.0.
+
+Art state is the 0.57.6 section below: Batch A/B installed; Batch C ignored drafts, ART-16 pixel rev2
+pending human approval, ART-13 not created. Art tracking/approvals are unchanged by this task.
+Anti-virus 0.58.0 and part tests 0.59.0 remain reserved. Leave this combined PR unmerged for the user;
+source #77/#78 are linked as superseded historical reports. Checks actually run: newest CHANGELOG.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 
 ## Previous — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
 

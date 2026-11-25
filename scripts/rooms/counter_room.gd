@@ -36,7 +36,7 @@ const CUSTOMER_PC_PROP := "pc_tower_closed"
 const CUSTOMER_PC_BASE := CounterArt.CUSTOMER_PC_BASE     # bottom centre on the foreground worktop
 
 var counter_art := CounterArt.new()
-# 0.57.7 (user, 25 November 2026): no storage button; hovering the bottom edge pulls the storage up.
+# 0.57.8 (user, 25 November 2026): no storage button; hovering the bottom edge pulls the storage up.
 const STORAGE_SLIDE: float = 0.22       # seconds to slide fully open or closed
 const STORAGE_CLOSE_Y: float = 64.0     # moving the mouse above this line (with nothing held) slides it back down
 var storage_drawer: Node2D
@@ -177,7 +177,7 @@ func _action(action_name: String, _spot: Hotspot) -> bool:
     return true
 
 
-# ---- 0.57.7: the storage under the counter, pulled up from the bottom edge ----
+# ---- 0.57.8: the storage under the counter, pulled up from the bottom edge ----
 
 func _build_storage_drawer() -> void:
     storage_drawer = load(Navigation.UNDER_COUNTER).instantiate()

@@ -407,7 +407,7 @@ func _draw() -> void:
     if bezel == null:
         draw_rect(Rect2(32,88,878,550),Color("384653"))
     draw_rect(Rect2(48,104,846,516),Color("10191d") if _powered() else Color("0a0d10"))
-    if bezel != null:             # 0.57.7: the approved monitor frame (ART-18): bezel, neck and foot, screen left open
+    if bezel != null:             # 0.57.8: the approved monitor frame (ART-18): bezel, neck and foot, screen left open
         draw_texture_rect(bezel, Rect2(32,88,878,574), false)
     else:
         draw_rect(Rect2(420,638,100,17),Color("52606b"))

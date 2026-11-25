@@ -128,7 +128,7 @@ offset_bottom = 720.0
 script = ExtResource("2")
 action = "open:storage"
 label = "Under the counter: storage"
-art_hint = "The bottom edge of the screen (0.57.7, user: no button, an edge to hover). Hovering it pulls the storage up from under the counter: the same 20 x 10 grid and item identities. Leave the bottom strip of the picture calm."
+art_hint = "The bottom edge of the screen (0.57.8, user: no button, an edge to hover). Hovering it pulls the storage up from under the counter: the same 20 x 10 grid and item identities. Leave the bottom strip of the picture calm."
 placeholder_color = Color(0.29, 0.247, 0.188, 1)
 
 [node name="Bin" type="Button" parent="Hotspots"]
