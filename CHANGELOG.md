@@ -112,8 +112,8 @@ the integrating contributor turns them into a numbered entry at merge time.
   reserved for Codex's anti-virus and part-test work, 0.60.0 for the checker).
 
 ### Execution status
-Godot was not run locally by Claude. GitHub Actions runs every suite headless on Godot 4.7.2; the result
-is recorded under Checks performed. Headless runs have no graphics, so placement was checked on static
+Godot was not run locally by Claude. GitHub Actions ran every suite headless on Godot 4.7.2 and they
+passed (run 45671591792). Headless runs have no graphics, so placement was checked on static
 composites built from the scene coordinates, not in a running game. No human in-game visual acceptance yet.
 
 ### Added / Changed / Fixed / Removed
@@ -164,7 +164,9 @@ composites built from the scene coordinates, not in a running game. No human in-
   sources regenerated all 90 outputs byte-identically.
 - Static composites of the counter (customer, PC, clipboard) and the clipboard close-up from the scene
   coordinates: no overlap with the slip, till or phone; rows sit on the paper.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless), PR #79, run 45671591792 on `9616546`: passed. 35 suite results,
+  2,447 checks, 0 failures (Rooms 77 incl. 6 new art checks, First customer 37 incl. 4 new, Storage 82,
+  Morning report 28). No script or parse errors. Style report and diagnostics lanes are non-blocking.
 
 ### Decisions proposed (not approved)
 - Interim placements (customer centre, PC at (456, 440), the clipboard centred in its spot) are mine; they
