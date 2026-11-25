@@ -1,6 +1,32 @@
 # Handoff — current state first
 
-## Current — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
+## Current — 0.57.7 critical consolidation of checker #77/#78, 25 November 2026
+
+User asked to critically review both older open reports against the current game, combine them into
+one new PR and leave merging to the user. Base main is 0.57.6 / 842d0c2, after merged #79/#80/#81.
+Read docs/REVIEW_CONSOLIDATION.md for every disposition, source comparisons and reproduction matrix.
+Original finding/measurements remain credited to Claude (Opus 5.5, model id claude-opus-5-5).
+
+B59 remains Open and is re-triaged High for a blocked loop. Godot 4.7.2 reproduction confirms it;
+valid backup/tmp recovery works, wrong-run primary can hide a good backup, active-only pending can
+show a slip but cannot accept, and restoring a matching manifest plus cold reload recovers. Clearing
+the queue alone does not fix protected room checkpoints. No runtime fix or recovery policy is built.
+The optional tools/reproduce_b59.gd uses only uniquely named disposable saves and reports behavior;
+it is not a required regression test asserting that the lock should remain.
+
+Performance report's method/tables are historical 960b847 → 1897eda measurements, not current art
+benchmarks. Corrected refresh copies (two pre-dawn, not four), dropped already-existing save p50 task,
+qualified inconclusive save drift and unmeasured checkpoint latency, rejected front-only acceptance
+validation. Retain B57 affordability/memoization and coverage improvements as proposals. No new
+scheduled audit, optimization or bug-fix claim; checker structural marker remains 0.60.0.
+
+Art state is the 0.57.6 section below: Batch A/B installed; Batch C ignored drafts, ART-16 pixel rev2
+pending human approval, ART-13 not created. Art tracking/approvals are unchanged by this task.
+Anti-virus 0.58.0 and part tests 0.59.0 remain reserved. Leave this combined PR unmerged for the user;
+source #77/#78 are linked as superseded historical reports. Checks actually run: newest CHANGELOG.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Previous — 0.57.6 Batch C art (ART-14 to ART-18), approved except the pixel tools, 25 November 2026
 
 The user gave Claude Batch C (ART-14 to ART-18) and asked for a PR with all the new graphics. They are
 drafts in `art/drafts/ART-14/` to `ART-18/` (81 files, hashes in `art/drafts/batch_c_manifest.json`,

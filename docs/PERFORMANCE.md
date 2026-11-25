@@ -82,6 +82,99 @@ new cache invalidation and static-layer contracts. No gameplay design or balance
 
 The Code checker adds the newest review directly below this line.
 
+### 2026-11-25 integration: 0.57.7 review of current main 0.57.6 / 842d0c2
+
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+User-requested critical consolidation of checker PRs #77/#78, not a new scheduled performance audit.
+
+[REVIEW_CONSOLIDATION.md](REVIEW_CONSOLIDATION.md) records the current source comparison,
+B59 reproduction matrix and disposition of every #78 observation/proposal. In particular:
+
+- The original benchmark compares 0.56.1 → 0.57.2. Later Batch A/B runtime art and counter paths
+  are outside its coverage; Batch C 0.57.6 remains ignored draft art. No current GPU/FPS claim.
+- Ordinary pre-dawn counter refresh copies the ticket list **twice**, not four times. The board's
+  two-copy text action is separate. A refresh cache is a low-priority 2 → 1 candidate, not measured.
+- Save p50 output already exists in profile_bench.gd; do not implement the duplicate median proposal.
+  The historical median of run means is a different statistic, and its shift remains inconclusive.
+- Acceptance cost needs complete-path measurement. Warm ensure checks an in-memory marker;
+  both safe-write transactions read back their temporary files in addition to _main_saved's read.
+  Button-driven work is not automatically free of perceptible latency.
+- Preserve validation of **all** pending IDs. The proposed front-only check can accept a customer
+  when a later pending job is absent; the disposable probe demonstrates the existing refusal.
+  A private lookup needs a safety-preserving design, not weaker validation or removal of save guards.
+- B57's affordability/cheapest-build work and better morning/checkpoint/asset-load profiling remain
+  proposals. Generator/profiler source is unchanged; the old timings were not rerun on current main.
+
+### 2026-11-25: main 960b847 (0.56.1) → 1897eda (0.57.2)
+
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), performance reviewer.
+
+Baseline: `960b847`, the "new" commit of the 2026-11-23 review. Runtime changed since then: 6 files under
+`scripts/` (PR #75, 0.57.0 first-day customer intake: `morning_text.gd`, `navigation_state.gd`,
+`night_session.gd`, `counter_room.gd`, `game_state.gd`, `start_view.gd`; +107/−11 lines). No scene changed.
+0.57.1 and 0.57.2 were documentation only.
+
+**Historical evidence imported from PR #78.** Claude's method and timing tables below are retained
+unchanged. Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work,
+critically revised the conclusions/proposals for 0.57.7; original narrative remains in
+[#78](https://github.com/123rearearcode/nighshift_real/pull/78). See the current assessment above.
+
+**Method (recorded by Claude; not rerun by the integrator).**
+- Build: official Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64, run with `--headless` in one
+  4-vCPU cloud container.
+- Both commits were checked out in git worktrees, imported once each, then run back to back with no other
+  Godot process running.
+- `tools/profile_bench.gd` ran 8 times per commit: runs 1–4 alternated old then new, and runs 5–8 alternated
+  new then old to rule out order effects. `tools/profile_salvage_physics.gd` ran twice per commit. Both
+  profiler scripts are identical at the two commits.
+- The table gives milliseconds as "run 1 / run 2", using the scripts' own nearest-rank percentiles. The
+  bench draw and save rows have 30 samples, so their p99 is the sample maximum.
+
+| Scenario | Mean old | Mean new | p95 old | p95 new | p99 old | p99 new |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| clean_idle_free/physics | 0.293 / 0.342 | 0.335 / 0.276 | 0.329 / 0.381 | 0.361 / 0.298 | 0.377 / 0.491 | 0.412 / 0.368 |
+| clean_idle_free/draw_cpu | 0.963 / 1.192 | 0.896 / 1.042 | 1.103 / 1.266 | 1.042 / 1.175 | 1.131 / 7.439 | 1.072 / 1.342 |
+| save/full_dirty_pc | 2.833 / 2.587 | 2.413 / 3.356 | 3.008 / 2.865 | 3.063 / 4.338 | 4.057 / 3.247 | 3.307 / 4.958 |
+| clean_idle_clamped/physics | 0.346 / 0.284 | 0.276 / 0.338 | 0.398 / 0.317 | 0.301 / 0.385 | 0.423 / 0.345 | 0.318 / 0.584 |
+| clean_idle_clamped/draw_cpu | 0.985 / 1.053 | 1.057 / 1.251 | 1.114 / 1.260 | 1.195 / 1.755 | 1.207 / 1.433 | 1.321 / 2.097 |
+| brush/physics | 0.507 / 0.447 | 0.499 / 0.532 | 0.629 / 0.513 | 0.659 / 0.809 | 0.799 / 0.747 | 0.743 / 0.951 |
+| brush/draw_cpu | 0.997 / 1.068 | 1.264 / 1.041 | 1.127 / 1.296 | 1.710 / 1.129 | 1.172 / 1.530 | 1.744 / 1.430 |
+| vacuum_moving/physics | 3.420 / 3.897 | 3.559 / 3.467 | 3.764 / 6.188 | 5.427 / 3.919 | 4.021 / 6.561 | 6.092 / 5.642 |
+| vacuum_moving/draw_cpu | 1.030 / 0.997 | 0.960 / 1.032 | 1.214 / 1.129 | 1.067 / 1.250 | 1.347 / 1.178 | 1.152 / 1.377 |
+| paste_idle_clamped/physics | 0.085 / 0.090 | 0.075 / 0.086 | 0.110 / 0.121 | 0.098 / 0.105 | 0.132 / 0.194 | 0.102 / 0.207 |
+| paste_idle_clamped/draw_cpu | 0.232 / 0.243 | 0.247 / 0.242 | 0.293 / 0.354 | 0.315 / 0.309 | 0.300 / 0.368 | 0.348 / 0.408 |
+| paste_flow/physics | 5.488 / 5.376 | 5.320 / 5.751 | 7.327 / 7.179 | 7.037 / 7.450 | 8.012 / 7.497 | 7.515 / 10.641 |
+| paste_flow/draw_cpu | 0.321 / 0.309 | 0.299 / 0.311 | 0.380 / 0.384 | 0.371 / 0.397 | 0.619 / 0.396 | 0.389 / 0.428 |
+| Salvage 20 bodies / fall-and-settle | 0.688 / 0.711 | 0.659 / 0.633 | 0.962 / 1.000 | 0.940 / 0.838 | 1.451 / 1.515 | 1.183 / 1.167 |
+| Salvage 20 bodies / late-settle | 0.745 / 0.636 | 0.713 / 0.632 | 1.313 / 0.753 | 0.935 / 0.823 | 2.879 / 0.931 | 1.443 / 1.093 |
+| Salvage 20 bodies / pulling | 0.684 / 0.720 | 0.663 / 0.727 | 0.841 / 0.958 | 0.831 / 0.878 | 0.887 / 1.218 | 0.879 / 1.437 |
+| Salvage 50 bodies / fall-and-settle | 1.213 / 1.441 | 1.161 / 1.238 | 1.470 / 2.012 | 1.676 / 1.669 | 2.325 / 2.526 | 2.138 / 2.545 |
+| Salvage 50 bodies / late-settle | 1.351 / 1.265 | 1.252 / 1.271 | 1.432 / 1.861 | 1.748 / 1.510 | 13.514 / 2.314 | 3.028 / 4.066 |
+| Salvage 50 bodies / pulling | 1.152 / 1.176 | 1.306 / 1.184 | 1.406 / 1.387 | 1.883 / 1.387 | 1.507 / 1.415 | 1.974 / 2.278 |
+| Salvage 100 bodies / fall-and-settle | 2.147 / 2.064 | 2.029 / 1.942 | 3.002 / 2.808 | 2.656 / 2.340 | 3.716 / 4.250 | 3.703 / 2.853 |
+| Salvage 100 bodies / late-settle | 2.306 / 2.634 | 1.988 / 2.039 | 2.997 / 3.722 | 2.659 / 2.374 | 3.188 / 4.746 | 3.095 / 2.663 |
+| Salvage 100 bodies / pulling | 1.990 / 1.967 | 2.171 / 1.960 | 2.446 / 2.333 | 2.979 / 2.276 | 2.733 / 2.744 | 3.209 / 2.808 |
+
+The save row looked higher on new in runs 2–4, so runs 5–8 rechecked it. Means over all 8 bench runs (ms):
+
+| Row (mean, ms) | Old: min – max (median) | New: min – max (median) |
+| --- | ---: | ---: |
+| save/full_dirty_pc | 2.548 – 3.586 (2.79) | 2.413 – 3.890 (3.27) |
+| paste_flow/physics | 4.920 – 6.298 (5.50) | 5.168 – 7.286 (5.74) |
+
+**Integration assessment — 0.57.7, Codex.** The 2.79 → 3.27 ms median of run means differs by
+about 0.48 ms (~17%). Overlapping ranges do not establish that this is noise or rule out a shift;
+the report does not retain all eight paired run results or an uncertainty analysis. No reliable causal
+attribution or current-build regression conclusion follows. Keep these measurements as historical
+960b847 → 1897eda evidence, not a performance clearance for 0.57.6's installed art.
+
+The profilers cover bench CPU physics/draw-command generation, bench dust autosave (snapshot and
+GameState save) and salvage physics. They do not measure end-to-end acceptance/checkpoint, counter/room entry, texture
+loading, GPU/display frame time, the testing lens or under-counter rendering. Proposed follow-ups and
+the corrected two-copy refresh count, existing p50 output and full-queue validation requirement are in
+[the consolidation](REVIEW_CONSOLIDATION.md#78-retain-historical-data-revise-conclusions-and-proposals).
+B57 remains Open; no optimization or recovery policy is implemented by this report.
+
 ### 2026-11-23: main c04a278 (0.50.0) → 960b847 (0.56.1)
 
 Signed: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), performance reviewer.

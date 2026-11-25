@@ -1,6 +1,20 @@
 # Nightshift — Current State and Technical Handoff
 
-## Current counter art — 0.57.5 / 25 November 2026
+## Current review consolidation — 0.57.7 / 25 November 2026
+
+User-requested replacement for older checker #77/#78, reviewed against main 0.57.6 / 842d0c2.
+B59 remains Open, re-triaged High (blocked loop), with current Godot 4.7.2 disposable-save evidence.
+Performance timings remain historical; refresh-copy and median-output claims are corrected, and the
+unsafe front-only acceptance proposal is rejected. No gameplay fix/optimization or art integration.
+Detailed conclusions and evidence: REVIEW_CONSOLIDATION.md; newest validation: CHANGELOG.md.
+
+Current art: Batch B #79 and Batch A #80 are merged/loaded. Batch C #81 is merged as ignored drafts;
+approved except ART-16 pixel revision 2, awaiting human approval. ART-13 remains uncreated. Use
+ART_PRODUCTION_PROGRESS and newest HANDOFF for live routing/approval details, not older snapshots
+below. Feature slots 0.58.0/0.59.0 and checker structural review 0.60.0 are unchanged.
+Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
+
+## Previous counter art — 0.57.5 / 25 November 2026
 
 User-approved Batch A revision 02 is integrated on the new PR branch after Claude's Batch B #79 was
 merged. Counter architecture, morning/dusk, independent doors/sign/shutter, foreground occlusion and
