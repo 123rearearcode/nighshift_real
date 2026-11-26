@@ -37,6 +37,18 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Code checker change review — 2026-11-26 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.57.8 (df5c03f). The integrator assigns the version.
+- Added: bug **B61** (Low, Diagnosis / Presentation) in `docs/BUGS.md`: the testing bay's magnifying glass
+  samples only the healthy inspection picture, so a clue it already revealed vanishes inside the glass.
+  Found by reading the code, not reproduced; not fixed.
+- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, no game code, test, tool or CI change.
+- Checks: `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`.
+- Next action: the testing bay's owner picks up B61.
+
 ### Scheduled performance review — 2026-11-23 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
