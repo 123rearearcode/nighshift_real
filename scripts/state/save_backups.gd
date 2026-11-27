@@ -2,7 +2,8 @@
 # User, 27 November 2026: "automatically save every morning, and keep backups up to 3 days before", and
 # when the ticket book is damaged, "try to restore it".
 # A backup is a copy of the save's own files as they were when the morning began: the main save, the
-# ticket manifest (".night.json") and the room memory (".navigation.json"). Backups are kept PER
+# ticket manifest (".night.json"), the room memory (".navigation.json") and the cable box (".cables.json",
+# 0.58.3). Backups are kept PER
 # PLAYTHROUGH (the night session's run id): backups/<save name>/run_<run>/morning_<night>/. Only the newest
 # KEEP mornings of a playthrough are kept, and only the newest ARCHIVED_RUNS earlier playthroughs (B63: a
 # new game must never lose its own first morning to an older game's later nights, and a restore only ever
@@ -14,7 +15,7 @@ extends RefCounted
 
 const KEEP: int = 3
 const ARCHIVED_RUNS: int = 1
-const SUFFIXES: Array = ["", ".night.json", ".navigation.json"]
+const SUFFIXES: Array = ["", ".night.json", ".navigation.json", ".cables.json"]   # 0.58.3: the cable box too
 const PREFIX := "morning_"
 const RUN_PREFIX := "run_"
 const STAMP := "last_backup.txt"
