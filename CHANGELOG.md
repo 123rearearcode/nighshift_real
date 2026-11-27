@@ -134,8 +134,8 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## 0.57.11 - 2026-11-27 - B59: morning backups and restoring a damaged ticket book; cable box and termopan decisions
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: PR #87's branch (0.57.10, `79ab79b`), not yet merged; merge #87 first. No other PR open; next bug
-  id B62. 0.58.0/0.59.0 stay reserved for Codex, 0.60.0 for the checker.
+- Based on: PR #87's branch (0.57.10, `79ab79b`), not yet merged; merge #87 first. No other PR open; B62 used
+  here, next bug id B63. 0.58.0/0.59.0 stay reserved for Codex, 0.60.0 for the checker.
 - Type: patch (bug fix: save safety) plus decisions and a design note.
 
 ### Execution status
@@ -154,6 +154,9 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
     that loads and checks out is put back and the counter starts again from that morning. The damaged files
     are set aside, never deleted; if no backup works, the player's own files are put back and the game stays
     protected as before. No job is invented and no waiting customer is silently dropped.
+- **B62 (fixed before release):** the first version of the B59 check also skipped a ticket book written by a
+  newer game version and read the older backup; caught by the Night workshop suite. Now only a ticket book of
+  this format from another run is skipped.
 - **Decisions recorded:** D172 (save backups and restore), D173 (the cable box: movable between rooms,
   openable, loose cables tangle when it is moved, physics untangling, shop helpers, only "you lost my cable"
   customers as a scam), D174 (termopan doors in white PVC with clear glass, a radiator under the window and a
@@ -170,7 +173,7 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
 | `tools/test_support.gd` | M | A disposable test save takes its backups with it |
 | `.github/workflows/tests.yml` | M | Save safety suite |
 | `docs/CABLE_BOX_DESIGN.md` | A | Cable box design notes and open questions |
-| `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59 Fixed; D172–D174 |
+| `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59 Fixed, B62; D172–D174 |
 | `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.11, this entry |
 
 ### Checks performed

@@ -95,6 +95,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B59 | Fixed | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | 0.57.11 | Pending CI: Save safety suite (`tools/test_save_safety.gd`) |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 | B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.57.10 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
+| B62 | Fixed | Medium | Save | While fixing B59, the new manifest check also skipped a ticket book written by a newer game version, read the older backup instead and would have let the next save overwrite the newer one | 0.57.11 | Pending CI: Night workshop suite (`tools/test_night_workshop.gd`) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -899,6 +900,23 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run the Rooms suite at WIP `e8eea57` headless.
 - Expected / actual: the checks see the drawer fully open / closed / the checks see it mid-slide.
 - Regression / evidence: both suites wait (real time, at most 3 s) until the slide tween has finished (`settle_storage`). Automated evidence: `tools/test_rooms.gd` and `tools/test_counter_art.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/45703005341 on `c3bdaf1` (all suites); no user verification claimed.
+
+### B62 — The B59 manifest check skipped a newer-format ticket book
+
+- Found: 0.57.11 development, GitHub Actions run 46033437449 on `2db0a5c` (push to `fix/b59-save-safety-05711`, not merged)
+- Reported by: CI log: `FAIL: future manifest is protected against overwrite` (Night workshop)
+- Fixed in: 0.57.11 (before release), by Claude (Opus 5.5, model id claude-opus-5-5)
+- Root cause: the accept check first given to `SaveStore.read()` in `NightSession.ensure()` refused every
+  manifest that was not version 1 of this run. A version-999 manifest (written by a newer build) was
+  therefore skipped like damage, its version-1 `.bak` was read, the session was not protected, and the next
+  checkpoint would have overwritten the newer file. B59 only needed one case skipped: a version-1 manifest
+  from another run.
+- Reproduction: Night workshop suite at `2db0a5c`: write the manifest with `"version": 999` while a valid
+  `.bak` exists, cold-start the session, `ensure()`.
+- Expected / actual: protected (read-only, checkpoint refused) / not protected, the older backup was used.
+- Regression / evidence: the check now skips only a version-1 manifest whose run differs; anything else is
+  read and validated (and protected) as before. The existing Night workshop check covers it; CI result
+  pending.
 
 ### B61 — The magnifying glass hides clues it has already revealed
 

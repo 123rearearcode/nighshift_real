@@ -94,8 +94,9 @@ func ensure(gs: Node) -> bool:
             status = "Migrated PC could not be saved. Retry before quitting."
             return false
         return _write(gs)
-    # B59 (0.57.11): a manifest from another run is skipped like a damaged file, so the good backup is found.
-    var raw: Variant = Store.read(_path(gs), func(data: Dictionary) -> bool: return data.get("version",0) == 1 and data.get("run","") == run_id and data.get("tickets",null) is Array)
+    # B59 (0.57.11): a manifest of this format from another run is skipped like a damaged file, so the good
+    # backup behind it is found. Anything else (a newer format, damaged tickets) is still read and protected.
+    var raw: Variant = Store.read(_path(gs), func(data: Dictionary) -> bool: return data.get("version",0) != 1 or data.get("run","") == run_id)
     if not raw is Dictionary or raw.get("version",0) != 1 or raw.get("run","") != run_id or not raw.get("tickets",null) is Array:
         return _protect(gs,"Ticket manifest is missing, damaged or from another run. Active PC recovered; switching is disabled to protect other jobs.")
     var ids: Dictionary = {}
