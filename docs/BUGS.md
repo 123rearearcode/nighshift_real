@@ -108,6 +108,8 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B71 | Verified | Medium | Collection presentation | The collection slip called every replaced original kept by the shop "working", even a broken one, although the shop has not tested it | 0.58.7 | Automated: Morning report suite, GitHub Actions run 46062635008 |
 | B72 | Verified | Low | Test harness | The new B56 storage check declared a loop variable `uid` in a function that already has `var uid`, so the Storage suite failed to parse | 0.58.7 | Automated: Storage suite, GitHub Actions run 46062635008 |
 
+| B73 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.9 | Automated: Counter art suite (40 checks), all 39 required suites / 2,610 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
+
 ## Known limitations and design debt (not closed bugs)
 
 | ID | Status | Priority | Limitation | Next action |
@@ -1045,3 +1047,14 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: the Storage suite runs, including the B56 check / the script fails to load and the suite prints no summary.
 - Regression / evidence: the loop variables are named `kept_uid`. Automated evidence: `Storage` suite passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46062635008 on `cd204ef`.
 
+
+### B73 — Returning to the counter reloads its large art set
+
+- Found: user report on current main 0.58.8 / d0710c04c5181b007e0bbe21b3d4639d7b19a134, 27 November 2026; user confirmed it happens every return.
+- Reported by: the user; reproduced and investigated by Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+- Fixed in: 0.58.9, by Codex (GPT-6, model id not exposed by this session).
+- Root cause: CounterArt constructs dictionaries of 14 Batch A and 9 termopan textures per holder; the scene and its drawer own their references. Leaving the counter frees the last holders, so subsequent visits load new texture objects (about 138 MiB RGBA dimensions). Imported textures already share while alive; this is not a claim of two imported copies within one counter.
+- Reproduction: after import, run tools/measure_counter_loading.gd from main 0.58.8; counter-to-workshop-to-counter creates a new shell texture instance on each visit. Four following returns took 297.850, 299.489, 295.435 and 302.138 ms in this workspace. The user observes a noticeable pause on each return.
+- Expected / actual: room returns reuse unchanged artwork with minimal setup / the counter reconstructs its large texture set every time.
+- Correction: keep a bounded process-local cache of successful counter-art loads, shared across presentation holders; source timestamp changes invalidate it, missing art remains uncached. No nodes or mutable gameplay state are cached and no artwork bytes change.
+- Regression / evidence: `tools/test_counter_art.gd` tests room disposal/re-entry texture identity without a strong test reference, separate holders, unchanged intake/cash/time and missing/new/revised/removed unimported art. Automated: the final Counter art suite passed 40 checks under Godot 4.7.2; all 39 required suites passed 2,610 checks locally. `tools/measure_counter_loading.gd` passed 15 checks on each measurement run; docs/COUNTER_LOADING.md preserves same-workspace before/after samples and limits. Not target-PC GPU/frame-present or human feel evidence.

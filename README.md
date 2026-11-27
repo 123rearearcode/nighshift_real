@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.8)
+# Nightshift - Godot Foundation Trial (v0.58.9)
+
+0.58.9 keeps the counter’s approved art cached between room visits, removing repeated texture loading when you return. The first visit still loads it once. See [counter loading evidence](docs/COUNTER_LOADING.md).
 
 0.58.8 puts the repair bench on your desk painting: wooden boards, the teal mat under the PC (pixelated), and the controls on the dark tool tray.
 

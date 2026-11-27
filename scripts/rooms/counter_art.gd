@@ -57,6 +57,25 @@ const WINDOW := Rect2(213, 106, 391, 304)           # the termopan shop window, 
 var textures: Dictionary = {}
 var termopan: Dictionary = {}
 
+# B73 / 0.58.9: rooms are freed on every trip through a door. Keep only this bounded art set alive
+# between visits, instead of decoding all 23 textures again. The counter and its drawer share pixels,
+# never nodes or gameplay state. Source timestamp changes still go through the ordinary art loader;
+# missing pictures are not cached, so an artist can supply one after the scene first opens.
+static var _texture_cache: Dictionary = {}
+
+
+static func _texture(path: String) -> Texture2D:
+    var modified: int = FileAccess.get_modified_time(path) if FileAccess.file_exists(path) else 0
+    var cached: Dictionary = _texture_cache.get(path, {})
+    if not cached.is_empty() and int(cached["modified"]) == modified:
+        return cached["texture"]
+    var picture: Texture2D = RoomArt.texture(path)
+    if picture != null:
+        _texture_cache[path] = {"modified": modified, "texture": picture}
+    else:
+        _texture_cache.erase(path)
+    return picture
+
 
 class Layer extends Node2D:
     var art: Variant
@@ -77,9 +96,9 @@ class Layer extends Node2D:
 
 func _init() -> void:
     for key: String in FILES:
-        textures[key] = RoomArt.texture(folder() + str(FILES[key]))
+        textures[key] = _texture(folder() + str(FILES[key]))
     for key: String in TERMOPAN_FILES:
-        termopan[key] = RoomArt.texture(TERMOPAN_README.get_base_dir() + "/" + str(TERMOPAN_FILES[key]))
+        termopan[key] = _texture(TERMOPAN_README.get_base_dir() + "/" + str(TERMOPAN_FILES[key]))
 
 
 # 0.58.5: the whole termopan set is installed (otherwise the 0.57.9 flat layout of Batch A is drawn).

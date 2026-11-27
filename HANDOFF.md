@@ -1,5 +1,17 @@
 # Handoff — current state first
 
+## Current — 0.58.9 faster counter returns, 27 November 2026
+
+The user reported a noticeable counter loading delay and confirmed it happens every return. Codex reproduced
+the repeated texture loads on main 0.58.8 (d0710c0), then added a bounded process-local counter-art cache
+(B73). Scene/drawer holders share approved texture objects across room disposal; no nodes or gameplay
+state are retained. Missing art still falls back; source timestamps invalidate successful entries. No art
+bytes, hot files, save/ownership, navigation or UI behavior change. Targeted Godot 4.7.2 headless returns
+fell from about 299 ms median to 19 ms in this workspace; first loading and target-PC visual feel remain
+separate. See docs/COUNTER_LOADING.md. The current task’s exact test results are in CHANGELOG.md.
+The checker stays at 0.60.0, per-part tests at 0.59.0. Cross-review/user-controlled integration next.
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
 
 The user supplied a desk painting for the repair bench (D179). `tools/art_batch_d/bench_mat.py` rebuilt it for

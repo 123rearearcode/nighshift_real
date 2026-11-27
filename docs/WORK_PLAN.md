@@ -1,5 +1,14 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.9, 27 November 2026
+
+User-reported counter return delay: Codex owns only the bounded CounterArt texture cache, its regressions,
+targeted reproduction/evidence and release/roadmap records. No hot file is reserved or changed, and no
+scene/navigation/gameplay/save contract changes. This is an author’s targeted fix and validation, not the
+scheduled Code checker performance review. Claude cross-reviews the loading/cache boundary; user-controlled
+integration remains. 0.59.0 Codex and 0.60.0 checker reservations stay unchanged.
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current bounded assignment — 0.58.7, 27 November 2026
 
 The user asked Claude to make the latest build trustworthy (roadmap phase p06). Claude touched the hot files

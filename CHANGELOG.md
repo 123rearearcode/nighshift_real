@@ -132,6 +132,67 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.9 - 2026-11-27 - Reuse the counter art between room visits (B73)
+- Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work.
+- Based on: main 0.58.8, d0710c04c5181b007e0bbe21b3d4639d7b19a134; no open PRs when work began.
+- Type: patch (bounded correction for the user-reported repeat loading pause; no artwork or gameplay change).
+
+### Execution status
+Codex actually ran Godot 4.7.2.stable.official.ed1daf0bf locally, headless, with isolated disposable
+XDG data/config/cache. Imported the project, reproduced the repeat loading path, ran the targeted
+counter-art regressions and measured the cache candidate. All 39 required suites passed (2,610 checks). No graphical playtest or user-machine/GPU timing is claimed.
+
+### Added / Changed / Fixed / Removed
+- B73: retain only the bounded counter-art texture set between room visits. Counter and hidden-drawer
+  presentation holders share the immutable approved textures; new scenes still build their own UI/state.
+- Reuse a successful load until its source timestamp changes. Missing pictures remain uncached and the
+  existing imported/unimported loader and placeholder behavior remain. No PNG, atlas, dimensions or art
+  approvals change. Cache lives in memory, never in the save.
+- Extended the required Counter art suite with real room disposal/re-entry, object reuse without a strong
+  test-held reference, separate holders, unchanged intake/money/time and missing/new/revised/removed
+  unimported-picture checks. Added a disposable-save reproduction tool and exact targeted evidence.
+- In the same workspace, the median of four following counter returns fell from 298.670 ms to 19.038 ms
+  (about 94%). These are headless scene/setup observations, not the user's display latency or FPS.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/counter_art.gd` | M | Bounded cross-room successful-texture cache with source timestamp invalidation |
+| `tools/test_counter_art.gd` | M | Actual disposal/re-entry reuse and artist fallback/revision regressions |
+| `tools/measure_counter_loading.gd` | A | Targeted reproducible raw art/scene samples with disposable progress |
+| `docs/COUNTER_LOADING.md` | A | Cause, measurements, reproduction, memory/first-load limits |
+| `docs/BUGS.md` | M | B73 report, root cause and validation state |
+| `docs/roadmap.json` | M | p06-15; about.main 0.58.9 |
+| `docs/WORK_PLAN.md` | M | Bounded assignment and no hot-file ownership |
+| `DEVELOPMENT.md` | M | File map and cache contract |
+| `HANDOFF.md`, `README.md`, `project.godot` | M | Version and current behavior/handoff |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- Godot 4.7.2 editor import: exit 0; no import script errors.
+- Required Counter art suite: 40 checks, 0 failures, including the final holder-identity assertion.
+- Targeted before/after measurement: 15 checks, 0 failures per run; all raw samples and limits in
+  docs/COUNTER_LOADING.md. First art construction remains necessary (676.866 / 629.972 ms here).
+- All 39 required Godot suites from .github/workflows/tests.yml passed locally: 2,610 checks, 0 failures;
+  sequential run, 118.8 seconds. No SCRIPT ERROR, Parse Error or FAIL lines in those suite logs.
+- python3 -I tools/check_project.py: passed (0 problems); CI-scope tests: 9 passed; bug-register checker:
+  0 problems; bug-register tests: 12 passed; git diff --check: passed.
+
+### Decisions proposed (not approved)
+None. Retain the existing artwork, routes, input, clock, ownership and saves.
+
+### Known issues and open items
+- Keeping the art resident trades memory while away from the counter for fast return trips. It is one
+  bounded set, not new copies per visit. First entry still loads it once.
+- Imported art still follows Godot reimport. Source timestamps have one-second precision; restart the
+  running game if repeatedly overwriting an existing artist file inside that interval.
+- Human target-PC perceived loading and graphical acceptance remain unmeasured.
+
+### Next action
+Claude cross-reviews the cache boundary and the user integrates
+and tries counter/workshop/outside returns on their machine. No merge or new scheduled audit in this task.
+The per-part tests reservation stays 0.59.0 and the scheduled checker 0.60.0.
+
 ## 0.58.8 - 2026-11-27 - The repair bench on the user's desk painting
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #94's branch (0.58.7), not yet merged; merge #93 and #94 first. No new bug id (next B73).
