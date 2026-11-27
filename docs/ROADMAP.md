@@ -1,5 +1,14 @@
 # Nightshift — Roadmap
 
+## Where the current roadmap lives — 0.58.6 / 27 November 2026
+
+The current, dated plan is `docs/roadmap.json` (phases, tasks with status, the decision desk), mirrored
+from the live page the user edits (https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C). Agents read it before
+choosing work and update the tasks their PR changes (AGENTS.md rule 12). The milestone sections below are
+history and stay for context; where they disagree with `docs/roadmap.json`, the JSON wins.
+
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current antivirus update — 0.58.0 / 27 November 2026
 
 0.58.0 is the user-authorized antivirus update (D163), implemented for review on this branch: simple clue-based cleanup, distinct infection feedback and shared reduced-effects Settings. All 36 required suites / 2,510 checks and bounded graphical UI verification are complete; user review/merge remains. Per-part tests 0.59.0 remain design work for a separate review/implementation. The scheduled checker owns 0.60.0. PR #88 save recovery has the independently reproduced B63 finding; see PR_87_88_REVIEW.md.

@@ -11,6 +11,7 @@ Usage (from anywhere):
 
 Exit code 0 = all checks passed, 1 = at least one problem.
 """
+import json
 import pathlib
 import re
 import sys
@@ -145,6 +146,48 @@ def check_file_map(root, problems, notes):
     notes.append("file map covers %d files" % len(tracked))
 
 
+ROADMAP_STATUSES = ("done", "next", "planned", "idea")
+ROADMAP_STATES = ("done", "next", "planned", "later")
+
+
+def check_roadmap(root, problems, notes):
+    """0.58.6: docs/roadmap.json is the machine-readable roadmap every agent reads (AGENTS.md). Check its shape
+    and that about.main names this version, so a PR that changes the game also looks at the roadmap."""
+    path = root / "docs" / "roadmap.json"
+    if not path.is_file():
+        problems.append("docs/roadmap.json is missing (the roadmap agents read; see AGENTS.md).")
+        return
+    try:
+        data = json.loads(read(path))
+    except ValueError as error:
+        problems.append("docs/roadmap.json is not valid JSON: %s" % error)
+        return
+    about = data.get("about") if isinstance(data, dict) else None
+    phases = data.get("phases") if isinstance(data, dict) else None
+    if not isinstance(about, dict) or not isinstance(phases, list) or not isinstance(data.get("decisions"), list):
+        problems.append("docs/roadmap.json needs an 'about' object and 'phases' and 'decisions' lists.")
+        return
+    version = project_version(root, [])
+    if version and about.get("main") != version:
+        problems.append("docs/roadmap.json about.main is %r but project.godot is %s: update the roadmap items this "
+                        "version changes and set about.main (AGENTS.md)." % (about.get("main"), version))
+    seen, count = set(), 0
+    for phase in phases:
+        if not isinstance(phase, dict) or not phase.get("id") or phase.get("state") not in ROADMAP_STATES:
+            problems.append("docs/roadmap.json has a phase without an id or with a state outside %s." % (ROADMAP_STATES,))
+            continue
+        for item in phase.get("items", []):
+            iid = item.get("id") if isinstance(item, dict) else None
+            if not iid or not item.get("title") or item.get("status") not in ROADMAP_STATUSES:
+                problems.append("docs/roadmap.json item %r in %s needs an id, a title and a status in %s." % (iid, phase["id"], ROADMAP_STATUSES))
+            elif iid in seen:
+                problems.append("docs/roadmap.json repeats the item id %s." % iid)
+            else:
+                seen.add(iid)
+                count += 1
+    notes.append("roadmap: %d phases, %d items" % (len(phases), count))
+
+
 def check_core_documents(root, problems, notes):
     required = ("PROJECT_BRIEF.md", "DESIGN.md", "ROADMAP.md", "DECISIONS.md", "CURRENT_STATE.md")
     for name in required:
@@ -165,6 +208,7 @@ def main(argv):
     check_res_paths(root, problems, notes)
     check_file_map(root, problems, notes)
     check_core_documents(root, problems, notes)
+    check_roadmap(root, problems, notes)
     for note in notes:
         print("info  " + note)
     for problem in problems:

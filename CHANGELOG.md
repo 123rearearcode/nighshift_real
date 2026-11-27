@@ -132,6 +132,54 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.6 - 2026-11-27 - The roadmap in the repo, for every agent
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.58.5 (edaf72e). No new bug id (next B71). 0.59.0 (per-part tests, Codex) and 0.60.0
+  (checker) stay reserved.
+- Type: patch (documentation and a project check; no game code).
+
+### Execution status
+Godot was not run locally; no game code changed. `tools/check_project.py` was run locally (results below);
+GitHub Actions runs the usual suites.
+
+### Added / Changed / Fixed / Removed
+- **`docs/roadmap.json`.** The user asked for a live, saveable roadmap that AIs can read, and for Codex to know
+  it must read it in the repo. The live page (https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C) is where the
+  user edits; this file mirrors it: phases with dates (forecast after 27 Nov), tasks with status
+  (done / next / planned / idea), Claude's check of each task against the repo, and the decision desk. It
+  started from ChatGPT's roadmap (snapshot main 0.58.3), corrected to main 0.58.5.
+- **AGENTS.md rule 12.** Every agent reads `docs/roadmap.json` before choosing work and updates the items its PR
+  changes (and `about.main`) in the same PR. If the file and the live page disagree, the live page wins; Claude
+  syncs them.
+- **`tools/check_project.py`** checks the roadmap's shape (ids, titles, statuses, unique ids) and that
+  `about.main` equals the project version, so a PR cannot change the version without looking at the roadmap.
+- `docs/ROADMAP.md`, `HANDOFF.md` and `docs/HANDOFF_FOR_CODEX.md` point to the file.
+
+### Files changed
+| File | Change | What |
+|---|---|---|
+| `docs/roadmap.json` | A | The machine-readable roadmap (13 phases, 81 tasks, 24 decisions) |
+| `AGENTS.md` | M | Rule 12: read and update the roadmap |
+| `tools/check_project.py` | M | `check_roadmap` |
+| `docs/ROADMAP.md` | M | Top section: where the current roadmap lives |
+| `docs/HANDOFF_FOR_CODEX.md` | M | Read `docs/roadmap.json` first |
+| `HANDOFF.md` | M | Current section 0.58.6 |
+| `DEVELOPMENT.md` | M | File map mentions `docs/roadmap.json` |
+| `README.md`, `project.godot` | M | Version 0.58.6 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: PASSED, 0 problems ("roadmap: 13 phases, 81 items").
+- `python3 -I tools/check_bug_register.py`: 0 problems. `python3 -B tools/test_bug_register.py`: OK.
+  `python3 -B tools/test_ci_scope.py`: OK.
+- Temporarily setting `about.main` to 0.58.5 made `check_project.py` fail with the roadmap message (then restored).
+
+### Known issues and open items
+- The live page and the file are synced by hand (by Claude) for now.
+
+### Next action
+Merge, then the "make the latest build trustworthy" fixes (roadmap phase p06) in the next PR.
+
 ## 0.58.5 - 2026-11-27 - Termopan doors in the counter, the room's name on the wall, wall alternatives to choose from
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #91's branch (0.58.4), not yet merged; merge #91 first. No new bug id (next B71). 0.59.0

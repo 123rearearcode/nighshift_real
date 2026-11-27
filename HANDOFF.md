@@ -1,6 +1,15 @@
 # Handoff — current state first
 
-## Current — 0.58.5 termopan counter, names on the walls, wall drafts, 27 November 2026
+## Current — 0.58.6 the roadmap in the repo, 27 November 2026
+
+The user asked for a live roadmap AIs can read, and for Codex to know to read it in the repo.
+`docs/roadmap.json` mirrors the live page (https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C): read it before
+choosing work and update the tasks your PR changes plus `about.main` (AGENTS.md rule 12;
+`tools/check_project.py` checks it). Next: roadmap phase p06, "Make the latest build trustworthy".
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.5 termopan counter, names on the walls, wall drafts, 27 November 2026
 
 The user approved the termopan drafts ("aight go on with the PVC"): `art/rooms/counter_termopan/` (hashes in its
 manifest) is drawn by `counter_art.gd` (`_draw_termopan`) over the flat wall; the window now ends at a sill with
