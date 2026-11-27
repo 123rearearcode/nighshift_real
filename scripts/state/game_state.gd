@@ -35,6 +35,7 @@ const NightClock = preload("res://scripts/rules/night_clock.gd")
 const BuildRequest = preload("res://scripts/rules/build_request.gd")
 const Reviews = preload("res://scripts/rules/reviews.gd")
 const Instances = preload("res://scripts/rules/part_instances.gd")
+const WallFinishes = preload("res://scripts/data/wall_finishes.gd")   # 0.58.9 (D180)
 const GOOD_PASTE: Array = ["PERFECT", "GOOD ENOUGH"]   # mount results good enough to complete the repaste
 
 const SAVE_PATH: String = "user://nightshift_save.json"
@@ -47,7 +48,8 @@ const SAVE_FORMAT: int = 1
 const START_MONEY: int = 100
 const PASS_TEMP: float = 75.0        # final check passes below this temperature (C)
 const BASE_TEMP: float = 42.0
-const UPGRADE_PRICES: Dictionary = {"square_cloth": 40, "long_hose": 40, "backpack_small": 45, "backpack_large": 120}   # demo prices (0.58.4: backpacks)
+const UPGRADE_PRICES: Dictionary = {"square_cloth": 40, "long_hose": 40, "backpack_small": 45, "backpack_large": 120,   # demo prices (0.58.4: backpacks)
+    "wall_cream_tiles": 60, "wall_pine_wallpaper": 80, "wall_blue_plaster": 40, "wall_teal_tiles": 20}   # 0.58.9 (D180): wall finishes, data/wall_finishes.gd
 const NO_PASTE_PENALTY: float = 40.0
 const PASTE_PENALTY: Dictionary = {
     "PERFECT": 0.0,
@@ -69,6 +71,7 @@ var comebacks: Array = []      # D136 (0.44.0): delayed hidden faults waiting to
 var money: int = START_MONEY
 var job: Dictionary = {}
 var upgrades: Dictionary = {}   # upgrade id -> true once bought
+var wall_finish: String = WallFinishes.DEFAULT   # 0.58.9 (D180): the counter's wall; bought finishes are "wall_<id>" upgrades
 var owned_games: Array = []     # game ids the shop bought to test with (D94); kept across tickets
 var customer_state: Dictionary = {}   # customer id -> {"trust": int, "history": Array}; what the shop EARNED (kept across tickets)
 var tickets_taken: int = 0      # how many tickets the shop has COMPLETED; picks the next customer (D104); kept across tickets
@@ -106,6 +109,7 @@ func new_game(persist: bool = true) -> void:
     inventory_layout = {}
     inventory_sequence = 10
     upgrades = {}
+    wall_finish = WallFinishes.DEFAULT
     # owned_games and customer_state are NOT reset: the games and the relationships belong to the shop.
     # 0.48.0: neither are the generated customers, the reviews or the world seed (one is made if missing).
     if world_seed == 0: world_seed = _new_seed()
@@ -382,6 +386,26 @@ func has_upgrade(upgrade_id: String) -> bool:
 
 
 # Spend money on an upgrade. Returns false if already owned or too expensive.
+# 0.58.9 (D180): the counter's wall finishes. The starting paint is always yours; the others are bought once at
+# the store and can then be put up again for free.
+func has_wall(id: String) -> bool:
+    if WallFinishes.finish(id).is_empty(): return false
+    return id == WallFinishes.DEFAULT or has_upgrade(WallFinishes.upgrade_id(id))
+
+
+func set_wall(id: String) -> bool:
+    if not has_wall(id): return false
+    wall_finish = id
+    save_game()
+    return true
+
+
+func buy_wall(id: String) -> bool:
+    if has_wall(id): return set_wall(id)
+    if not buy_upgrade(WallFinishes.upgrade_id(id)): return false
+    return set_wall(id)
+
+
 func buy_upgrade(upgrade_id: String) -> bool:
     if has_upgrade(upgrade_id) or not UPGRADE_PRICES.has(upgrade_id):
         return false
@@ -672,6 +696,7 @@ func save_game() -> void:
         "starter_cpu_seeded": true, # pre-D116 saves get a CPU once; handing it over never respawns it
         "ticket_sequence": ticket_sequence,
         "upgrades": upgrades,
+        "wall_finish": wall_finish,
         "owned_games": owned_games,
         "customer_state": customer_state,
         "people": people,
@@ -736,6 +761,8 @@ func load_game() -> bool:
         for key in up_dict:
             if UPGRADE_PRICES.has(key) and bool(up_dict[key]):
                 upgrades[key] = true
+    wall_finish = str(data.get("wall_finish", WallFinishes.DEFAULT))
+    if not has_wall(wall_finish): wall_finish = WallFinishes.DEFAULT   # unknown or never bought: the starting paint
     owned_games = []
     var raw_games: Variant = data.get("owned_games", [])
     if raw_games is Array:

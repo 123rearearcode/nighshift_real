@@ -88,7 +88,9 @@ func run_checks() -> void:
         var image: Image = art.textures["front_closed" if "closed" in name else "front_open"].get_image()
         if image == null or image.get_pixel(image.get_width() / 2, image.get_height() / 2).a != 0: glass = false
     check(glass, "both front-door panes have genuine transparent centers")
+    await finish_dialogue(counter)
     await press(counter.next_button)
+    await finish_dialogue(counter)
     await press(counter.next_button)
     check(not counter.visiting() and not counter.room_layer.morning and not counter.counter_layer.morning, "finishing intake switches the same room to dusk")
     var money: int = gs.money
@@ -132,7 +134,7 @@ func run_checks() -> void:
     # 0.58.5 (D178, user: "I liked how there used to be the name of the place on the wall"): name plates.
     var plate: Control = counter.get_node_or_null("WallSign")
     check(plate != null and counter.sign_text() == "THE COUNTER" and not counter.title.visible and plate.position == Vector2(640, 86) and plate.z_index < counter.get_node("CustomerPortrait").z_index, "the counter's name is on its wall, behind the customer, instead of the small title")
-    # B73: leave through a real room transition with no strong test reference keeping the art alive.
+    # B74: leave through a real room transition with no strong test reference keeping the art alive.
     # Otherwise ResourceLoader's ordinary cache would disguise the repeated-load bug in this test.
     var shell_id: int = art.textures["shell"].get_instance_id()
     var art_holder_id: int = art.get_instance_id()

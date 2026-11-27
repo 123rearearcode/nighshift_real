@@ -192,9 +192,12 @@ func run_checks() -> void:
     night.visits_pending = true
     await scene(Nav.COUNTER)
     counter = current_scene
+    check(counter.dialogue.active and not counter.slip.visible, "the first customer talks before the ticket slip shows (0.58.9, D181)")
+    await finish_dialogue(counter)
     check(counter.visiting() and counter.arrived == 2 and counter.slip.visible and counter.slip_title.text.contains("2 customers came in") and counter.slip_text.text.contains("Ana Test"), "the shutter goes up: the board counts who came in and the first one speaks")
     check(counter.hotspot("BackDoor").disabled and counter.hotspot("Phone").disabled and not counter.hotspot("CustomerWindow").disabled, "the shop waits while customers are at the counter")
     await press(counter.next_button)
+    await finish_dialogue(counter)
     check(counter.slip_text.text.contains("Cy Test") and counter.next_button.text.contains("open up"), "next customer, the last one")
     await press(counter.next_button)
     check(not counter.visiting() and not night.visits_pending and not counter.slip.visible and not counter.hotspot("BackDoor").disabled, "after the last customer the counter opens for the night")

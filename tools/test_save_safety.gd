@@ -91,6 +91,8 @@ func run_checks() -> void:
     for f in range(6): await process_frame
     check(night.ensure(gs) and not night.read_only and gs.opening_customers.size() == 2 and night.opening_cards(gs).size() == 2, "B59: restoring brings back this morning's ticket book with both waiting customers")
     var again: Node = current_scene
+    check(again != counter and again.dialogue.active, "the first customer is back and talks first (0.58.9, D181)")
+    await finish_dialogue(again)
     check(again != counter and again.slip.visible and not again.recovery_slip.visible and str(again.message.text).contains("morning of night"), "the counter starts again from that morning, with the first customer and a note saying what was restored")
     var aside: Array = set_asides(gs)
     check(aside.size() == 1 and FileAccess.get_file_as_string(Backups.folder(gs.save_path).path_join(str(aside[0])).path_join(gs.save_path.get_file())) == save_before, "the damaged files are kept aside, never deleted")

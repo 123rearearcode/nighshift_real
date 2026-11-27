@@ -1,4 +1,4 @@
-# Counter return loading — 0.58.9 (B73)
+# Counter return loading — 0.58.10 (B74)
 
 27 November 2026. Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
 
@@ -21,6 +21,10 @@ Timestamp precision is one second; restart the running game when repeatedly over
 artist file within that interval. No raster is changed, resized, re-encoded or newly approved.
 
 ## Targeted measurements
+
+These measurements were taken before integrating #96, on the original isolated cache patch. The
+0.58.10 correction preserves them as historical evidence; it does not claim they benchmark the new
+wall/dialogue release. #96 retains 0.58.9 / B73 / p06-15; this fix uses 0.58.10 / B74 / p06-17.
 
 Godot **4.7.2.stable.official.ed1daf0bf**, same Linux workspace, imported project, headless. The same
 `tools/measure_counter_loading.gd` ran sequentially before and after the runtime change, without another
@@ -46,11 +50,16 @@ with releasing all its art. Measure the perceived delay and memory on the user's
 
 ## Regression results
 
-All **39 required Godot suites passed: 2,610 checks, 0 failures** in a sequential 118.8-second local run.
-The required Counter art suite passed **40 checks** including the final holder-identity assertion.
-There were no SCRIPT ERROR, Parse Error or FAIL lines in the suite logs. Project hygiene passed with
-0 problems; CI-scope tests passed 9; bug-register checker passed with 0 problems and its 12 tests passed;
-`git diff --check` passed. These are automated/headless checks, not human graphical acceptance.
+The original isolated cache patch passed all **39 required suites / 2,610 checks** locally; its GitHub
+Actions run [46071831524](https://github.com/123rearearcode/nighshift_real/actions/runs/46071831524) also
+succeeded. Those results predate #96 integration.
+
+After reconciling #96 and renumbering #97 to **0.58.10 / B74 / p06-17**, all **41 required Godot suites
+passed: 2,648 checks, 0 failures**, in a sequential 123.4-second local Godot 4.7.2 run. The Counter art
+suite passed **40 checks**, alongside the added Dialogue and Wall finishes suites. No SCRIPT ERROR,
+Parse Error or FAIL lines occurred. Project hygiene passed with 0 problems; CI-scope tests passed 9;
+bug-register checker passed with 0 problems and its 12 tests passed; diff whitespace checks passed.
+These are automated/headless checks, not human graphical acceptance.
 
 ## Reproduce
 

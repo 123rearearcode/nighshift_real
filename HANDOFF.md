@@ -1,18 +1,31 @@
 # Handoff — current state first
 
-## Current — 0.58.9 faster counter returns, 27 November 2026
+## Current — 0.58.10 faster counter returns, 27 November 2026
 
 The user reported a noticeable counter loading delay and confirmed it happens every return. Codex reproduced
 the repeated texture loads on main 0.58.8 (d0710c0), then added a bounded process-local counter-art cache
-(B73). Scene/drawer holders share approved texture objects across room disposal; no nodes or gameplay
+(B74). Scene/drawer holders share approved texture objects across room disposal; no nodes or gameplay
 state are retained. Missing art still falls back; source timestamps invalidate successful entries. No art
 bytes, hot files, save/ownership, navigation or UI behavior change. Targeted Godot 4.7.2 headless returns
 fell from about 299 ms median to 19 ms in this workspace; first loading and target-PC visual feel remain
 separate. See docs/COUNTER_LOADING.md. The current task’s exact test results are in CHANGELOG.md.
-The checker stays at 0.60.0, per-part tests at 0.59.0. Cross-review/user-controlled integration next.
+This revision includes PR #96 / 0.58.9 as its dependency and preserves its dialogue, walls and vacuum
+fix B73. Merge #96 before #97. The cache is B74, roadmap p06-17; every current version field is 0.58.10.
+The checker stays at 0.60.0, per-part tests at 0.59.0. Expanded-suite validation is in the changelog.
 Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
 
-## Current — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
+
+## Previous — 0.58.9 customers talk, all four walls, vacuum switch fix, 27 November 2026
+
+Dialogue (D181): `scripts/ui/dialogue_box.gd` (click/Space/Enter unrolls; speakers per line); customers at the
+counter speak first, then the slip (`MorningText.opening_lines`/`visit_lines`). Walls (D180): the four approved
+walls in `art/rooms/counter_walls/`; start with B (oil paint); the rest and the teal tiles are bought at the store
+(`data/wall_finishes.gd`, `GameState.wall_finish`). B73: vacuum switch hidden at the paste stage.
+Tests that use the customer slip call `finish_dialogue` first (test_support). Hot file: game_state (WORK_PLAN).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
 
 The user supplied a desk painting for the repair bench (D179). `tools/art_batch_d/bench_mat.py` rebuilt it for
 the bench layout; the user picked layout A, mat pixel 4, lightly pixelated wood, and approved the final file.

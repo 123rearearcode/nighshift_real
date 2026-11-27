@@ -1,15 +1,18 @@
-# Nightshift - Godot Foundation Trial (v0.58.9)
+# Nightshift - Godot Foundation Trial (v0.58.10)
 
-0.58.9 keeps the counter’s approved art cached between room visits, removing repeated texture loading when you return. The first visit still loads it once. See [counter loading evidence](docs/COUNTER_LOADING.md).
+0.58.10 keeps the counter’s approved art cached between room visits (B74). This is PR #97, stacked after PR #96 (0.58.9); merge #96 first. The first visit still loads the art once. See [counter loading evidence](docs/COUNTER_LOADING.md).
+
+0.58.9: customers talk when they come in (click or Space unrolls each line, then the ticket slip); the counter starts with the two-tone oil paint, and the other walls (cream tiles, pine and 70s wallpaper, blue plaster, the old teal tiles) are sold at the store; the vacuum switch no longer shows while you mount the cooler.
 
 0.58.8 puts the repair bench on your desk painting: wooden boards, the teal mat under the PC (pixelated), and the controls on the dark tool tray.
 
 0.58.7 makes the latest build more trustworthy: pausing with the magnifying glass shows the cursor (B55), the stock room no longer draws marks for things under the counter or in your backpack (B56), mornings with little cash no longer stall (B57), the collection slip stops calling a kept old part "working" (B71), and the repair bench shows your saved paste result, meters and screws after you leave and come back, with the paste amount split into on the CPU and beside it.
 
-## Controls (current, 0.58.7)
+## Controls (current, 0.58.9)
 
 - **Anywhere:** F10 pauses (Resume, Settings, Title screen); Esc closes the pause. **B** opens your backpack in any room.
 - **Repair bench:** 1 brush, 2 vacuum, 3 move parts, 4 dust pick. **V** switches the vacuum on and off (holding it still gives a short burst). Mouse wheel or Q/E turns the tool; right-drag throws it; Shift + right-drag moves the hose.
+- **At the counter:** a customer talks first: click anywhere, Space or Enter to unroll their lines, then the ticket slip shows.
 - **Testing bay:** pick up the magnifying glass and hold it over a spot; Esc or a right-click puts it down.
 
 Older notes below describe each version as it was; where they disagree with this list, this list is current.

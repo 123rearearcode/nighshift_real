@@ -86,6 +86,7 @@ func run_checks() -> void:
     await process_frame
     await process_frame
     var counter: Node = current_scene
+    await finish_dialogue(counter)
     check(counter.visiting() and counter.arrived == walked_in.size() and counter.slip.visible and counter.slip_title.text.contains("%d customer" % walked_in.size()), "the shutter goes up and the board counts who came in")
     check(counter.slip_text.text == MorningText.card_text(walked_in[0]) and counter.hotspot("BackDoor").disabled, "the first customer speaks across the counter; the shop waits until they are served")
     for i in range(walked_in.size()): counter.next_button.pressed.emit()

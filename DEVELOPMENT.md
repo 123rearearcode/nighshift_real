@@ -91,12 +91,12 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
-| `scripts/rooms/counter_art.gd` | view | Approved counter art and bounded cross-room texture reuse (B73); background/foreground layers, endpoint crops and decorative storage mapping |
+| `scripts/rooms/counter_art.gd` | view | Approved counter art and bounded cross-room texture reuse (B74); background/foreground layers, endpoint crops and decorative storage mapping |
 | `tools/test_item_art.gd` | tooling | 0.57.8: the one item picture lookup and the approved Batch C files (sizes, turns, lens spots, clue overlays, tool frames) |
 | `tools/test_save_safety.gd` | test | 0.57.11 (B59): wrong-run ticket book falls back to its backup; morning backups (last 3); the counter's restore from a damaged ticket book |
 | `tools/test_cable_box.gd` | test | 0.58.3 (D173): cable box rules, file, physics, rooms and store supplies |
 | `tools/test_backpack.gd` | test | 0.58.4: backpack sizes, the storage unit, the store's backpacks, the room button and view |
-| `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors, full 20×10 storage contract and B73 reuse/fallback regressions |
+| `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors, full 20×10 storage contract and B74 reuse/fallback regressions |
 | `tools/measure_counter_loading.gd` | tooling | Disposable-save targeted art-construction/counter-return timing and texture-identity samples; no speed threshold |
 | `docs/COUNTER_LOADING.md` | documentation | B73 cause, bounded cache contract, targeted before/after measurements, limits and reproduction |
 | `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
@@ -110,6 +110,14 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `art/rooms/counter_termopan/README.md` | docs | 0.58.5 (D174): the approved termopan counter set (doors, PVC shutter, radiator, linoleum) and its approval |
 | `art/bench/background/README.md` | docs | 0.58.8 (D179): the repair bench background made from the user's desk painting, and its approval |
 | `tools/art_batch_d/bench_mat.py` | tool | 0.58.8: rebuilds the user's desk painting for the bench layout (Python/PIL); drafts, options and the approved file |
+| `art/rooms/counter_walls/README.md` | docs | 0.58.9 (D180): the four approved counter wall finishes and their approval |
+| `scripts/data/wall_finishes.gd` | data | 0.58.9 (D180): the counter's wall finishes (starting paint, store prices, pictures) |
+| `scripts/ui/dialogue_box.gd` | ui | 0.58.9 (D181): spoken lines that unroll; click, Space or Enter goes on |
+| `tools/test_wall_finishes.gd` | test | 0.58.9: wall finishes (approved files, buying, switching, saving, the counter) |
+| `tools/test_dialogue.gd` | test | 0.58.9: the dialogue box and customers talking first at the counter |
+| `tools/art_batch_d/walls.py` | tool | 0.58.5/0.58.9: draws the four wall finishes over the counter shell and the review pictures |
+| `tools/art_batch_d/walls_export.py` | tool | 0.58.9: exports the approved walls as runtime layers and proves they rebuild the drafts |
+| `tools/art_batch_d/flat.py` | tool | helper for walls.py: the flat counter front from the approved Batch A pictures |
 | `tools/art_batch_d/termopan.py` | tool | 0.58.5: draws the termopan counter layers (Python/PIL); regenerates the approved files byte for byte |
 | `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
 | `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |
@@ -998,7 +1006,7 @@ GameState.reduce_flashing and set_reduce_flashing(enabled, persist=true) share t
 
 Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
 
-## 0.58.9 counter-art lifetime (B73)
+## 0.58.10 counter-art lifetime (B74)
 
 CounterArt alone retains its bounded successful texture loads across room disposal. Cache values hold
 immutable Texture2D resources and source modification timestamps, never nodes, scene/UI state or game

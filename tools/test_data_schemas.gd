@@ -175,6 +175,7 @@ const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "
     "complaint": TYPE_STRING, "uses": TYPE_STRING, "habits": TYPE_STRING, "patience": TYPE_STRING,
     "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY,
     "pc": TYPE_DICTIONARY}   # 0.45.0 (D148): the PC the customer brings, as catalogue parts
+const CUSTOMER_OPTIONAL: Dictionary = {"greeting": TYPE_STRING, "patience_line": TYPE_STRING}   # 0.58.9 (D181): what they say
 const GAME_REQUIRED: Dictionary = {"id": TYPE_STRING, "title": TYPE_STRING, "price": TYPE_INT,
     "gpu_demand": TYPE_INT, "cpu_demand": TYPE_INT, "ram_min": TYPE_INT, "size_gb": TYPE_INT}   # 0.51.0: install size (build requests)
 const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)
@@ -183,7 +184,7 @@ const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)
 func test_customers() -> void:
     for id: String in Customers.IDS:
         var who: Dictionary = Customers.customer(id)
-        check_schema(who, CUSTOMER_REQUIRED, {}, "customer " + id)
+        check_schema(who, CUSTOMER_REQUIRED, CUSTOMER_OPTIONAL, "customer " + id)
         check(who.get("id", "") == id, "customer %s knows its own id" % id)
         check(str(who.get("profession", "")) in PROFESSIONS, "customer %s has a first-cut profession" % id)
         check(int(who.get("payout", 0)) > 0 and int(who.get("budget", 0)) >= int(who.get("payout", 0)), "customer %s can afford their own repair" % id)
