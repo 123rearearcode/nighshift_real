@@ -315,7 +315,7 @@ func _remove() -> void:
     antivirus_strain = strain
     antivirus_resolved = false
     antivirus_panel = AntivirusPanel.new()
-    antivirus_panel.model = AntivirusRound.new(strain)
+    antivirus_panel.model = AntivirusRound.new(strain, "%s:%s" % [NightSession.run_id, antivirus_ticket])
     antivirus_panel.clock_text = "Night %d · %s" % [GameState.night_number,Clock.label(GameState.night_minutes)]
     antivirus_panel.finished.connect(_antivirus_finished)
     antivirus_panel.closed.connect(_close_antivirus)

@@ -1,5 +1,11 @@
 # Nightshift — Working Design
 
+## Current antivirus update — 0.58.0 / 27 November 2026
+
+D163: scan clues describe the unwanted behaviour without selecting exact targets. App inspection explains what it does in ordinary language. Stop the source and its returning helper, turn off Start with PC for that helper, then verify by reboot. Adware has bounded adverts/colour; miners have garbled aliases/high load. Six row slots and all controls stay fixed during an attempt. Stable per-PC variations repeat on retries; no computer terminology is required to solve them. Reduced effects give steady colour, no shake and changes at most once a second, with identical clues/rules. Ten night minutes per attempt remains trial tuning.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ## Current counter art — 0.57.5 / 25 November 2026
 
 User-approved Batch A revision 02 is integrated on the new PR branch after Claude's Batch B #79 was

@@ -1,5 +1,11 @@
 # Nightshift — Project Brief
 
+## Current antivirus update — 0.58.0 / 27 November 2026
+
+The user approved simple, intuitive deduction for players without computer knowledge and requested creation of 0.58.0. Task Manajer uses behaviour clues, plain app descriptions, distinct adware/miner reactions and fixed controls. Shared reduced-effects Settings persist separately from shop progress. The existing actual-infection, time, verification and payment boundaries remain. This implementation branch awaits user review; per-part minigames remain 0.59.0.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ## Current counter art — 0.57.5 / 25 November 2026
 
 User-approved Batch A revision 02 is integrated on the new PR branch after Claude's Batch B #79 was

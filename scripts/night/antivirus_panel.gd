@@ -3,10 +3,12 @@ extends Panel
 signal finished
 signal closed
 const Round = preload("res://scripts/rules/antivirus_round.gd")
+const Effects = preload("res://scripts/view/antivirus_effects.gd")
 var model: RefCounted
 var clock_text: String = ""
-var selected: String = "source"
+var selected: String = ""
 var row_buttons: Dictionary = {}
+var row_text: Dictionary = {}
 var row_cpu: Dictionary = {}
 var row_end: Dictionary = {}
 var heading: Label
@@ -31,6 +33,8 @@ var word_input: LineEdit
 var send_button: Button
 var cancel_button: Button
 var reported: bool = false
+var clues: Label
+var italic_font: FontVariation
 
 func _ready() -> void:
     name = "TaskManajer"
@@ -42,7 +46,7 @@ func _ready() -> void:
     style.border_color = Color("82ac87")
     style.set_border_width_all(2)
     add_theme_stylebox_override("panel",style)
-    _label(self,"TASK MANAJER / STANDARD INFECTION",Rect2(14,8,545,26),19)
+    _label(self,"TASK MANAJER / TROUBLE AT WORK",Rect2(14,8,545,26),19)
     pause_button = _button(self,"Pause",Rect2(560,8,125,32),_pause)
     stop_button = _button(self,"Stop cleanup",Rect2(695,8,137,32),_close)
     counter = _label(self,"",Rect2(14,42,818,23),14)
@@ -51,17 +55,26 @@ func _ready() -> void:
     progress.size = Vector2(818,9)
     progress.show_percentage = false
     add_child(progress)
+    italic_font = FontVariation.new()
+    italic_font.base_font = ThemeDB.fallback_font
+    italic_font.variation_transform = Transform2D(Vector2(1, 0), Vector2(0.18, 1), Vector2.ZERO)
+    if selected == "": selected = str(model.processes[0]["id"])
     for i in range(model.processes.size()):
         var item: Dictionary = model.processes[i]
         var id: String = str(item["id"])
         var y: float = 86 + i * 38
         row_buttons[id] = _button(self,"",Rect2(14,y,284,34),_select.bind(id))
         row_buttons[id].toggle_mode = true
+        row_text[id] = _label(row_buttons[id], "", Rect2(8,2,268,30), 14)
+        row_text[id].vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        row_text[id].autowrap_mode = TextServer.AUTOWRAP_OFF
+        row_text[id].clip_text = true
+        row_text[id].text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
         row_cpu[id] = _label(self,"",Rect2(302,y+6,44,24),14)
-        row_end[id] = _button(self,"End",Rect2(350,y,74,34),_end.bind(id))
-    heading = _label(self,"",Rect2(450,85,380,26),18)
+        row_end[id] = _button(self,"Stop",Rect2(350,y,74,34),_end.bind(id))
+    heading = _label(self,"WHAT THIS APP DOES",Rect2(450,85,380,26),18)
     details = _label(self,"",Rect2(450,116,380,108),14)
-    startup_button = _button(self,"Disable Zombie auto-start",Rect2(450,230,380,32),_startup)
+    startup_button = _button(self,"Turn off Start with PC",Rect2(450,230,380,32),_startup)
     advert = Panel.new()
     advert.position = Vector2(450,272)
     advert.size = Vector2(380,158)
@@ -70,11 +83,16 @@ func _ready() -> void:
     advert_text = _label(advert,"",Rect2(10,34,358,66),17)
     advert_close = _button(advert,"Close advert ×",Rect2(10,112,358,32),_close_ad)
     quiet = _label(self,"Advertisement slot · no pop-up right now",Rect2(450,288,380,50),15)
-    scan_button = _button(self,"Run budget scan",Rect2(14,322,410,34),_scan)
-    _label(self,"Fixed rows · no hiding\nLicensed to: INTERNET CAFE PC 04",Rect2(14,366,410,60),15)
+    scan_button = _button(self,"Read scan clues",Rect2(14,322,410,34),_scan)
+    clues = _label(self,"",Rect2(14,364,410,68),15)
     hack = Panel.new()
     hack.position = Vector2(14,314)
     hack.size = Vector2(420,119)
+    var hack_style := StyleBoxFlat.new()
+    hack_style.bg_color = Color("182b24")
+    hack_style.border_color = Color("82ac87")
+    hack_style.set_border_width_all(1)
+    hack.add_theme_stylebox_override("panel", hack_style)
     add_child(hack)
     hack_title = _label(hack,"",Rect2(10,5,400,24),16)
     hack_status = _label(hack,"Desktop paused while typing. No countdown.",Rect2(10,32,400,25),13)
@@ -119,26 +137,32 @@ func _button(parent: Node,text: String,rect: Rect2,action: Callable) -> Button:
 
 func refresh() -> void:
     var interactive: bool = model.interactive()
+    var reduced: bool = GameState.reduce_flashing
     for item: Dictionary in model.processes:
         var id: String = str(item["id"])
-        var state: String = " · ended" if item["ended"] else ""
+        var state: String = " · stopped" if item["ended"] else ""
         var face: String = ":{)" if id == "watchdog" and model.returns > 0 else str(item["face"])
-        row_buttons[id].text = "%s %s%s" % [face,model.label(id),state]
+        var effect: Dictionary = Effects.sample(model, id, reduced)
+        row_text[id].text = "%s %s%s" % [face,effect["text"],state]
+        row_text[id].position = Vector2(8,2) + effect["offset"]
+        row_text[id].add_theme_color_override("font_color", effect["colour"])
+        row_text[id].add_theme_font_override("font", italic_font if effect["italic"] else ThemeDB.fallback_font)
         row_buttons[id].set_pressed_no_signal(id == selected)
         row_buttons[id].tooltip_text = str(item["publisher"]) + " / " + str(item["path"])
-        row_cpu[id].text = "%d%%" % (0 if item["ended"] else int(item["cpu"]))
-        row_end[id].text = "Ended" if item["ended"] else "End"
+        row_cpu[id].text = "%d%%" % int(effect["cpu"])
+        row_end[id].text = "Stopped" if item["ended"] else "Stop"
         row_end[id].disabled = not interactive or item["ended"]
-        row_buttons[id].modulate = Color("ffcc99") if model.scanned and item["bad"] else Color.WHITE
     var item: Dictionary = model.process(selected)
-    heading.text = model.label(selected)
-    details.text = "%s\n%s\n\n%s" % [item["publisher"],item["path"],item["detail"]]
-    counter.text = "%s · %d night minutes spent · stopped %d / 2 · overload %.0f%%" % [clock_text,Round.COST_MINUTES,2-model.remaining(),model.overload]
+    details.text = "%s\n\nFrom: %s\nFolder: %s" % [item["detail"],item["publisher"],item["path"]]
+    counter.text = "%s · %d night minutes spent · trouble stopped %d / 2 · pressure %.0f%%" % [clock_text,Round.COST_MINUTES,2-model.remaining(),model.overload]
     progress.value = model.overload
-    startup_button.disabled = not interactive or not model.startup
-    startup_button.text = "Disable Zombie auto-start" if model.startup else "Zombie auto-start disabled"
+    progress.tooltip_text = model.next_step()
+    startup_button.disabled = not interactive or not model.startup or selected != "watchdog"
+    startup_button.text = "Turn off Start with PC" if model.startup else "Start with PC is off"
+    startup_button.tooltip_text = "Select the app that brings unwanted software back, then turn this off."
     scan_button.disabled = not interactive or model.scanned
-    scan_button.text = "Budget scan · suspects tagged" if model.scanned else "Run budget scan"
+    scan_button.text = "Scan clues are below" if model.scanned else "Read scan clues"
+    clues.text = model.scan_clues() if model.scanned else "1. Read scan clues.\n2. Click an app to read what it does.\n3. Stop the trouble, then reboot."
     advert.visible = model.advert and model.outcome == "running"
     quiet.visible = not advert.visible
     advert_text.text = Round.OFFERS[model.offer % Round.OFFERS.size()]
@@ -153,7 +177,8 @@ func refresh() -> void:
             word_input.grab_focus()
     pause_button.disabled = not model.pending.is_empty() or model.outcome != "running"
     pause_button.text = "Resume" if model.paused else "Pause"
-    note.text = "PAUSED · resume when ready." if model.paused else model.status
+    note.text = "PAUSED · click apps to read about them, then Resume." if model.paused else model.status
+    note.tooltip_text = model.next_step()
     verify_button.disabled = not interactive
     shortcut_button.disabled = not interactive or model.remaining() > 0
     stop_button.text = "Back to monitor" if model.outcome != "running" else "Stop cleanup"

@@ -95,6 +95,13 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 | B61 | Open | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | — | Not reproduced; code review of main df5c03f (0.57.8, PR #83) |
+| B63 | Open | High | Save recovery | PR #88 retains the previous run's later mornings, prunes a new game's morning-1 backup and can restore the old playthrough | — | Automated: Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md |
+| B64 | Verified | Low | Help | Pause still directs the player to the retired Activities screen | 0.58.0 | Graphical: F10 during adware cleanup; docs/ANTIVIRUS_0580_VALIDATION.md |
+| B65 | Verified | Low | Test harness | Initial effects-setting fixture injected root-viewport clicks into a separate dialog window, then tried to cast its unchanged malformed setting to bool | 0.58.0 | Automated: Antivirus 67 checks; dialog control signals and guarded value comparison |
+| B66 | Verified | Low | Antivirus feedback | Per-PC adware names still received a hardcoded FreeCursors reaction after stopping | 0.58.0 | Automated: alias-specific tools/test_antivirus.gd regression (68 checks); graphical mismatch reproduced |
+
+| B67 | Verified | Low | Antivirus presentation | The typing panel lets scan clues show through behind the word input | 0.58.0 | Graphical: corrected opaque prompt; docs/ANTIVIRUS_0580_VALIDATION.md |
+| B68 | Verified | Low | Antivirus feedback | A stopped miner keeps changing its alias while its helper still runs | 0.58.0 | Automated: tools/test_antivirus.gd, final alias retained after clock advance |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -897,3 +904,66 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: the glass shows the revealed clue magnified / the glass shows a healthy connector, and the clue is only visible outside the glass.
 - Fix direction (for the bay's owner, not done by the checker): draw each revealed clue overlay into the glass with the same UVs after the base picture, and clamp or mask the glass to `PART_RECT`. A headless test can check that `_draw_lens` samples every non-null `clue_texture(i)`; how it looks needs a graphical check.
 - Regression / evidence: none yet.
+
+
+### B63 — New-game recovery can restore the previous playthrough (PR #88)
+
+- Found: PR #88 head a8667b7, 27 November 2026; not merged in this 0.58.0 baseline.
+- Reported by: Codex, bounded user-requested PR review. B62 is allocated by the separate PR #88.
+- Fixed in: —; Open.
+- Root cause: backup folders/retention and restoration are scoped by save filename/night number, without canonical run identity.
+- Reproduction: retain morning 20/21/22 of a $777 shop, start a new $100 shop in the same slot, remove its manifest/fallbacks and restore. Its morning 1 was pruned; restore returns old run/night 22/$777.
+- Expected / actual: recover a current-run morning / silently replace it with the previous playthrough.
+- Regression / evidence: Automated Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md preserves output. Optional tools/reproduce_b63.gd observes the case on a tree containing the backup module. Supplied suites passed but omit this cross-run case. No user saves changed; no fix or graphical verification claimed.
+
+### B64 — Pause help points to the retired Activities screen
+
+- Found: 0.57.9 source and earlier preserved first-day reports.
+- Reported by: prior playtests; corrected during the 0.58.0 shared Settings work.
+- Fixed in: 0.58.0.
+- Root cause: shared pause copy was not updated when room navigation replaced Activities.
+- Reproduction: F10 on any night station; read the pause help.
+- Expected / actual: workshop/room instructions / instructions to use Activities.
+- Regression / evidence: source now refers to workshop stations; shared Pause opens in the Antivirus suite. Graphical Codex [observation](ANTIVIRUS_0580_VALIDATION.md): F10 during the isolated adware cleanup displayed the corrected workshop-station text. The executable Pause journey is in `tools/test_antivirus.gd`; this is verified presentation, not human feel acceptance.
+
+### B65 — Initial popup-setting fixture used the wrong input surface
+
+- Found: 0.58.0 local test development, before delivery.
+- Reported by: failed Antivirus fixture under Godot 4.7.2.
+- Fixed in: 0.58.0 before release.
+- Root cause: the fixture treated a native AcceptDialog Window as the root viewport; the toggle never fired, then bool() on the untouched malformed string aborted the test coroutine. No product toggle failure was established.
+- Reproduction: send root-style pointer coordinates into the title Settings dialog, then cast its still-string fixture value to bool.
+- Expected / actual: a control change with a normal test summary / unchanged setting and an invalid-constructor error.
+- Regression / evidence: Automated `tools/test_antivirus.gd`: Antivirus 67 checks, zero failures/script errors. The headless fixture uses the actual CheckButton state/signal and guarded comparison; native OS-window pointer routing is reserved for graphical verification.
+
+
+### B66 — Adware reaction names the wrong app after a case variation
+
+- Found: graphical 0.58.0 development check, before delivery.
+- Reported by: Codex, isolated adware cleanup with BonusSmiles.exe.
+- Fixed in: 0.58.0 before release.
+- Root cause: the source-stopped joke still hardcoded FreeCursors although D163 allows different initial adware names.
+- Reproduction: start a case whose source has a different name, then stop that app.
+- Expected / actual: the reaction names the stopped app / it says FreeCursors instead.
+- Regression / evidence: graphical observation reproduced the mismatch; the reaction now reads the source label. Automated alias-specific assertion in `tools/test_antivirus.gd` passes on Godot 4.7.2 (68 checks, zero failures).
+
+
+### B67 — Typing prompt lets the scan clues show through
+
+- Found: graphical 0.58.0 miner cleanup, before delivery.
+- Reported by: Codex, the word input over the scan-clue area.
+- Fixed in: 0.58.0 before release.
+- Root cause: the default panel style did not provide an opaque backdrop for the overlaid typing prompt.
+- Reproduction: Read scan clues, stop the miner, inspect the word input: the clue text remains visible behind it.
+- Expected / actual: an unobstructed typing prompt / overlapping background text.
+- Regression / evidence: direct graphical observation; explicit opaque StyleBoxFlat now covers the prompt. The final graphical launch confirmed the unobstructed opaque prompt; see the [graphical record](ANTIVIRUS_0580_VALIDATION.md). The protected-process journey is in `tools/test_antivirus.gd`; no implementation-mirroring assertion was added for a colour/style change.
+
+### B68 — Stopped miner keeps changing its alias
+
+- Found: graphical 0.58.0 miner cleanup, before delivery; inherited from the previous alias logic.
+- Reported by: Codex, the stopped source row changes from SystemHeater to CoolCoin and back while working on its helper.
+- Fixed in: 0.58.0 before release.
+- Root cause: Round.label calculated aliases from elapsed time even for an ended process.
+- Reproduction: stop a protected miner, complete the word, leave its helper running for more than eight seconds.
+- Expected / actual: all source interference stops / the stopped row still changes name.
+- Regression / evidence: graphical observation; the final visible alias is now stored at stop. Automated clock-advance assertion in `tools/test_antivirus.gd` passes on Godot 4.7.2 (69 checks, zero failures).
