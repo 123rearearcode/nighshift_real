@@ -1,5 +1,27 @@
 # Handoff — current state first
 
+## Current — 0.58.11 meaningful interactions and revised monitor step, 28 November 2026
+
+The user set a core philosophy (D182): minigames must represent meaningful work and the absurd,
+sometimes funny fight against “the system” recognised in everyday European life. Read DESIGN.md
+and MINIGAME_RULES.md before proposing any new one. A brief must explain the shop problem, mimicked
+action, useful evidence/choice/consequence and thematic fit. Routine craft can remain calm and useful.
+
+The six bespoke part-test minigames are cancelled; PART_TESTS_DESIGN.md is retired history. Keep the
+magnifying glass and existing simple rig/software diagnostics. The 0.59.0 part-test reservation is
+released. The user says **Claude is working on the monitor desktop feel as the replacement step**
+(D184); p07 now records that ownership, without allocating its version or implementing its features.
+GPU artifacting is a possible future diagnostic symptom (D183, p13-11), not another minigame or
+approved runtime implementation. Current rules already model/report it; richer visuals remain open.
+
+This patch changes docs, roadmap data and version metadata only, on merged main 0.58.10 / a9f576b
+(#96 and #97 are merged). No runtime, art, save or hot-file change. The scheduled checker keeps
+0.60.0. Roadmap ids are retained, cancelled tasks are explicit and later forecast dates are not
+pulled forward. Latest user decisions supersede stale snapshots; Claude syncs its live editable
+roadmap from this revision. Exact checks and delivery state are in CHANGELOG.md.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current — 0.58.10 faster counter returns, 27 November 2026
 
 The user reported a noticeable counter loading delay and confirmed it happens every return. Codex reproduced

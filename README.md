@@ -1,4 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.58.10)
+# Nightshift - Godot Foundation Trial (v0.58.11)
+
+0.58.11 records the core philosophy for meaningful, thematic interactions, retires the six-part
+minigame plan and updates the reference roadmap. Claude owns the replacement monitor desktop work;
+GPU artifacting remains a possible future symptom. This is a documentation update; gameplay is unchanged.
 
 0.58.10 keeps the counter’s approved art cached between room visits (B74). This is PR #97, stacked after PR #96 (0.58.9); merge #96 first. The first visit still loads the art once. See [counter loading evidence](docs/COUNTER_LOADING.md).
 

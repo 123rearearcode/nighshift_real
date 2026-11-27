@@ -139,7 +139,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/ANTIVIRUS_0580_VALIDATION.md` | docs | Target-engine checks and exact graphical UI-fixture observations for 0.58.0, with limits |
 | `tools/reproduce_b63.gd` | tooling | Optional disposable cross-new-game recovery observation on a checkout with PR #88; not a required suite |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
-| `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
+| `docs/MINIGAME_RULES.md` | docs | D182 purpose/theme gate, intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
 | `docs/PERFORMANCE.md` | docs | Measured 0.22.0/0.22.1 comparison, cache/wake contracts and profiling limits |
 | `docs/REVIEW_CONSOLIDATION.md` | docs | 0.57.7 critical consolidation of checker #77/#78 against 0.57.6: B59 matrix, corrected performance claims and proposal dispositions |

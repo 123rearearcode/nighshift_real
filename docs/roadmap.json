@@ -10,10 +10,11 @@
    "The hose clamp listed under physical handling was removed (D175).",
    "A New game now has 3 tickets: Hudici Dan's PC waits in storage besides Mara and Relu.",
    "The store also sells backpacks.",
-   "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
+   "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says.",
+   "28 Nov (D182–D184): cancelled the six dedicated component test minigames and their former 0.59.0 reservation; p07 is now Claude’s monitor desktop work. GPU artifacting is an unscheduled candidate. Earlier correction entries retain their historical baselines."
   ],
-  "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.58.10",
+  "datesNote": "Future dates are planning forecasts, not agreed deadlines. The replacement monitor step inherits an unconfirmed window, not a new estimate. The 0.59.0 per-part-test reservation is released; Claude coordinates the monitor version. Only 0.60.0 (checker) remains reserved here. Later dates are not pulled forward; Steam launch has no date.",
+  "main": "0.58.11",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -21,9 +22,12 @@
   "repo": "https://github.com/123rearearcode/nighshift_real",
   "source": "ChatGPT's development roadmap (snapshot main 0.58.3 / 732a0e4), checked against the repository at main 0.58.5 and the work done in the Claude chat.",
   "title": "Nightshift roadmap",
-  "updatedAt": "2026-11-27T21:57:37Z",
+  "updatedAt": "2026-11-27T22:57:33Z",
   "live": "https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C",
-  "howToUpdate": "Agents: read this file before choosing work. When your PR finishes or changes a roadmap item, update that item's status/detail here in the same PR (keep ids; new items get a new id in their phase). Set about.main to the PR's version. Claude syncs this file with the live page the user edits; if they disagree, the live page wins."
+  "howToUpdate": "Agents: read this file before choosing work. When your PR finishes or changes a roadmap item, update that item's status/detail here in the same PR (keep ids; new items get a new id in their phase). Set about.main to the PR's version. Claude syncs this file with the live page the user edits; if they disagree, the live page wins. Latest explicit user scope decisions override stale snapshots, including the live page; carry D182–D184 into the next Claude sync. Cancelled tasks retain their ids and are excluded from active completion totals.",
+  "scopeUpdatedBy": "Codex (GPT-6, model id not exposed by this session), ChatGPT Work",
+  "scopeDecidedOn": "28 November 2026, Europe/Bucharest",
+  "scopeNote": "D182–D184: purposeful thematic interactions; six component minigames cancelled; Claude is working on the replacement monitor desktop step; GPU artifacting is an unscheduled symptom idea. Based on merged main 0.58.10 / a9f576b; this documentation version awaits merge."
  },
  "phases": [
   {
@@ -461,7 +465,7 @@
    "state": "next",
    "summary": "Recheck the latest build, correct misleading feedback and close the highest-impact reliability gaps.",
    "title": "Make the latest build trustworthy",
-   "updatedAt": "2026-11-27T20:30:00Z",
+   "updatedAt": "2026-11-27T22:57:33Z",
    "version": "Next patch series",
    "id": "p06",
    "items": [
@@ -678,100 +682,139 @@
      "checkNote": "0.58.10 (B74), stacked after #96. Original isolated cache measurement: about 299 to 19 ms median headless returns. The integrated tree passed 41 required suites / 2,648 checks in Godot 4.7.2; human target-PC feel remains pending. The former unmerged p06-15 allocation was corrected to p06-17 to preserve #96’s vacuum-switch task.",
      "order": 170,
      "updatedAt": "2026-11-27T21:57:37Z"
+    },
+    {
+     "id": "p06-18",
+     "title": "Record the core interaction philosophy and revised scope",
+     "detail": "0.58.11 documentation: purposeful minigames reflecting the absurd, sometimes funny fight against the system; retire the six-test brief; record Claude’s replacement monitor step and the GPU symptom idea. No runtime implementation.",
+     "order": 180,
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/MINIGAME_RULES.md",
+      "docs/DECISIONS.md"
+     ],
+     "status": "done",
+     "updatedAt": "2026-11-27T22:57:33Z"
     }
    ]
   },
   {
    "end": "2026-12-20",
    "forecast": true,
-   "gate": "Six part families have understandable tests; failed tries spend time; evidence, condition, pause and PC isolation stay correct. Timing and difficulty need playtests.",
+   "gate": "Claude delivers the desktop feel for user review. Detailed scope, acceptance and version belong to that work; the inherited date window remains unconfirmed.",
    "order": 7,
    "start": "2026-12-07",
-   "state": "planned",
-   "summary": "Short, intuitive, hardware-specific minigames replace the quick/long bay buttons. Owner: Codex (reserved version).",
-   "title": "Every part gets its own test",
-   "updatedAt": "2026-11-27T20:30:00Z",
-   "version": "0.59.0",
+   "state": "next",
+   "summary": "The user says Claude is working on the replacement monitor desktop step (D184). The former six-test minigame plan is cancelled (D182).",
+   "title": "Monitor desktop feel — Claude",
+   "updatedAt": "2026-11-27T22:57:33Z",
+   "version": "Version pending · Claude",
    "id": "p07",
    "items": [
     {
+     "id": "p07-08",
+     "title": "Create the monitor’s desktop feel",
+     "detail": "Claude is already working on this replacement step (user clarification, D184). Coordinate implementation and version with Claude; this plan does not invent detailed desktop features or mark the work complete. The original forecast dates are not a measured estimate for the replacement.",
+     "order": 80,
+     "refs": [
+      "docs/DECISIONS.md",
+      "docs/WORK_PLAN.md"
+     ],
+     "status": "next",
+     "updatedAt": "2026-11-27T22:57:33Z"
+    }
+   ],
+   "cancelledItems": [
+    {
      "id": "p07-01",
-     "detail": "Pin selection and a meter band are proposed. Prototype a forgiving mouse task and explain it without hardware expertise.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. Pin selection and a meter band are proposed. Prototype a forgiving mouse task and explain it without hardware expertise.",
      "order": 10,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "PSU: paperclip and a wobbling meter",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-02",
-     "detail": "Short memory-test parody. Errors must reflect the part's real condition; player skill must not invent or heal faults.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. Short memory-test parody. Errors must reflect the part's real condition; player skill must not invent or heal faults.",
      "order": 20,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "RAM: spot the digit that does not belong",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-03",
-     "detail": "A load/temperature parody. Choose an accessible input before settling any rapid-click requirement or difficulty.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. A load/temperature parody. Choose an accessible input before settling any rapid-click requirement or difficulty.",
      "order": 30,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "CPU: manage a rising heat reading",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-04",
-     "detail": "A spinning furry donut and artifact spotting. Offer reduced effects and readable clues; only the real hidden condition supplies the outcome.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. A spinning furry donut and artifact spotting. Offer reduced effects and readable clues; only the real hidden condition supplies the outcome.",
      "order": 40,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "GPU: a FurBall artifact test",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-05",
-     "detail": "HDD rhythm / SSD transfer behaviour. Ensure an equivalent visual route; audible feedback is not yet validated.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. HDD rhythm / SSD transfer behaviour. Ensure an equivalent visual route; audible feedback is not yet validated.",
      "order": 50,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "Storage: clicks, copy stalls and a clear reading",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-06",
-     "detail": "A finger-spin/wobble parody. Keep it short and readable, and record only the evidence the player actually obtained.",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. A finger-spin/wobble parody. Keep it short and readable, and record only the evidence the player actually obtained.",
      "order": 60,
      "refs": [
       "docs/PART_TESTS_DESIGN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "Cooler: spin, wobble and airflow",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z",
+     "checkState": "corrected",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain."
     },
     {
      "id": "p07-07",
-     "checkNote": "0.59.0 is still reserved for Codex in WORK_PLAN.md.",
-     "checkState": "confirmed",
-     "detail": "Replace the quick/long buttons with per-kind tests. Failures lose night minutes; known.tests reflects actual work. Keep per-PC state, focus-loss pause and the 06:00 boundary. 5/+5 minutes and 8–20 seconds are proposals.",
+     "checkNote": "D182 supersedes the former approval/reservation; existing lens and simple functional tests remain.",
+     "checkState": "corrected",
+     "detail": "Cancelled by the user on 28 Nov 2026 (D182). Retained as history only; do not implement. Replace the quick/long buttons with per-kind tests. Failures lose night minutes; known.tests reflects actual work. Keep per-PC state, focus-loss pause and the 06:00 boundary. 5/+5 minutes and 8–20 seconds are proposals.",
      "order": 70,
      "refs": [
       "docs/WORK_PLAN.md"
      ],
-     "status": "planned",
+     "status": "cancelled",
      "title": "Preserve test evidence, time and pause rules",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z"
     }
    ]
   },
@@ -1075,7 +1118,7 @@
    "state": "later",
    "summary": "Ideas the user wants or has discussed, not yet placed in a milestone.",
    "title": "Possibilities without a slot",
-   "updatedAt": "2026-11-27T20:30:00Z",
+   "updatedAt": "2026-11-27T22:57:33Z",
    "version": "Unscheduled",
    "id": "p13",
    "items": [
@@ -1150,12 +1193,12 @@
     },
     {
      "id": "p13-08",
-     "detail": "Relabel similar parts only; must not rewrite condition or invent test evidence. Outside 0.59.0.",
+     "detail": "Relabel similar parts only; must not rewrite condition or invent test evidence. A separate later idea, unaffected by cancellation of the six-test minigame plan (D182).",
      "order": 80,
      "refs": [],
      "status": "idea",
      "title": "A later relabeler tool",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T22:57:33Z"
     },
     {
      "id": "p13-09",
@@ -1174,6 +1217,19 @@
      "status": "idea",
      "title": "Achievements, cloud, controller and extra platforms",
      "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-11",
+     "title": "GPU artifacting as an observable diagnostic symptom",
+     "detail": "User suggestion (D183), unscheduled. Existing rules already model/report artifacts; explore meaningful visual corruption during existing monitor/game tests. Tie it to the actual PC and test, keep clear reduced-effects evidence, and let the player diagnose. No glitch-catching minigame or automatic fault verdict; coordinate with Claude’s monitor work.",
+     "order": 110,
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md",
+      "scripts/rules/software_checks.gd"
+     ],
+     "status": "idea",
+     "updatedAt": "2026-11-27T22:57:33Z"
     }
    ]
   }
@@ -1181,13 +1237,13 @@
  "decisions": [
   {
    "id": "d01",
-   "answer": "",
-   "ask": "Which interaction and accessibility variant works for each part, and what time penalty is fair?",
-   "context": "Short per-kind tests, time lost on failure, and testing versus merely labelling are approved. Exact inputs and timing are proposals.",
+   "answer": "No. D182 cancels the six bespoke minigames; keep the glass and existing simple functional tests. Claude’s monitor desktop work replaces the milestone (D184).",
+   "ask": "",
+   "context": "The earlier D162 approval and 0.59.0 reservation are superseded by the latest user decisions on 28 Nov 2026. Cancelled tasks remain as history.",
    "order": 10,
-   "question": "How should the six part tests feel?",
-   "state": "open",
-   "updatedAt": "2026-11-27T20:30:00Z"
+   "question": "Do components need separate testing minigames?",
+   "state": "settled",
+   "updatedAt": "2026-11-27T22:57:33Z"
   },
   {
    "id": "d02",
@@ -1303,11 +1359,11 @@
    "id": "d13",
    "answer": "",
    "ask": "Which setting details, recurring characters and arcs anchor the first campaign?",
-   "context": "Customer lore with separate professional trust and personal closeness is required. The Balkan/communist-block look is set.",
+   "context": "Customer lore with separate professional trust and personal closeness is required. The Balkan/communist-block look is set. D182 adds the core vibe: the absurd, sometimes funny fight against the system, grounded in everyday European life.",
    "order": 130,
    "question": "Who are the recurring people of Nightshift?",
    "state": "open",
-   "updatedAt": "2026-11-27T20:30:00Z"
+   "updatedAt": "2026-11-27T22:57:33Z"
   },
   {
    "id": "d14",
@@ -1418,6 +1474,36 @@
    "question": "The name of the place on its wall",
    "state": "settled",
    "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d25",
+   "order": 250,
+   "question": "What justifies a minigame in Nightshift?",
+   "state": "settled",
+   "answer": "D182: a meaningful shop problem and understandable action, with useful evidence/choices/consequences and a fit with the absurd, sometimes funny fight against the system. Minigames do not exist merely to add activity.",
+   "ask": "",
+   "context": "Core design philosophy confirmed by the user on 28 Nov 2026; calm tactile craft can still be satisfying.",
+   "updatedAt": "2026-11-27T22:57:33Z"
+  },
+  {
+   "id": "d26",
+   "order": 260,
+   "question": "How should GPU artifacting appear during diagnosis?",
+   "state": "open",
+   "answer": "",
+   "ask": "Which existing test should show it, what causes it to appear, and how does the player record and investigate it clearly?",
+   "context": "D183 is an unscheduled suggestion. The existing defect and text reports already exist; richer visual presentation is future work. Coordinate with Claude’s monitor desktop work; no separate minigame is approved.",
+   "updatedAt": "2026-11-27T22:57:33Z"
+  },
+  {
+   "id": "d27",
+   "order": 270,
+   "question": "What replaces the cancelled part-test milestone?",
+   "state": "settled",
+   "answer": "D184: Claude is already working on a desktop vibe for the monitor.",
+   "ask": "",
+   "context": "Ownership is confirmed; detailed scope, acceptance and version remain with Claude’s delivery.",
+   "updatedAt": "2026-11-27T22:57:33Z"
   }
  ]
 }

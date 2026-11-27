@@ -1,5 +1,29 @@
 # Nightshift — minigame rules
 
+## 0. Purpose and tone — current design gate, 28 November 2026 (D182)
+
+Minigames are meaningful encounters with the work and the world of Nightshift. The guiding tone is
+the absurd, sometimes funny struggle of running a shop while dealing with “the system”, grounded in
+everyday European experiences. Obstacles, inconsistent rules and improvised workarounds should make
+sense in the situation and give the player agency. A minigame exists because its interaction adds
+something worth doing or learning.
+
+Every new minigame brief must identify the real shop problem, the understandable action that mimics
+it, the resulting evidence/choice/consequence, and its fit with the game's world and humour. Use a
+simple action or an existing tool when the extra activity adds no useful decision. Difficulty, a
+timer, repetition or a joke by itself does not justify the activity. Ordinary tactile work can be
+rewarding without being comic; do not manufacture bureaucratic chores for every repair.
+
+The six part-specific test minigames are cancelled. Inspection with the glass and existing simple
+functional checks keep their different purposes; no runtime buttons are removed by this document.
+GPU artifacting is an unscheduled symptom/presentation idea (D183), not an artifact-catching task.
+Claude's monitor desktop work is the replacement roadmap step (D184); it is not built here.
+
+The detailed dust, paste, claim and consequence rules below remain subject to this principle. Their
+older implementation snapshots stay historical; this update adds no new scam or bureaucracy system.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current anti-virus addition — D157 / 0.49.0, 19 November 2026
 
 The user approved the calm Task Manajer demo and requested native game integration. Its canonical

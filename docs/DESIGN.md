@@ -1,5 +1,51 @@
 # Nightshift — Working Design
 
+## Core interaction philosophy — 0.58.11 / 28 November 2026 (D182–D184)
+
+**Confirmed:** minigames serve the shop and its world. The intended vibe is the absurd, sometimes
+funny fight against “the system” that people also recognise in European countries: small-business
+life among awkward rules, unreliable technology, conflicting demands and improvised solutions.
+The player should feel the satisfaction of understanding an obstruction and finding a way through it.
+The humour should arise from the situation and its behaviour. Specific, recognisable situations and
+people anchor the humour.
+
+Before proposing or building a minigame, state:
+
+1. **The problem:** what recognisable repair or shop situation is the player dealing with?
+2. **The action:** how does the interaction resemble dealing with that situation, in a way a player
+   without computer knowledge can understand?
+3. **The consequence:** what useful evidence, decision, trade-off or change to the shop does it create?
+4. **The fit:** how does it support this world, its frustrations, resourcefulness or humour?
+
+If those answers are weak, use a simple action, existing tool or observation and reconsider the
+minigame. Arbitrary dexterity, repetition, a funny title or time penalties alone are insufficient.
+Quiet craft and satisfying physical work can fulfil this principle; comedy and bureaucracy are not
+required in every interaction. Existing activities are judged by their purpose, not automatically
+removed or expanded by this rule. New bureaucracy, paperwork and supplier systems are not implicitly
+commissioned by the examples above.
+
+**Component testing:** the proposed six bespoke PSU/RAM/CPU/GPU/storage/cooler minigames are cancelled
+(supersedes D162 item 4 and its later 0.59.0 assignment). Retain the magnifying glass for physical
+clues and the existing quick/long rig and software diagnostics for functional evidence. Looking clean
+does not certify a part works; actual condition, observed evidence and the player's label stay separate.
+No mandatory inspect-then-minigame sequence is added. PART_TESTS_DESIGN.md preserves the retired brief.
+
+**Replacement roadmap step:** the user says Claude is working on the monitor's desktop feel (D184).
+It replaces the per-part-test milestone. Claude owns the implementation and its version; detailed
+desktop behaviour and acceptance are not invented in this design update.
+
+**GPU artifacting — candidate, not a commissioned implementation (D183):** show meaningful corruption
+in the existing in-game monitor/game-test context, allowing the player to observe and investigate it.
+The current rules already model an `artifacts` defect and report coloured blocks/crashes; richer visual
+presentation is future work. Any future symptom must follow the particular PC's real state and test
+conditions, remain understandable with reduced effects, and feed observation/diagnosis. It must
+preserve diagnosis rather than automatically name the faulty part. A separate
+click-to-catch or click-to-repair artifacts game is not approved.
+Exact trigger, presentation, interaction and release placement remain open. Coordinate any monitor
+work with Claude. No runtime effect is added by this revision.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current antivirus update — 0.58.0 / 27 November 2026
 
 D163: scan clues describe the unwanted behaviour without selecting exact targets. App inspection explains what it does in ordinary language. Stop the source and its returning helper, turn off Start with PC for that helper, then verify by reboot. Adware has bounded adverts/colour; miners have garbled aliases/high load. Six row slots and all controls stay fixed during an attempt. Stable per-PC variations repeat on retries; no computer terminology is required to solve them. Reduced effects give steady colour, no shake and changes at most once a second, with identical clues/rules. Ten night minutes per attempt remains trial tuning.

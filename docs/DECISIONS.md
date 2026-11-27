@@ -905,3 +905,45 @@ the customer's head, THE WORKSHOP, and outside the shop's name on its front (NIG
 the plate says the room's name, the small title at the top is hidden. Also: the termopan drafts (D174) were
 approved ("aight go on with the PVC") and installed; the user asked for alternatives to the tiles (four
 drafts, pending). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+### D182 — Meaningful minigames and the fight against “the system” (user, 28 November 2026)
+
+The user clarified that minigames must not exist just to add minigames. Their purpose and interaction
+should fit Nightshift's theme: the absurd and sometimes funny fight against “the system” that also
+exists in European countries. This is a core design philosophy, not just dialogue flavour.
+
+Every future minigame must explain its recognisable shop problem, the understandable action that
+mimics dealing with it, its useful evidence/decision/consequence, and its fit with the world and tone.
+Ordinary satisfying craft does not need an artificial joke or bureaucratic chore. This principle
+does not itself commission new government, paperwork, supplier or campaign systems.
+
+The user rejects the “every part gets its own test” feature. Cancel D162 item 4's six bespoke test
+minigames, their quick/long-button replacement and associated failure-time/skill proposals. Retain
+the existing magnifying glass and simple functional diagnostics; visible clues cannot certify hidden
+condition. Tested evidence and the player's label remain separate. The later similar-part relabeler
+idea is unaffected. Release the old 0.59.0 part-test reservation. Preserve the retired brief and ids
+as cancelled history, and use this decision when older assignments conflict.
+
+### D183 — GPU artifacting as a possible diagnostic symptom (user suggestion, 28 November 2026)
+
+The user: “We could add GPU artifacting as part of the game.” Record this as an unscheduled candidate,
+not an instruction to implement a new minigame. Existing rules already model an `artifacts` defect
+and return reports of coloured blocks/crashes; richer visible symptoms are a possible next layer.
+
+Design direction to explore: let the player observe corruption during existing monitor/game testing
+and investigate it. Future presentation must follow the actual PC and running test, record only
+observed evidence, remain understandable with reduced effects and avoid automatically naming the
+faulty part. No click-to-catch or click-to-repair artifacts task is approved. Exact presentation,
+triggers, acceptance and release placement are still open. Coordinate with Claude's monitor work.
+
+### D184 — Monitor desktop feel replaces the part-test step (user, 28 November 2026)
+
+The user clarified that Claude is already working on replacing that roadmap step with creating a
+desktop vibe for the monitor. Assign the replacement p07 milestone to Claude, retain the cancelled
+test tasks as history and do not implement or prescribe the desktop in this documentation PR.
+No version, OS simulation features or detailed acceptance criteria were supplied by this message;
+those belong to Claude's delivery and the user's review. The replacement does not automatically
+approve the separate GPU artifacting idea or move later forecast release dates forward.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
