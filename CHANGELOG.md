@@ -132,6 +132,52 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.1 - 2026-11-27 - B61: the magnifying glass shows the clues it has revealed
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.9 (dfbf5aa; #84, #85 and #86 merged with the user's go-ahead); main 0.58.0 (79de01f,
+  Codex's #89, reviewed this patch with no blocking finding) merged in before merging, so this is 0.58.1
+  (developed as 0.57.10). Answers the Code
+  checker's B61 report (#85, under Unreleased). No other PR open; next bug id B62.
+- Type: patch (bug fix, presentation).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. Headless runs draw nothing: the new checks test the stack the glass draws and the glass's shape,
+not how it looks. No human in-game visual check yet.
+
+### Added / Changed / Fixed / Removed
+- **B61 fixed:** in the testing bay, the magnifying glass sampled only the healthy close-up, so a scorch mark
+  or other clue the lens had revealed vanished inside the glass when you looked again. The panel and the
+  glass now draw the same stack (`picture_layers`: the close-up, then every revealed clue), and the glass
+  (`lens_glass`) is cut to where it and the point it magnifies lie on the picture, so the picture's edge is
+  no longer smeared and the glass magnifies nothing once it is off the panel.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/night/testing_bay_view.gd` | M | `picture_layers`, `lens_glass`; the panel and the glass draw the same stack |
+| `tools/test_testing_bay.gd` | M | B61 checks: the stack before/after a reveal; the glass stays on the picture |
+| `docs/BUGS.md` | M | B61 Fixed, with its regression evidence |
+| `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | Handoff, version 0.58.1, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
+- The glass shape was checked numerically with a Python copy of `lens_glass` at the spot, half off the panel,
+  in the corner and off the panel (UVs stay in 0..1; empty off the panel).
+- GitHub Actions on Godot 4.7.2 (headless): run 46021841002 on `1ae3133` passed, every suite including the
+  new B61 checks; B61 marked Verified.
+
+### Decisions proposed (not approved)
+- None.
+
+### Known issues and open items
+- The performance review's proposals 2 and 3 (record copies while the lens is held; string-built picture
+  lookups) are not taken here.
+
+### Next action
+- The user merges the PR. Open discussions: the cable-management minigame, termopan doors and the rest of
+  the counter art, the B59 recovery policy.
+
 ## 0.58.0 - 2026-11-27 - Simple, lively Task Manajer and reduced effects
 - Author: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
 - Based on: merged main 0.57.9 / dfbf5aaaef455a656588fa6fdb7cb40a2e5ad359.

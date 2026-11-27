@@ -94,7 +94,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
 | B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
-| B61 | Open | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | — | Not reproduced; code review of main df5c03f (0.57.8, PR #83) |
+| B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.58.1 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
 | B63 | Open | High | Save recovery | PR #88 retains the previous run's later mornings, prunes a new game's morning-1 backup and can restore the old playthrough | — | Automated: Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md |
 | B64 | Verified | Low | Help | Pause still directs the player to the retired Activities screen | 0.58.0 | Graphical: F10 during adware cleanup; docs/ANTIVIRUS_0580_VALIDATION.md |
 | B65 | Verified | Low | Test harness | Initial effects-setting fixture injected root-viewport clicks into a separate dialog window, then tried to cast its unchanged malformed setting to bool | 0.58.0 | Automated: Antivirus 67 checks; dialog control signals and guarded value comparison |
@@ -898,14 +898,12 @@ then-current design wording do not override the current status, D150 or the late
 
 - Found: 0.57.8, scheduled Code checker change review of main `df5c03f` (PR #83 merged), 26 November 2026
 - Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code
-- Fixed in: —
+- Fixed in: 0.58.1 (developed as 0.57.10), by Claude (Opus 5.5, model id claude-opus-5-5): the panel and the glass now draw the same stack, `picture_layers(kind)` (the close-up, then every revealed clue); the glass is `lens_glass(c)`, the lens circle cut to where both the glass and the point it magnifies lie on the picture, so nothing past the edge is smeared, and it shows nothing once it is off the panel.
 - Root cause: `scripts/night/testing_bay_view.gd` `_draw()` (lines 281-286) draws the approved inspection picture and then each revealed clue overlay (`clue_texture(i)`) over `PART_RECT`. `_draw_lens()` (lines 330-339) then draws the glass as a polygon textured with `ItemArt.inspect(kind)` only, the healthy base picture, at 2x. The clue overlays are never sampled, so inside the glass the revealed scorch mark, domed capacitors or red herring is covered by a clean part. Near the panel edge (`PART_RECT.grow(LENS_RADIUS)`) the UVs also fall outside 0..1 and the border pixels of the picture are smeared into the glass.
 - Reproduction (expected from the code; Godot was not run): a GPU with a visible broken tell; look at "Power connector" with the lens until the clue is revealed; move the lens back over the power connector.
 - Expected / actual: the glass shows the revealed clue magnified / the glass shows a healthy connector, and the clue is only visible outside the glass.
 - Fix direction (for the bay's owner, not done by the checker): draw each revealed clue overlay into the glass with the same UVs after the base picture, and clamp or mask the glass to `PART_RECT`. A headless test can check that `_draw_lens` samples every non-null `clue_texture(i)`; how it looks needs a graphical check.
-- Regression / evidence: none yet.
-
-
+- Regression / evidence: `tools/test_testing_bay.gd` (B61 checks): before looking, the stack is only the close-up; after the power connector is inspected on a dead GPU, the stack is the close-up then that scorch-mark overlay; the glass stays on the picture with every UV in 0..1 at the spot, half off the panel and in the corner; off the panel it magnifies nothing. Automated evidence: `tools/test_testing_bay.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46021841002 on `1ae3133` (all suites); how it looks is not yet checked in game.
 ### B63 — New-game recovery can restore the previous playthrough (PR #88)
 
 - Found: PR #88 head a8667b7, 27 November 2026; not merged in this 0.58.0 baseline.

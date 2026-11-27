@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.0)
+# Nightshift - Godot Foundation Trial (v0.58.1)
+
+0.58.1 fixes the testing bay's magnifying glass: it now shows the clues it has already revealed (B61).
 
 0.58.0 makes Task Manajer livelier and easy to read: Read scan clues, click an app to find out what it does, stop the trouble and its returning helper, turn off Start with PC for that helper, then Reboot & verify. Adware makes ridiculous adverts; miners garble their names and hog power. The six rows stay fixed. Settings (title or Pause) has Reduce flashing and movement: steady colours, no shake and slower text, with the same clues and rules. Costs remain ten night minutes per attempt.
 

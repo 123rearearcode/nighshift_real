@@ -14,6 +14,7 @@ const Diagnostics = preload("res://scripts/night/night_diagnostics.gd")
 const Morning = preload("res://scripts/rules/morning.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
 const Ids = preload("res://scripts/data/ids.gd")
+const ItemArt = preload("res://scripts/view/item_art.gd")
 const SECRET: Array = ["degraded", "artifacts", "broken", "condition", "defect"]   # "errors"/"weak" are ordinary words in results
 
 func _initialize() -> void:
@@ -26,6 +27,17 @@ func _part(gs: Node, uid: String, kind: String, model: String, condition: String
     if condition == PcBuild.DEGRADED: record["defect"] = str(PcBuild.DEFECTS[kind])
     gs.player_inventory.append(record)
     return record
+
+
+# B61: every point of the magnified glass is on the part panel and shows a point of the picture.
+func _glass_on_picture(glass: Dictionary, part: Rect2) -> bool:
+    if glass.is_empty() or (glass["points"] as PackedVector2Array).size() < 3: return false
+    var room: Rect2 = part.grow(0.01)
+    for p: Vector2 in glass["points"]:
+        if not room.has_point(p): return false
+    for uv: Vector2 in glass["uvs"]:
+        if uv.x < -0.0001 or uv.y < -0.0001 or uv.x > 1.0001 or uv.y > 1.0001: return false
+    return true
 
 
 # A real mouse click through the viewport (as Codex's anti-virus suite does), not a direct callback.
@@ -167,6 +179,14 @@ func run_checks() -> void:
 
     # ---- the screen ----
     _part(gs, "bay_ram", "ram", "ram_8gb", "degraded")
+    # B61: a dead GPU whose scorch mark shows on the power connector, for the magnifying-glass check.
+    var lens_uid: String = ""
+    for n in range(60):
+        var probe: Dictionary = {"uid": "bay_gpu_lens_%d" % n, "kind": "gpu", "condition": "broken"}
+        if PartCondition.spot_text(probe, "Power connector") != PartCondition.NEUTRAL:
+            lens_uid = str(probe["uid"])
+            break
+    if lens_uid != "": _part(gs, lens_uid, "gpu", "gpu_gtx1660", "broken")
     gs.night_minutes = 30
     gs.save_game()
     var bay: Node = load("res://scenes/night_bay.tscn").instantiate()
@@ -202,6 +222,21 @@ func run_checks() -> void:
     bay.scrap_button.emit_signal("pressed")
     await process_frame
     check(gs.stock_record("bay_ram").is_empty() and not bay.list_buttons.has("bay_ram"), "scrapping removes it from the list")
+    # B61: the glass draws the same stack as the panel (close-up, then the clues it revealed), and only where
+    # it and what it magnifies lie on the picture.
+    check(lens_uid != "", "a dead GPU whose scorch mark shows is found for the lens check")
+    if lens_uid != "":
+        bay._select(lens_uid)
+        var connector: int = PartCondition.spots("gpu").find("Power connector")
+        check(bay.picture_layers("gpu") == [ItemArt.inspect("gpu")], "before looking, the glass and the panel show only the healthy close-up")
+        var minutes: int = gs.night_minutes
+        gs.inspect_part(lens_uid, "Power connector")
+        gs.night_minutes = minutes
+        var layers: Array = bay.picture_layers("gpu")
+        check(bay.clue_texture(connector) != null and layers.size() == 2 and layers[0] == ItemArt.inspect("gpu") and layers[1] == bay.clue_texture(connector), "B61: once revealed, the scorch mark is in the stack the glass draws, over the close-up")
+        var part: Rect2 = bay.PART_RECT
+        check(_glass_on_picture(bay.lens_glass(bay.spot_center(connector)), part) and _glass_on_picture(bay.lens_glass(part.position + Vector2(20, 60)), part) and _glass_on_picture(bay.lens_glass(part.end - Vector2(5, 5)), part), "B61: the glass stays on the picture and never magnifies past its edge, even half off the panel")
+        check(bay.lens_glass(part.position - Vector2(bay.LENS_RADIUS + 5, 0)).is_empty(), "off the panel the glass magnifies nothing")
     bay.queue_free()
     await process_frame
     # Native navigation (0.53.0): workshop -> the testing bay corner -> back, through real clicks.
