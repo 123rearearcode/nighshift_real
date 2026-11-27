@@ -82,6 +82,140 @@ new cache invalidation and static-layer contracts. No gameplay design or balance
 
 The Code checker adds the newest review directly below this line.
 
+### 2026-11-27: main 1897eda (0.57.2) → df5c03f (0.57.8)
+
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), performance reviewer.
+
+Baseline: `1897eda`, the "new" commit of the 2026-11-25 scheduled review (the 0.57.7 section above is
+an integration note, not a scheduled run). Runtime changed since then: 15 scripts and `counter.tscn`
+(+954/−125 lines; runtime parts of PRs #79, #80 and #83): approved art drawn by `item_art.gd`, `pc_renderer.gd`,
+`tool_renderer.gd`, `cleaning_renderer.gd`, `paste_renderer.gd`, `workshop_view.gd`, the testing-bay
+inspection pictures and clue overlays, counter art/props, and the storage drawer embedded in the counter.
+No hot file (`bench_view.gd`, `tool_rig.gd`, `game_state.gd`) changed. Both profiler scripts are identical
+at the two commits.
+
+**Method.**
+- Build: official Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64, `--headless`, one 4-vCPU cloud
+  container. Each commit in its own git worktree, imported once, then run back to back with no other Godot
+  process running.
+- `tools/profile_bench.gd` 8 times per commit (runs 1–4 old then new, runs 5–8 new then old);
+  `tools/profile_salvage_physics.gd` twice per commit (old/new, then new/old).
+- **A/A control (new this review):** a second worktree of the *same* old commit, `profile_bench` 4 times
+  alternating with the first, to see how much two worktrees of identical code differ.
+- Tables: milliseconds, "run 1 / run 2", the scripts' nearest-rank percentiles. Bench draw and save rows
+  have 30 samples, so p99 is the sample maximum. The headless renderer records draw commands but does no
+  GPU work, so `draw_cpu` is CPU command-generation time only.
+
+| Scenario | Mean old | Mean new | p95 old | p95 new | p99 old | p99 new |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| clean_idle_free/physics | 0.342 / 0.343 | 0.601 / 0.341 | 0.381 / 0.392 | 1.157 / 0.383 | 0.415 / 0.564 | 1.888 / 0.410 |
+| clean_idle_free/draw_cpu | 1.040 / 1.395 | 1.144 / 1.135 | 1.157 / 2.020 | 1.306 / 1.329 | 1.180 / 2.836 | 1.375 / 1.342 |
+| save/full_dirty_pc | 2.718 / 2.977 | 3.120 / 3.125 | 2.954 / 3.687 | 4.079 / 3.910 | 3.664 / 3.850 | 4.190 / 7.398 |
+| clean_idle_clamped/physics | 0.347 / 0.502 | 0.350 / 0.368 | 0.391 / 0.593 | 0.388 / 0.436 | 0.413 / 0.627 | 0.464 / 0.658 |
+| clean_idle_clamped/draw_cpu | 1.115 / 1.108 | 1.180 / 1.225 | 1.202 / 1.306 | 1.322 / 1.631 | 1.781 / 1.358 | 1.396 / 1.784 |
+| brush/physics | 0.469 / 0.520 | 0.552 / 0.500 | 0.521 / 0.761 | 0.811 / 0.589 | 0.614 / 0.883 | 0.879 / 0.739 |
+| brush/draw_cpu | 1.086 / 1.042 | 1.228 / 1.151 | 1.173 / 1.155 | 1.575 / 1.292 | 1.179 / 1.161 | 1.724 / 1.299 |
+| vacuum_moving/physics | 3.613 / 4.355 | 3.665 / 3.768 | 4.049 / 5.942 | 4.073 / 4.650 | 4.359 / 6.115 | 4.527 / 5.553 |
+| vacuum_moving/draw_cpu | 1.115 / 1.064 | 1.210 / 1.297 | 1.385 / 1.154 | 1.535 / 1.390 | 1.525 / 1.221 | 1.689 / 1.396 |
+| paste_idle_clamped/physics | 0.092 / 0.086 | 0.090 / 0.091 | 0.128 / 0.111 | 0.124 / 0.112 | 0.270 / 0.138 | 0.145 / 0.172 |
+| paste_idle_clamped/draw_cpu | 0.296 / 0.250 | 0.352 / 0.316 | 0.400 / 0.364 | 0.474 / 0.382 | 0.774 / 0.381 | 0.536 / 0.409 |
+| paste_flow/physics | 5.830 / 5.631 | 6.526 / 5.806 | 7.331 / 7.459 | 10.624 / 7.965 | 7.396 / 10.168 | 13.401 / 9.078 |
+| paste_flow/draw_cpu | 0.323 / 0.325 | 0.404 / 0.361 | 0.406 / 0.385 | 0.487 / 0.448 | 0.441 / 0.399 | 0.581 / 0.458 |
+| Salvage 20 bodies / fall-and-settle | 0.671 / 0.702 | 0.728 / 0.778 | 0.959 / 0.895 | 1.022 / 1.162 | 1.213 / 1.027 | 1.299 / 2.622 |
+| Salvage 20 bodies / late-settle | 0.807 / 0.766 | 0.688 / 0.764 | 1.240 / 0.916 | 0.905 / 0.944 | 1.923 / 1.754 | 1.362 / 2.802 |
+| Salvage 20 bodies / pulling | 0.789 / 0.726 | 0.765 / 0.723 | 1.251 / 0.939 | 1.194 / 0.886 | 1.423 / 1.121 | 1.389 / 1.696 |
+| Salvage 50 bodies / fall-and-settle | 1.281 / 1.285 | 1.302 / 1.318 | 1.840 / 1.853 | 1.759 / 1.969 | 2.299 / 2.370 | 2.320 / 2.616 |
+| Salvage 50 bodies / late-settle | 1.148 / 1.247 | 1.463 / 1.166 | 1.555 / 1.332 | 2.433 / 1.398 | 1.725 / 4.892 | 2.601 / 1.493 |
+| Salvage 50 bodies / pulling | 1.132 / 1.199 | 1.231 / 1.204 | 1.310 / 1.460 | 1.513 / 1.394 | 1.470 / 1.849 | 1.558 / 2.358 |
+| Salvage 100 bodies / fall-and-settle | 2.137 / 2.087 | 1.952 / 2.176 | 2.933 / 2.565 | 2.458 / 2.760 | 4.043 / 3.574 | 2.678 / 3.135 |
+| Salvage 100 bodies / late-settle | 2.123 / 2.088 | 2.103 / 2.040 | 2.911 / 2.753 | 3.153 / 2.278 | 4.580 / 3.055 | 3.923 / 2.507 |
+| Salvage 100 bodies / pulling | 2.099 / 2.101 | 1.990 / 2.218 | 2.574 / 2.575 | 2.176 / 2.831 | 2.676 / 3.226 | 2.233 / 3.201 |
+
+Means over all 8 bench runs, paired by run number (ms). "New higher in" counts the 8 pairs.
+
+| Row (mean, ms) | Old min – max (median) | New min – max (median) | Paired new−old (median) | New higher in |
+| --- | ---: | ---: | ---: | ---: |
+| clean_idle_free/physics | 0.335 – 0.348 (0.342) | 0.334 – 0.601 (0.352) | +0.010 | 6/8 |
+| clean_idle_free/draw_cpu | 1.040 – 1.395 (1.071) | 1.105 – 1.501 (1.221) | +0.131 | 7/8 |
+| save/full_dirty_pc | 2.718 – 3.275 (2.843) | 2.938 – 3.923 (3.122) | +0.275 | 7/8 |
+| clean_idle_clamped/physics | 0.342 – 0.541 (0.350) | 0.330 – 0.400 (0.354) | +0.001 | 4/8 |
+| clean_idle_clamped/draw_cpu | 1.070 – 1.233 (1.111) | 1.157 – 1.340 (1.177) | +0.094 | 7/8 |
+| brush/physics | 0.469 – 0.523 (0.501) | 0.493 – 0.854 (0.531) | +0.055 | 6/8 |
+| brush/draw_cpu | 1.042 – 1.306 (1.094) | 1.138 – 1.267 (1.186) | +0.099 | 7/8 |
+| vacuum_moving/physics | 3.378 – 4.355 (3.728) | 3.540 – 4.302 (3.809) | -0.042 | 3/8 |
+| vacuum_moving/draw_cpu | 1.062 – 1.403 (1.119) | 1.087 – 1.427 (1.194) | +0.067 | 5/8 |
+| paste_idle_clamped/physics | 0.085 – 0.100 (0.088) | 0.086 – 0.147 (0.091) | +0.004 | 5/8 |
+| paste_idle_clamped/draw_cpu | 0.234 – 0.317 (0.251) | 0.273 – 0.366 (0.320) | +0.057 | 8/8 |
+| paste_flow/physics | 5.457 – 6.010 (5.742) | 5.613 – 6.526 (5.840) | +0.176 | 6/8 |
+| paste_flow/draw_cpu | 0.304 – 0.348 (0.331) | 0.351 – 0.540 (0.367) | +0.034 | 8/8 |
+
+A/A control, same commit `1897eda` in two worktrees, 4 alternating runs, means (ms):
+
+| Row | Worktree A | Worktree B |
+| --- | ---: | ---: |
+| save/full_dirty_pc | 3.525, 3.068, 2.850, 4.477 | 2.810, 2.854, 2.865, 3.026 |
+| clean_idle_free/draw_cpu | 1.073, 1.133, 1.109, 1.221 | 1.079, 1.124, 1.249, 1.157 |
+| paste_idle_clamped/draw_cpu | 0.274, 0.235, 0.259, 0.243 | 0.253, 0.292, 0.271, 0.259 |
+
+**Result.**
+- **Bench draw CPU is slightly higher on 0.57.8, consistently.** Every `draw_cpu` row is higher on new in
+  5–8 of 8 pairs; the paired median rises by 0.03–0.13 ms (about 6–27%). The largest relative change is
+  `paste_idle_clamped/draw_cpu` (0.251 → 0.320 ms, 8/8); the largest absolute one is
+  `clean_idle_free/draw_cpu` (1.071 → 1.221 ms, 7/8). The A/A gap on these rows is about 0.01–0.04 ms, smaller
+  than the old→new gap. This matches what 0.57.8 added to the bench redraw (textured rectangles for the
+  case, board, parts, fan rotor/frame, tool sprites, clamp, dust bin, paste stage and one dust film per
+  dusty zone) and is an expected cost of drawing the art, not a defect. It stays far under a 16.7 ms frame
+  (≤ 1.5 ms in every run). **No bug filed.** No GPU/display frame time is claimed.
+- **Bench physics: no change.** Rows overlap; paired medians are within ±0.2 ms and split both ways.
+  `paste_flow/physics` p95/p99 had one high new run (10.6/13.4 ms in run 1) that did not repeat.
+- **Save: noise.** `save/full_dirty_pc` was higher on new in 7/8 pairs (median +0.28 ms), but nothing on
+  the save path changed, and the A/A control on identical code spread 2.85–4.48 ms. The same commit
+  `1897eda` measured a 3.27 ms median as "new" on 2026-11-25 and 2.84 ms as "old" today. This closes the
+  2026-11-25 watch item: the save-row shifts are within container/worktree noise.
+- **Salvage physics: no change** (rows overlap at 20/50/100 bodies; that code did not change).
+
+**Code observations (runtime changed since 1897eda).**
+1. `scripts/view/item_art.gd`: every lookup builds strings on each redraw. `tool()` concatenates the path,
+   then `pixel()` formats a second key with `get_instance_id()`; `board()`/`bench()`/`clue()` format
+   paths per call. One bench redraw makes roughly 10–20 such lookups (tool sprite, clamp, bin, fan rotor and
+   frame twice, CPU/cooler/GPU/RAM/PSU zones, dust film + `tiled()` key). Each is small; together they are
+   a plausible part of the measured draw increase. Textures themselves are cached (misses are cached too).
+2. `scripts/view/cleaning_renderer.gd` `draw_dust_films`: one textured rect with a transform per dusty
+   zone per redraw; it skips hidden, weightless and ≥98%-clean zones. Bounded by the zone count.
+3. `scripts/night/testing_bay_view.gd`: `_process` calls `queue_redraw()` every frame while the lens
+   dwells on a spot. Each redraw now runs `clue_texture(i)` per spot, which calls `_record()` (that is
+   `GameState.stock_record()`, a `duplicate(true)` deep copy) and `looked(i)` (another deep copy plus
+   `PartCondition.known()`/`sanitize_known()`). `_draw_spots` and `_draw_lens` repeat `looked()` and
+   `spot_under_lens()`. With 5 GPU spots that is about 15 deep copies and 10 sanitisations per frame while
+   the lens is held. Not measured (no profiler covers the testing bay); likely well under 1 ms for one
+   record, but it is repeated work.
+4. `scripts/rooms/counter_room.gd` `_build_storage_drawer`: the under-counter view is instantiated on
+   every counter-room entry, even if the drawer is never opened. One-off room-entry cost, not per frame;
+   not measured (the profilers do not cover room entry).
+5. `scripts/rooms/under_counter_view.gd`: `_save()` writes synchronously on each drop/bring/send. These are
+   click events, not per frame; acceptable. `_draw` reuses its per-view texture cache (`_art`), and redraws
+   on mouse motion only while an item is held.
+6. `scripts/view/tool_renderer.gd` cloth: two small `PackedVector2Array`s per redraw; negligible.
+   `scripts/rooms/room_art.gd` `texture()` itself does not cache, but every caller added in this range
+   caches its result (counter art at init, hotspot `_prop_cache`, `ItemArt._load`, under-counter `_art`).
+
+**Ranked optimisation proposals (not implemented by the checker).**
+1. *(Unchanged, still first)* B57, morning build-request stall: `scripts/rules/ticket_generator.gd` /
+   `build_request.gd`. Still Open; it is the only measured user-visible stall.
+2. `scripts/night/testing_bay_view.gd` (owner: whoever holds the testing bay; Codex added 0.57.8): read
+   the record and its `known()` once per `_draw`/`_process` and pass them to `clue_texture`, `looked`,
+   `_draw_spots` and `spot_under_lens`, instead of a fresh deep copy per call. Keep reading through
+   `GameState.stock_record()` (no change to the hot file `game_state.gd` is needed). Measure first with a
+   scratch probe; do it only if it shows up.
+3. `scripts/view/item_art.gd`: cache by *name* (for example `_tool_cache[name]`), so a repeated
+   `tool("hose_clamp")` or `bench("fan/fan_rotor")` is one dictionary lookup with no string building. Low
+   priority: the whole measured draw increase is ≤ 0.15 ms.
+4. Profiler coverage (Claude, `tools/`): add a testing-bay lens-held redraw case and a counter-room entry
+   case, so proposal 2 and observation 4 can be measured rather than estimated. Earlier
+   morning/checkpoint/asset-load coverage proposals still stand.
+5. Method (checker): keep the A/A control in future reviews; it showed that the save row's run-to-run
+   spread is larger than the shifts seen in the last two reviews.
+
 ### 2026-11-25 integration: 0.57.7 review of current main 0.57.6 / 842d0c2
 
 Signed: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.

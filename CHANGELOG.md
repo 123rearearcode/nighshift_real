@@ -37,6 +37,21 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled performance review — 2026-11-27 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), performance reviewer, in a Claude Code cloud session.
+- Based on: main 0.57.8 (df5c03f). Compared against main 0.57.2 (1897eda). The integrator assigns the version.
+- Added: a dated section under "Scheduled performance reviews" in `docs/PERFORMANCE.md`. Bench `draw_cpu`
+  is slightly but consistently higher on 0.57.8 (+0.03–0.13 ms paired median, ≤ 1.5 ms per redraw), the
+  expected cost of drawing the approved art; not filed as a bug. Physics, salvage physics and save rows show
+  no change (an A/A control on identical code shows the save row's spread is larger than the shifts seen).
+  Ranked proposals: B57 first, then per-draw record copies in `testing_bay_view.gd` and string-built
+  lookups in `item_art.gd`; none are implemented.
+- Files changed: docs/PERFORMANCE.md (M), CHANGELOG.md (M).
+- Execution: Godot 4.7.2.stable.official headless was run by the checker: `profile_bench` 8× and
+  `profile_salvage_physics` 2× per commit, plus 4 A/A `profile_bench` runs. No game code, test, tool or CI change.
+- Next action: testing-bay owner may measure and take proposal 2; Claude may add the profiler cases in proposal 4.
+
 ### Code checker change review — 2026-11-26 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
