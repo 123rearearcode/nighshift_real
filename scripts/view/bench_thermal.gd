@@ -326,7 +326,7 @@ func _finish_mount() -> void:
     bv._sync_part_geometry()
     GameState.set_paste(bv.mount_result, bv.paste.total_deposited)
     # D130: the hidden mistakes of this mount are recorded now and surface only at the customer's pickup.
-    GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), bv.screw_clicks))
+    GameState.set_install_faults(InstallFaults.evaluate(bool(GameState.job["cooler_film_peeled"]), bv.screw_clicks), bv.screw_clicks)
     bv.locked_screw_clicks = bv.screw_clicks.duplicate()   # 0.44.1: the screws stay visible on the locked cooler
     bv.screw_clicks.clear()
     bv.wipe_told = false

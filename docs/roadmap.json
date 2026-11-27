@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.58.6",
+  "main": "0.58.7",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -478,14 +478,14 @@
     },
     {
      "id": "p06-02",
-     "checkNote": "From ChatGPT's playtest records on 0.57.8. Claude has not reproduced it.",
-     "checkState": "unverified",
+     "checkNote": "0.58.7: after leaving the bench or Continue, the CPU-covered and squeezed-out meters show the saved result, the locked cooler shows the screws as they were turned (saved with the job), and the amount line names the saved amount. Old saves from before 0.58.7 have no saved screws. Needs your look in game.",
+     "checkState": "new",
      "detail": "Reproduce the preserved PERFECT verdict with 0/0 meters, unturned-looking screws and stale hints after re-entry/Continue. Fix the presentation if still present; do not assume the repair itself was lost.",
      "order": 20,
      "refs": [],
-     "status": "next",
+     "status": "done",
      "title": "Make restored thermal indicators agree",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-03",
@@ -500,77 +500,77 @@
     },
     {
      "id": "p06-04",
-     "checkNote": "From ChatGPT's playtest records. Claude has not reproduced it.",
-     "checkState": "unverified",
+     "checkNote": "0.58.7 (B71): the collection slip said \"their working <part>\" for every kept original, even a broken one. It now says the old part is kept and untested.",
+     "checkState": "new",
      "detail": "Check the collection slip against actual known evidence. Keep uncertain condition neutral and preserve customer ownership; a collection sentence must not invent a successful test.",
      "order": 40,
      "refs": [],
-     "status": "next",
+     "status": "done",
      "title": "Stop calling an untested retained GPU \"working\"",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-05",
-     "checkNote": "From ChatGPT's playtest records. Claude has not reproduced it.",
-     "checkState": "unverified",
+     "checkNote": "0.58.7: the amount line counts all paste in the socket area, so it now says how much is on the CPU and how much beside it. A CPU that looks clean can still carry a thin film; that is what the number was counting.",
+     "checkState": "new",
      "detail": "One attempt cleared the visible CPU while a 46-unit counter remained. Use a controlled cloth wipe before deciding if this is a defect. Explain amount versus current coverage.",
      "order": 50,
      "refs": [],
-     "status": "next",
+     "status": "done",
      "title": "Explain thermal residue and rework",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-06",
-     "checkNote": "B64 Verified in 0.58.0.",
-     "checkState": "confirmed",
+     "checkNote": "0.58.7: README has a current Controls list (V vacuum switch, B backpack, F10/Esc pause, the glass); the old \"1 Vacuum, 2 Brush\" line is corrected; the bench's hint line mentions V.",
+     "checkState": "new",
      "detail": "Pause Activities help was fixed as B64 in 0.58.0. Check that fix and the earlier README brush/vacuum reversal. Since 0.58.4 the help should also mention V (vacuum switch) and B (backpack).",
      "order": 60,
      "refs": [
       "docs/BUGS.md"
      ],
-     "status": "next",
+     "status": "done",
      "title": "Reconcile the remaining help and hotkey text",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-07",
-     "checkNote": "B55 still Open.",
-     "checkState": "confirmed",
+     "checkNote": "0.58.7 (B55): pausing shows the cursor; after the pause the glass hides it again only if it is still over the part.",
+     "checkState": "new",
      "detail": "B55: pausing with the lens over a part may hide the cursor. Separate from the revealed-clue lens fix.",
      "order": 70,
      "refs": [
       "docs/BUGS.md"
      ],
-     "status": "next",
+     "status": "done",
      "title": "Reproduce the hidden cursor during Pause",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-08",
-     "checkNote": "B56 still Open.",
-     "checkState": "confirmed",
+     "checkNote": "0.58.7 (B56): the stock room draws only items on its own furniture; things under the counter or in the backpack are not drawn as marks.",
+     "checkState": "new",
      "detail": "B56: reproduce the origin rectangle from items held under the counter before applying a bounded rendering fix.",
      "order": 80,
      "refs": [
       "docs/BUGS.md"
      ],
-     "status": "next",
+     "status": "done",
      "title": "Check under-counter stock ghosts in the stock room",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-09",
-     "checkNote": "B57 still Open.",
-     "checkState": "confirmed",
+     "checkNote": "0.58.7 (B57): cheapest-build answers are remembered and hopeless combinations skipped; the same requests appear, with far fewer searches.",
+     "checkState": "new",
      "detail": "B57 measured about 165 ms per arrival, up to 317 ms on an older build. Measure the current path, then optimise the repeated search without excluding viable requests.",
      "order": 90,
      "refs": [
       "docs/BUGS.md"
      ],
-     "status": "next",
+     "status": "done",
      "title": "Remove the low-cash build-arrival stall",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T21:30:00Z"
     },
     {
      "id": "p06-10",

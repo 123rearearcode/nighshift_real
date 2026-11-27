@@ -152,6 +152,7 @@ func _make_job() -> Dictionary:
         "loose_parts": [],        # D149 (0.46.0): the customer's parts lying in the hardware drawer, out of the PC: [{id, broken}]
         "gpu_screws": 2,          # D131: GPU bracket screw turns done (2 = tight). Removing or replacing the GPU at the hardware bench resets it to 0
         "install_faults": [],     # D130: hidden mistakes of the last locked mount (install_faults.gd); felt only at pickup
+        "paste_screw_clicks": [], # 0.58.7: the corner screws turned for the last locked mount, drawn again after leaving the bench
         "parts": PcBuild.sanitize(who.get("pc", {})),   # D148 (0.45.0): the customer's PC as catalogue parts
         "pc_specs": PcBuild.specs(who.get("pc", {})),   # derived from "parts" (processing, RAM) for the fps simulation (D94)
         "ticket": {"request": "repair", "ready": false, "called": false, "nights": 0},   # D134/D135: pickup flags (ticket.gd); the record itself is derived
@@ -283,6 +284,7 @@ func fit_inventory_part(part_id: String, uid: String) -> bool:
         job["install_faults"] = []
     elif part_id == Ids.COOLER:
         job["paste_grade"] = ""
+        job["paste_screw_clicks"] = []
         job["paste_coverage"] = 0.0
         job["paste_overflow"] = 0.0
         job["paste_done"] = false
@@ -413,9 +415,20 @@ func set_paste(result: Dictionary, cpu_units: float = 0.0) -> void:
 
 
 # D130: the last locked mount's hidden mistakes. They are never listed by run_final_check.
-func set_install_faults(faults: Array) -> void:
+func set_install_faults(faults: Array, screw_clicks: Array = []) -> void:
     job["install_faults"] = InstallFaults.sanitize(faults)
+    job["paste_screw_clicks"] = sanitize_screw_clicks(screw_clicks)   # 0.58.7: shown again on re-entry, never judged
     save_game()
+
+
+# 0.58.7: corner-screw turns of a locked mount: screw indexes 0..3, at most two turns each.
+static func sanitize_screw_clicks(value: Variant) -> Array:
+    var out: Array = []
+    if not value is Array: return out
+    for c: Variant in value:
+        if typeof(c) in [TYPE_INT, TYPE_FLOAT] and int(c) >= 0 and int(c) < InstallFaults.SCREW_COUNT and out.size() < InstallFaults.SCREW_COUNT * InstallFaults.TURNS_NEEDED:
+            out.append(int(c))
+    return out
 
 
 # D131: turn one GPU bracket screw (needs the screwdriver, enforced by the view). True if a turn was made.
@@ -516,6 +529,7 @@ func peel_cooler_film() -> void:
 
 func clear_paste() -> void:
     job["install_faults"] = []
+    job["paste_screw_clicks"] = []
     job["paste_grade"] = ""
     job["paste_coverage"] = 0.0
     job["paste_overflow"] = 0.0
@@ -823,6 +837,7 @@ func load_game() -> bool:
     job["paste_graded_units"] = maxf(0.0, float(job.get("paste_graded_units", 0.0)))
     job["cooler_film_peeled"] = bool(job.get("cooler_film_peeled", false)) if typeof(job.get("cooler_film_peeled", false)) == TYPE_BOOL else false
     job["install_faults"] = InstallFaults.sanitize(job.get("install_faults", []))
+    job["paste_screw_clicks"] = sanitize_screw_clicks(job.get("paste_screw_clicks", []))
     job["gpu_screws"] = clampi(int(job.get("gpu_screws", 2)), 0, InstallFaults.GPU_SCREW_COUNT) if typeof(job.get("gpu_screws", 2)) in [TYPE_INT, TYPE_FLOAT] else InstallFaults.GPU_SCREW_COUNT
     job.erase("required_power")   # 0.25.0 (D97): the boot test replaced the power threshold
     var specs: Variant = job.get("pc_specs", {})

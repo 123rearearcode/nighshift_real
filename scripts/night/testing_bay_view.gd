@@ -30,6 +30,7 @@ var lens_held: bool = false
 var lens_at := Vector2.ZERO
 var dwell_spot: int = -1
 var dwell: float = 0.0
+var cursor_hidden: bool = false               # B55: the lens hides the system cursor over the part
 var card_text: Label
 var quick_button: Button
 var long_button: Button
@@ -234,7 +235,7 @@ func _toggle_lens() -> void:
     elif not _record().is_empty():
         lens_held = true
         lens_at = get_viewport().get_mouse_position()
-        if PART_RECT.has_point(lens_at): Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+        if PART_RECT.has_point(lens_at): _set_cursor(true)
         message.text = "Magnifying glass in hand: hold it over a spot on the part."
     _refresh()
 
@@ -243,7 +244,7 @@ func _put_lens_down() -> void:
     lens_held = false
     dwell_spot = -1
     dwell = 0.0
-    Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+    _set_cursor(false)
     queue_redraw()
 
 
@@ -251,7 +252,7 @@ func _input(event: InputEvent) -> void:
     if not lens_held: return
     if event is InputEventMouseMotion:
         lens_at = event.position
-        Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN if PART_RECT.grow(LENS_RADIUS).has_point(lens_at) else Input.MOUSE_MODE_VISIBLE)
+        _set_cursor(PART_RECT.grow(LENS_RADIUS).has_point(lens_at))
         queue_redraw()
     elif (event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
         _put_lens_down()
@@ -278,7 +279,22 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
-    Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+    _set_cursor(false)
+
+
+# B55: the glass hides the window's cursor, but while the game is paused this screen gets no input, so it
+# could never bring the cursor back over the pause menu. Show it for the pause; hide it again afterwards only
+# if the glass is still in hand over the part.
+func _set_cursor(hide: bool) -> void:
+    var mode: Input.MouseMode = Input.MOUSE_MODE_HIDDEN if hide else Input.MOUSE_MODE_VISIBLE
+    if hide == cursor_hidden and Input.get_mouse_mode() == mode: return   # mouse motion calls this every event
+    cursor_hidden = hide
+    Input.set_mouse_mode(mode)
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_PAUSED and cursor_hidden: _set_cursor(false)
+    elif what == NOTIFICATION_UNPAUSED and lens_held: _set_cursor(PART_RECT.grow(LENS_RADIUS).has_point(lens_at))
 
 
 func _inspect(i: int) -> void:

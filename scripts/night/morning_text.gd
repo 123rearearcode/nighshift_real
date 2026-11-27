@@ -22,7 +22,9 @@ static func card_text(card: Dictionary) -> String:
     var kind: String = str(card.get("kind","new"))
     var lines: Array = ["%s · %s · %s"%[TITLES.get(kind,""),str(card.get("customer","")),str(card.get("ticket",""))],str(card.get("reaction",""))]
     if kind == "collected": lines.append("Paid $%d · trust %+d (now %d)"%[int(card.get("paid",0)),int(card.get("trust_change",0)),int(card.get("trust",0))])
-    for name: Variant in card.get("kept",[]): lines.append("Kept in your stock: their working %s (you replaced it, so you paid for the new one)"%str(name))   # D150
+    # D150; B71 (0.58.7): the old part is kept as UNTESTED stock whatever its real condition, so the slip must not
+    # call it working (it used to, even for a broken one) and must not hint at the hidden condition.
+    for name: Variant in card.get("kept",[]): lines.append("Kept in your stock: their old %s, untested (you fitted a replacement, so the old part stays with the shop). The testing bay can tell you what it is worth."%str(name))
     if kind == "comeback": lines.append("Trust %+d (now %d)"%[int(card.get("trust_change",0)),int(card.get("trust",0))])
     var review: Variant = card.get("review",{})   # 0.52.0: what they wrote online
     if review is Dictionary and not (review as Dictionary).is_empty():

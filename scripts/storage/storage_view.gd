@@ -318,6 +318,13 @@ func _world_item(uid: String) -> Rect2:
         if model.units[i]["id"] == p["unit"]:
             return Rect2(_world_shelf(i,p["shelf"]).position+Vector2(p["cell"])*Data.CELL,Vector2(Data.footprint(model.items[uid],p["rotation"]))*Data.CELL)
     return Rect2()
+# B56: only items on the room's own furniture are drawn in it. Items under the counter or in the backpack are
+# placed in units that are not in the room (no world rectangle) and used to be drawn as a mark at the origin.
+func room_drawn_items() -> Array:
+    var out: Array = []
+    for uid: String in model.placements:
+        if _world_item(uid).has_area(): out.append(uid)
+    return out
 func item_rect(uid: String) -> Rect2:
     var rect := _world_item(uid)
     if rect.has_area(): return Rect2(to_screen(rect.position),rect.size*zoom)
@@ -518,7 +525,7 @@ func draw_room(painter: Node2D) -> void:
             for col in range(spec["size"].x+1): painter.draw_line(rect.position+Vector2(col*Data.CELL,0),rect.position+Vector2(col*Data.CELL,rect.size.y),Color("2d414b"))
             for row in range(spec["size"].y+1): painter.draw_line(rect.position+Vector2(0,row*Data.CELL),rect.position+Vector2(rect.size.x,row*Data.CELL),Color("2d414b"))
             painter.draw_rect(Rect2(rect.position+Vector2(-12,rect.size.y),Vector2(rect.size.x+24,8)),Color("74868e"))
-    for uid: String in model.placements:
+    for uid: String in room_drawn_items():
         _draw_item(uid,_world_item(uid),0.3 if uid == model.held else 1.0,painter)
     if model.held != "":
         var target := _target(pointer)

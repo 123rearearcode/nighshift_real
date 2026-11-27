@@ -293,7 +293,26 @@ static func _gpu_sets(form: String) -> Array:
 
 # {cost, parts} of the cheapest catalogue build in this form that meets the needs (and `wants`, when
 # given). {} when none exists. Includes the case and the motherboard.
+# B57: cheapest() is a pure function of its arguments and the fixed catalogue, so its answers are remembered
+# (a morning draws up to 12 attempts per build slot, two searches each, and the same needs come back often).
+# A low-cash shop used to stall for 0.2–0.3 s per slot. Callers get a copy, so the cache cannot be changed.
+const CACHE_LIMIT := 512
+static var use_cache: bool = true       # tests turn it off to compare against the plain search
+static var searches: int = 0            # how many real searches ran (tests)
+static var _cache: Dictionary = {}
+
+
 static func cheapest(needs: Dictionary, form: String, wants: Array = []) -> Dictionary:
+    if not use_cache: return _search(needs, form, wants)
+    var key: String = JSON.stringify([needs, form, wants], "", true, true)
+    if not _cache.has(key):
+        if _cache.size() >= CACHE_LIMIT: _cache.clear()
+        _cache[key] = _search(needs, form, wants)
+    return (_cache[key] as Dictionary).duplicate(true)
+
+
+static func _search(needs: Dictionary, form: String, wants: Array) -> Dictionary:
+    searches += 1
     var want_ids: Array = wants.map(func(w: Dictionary) -> String: return str(w["id"]))
     var share: float = HEADROOM_SHARE if HEADROOM in want_ids else 1.0
     var need_p: float = float(needs.get("processing", 0)) * share
@@ -325,6 +344,9 @@ static func cheapest(needs: Dictionary, form: String, wants: Array = []) -> Dict
                 if QUIET in want_ids and not quiet_case and case_id != str(Catalog.DEFAULT_CASE[form]): continue   # a plain non-default case only adds cost
                 if not QUIET in want_ids and case_id != str(Catalog.DEFAULT_CASE[form]): continue
                 var parts: Dictionary = {"cpu": cpu, "gpus": gpus, "ram": ram, "storage": storage, "psu": "", "cooler": "", "board": board, "case": case_id}
+                # B57: a cooler and PSU only add to the price, so a combination already no cheaper than the best
+                # cannot win (the comparison below is strict); skipping it leaves the answer unchanged.
+                if not best.is_empty() and value_of(parts) >= int(best["cost"]): continue
                 var heat: int = int(Catalog.part(cpu)["watts"])
                 # Quiet: no loud fan, or one hidden by a sound-dampened case (try the cooler quiet first, then the PSU).
                 var options: Array = [[1.0, 1.0]]

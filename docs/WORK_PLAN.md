@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.7, 27 November 2026
+
+The user asked Claude to make the latest build trustworthy (roadmap phase p06). Claude touched the hot files
+narrowly: `bench_view.gd` (restore the saved mount's meters and screws on entry; the hint line mentions V),
+`game_state.gd` (one optional job field, `paste_screw_clicks`, set with the install faults, cleared with the
+paste, sanitized on load; no migration needed). Also: testing bay cursor during pause (B55), stock-room
+drawing (B56), cheapest-build cache (B57), the collection slip text (B71). No ownership, fitting or collection
+rule changed. 0.59.0 (per-part tests, Codex) and 0.60.0 (checker) stay reserved.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.58.4, 27 November 2026
 
 The user asked Claude for repair-bench fixes (brush dust film B69, a vacuum on/off switch, removing the hose

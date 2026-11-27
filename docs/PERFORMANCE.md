@@ -391,6 +391,9 @@ affordable request, so they ran all 12 attempts.
    attempt does both searches and then fails. `night_session.gd` `_arrivals()` runs this synchronously for
    each build-request slot (up to 3 arrivals), so a poor shop can stall the morning step for roughly
    0.5–1 s. This estimate comes from the per-slot timings above; the full morning step was not timed.
+   *Follow-up, 0.58.7 (Claude):* B57 fixed by remembering `cheapest()` answers and pruning combinations
+   that cannot beat the best. The earlier affordability check was not used: the deposit depends on the
+   full (with-wants) cost, so checking first would change which requests appear.
 3. **Lens re-reads the record every frame.** `scripts/night/testing_bay_view.gd`: while the lens is held,
    `_process` and `_draw` call `_record()` several times per frame (`spot_under_lens`, `looked`,
    `_draw_spots`, `_draw_lens`). Each call is `GameState.stock_record()`, which deep-copies the record, and
