@@ -172,7 +172,7 @@ performed. Nobody has seen these in game yet.
 | `scripts/view/bench_ui.gd` | M | B73 |
 | `tools/test_dialogue.gd`, `tools/test_wall_finishes.gd` | A | New suites (also in CI) |
 | `tools/test_support.gd` | M | `finish_dialogue` |
-| `tools/test_counter_art.gd`, `test_first_customer.gd`, `test_rooms.gd`, `test_morning.gd` | M | Close the dialogue before using the slip |
+| `tools/test_counter_art.gd`, `test_first_customer.gd`, `test_rooms.gd`, `test_morning.gd`, `test_save_safety.gd` | M | Close the dialogue before using the slip |
 | `tools/test_data_schemas.gd` | M | Optional customer keys `greeting`, `patience_line` |
 | `tools/test_audio_and_vacuum.gd` | M | B73 regression |
 | `tools/art_batch_d/walls.py`, `walls_export.py`, `flat.py` | A | Wall drawing, export and proof |
@@ -184,7 +184,9 @@ performed. Nobody has seen these in game yet.
 ### Checks performed
 - Locally: `check_project.py`, `check_bug_register.py`, `test_bug_register.py` (results in the PR).
 - `walls_export.py`: each approved draft rebuilt from the new layers with maximum pixel difference 0.
-- GitHub Actions: recorded after the run.
+- GitHub Actions run 46071302278 (first push): every suite passed except one Save safety check that expected the
+  slip right after a restore; with D181 the customer talks first. Not a defect: the test now closes the dialogue
+  first (as the other slip tests do). Dialogue 20 checks and Wall finishes 14 checks passed there.
 
 ### Decisions proposed (not approved)
 - Wall prices ($60, $80, $40, $20) and the placeholder lines for Mara and Relu.
