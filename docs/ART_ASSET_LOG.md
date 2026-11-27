@@ -356,6 +356,17 @@ References (not loaded, no runtime approval): `art/references/counter_flat_layou
 `feat/counter-flat-layout-0579`, by Claude (Opus 5.5, model id claude-opus-5-5). Human in-game visual
 acceptance: not yet recorded (the user runs the build and merges).
 
+## Windough 98 / NightBoot USB: approval and integration (0.59.0)
+
+Drafts by Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL (`tools/art_batch_e/windough.py`,
+font data `font5x7.py`), original (no real logos or company names). Revision 1 shown 28 November 2026; the user:
+"make sure the info of the bios doesnt give anything away ... spend a bit more time on the details". Revision 2
+(`art/drafts/windough/mock_1..7.png`) approved: "approved, create PR". Installed in `art/ui/windough/` (23 files,
+SHA-256 in its `manifest.json`, checked by the Windough suite): the pieces and the BIOS / NO SIGNAL screens are
+byte-identical to the approved drafts' pieces; the NightBoot and splash screens are the approved screens without
+the countdown and the dough fill, which `scripts/night/windough.gd` draws by the same rule. Created: yes; Human
+approved: yes; Integrated: 0.59.0; Visually accepted in game: not yet.
+
 ## Counter wall finishes: approval and integration (0.58.9)
 
 The four wall drafts (0.58.5, `art/drafts/walls/wall_options_sheet.png`) were approved 27 November 2026: "i kinda

@@ -14,6 +14,8 @@ const StressLab = preload("res://scripts/rules/stress_lab.gd")
 const Findings = preload("res://scripts/rules/findings.gd")
 const AntivirusRound = preload("res://scripts/rules/antivirus_round.gd")
 const AntivirusPanel = preload("res://scripts/night/antivirus_panel.gd")
+const Windough = preload("res://scripts/night/windough.gd")   # 0.59.0 (D182): the PC's screen: BIOS, NightBoot, Windough 98
+var windough: Control
 var antivirus_panel: Panel
 var antivirus_ticket: String = ""
 var antivirus_strain: String = ""
@@ -120,8 +122,18 @@ func _ready() -> void:
     client_text = "%s\n%s\n\nUses: %s\nRequested: %s\nCollection request: %s"%[GameState.job["customer"],GameState.job["complaint"],who.get("uses","See ticket"),", ".join(targets) if not targets.is_empty() else "Working PC",who.get("patience","Not set")]
     cash_label = _label("",Vector2(982,610),Vector2(264,36),18)
     message = _label("Game tests take %d night minutes, the Stress lab %d. Results go into Findings. Reports only: no completion or payment."%[Clock.GAME_TEST_MINUTES,Clock.LONG_STRESS_MINUTES],Vector2(32,670),Vector2(1216,36),16)
+    # 0.59.0 (D182): the apps now live on the Windough 98 desktop. Their buttons stay here as the one place the
+    # rules run (Windough draws them in its windows and presses them); the old flat panel is hidden.
+    for hidden: Button in app_buttons: hidden.visible = false
+    status_label.visible = false
+    report_scroll.visible = false
+    oc_label.visible = false
+    windough = Windough.new()
+    windough.monitor = self
+    add_child(windough)
+    if _powered(): windough.power_on(bool(Checks.boot(GameState.job)["ok"]), true)   # already on: straight to its screen
     _refresh()
-    _show("PC is off. Turn it on using the case button on the right, then run Boot check." if not _powered() else "PC is on. Start with Boot check and Hardware check, then test the customer's games.")
+    _show("PC is off. Turn it on using the case button on the right." if not _powered() else "PC is on. Open the apps on its desktop.")
     if not ready_for_work: _show("No writable customer PC is selected. Return to the workshop.\n"+NightSession.status)
 
 func _navigate(path: String) -> bool:
@@ -165,9 +177,11 @@ func _refresh() -> void:
     elif tab == "findings": side_text.text = GameState.findings_text()
     else: side_text.text = client_text+"\n\nParts: "+Parts.summary(GameState.job)
     queue_redraw()
+    if windough != null: windough.queue_redraw()
 
 func _show(text: String) -> void:
     output.text = text
+    if windough != null: windough.queue_redraw()
     report_scroll.scroll_vertical = 0
 
 func _show_tab(which: String) -> void:
@@ -223,9 +237,18 @@ func _power() -> void:
     busy_left = 0.0   # switching the power cancels a running test; no night time is spent
     busy_done = Callable()
     GameState.set_pc_powered(not _powered())
+    # 0.59.0 (D182): switching on boots the PC on the monitor. If it does not start, the screen stays at NO SIGNAL
+    # and what you can see and hear is written down, exactly as Boot check would.
+    var start: Dictionary = Checks.boot(GameState.job) if _powered() else {}
+    if _powered() and not bool(start.get("ok", false)): _measured("Boot check: " + str(start["message"]))
     var saved: bool = NightSession.checkpoint(GameState)
+    if windough != null:
+        if _powered(): windough.power_on(bool(start.get("ok", false)))
+        else: windough.power_off()
     _refresh()
-    _show(("Power ON. Run Boot check to diagnose startup." if _powered() else "Power OFF. Live readings cleared. Cleaning and repasting remain available at the repair bench.")+("\n"+NightSession.status if not saved else ""))
+    var said: String = "Power OFF. Live readings cleared. Cleaning and repasting remain available at the repair bench."
+    if _powered(): said = ("Power ON. The NightBoot stick starts Windough 98." if bool(start.get("ok", false)) else "Power ON, but nothing reaches the screen.\n" + str(start.get("message", "")))
+    _show(said + ("\n"+NightSession.status if not saved else ""))
 
 func _boot() -> void:
     if not _guard(): return

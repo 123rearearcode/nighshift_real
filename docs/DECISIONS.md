@@ -869,6 +869,17 @@ appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto mine
 in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
 (Opus 5.5, model id claude-opus-5-5).
 
+### D182 — No per-part tests; the PC boots Windough 98 from NightBoot USB (user, 28 November 2026)
+
+"So I decided together w chat that i wont be doing the parts thing anymore. i want you to replace that with
+working on the PC desktop boot screen. It has to look somewhat like a goofy windows. We will have it booted in our
+own boot tool." The per-part tests (D162, PART_TESTS_DESIGN.md) are dropped; the 0.59.0 slot is this, owned by
+Claude. Picked names: "Windough 98" (Begin button, a dough-ball logo) and "NightBoot USB". On the drafts: "make
+sure the info of the bios doesnt give anything away" (the BIOS shows nothing about the parts; a PC that does not
+start only shows NO SIGNAL); revision 2 approved: "approved, create PR". The shop's apps are desktop icons that
+open in windows; their rules, night minutes and Findings are unchanged; Begin has Programs, a readme.txt from the
+last technician (placeholder story hook), and Shut Down. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
 ### D181 — Customers talk: dialogue that unrolls (user, 27 November 2026)
 
 "when a customer comes in, you should be able to click/space for dialogue to unroll. so dialogue needs to be work

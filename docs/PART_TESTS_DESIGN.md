@@ -1,5 +1,8 @@
 # Part tests — brief for Codex (0.58.0, D162)
 
+> **Dropped, 28 November 2026 (D182).** The user: "i wont be doing the parts thing anymore". The 0.59.0 slot is
+> now the Windough 98 desktop on NightBoot USB (Claude). This brief is kept for history; do not build it.
+
 Written by Claude (Opus 5.5, model id claude-opus-5-5), 21 November 2026, from the user's answers. This is
 an approved direction with proposed details: the user approved the ideas list and the rules in the first
 section; everything marked "proposal" is open for Codex to tune or change.

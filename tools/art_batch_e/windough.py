@@ -330,11 +330,12 @@ def splash_windough(fraction):
     # the loading bar: dough rising along a baking tray
     tray = (W // 2 - 90, 176, W // 2 + 90, 188)
     d.rectangle(tray, fill=(60, 60, 70)); d.rectangle((tray[0] + 1, tray[1] + 1, tray[2] - 1, tray[3] - 1), fill=(96, 96, 108))
-    end = tray[0] + 2 + int((tray[2] - tray[0] - 4) * fraction)
-    for x in range(tray[0] + 2, end):
-        bump = 1 if (x // 5) % 2 else 0
-        d.line((x, tray[1] + 3 - bump, x, tray[3] - 2), fill=DOUGH if (x // 5) % 3 else DOUGH_SHADE)
-    d.line((tray[0] + 2, tray[1] + 3, end, tray[1] + 3), fill=DOUGH_HI)
+    if fraction is not None:                # None: the empty tray the game fills while it loads
+        end = tray[0] + 2 + int((tray[2] - tray[0] - 4) * fraction)
+        for x in range(tray[0] + 2, end):
+            bump = 1 if (x // 5) % 2 else 0
+            d.line((x, tray[1] + 3 - bump, x, tray[3] - 2), fill=DOUGH if (x // 5) % 3 else DOUGH_SHADE)
+        d.line((tray[0] + 2, tray[1] + 3, end, tray[1] + 3), fill=DOUGH_HI)
     t = "Please knead patiently..."; text(img, t, (W - text_width(t)) // 2, 196, (255, 255, 255), shadow=(26, 44, 88))
     t = "(c) 1998 Bakeware Corp. All rights rising."; text(img, t, (W - text_width(t)) // 2, H - 14, (220, 232, 248))
     return img
@@ -385,9 +386,10 @@ def nightboot(seconds):
             d.rectangle((box[0] + 6, y - 3, box[2] - 6, y + 9), fill=(200, 210, 255)); text(img, " " + item, box[0] + 10, y, (0, 0, 120), bold=True)
         else:
             text(img, " " + item, box[0] + 10, y, dim)
-    t = "Starting Windough 98 diagnostics in %d ..." % seconds
-    text(img, t, (W - text_width(t)) // 2, 190, hi)
-    text(img, "Click or press Enter to start now", (W - text_width("Click or press Enter to start now")) // 2, 204, dim)
+    if seconds is not None:                 # None: the game writes the countdown itself
+        t = "Starting Windough 98 diagnostics in %d ..." % seconds
+        text(img, t, (W - text_width(t)) // 2, 190, hi)
+        text(img, "Click or press Enter to start now", (W - text_width("Click or press Enter to start now")) // 2, 204, dim)
     return img
 
 
@@ -489,7 +491,30 @@ def frame(screen, bezel_path, caption, pointer=None):
     return out
 
 
+def export_runtime(out):
+    """0.59.0: the approved pieces as the game's files (art/ui/windough/). The screens that change while they show
+    (the countdown, the rising dough) are exported without the moving part; the game draws it by the same rule."""
+    os.makedirs(out, exist_ok=True)
+    pieces = {"logo_dough": dough_logo(), "wallpaper": wallpaper(), "taskbar": taskbar(), "begin_button": begin_button(),
+              "begin_button_pressed": begin_button(True), "cursor": cursor(), "bios": bios(), "no_signal": no_signal(),
+              "nightboot_base": nightboot(None), "splash_windough_base": splash_windough(None)}
+    for kind in [k for k, _ in ICONS] + ["usb", "speaker"]: pieces["icon_" + kind] = icon(kind)
+    for name, img in pieces.items(): img.save(os.path.join(out, name + ".png"))
+    chars = list(font5x7.G.keys())           # the font as a white atlas, 16 glyphs a row, 6 x 8 cells
+    atlas = Image.new("RGBA", (16 * 6, ((len(chars) + 15) // 16) * 8), (0, 0, 0, 0))
+    for i, ch in enumerate(chars):
+        ox, oy = (i % 16) * 6, (i // 16) * 8
+        for r, row in enumerate(font5x7.G[ch]):
+            for c, cell in enumerate(row):
+                if cell == "#": atlas.putpixel((ox + c, oy + r), (255, 255, 255, 255))
+    atlas.save(os.path.join(out, "font5x7.png"))
+    json.dump({"cell": [6, 8], "columns": 16, "advance": 6, "chars": "".join(chars)}, open(os.path.join(out, "font5x7.json"), "w"), ensure_ascii=False)
+    return sorted(os.listdir(out))
+
+
 def main(argv):
+    if len(argv) > 2 and argv[1] == "--runtime":
+        print(export_runtime(argv[2])); return
     out = argv[1]
     bezel = argv[2] if len(argv) > 2 else ""
     os.makedirs(out, exist_ok=True)

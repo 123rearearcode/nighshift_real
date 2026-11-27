@@ -118,6 +118,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/art_batch_d/walls.py` | tool | 0.58.5/0.58.9: draws the four wall finishes over the counter shell and the review pictures |
 | `tools/art_batch_d/walls_export.py` | tool | 0.58.9: exports the approved walls as runtime layers and proves they rebuild the drafts |
 | `tools/art_batch_d/flat.py` | tool | helper for walls.py: the flat counter front from the approved Batch A pictures |
+| `scripts/night/windough.gd` | ui | 0.59.0 (D182): the customer PC's screen on the monitor: BIOS, NightBoot USB, Windough 98 desktop, windows, Begin menu |
+| `art/ui/windough/README.md` | docs | 0.59.0 (D182): the approved Windough 98 / NightBoot USB pieces and their approval |
+| `tools/test_windough.gd` | test | 0.59.0: booting, NO SIGNAL, the desktop, windows running the apps, the Begin menu, Shut Down |
 | `tools/art_batch_e/windough.py` | tool | 0.59.0 drafts: Windough 98 / NightBoot USB pieces and review mockups (Python/PIL) |
 | `tools/art_batch_e/font5x7.py` | tool | 0.59.0: the 5 x 7 pixel font data for the Windough 98 screens |
 | `tools/art_batch_d/termopan.py` | tool | 0.58.5: draws the termopan counter layers (Python/PIL); regenerates the approved files byte for byte |

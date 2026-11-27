@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.10)
+# Nightshift - Godot Foundation Trial (v0.59.0)
+
+0.59.0: the customer's PC boots on the diagnostic monitor. Switch it on: the BIOS, the shop's NightBoot USB stick (a boot menu counting down), then Windough 98, a goofy Windows. The shop's apps are desktop icons (double click to open them in a window); Begin has Programs, a readme from the last technician and Shut Down. A PC that will not start just shows NO SIGNAL.
 
 0.58.10 keeps the counter’s approved art cached between room visits (B74). This is PR #97, stacked after PR #96 (0.58.9); merge #96 first. The first visit still loads the art once. See [counter loading evidence](docs/COUNTER_LOADING.md).
 
@@ -8,11 +10,12 @@
 
 0.58.7 makes the latest build more trustworthy: pausing with the magnifying glass shows the cursor (B55), the stock room no longer draws marks for things under the counter or in your backpack (B56), mornings with little cash no longer stall (B57), the collection slip stops calling a kept old part "working" (B71), and the repair bench shows your saved paste result, meters and screws after you leave and come back, with the paste amount split into on the CPU and beside it.
 
-## Controls (current, 0.58.9)
+## Controls (current, 0.59.0)
 
 - **Anywhere:** F10 pauses (Resume, Settings, Title screen); Esc closes the pause. **B** opens your backpack in any room.
 - **Repair bench:** 1 brush, 2 vacuum, 3 move parts, 4 dust pick. **V** switches the vacuum on and off (holding it still gives a short burst). Mouse wheel or Q/E turns the tool; right-drag throws it; Shift + right-drag moves the hose.
 - **At the counter:** a customer talks first: click anywhere, Space or Enter to unroll their lines, then the ticket slip shows.
+- **Diagnostic monitor:** switch the PC on; click or press Enter to skip the boot; double click an icon (or select it and press Enter) to open an app; Begin for the menu.
 - **Testing bay:** pick up the magnifying glass and hold it over a spot; Esc or a right-click puts it down.
 
 Older notes below describe each version as it was; where they disagree with this list, this list is current.

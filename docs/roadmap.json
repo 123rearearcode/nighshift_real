@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.58.10",
+  "main": "0.59.0",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -684,94 +684,69 @@
   {
    "end": "2026-12-20",
    "forecast": true,
-   "gate": "Six part families have understandable tests; failed tries spend time; evidence, condition, pause and PC isolation stay correct. Timing and difficulty need playtests.",
+   "gate": "You approve the drafts; then booting, the desktop, windows, the Begin menu and Shut Down work with the existing apps, results and night minutes unchanged.",
    "order": 7,
    "start": "2026-12-07",
-   "state": "planned",
-   "summary": "Short, intuitive, hardware-specific minigames replace the quick/long bay buttons. Owner: Codex (reserved version).",
-   "title": "Every part gets its own test",
-   "updatedAt": "2026-11-27T20:30:00Z",
+   "state": "next",
+   "summary": "The customer PC's screens on the diagnostic monitor: a BIOS that gives nothing away, the shop's NightBoot USB boot stick, a goofy Windows parody (Windough 98) with the shop's apps as desktop icons and windows. Replaces the per-part tests (dropped 28 Nov). Owner: Claude.",
+   "title": "Windough 98 on NightBoot USB",
+   "updatedAt": "2026-11-27T23:50:00Z",
    "version": "0.59.0",
    "id": "p07",
    "items": [
     {
-     "id": "p07-01",
-     "detail": "Pin selection and a meter band are proposed. Prototype a forgiving mouse task and explain it without hardware expertise.",
+     "id": "p07-11",
+     "title": "The look: BIOS, NO SIGNAL, NightBoot menu, splash, desktop, Begin menu, windows",
+     "status": "done",
+     "detail": "Revision 2 approved (\"approved, create PR\"): the BIOS says nothing about the parts; a PC that won't start shows NO SIGNAL.",
+     "refs": [
+      "art/ui/windough/README.md",
+      "tools/art_batch_e/windough.py"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.0 (D182).",
      "order": 10,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "PSU: paperclip and a wobbling meter",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T23:50:00Z"
     },
     {
-     "id": "p07-02",
-     "detail": "Short memory-test parody. Errors must reflect the part's real condition; player skill must not invent or heal faults.",
+     "id": "p07-12",
+     "title": "Boot sequence on the monitor",
+     "status": "done",
+     "detail": "Power on: BIOS (or NO SIGNAL), the NightBoot menu counting down (click or Enter skips), the Windough splash, the desktop. No night minutes for booting.",
+     "refs": [
+      "scripts/night/windough.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.0. Needs your look in game.",
      "order": 20,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "RAM: spot the digit that does not belong",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T23:50:00Z"
     },
     {
-     "id": "p07-03",
-     "detail": "A load/temperature parody. Choose an accessible input before settling any rapid-click requirement or difficulty.",
+     "id": "p07-13",
+     "title": "Desktop icons open the shop's apps in windows",
+     "status": "done",
+     "detail": "Click selects, double click or Enter opens; each window's buttons are the monitor's own app buttons, so results, Findings and night minutes are unchanged.",
+     "refs": [
+      "scripts/night/windough.gd",
+      "scripts/night/software_view.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.0.",
      "order": 30,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "CPU: manage a rising heat reading",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T23:50:00Z"
     },
     {
-     "id": "p07-04",
-     "detail": "A spinning furry donut and artifact spotting. Offer reduced effects and readable clues; only the real hidden condition supplies the outcome.",
+     "id": "p07-14",
+     "title": "Begin menu, Shut Down, taskbar clock, readme.txt",
+     "status": "done",
+     "detail": "Begin opens Programs (the apps), Documents (readme.txt, the last technician's note), Settings and Help (jokes), Shut Down turns the PC off; the tray clock is the night clock.",
+     "refs": [
+      "scripts/night/windough.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.0. The readme text is a placeholder for your story.",
      "order": 40,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "GPU: a FurBall artifact test",
-     "updatedAt": "2026-11-27T20:30:00Z"
-    },
-    {
-     "id": "p07-05",
-     "detail": "HDD rhythm / SSD transfer behaviour. Ensure an equivalent visual route; audible feedback is not yet validated.",
-     "order": 50,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "Storage: clicks, copy stalls and a clear reading",
-     "updatedAt": "2026-11-27T20:30:00Z"
-    },
-    {
-     "id": "p07-06",
-     "detail": "A finger-spin/wobble parody. Keep it short and readable, and record only the evidence the player actually obtained.",
-     "order": 60,
-     "refs": [
-      "docs/PART_TESTS_DESIGN.md"
-     ],
-     "status": "planned",
-     "title": "Cooler: spin, wobble and airflow",
-     "updatedAt": "2026-11-27T20:30:00Z"
-    },
-    {
-     "id": "p07-07",
-     "checkNote": "0.59.0 is still reserved for Codex in WORK_PLAN.md.",
-     "checkState": "confirmed",
-     "detail": "Replace the quick/long buttons with per-kind tests. Failures lose night minutes; known.tests reflects actual work. Keep per-PC state, focus-loss pause and the 06:00 boundary. 5/+5 minutes and 8–20 seconds are proposals.",
-     "order": 70,
-     "refs": [
-      "docs/WORK_PLAN.md"
-     ],
-     "status": "planned",
-     "title": "Preserve test evidence, time and pause rules",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "updatedAt": "2026-11-27T23:50:00Z"
     }
    ]
   },
@@ -1174,6 +1149,97 @@
      "status": "idea",
      "title": "Achievements, cloud, controller and extra platforms",
      "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-01",
+     "detail": "Pin selection and a meter band are proposed. Prototype a forgiving mouse task and explain it without hardware expertise.",
+     "order": 200,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "PSU: paperclip and a wobbling meter",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-02",
+     "detail": "Short memory-test parody. Errors must reflect the part's real condition; player skill must not invent or heal faults.",
+     "order": 201,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "RAM: spot the digit that does not belong",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-03",
+     "detail": "A load/temperature parody. Choose an accessible input before settling any rapid-click requirement or difficulty.",
+     "order": 202,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "CPU: manage a rising heat reading",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-04",
+     "detail": "A spinning furry donut and artifact spotting. Offer reduced effects and readable clues; only the real hidden condition supplies the outcome.",
+     "order": 203,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "GPU: a FurBall artifact test",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-05",
+     "detail": "HDD rhythm / SSD transfer behaviour. Ensure an equivalent visual route; audible feedback is not yet validated.",
+     "order": 204,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "Storage: clicks, copy stalls and a clear reading",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-06",
+     "detail": "A finger-spin/wobble parody. Keep it short and readable, and record only the evidence the player actually obtained.",
+     "order": 205,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "Cooler: spin, wobble and airflow",
+     "updatedAt": "2026-11-27T23:50:00Z",
+     "checkState": "corrected",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now."
+    },
+    {
+     "id": "p07-07",
+     "checkNote": "Dropped by you on 28 Nov 2026 (decided with ChatGPT); the 0.59.0 slot is Windough 98 now.",
+     "checkState": "corrected",
+     "detail": "Replace the quick/long buttons with per-kind tests. Failures lose night minutes; known.tests reflects actual work. Keep per-PC state, focus-loss pause and the 06:00 boundary. 5/+5 minutes and 8–20 seconds are proposals.",
+     "order": 206,
+     "refs": [
+      "docs/WORK_PLAN.md"
+     ],
+     "status": "idea",
+     "title": "Preserve test evidence, time and pause rules",
+     "updatedAt": "2026-11-27T23:50:00Z"
     }
    ]
   }
@@ -1181,13 +1247,13 @@
  "decisions": [
   {
    "id": "d01",
-   "answer": "",
+   "answer": "Dropped (28 Nov 2026): no per-part tests. The 0.59.0 slot is the Windough 98 desktop on NightBoot USB (D182).",
    "ask": "Which interaction and accessibility variant works for each part, and what time penalty is fair?",
    "context": "Short per-kind tests, time lost on failure, and testing versus merely labelling are approved. Exact inputs and timing are proposals.",
    "order": 10,
    "question": "How should the six part tests feel?",
-   "state": "open",
-   "updatedAt": "2026-11-27T20:30:00Z"
+   "state": "settled",
+   "updatedAt": "2026-11-27T23:50:00Z"
   },
   {
    "id": "d02",
@@ -1418,6 +1484,16 @@
    "question": "The name of the place on its wall",
    "state": "settled",
    "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d26",
+   "order": 260,
+   "state": "settled",
+   "question": "Windough 98 on NightBoot USB",
+   "context": "D182, 0.59.0. A goofy Windows parody on the shop's own boot stick; the BIOS gives nothing away.",
+   "ask": "",
+   "answer": "",
+   "updatedAt": "2026-11-27T23:50:00Z"
   }
  ]
 }
