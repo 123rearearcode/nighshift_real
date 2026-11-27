@@ -833,7 +833,10 @@ piece of multi-room inventory management "which the player can later automatize"
 the cables in their state; tangles happen "when the box is moved and there are loose cables inside"; the
 untangling should be "more physics-based, if possible"; shop items help. The only scam is customers "who
 claim the shop lost their cable" (no technical cable scams). Design notes and open questions:
-`docs/CABLE_BOX_DESIGN.md`. Not built. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+`docs/CABLE_BOX_DESIGN.md`. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+Answers, same day: there is one box ("There is one"); its automation will be tied to the van's trunk and the
+outside ("Well into this system I would tie the whole trunk/outside thing"); cables can break ("Yes, they
+can break"); and "you can go ahead and create the cable box". Built in 0.58.3 with placeholder drawings.
 
 ### D174 — Termopan doors, a radiator and linoleum in the counter room (user, 27 November 2026)
 

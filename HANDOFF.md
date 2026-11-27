@@ -1,6 +1,19 @@
 # Handoff — current state first
 
-## Current — 0.58.2 B59 fixed (developed as 0.57.11): morning backups and a restore for a damaged ticket book, 27 November 2026
+## Current — 0.58.3 the cable box, 27 November 2026
+
+The user merged Codex's #89 (0.58.0) and asked Claude to build the cable box (D173; answers: one box,
+automation later tied to the van's trunk/outside, cables can break). Built: `scripts/rules/cable_box.gd`
+(moving tangles loose cables; knots with one open plug per cable; strain and snapping; zip ties and velcro),
+`scripts/state/cable_store.gd` (`.cables.json`, per playthrough, in the morning backups),
+`scripts/view/cable_box_view.gd` (verlet-rope untangling), the box in the counter/workshop/outside via
+`room_view.gd`, supplies at the store, `GameState.spend_cash`. Placeholder drawings (art needs approval).
+Not built: using a cable in a repair, the "you lost my cable" customer, automation, night-minute cost.
+Stacked: #87 (0.58.1) → #88 (0.58.2, B63 fixed) → this. Termopan drafts (D174) await the user's review.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.2 B59 fixed (developed as 0.57.11): morning backups and a restore for a damaged ticket book, 27 November 2026
 
 User decisions (D172): fix the backup check; save every morning and keep backups up to 3 days back; when the
 ticket book is damaged, try to restore it. Built: `SaveStore.read(path, accept)` skips a wrong-run manifest;
