@@ -132,6 +132,66 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.11 - 2026-11-28 - Meaningful interactions and the replacement monitor step
+- Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work.
+- Based on: merged main 0.58.10 / a9f576b0c839ab2224d8936494135b944eae0e0b.
+- Type: patch (design, scope, reference-timeline and version metadata only).
+
+### Execution status
+No Godot run for this documentation-only revision. Runtime scripts, scenes, artwork, save formats,
+input and CI are unchanged. No GPU effect or monitor desktop implementation is claimed.
+
+### Added / Changed / Fixed / Removed
+- D182: core philosophy for purposeful minigames and the absurd, sometimes funny fight against
+  “the system” in everyday European life; a concrete problem/action/consequence/theme design gate.
+- Cancel the six component-specific test minigames and release their old 0.59.0 reservation.
+  Keep the glass and existing simple functional tests; retain the retired brief and task ids as history.
+- D184: Claude is already creating the monitor desktop feel as the replacement p07 step. Preserve
+  that ownership without inventing features, allocating its version or implementing the work here.
+- D183: GPU artifacting is an unscheduled diagnostic-presentation candidate. Existing fault/report
+  rules are acknowledged; no new effect, minigame or launch commitment is added.
+- Update the core docs and reference timeline together. Later dates remain unchanged forecasts.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `AGENTS.md` | M | Current roadmap states, ownership and latest-user-decision precedence |
+| `CHANGELOG.md` | M | This signed documentation delivery and validation record |
+| `DEVELOPMENT.md` | M | Purpose gate in the minigame document map |
+| `HANDOFF.md` | M | Current scope, Claude ownership, reservations and handoff |
+| `README.md` | M | Version and design-update overview |
+| `project.godot` | M | Version metadata only: 0.58.11 |
+| `docs/PROJECT_BRIEF.md` | M | Core philosophy and current scope |
+| `docs/DESIGN.md` | M | Interaction design gate, retired tests, desktop owner and GPU candidate |
+| `docs/MINIGAME_RULES.md` | M | Permanent purpose/theme gate for future minigames |
+| `docs/PART_TESTS_DESIGN.md` | M | Retired brief banner preserving historical approval |
+| `docs/ROADMAP.md` | M | Current reference-timeline and scope explanation |
+| `docs/DECISIONS.md` | M | D182 philosophy/cancellation, D183 candidate, D184 replacement ownership |
+| `docs/CURRENT_STATE.md` | M | Docs-only status and existing-versus-candidate distinction |
+| `docs/WORK_PLAN.md` | M | Bounded assignment, released reservation and Claude monitor ownership |
+| `docs/roadmap.json` | M | Cancelled task history, replacement milestone, settled decisions and GPU idea |
+
+### Checks performed
+- `python3 -I tools/check_project.py`: passed, 0 problems; five core docs and roadmap version agree.
++- `python3 -I tools/check_bug_register.py`: passed, 0 problems; 12 bug-register tests passed.
++- `python3 -B tools/test_ci_scope.py`: all 9 existing tests passed.
++- Targeted roadmap checks: 81 active items and 7 cancelled history items; ids/refs valid, no retired
++  task active, Claude owns the replacement, GPU symptom is an idea, and all forecast dates are unchanged.
++- Verified the changed-path list and version-only project diff: no runtime, scene, art, tool or CI edit.
++- `git diff --check`: passed. No Godot/gameplay or new graphical effect validation claimed.
+
+### Decisions proposed (not approved)
+GPU artifacting remains a possibility, with presentation, triggers and release placement undecided.
+Desktop details and implementation/version belong to Claude's separate work. No new tuning approved.
+
+### Known issues and open items
+Claude's live editable artifact needs this scope update during its next sync. Historical sections below
+retain old assignments and are superseded by D182–D184. Runtime/campaign issues are unchanged.
+
+### Next action
+Claude continues the monitor desktop work and synchronises its live editable roadmap. User reviews
+this independent documentation PR; the scheduled checker keeps 0.60.0. No hot files claimed by Codex.
+
 ## 0.58.10 - 2026-11-27 - Reuse the counter art between room visits (B74)
 - Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work.
 - Based on: PR #96 / 0.58.9, 2a19795345abacb417fed08fbf92d017d6d6e5c0, integrated into PR #97.

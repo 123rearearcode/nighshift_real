@@ -1,5 +1,25 @@
 # Nightshift — Roadmap
 
+## Scope and reference timeline update — 0.58.11 / 28 November 2026
+
+D182 makes purposeful, thematic interaction a core design requirement. The six-component test plan
+is cancelled; task ids p07-01 through p07-07 retain `cancelled` status in p07.cancelledItems,
+outside active work.
+The p07 milestone is now **Monitor desktop feel — Claude**, matching the user's active work update
+(D184). Claude owns that implementation; its version and detailed scope remain to be confirmed by
+its own delivery. The old 0.59.0 per-part-test reservation is released.
+
+GPU artifacting is **an unscheduled possibility**, p13-11 (D183), to develop as observable diagnostic
+behaviour within existing tools. It is not a new compulsory minigame or a completed visual effect.
+Existing physical inspection and simple functional diagnostics remain.
+
+The dated reference plan is in `docs/roadmap.json`. The inherited p07 window and every later date
+remain forecasts; removing the tests does not establish a faster schedule or a release promise.
+The checker retains 0.60.0. Latest explicit user decisions take precedence over older live/file
+snapshots; Claude should carry this update into its live editable roadmap when syncing.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Where the current roadmap lives — 0.58.6 / 27 November 2026
 
 The current, dated plan is `docs/roadmap.json` (phases, tasks with status, the decision desk), mirrored

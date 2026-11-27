@@ -44,5 +44,9 @@ Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADM
     with the user's answers. When your PR finishes or changes a task, update that task in the same PR (keep its
     id; a new task gets a new id in its phase) and set `about.main` to your version; `tools/check_project.py`
     fails if `about.main` differs from `project.godot`. The user edits the live page named in `about.live`;
-    if the file and the page disagree, the page wins and Claude syncs the file. Do not start a task the
-    roadmap marks as another agent's reserved version (0.59.0 Codex, 0.60.0 checker) without the user.
+    if the file and the page disagree, the page wins and Claude syncs the file, except that the latest
+    explicit user decisions take precedence over either stale snapshot. D182–D184 cancel the per-part
+    minigames and give the replacement monitor desktop step to Claude; the old 0.59.0 per-part reservation
+    is released. Cancelled tasks retain their ids in a phase's `cancelledItems` history, outside active
+    items and completion totals. Do not start another agent's task or reserved version (0.60.0 checker)
+    without the user.

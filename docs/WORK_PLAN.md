@@ -1,5 +1,21 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current design assignment — 0.58.11, 28 November 2026
+
+Codex owns this documentation/timeline update only: the core philosophy and minigame purpose gate
+(D182), cancellation of the old six-test brief, GPU artifacting as a future diagnostic idea (D183),
+and the user's replacement roadmap step (D184). No runtime, hot-file, artwork or lifecycle ownership
+is claimed. The earlier 0.59.0 reservation for per-part minigames is released and superseded.
+
+**Claude is working on the monitor desktop feel.** The p07 milestone now belongs to that work.
+Its implementation details and version are Claude's to coordinate in its delivery; Codex does not
+build or redesign it here. A future GPU symptom must be coordinated with that owner. Scheduled
+structural review 0.60.0 stays with the Code checker. Earlier assignments below are history where
+they conflict with these latest user decisions. Next: Claude continues its monitor work; the user
+reviews this independent design PR and the proposed symptom remains unscheduled.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current bounded assignment — 0.58.10, 27 November 2026
 
 PR #97 is stacked on #96 (0.58.9); its earlier unmerged version/bug/task claims are corrected to

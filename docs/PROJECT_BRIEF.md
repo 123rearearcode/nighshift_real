@@ -1,5 +1,27 @@
 # Nightshift — Project Brief
 
+## Core philosophy — 0.58.11 / 28 November 2026 (D182–D184)
+
+Nightshift follows an ordinary repair-shop owner finding a way through an absurd, sometimes funny
+fight against “the system”, rooted in recognisable everyday European life. The humour comes from
+specific awkward rules, unreliable systems, contradictory demands and resourceful workarounds, as
+well as the satisfaction of getting useful work done. This is a gameplay principle as well as a tone
+for the writing and setting.
+
+Minigames must earn their place: represent a meaningful shop problem, make the player's actions
+understandable, and produce useful evidence, a choice or a consequence. A task does not need its own
+minigame just because it exists in real hardware repair. A funny name or an extra timing challenge
+alone does not make it fit. Calm, satisfying inspection and repair remain valuable; every action does
+not need a joke or a bureaucratic obstacle. See DESIGN.md and MINIGAME_RULES.md for the design gate.
+
+The six dedicated component-testing minigames are cancelled. The magnifying glass and existing
+simple functional tests remain. Claude is working on a monitor desktop feel as the replacement
+roadmap step; this documentation update does not implement or prescribe that work. GPU artifacting
+is a possible diagnostic symptom to explore later, with no new minigame or release commitment.
+These latest decisions supersede the older per-part-test assignments below.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 ## Current antivirus update — 0.58.0 / 27 November 2026
 
 The user approved simple, intuitive deduction for players without computer knowledge and requested creation of 0.58.0. Task Manajer uses behaviour clues, plain app descriptions, distinct adware/miner reactions and fixed controls. Shared reduced-effects Settings persist separately from shop progress. The existing actual-infection, time, verification and payment boundaries remain. This implementation branch awaits user review; per-part minigames remain 0.59.0.

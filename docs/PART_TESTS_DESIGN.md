@@ -1,5 +1,26 @@
 # Part tests — brief for Codex (0.58.0, D162)
 
+## Retired brief — 0.58.11 / 28 November 2026 (D182–D184)
+
+**Cancelled by the user:** the six dedicated part-testing minigames below are no longer planned.
+Do not implement the paperclip/meter, wrong-digit, CPU-fanning, FurBall artifact-catching, storage
+rhythm/copy-bar or cooler mini-challenges. Their replacement of quick/long rig tests and their
+failure-time/skill proposals are cancelled with them. The former 0.59.0 reservation for this work
+is released; no new version is allocated here.
+
+The magnifying glass continues to reveal physical clues. Existing rig/software tests continue to
+provide functional evidence, including faults without visible damage. Labels remain the player's
+call and do not invent test evidence. The similar-part relabeler remains a separate later idea.
+
+Claude is working on the monitor desktop feel as the replacement roadmap step. GPU artifacting may
+be explored as an observable symptom in that existing environment; it has no approved minigame,
+implementation specification or release date. See DESIGN.md, MINIGAME_RULES.md and docs/roadmap.json.
+
+The original brief below is preserved as history of D162, not an active assignment or approval.
+Its opening “approved direction” statement and reserved versions describe the earlier decision.
+
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
 Written by Claude (Opus 5.5, model id claude-opus-5-5), 21 November 2026, from the user's answers. This is
 an approved direction with proposed details: the user approved the ideas list and the rules in the first
 section; everything marked "proposal" is open for Codex to tune or change.
