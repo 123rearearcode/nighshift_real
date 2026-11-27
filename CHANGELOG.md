@@ -178,7 +178,9 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
 
 ### Checks performed
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless): run 46033437449 on `2db0a5c` failed one Night workshop check (B62);
+  after the fix, run 46033946684 on `d0472fe` passed every suite, including the new Save safety suite (15
+  checks). B59 and B62 marked Verified.
 
 ### Decisions proposed (not approved)
 - Keeping "3 days before" as the newest three morning backups (the user can ask for more).

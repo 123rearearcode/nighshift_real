@@ -92,10 +92,10 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
-| B59 | Fixed | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | 0.57.11 | Pending CI: Save safety suite (`tools/test_save_safety.gd`) |
+| B59 | Verified | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | 0.57.11 | Automated: Save safety suite, GitHub Actions run 46033946684 |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 | B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.57.10 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
-| B62 | Fixed | Medium | Save | While fixing B59, the new manifest check also skipped a ticket book written by a newer game version, read the older backup instead and would have let the next save overwrite the newer one | 0.57.11 | Pending CI: Night workshop suite (`tools/test_night_workshop.gd`) |
+| B62 | Verified | Medium | Save | While fixing B59, the new manifest check also skipped a ticket book written by a newer game version, read the older backup instead and would have let the next save overwrite the newer one | 0.57.11 | Automated: Night workshop suite, GitHub Actions run 46033946684 |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -885,7 +885,8 @@ then-current design wording do not override the current status, D150 or the late
   the restore brings back both waiting customers, the counter starts again from that morning, the damaged
   files are kept aside and both customers can be accepted; ending the night backs up the new morning; a
   useless backup is refused and the player's own save is put back; only the newest three mornings are
-  kept. CI result pending; not checked in game by a person.
+  kept. Automated evidence: `tools/test_save_safety.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46033946684 on
+  `d0472fe` (all suites); not checked in game by a person.
   Earlier evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
   plus restoration check at 842d0c2; four healthy controls accepted normally, damaged queues stayed
   unchanged, and money/inventory/active job were preserved (zero setup/ownership failures). The
@@ -915,8 +916,8 @@ then-current design wording do not override the current status, D150 or the late
   `.bak` exists, cold-start the session, `ensure()`.
 - Expected / actual: protected (read-only, checkpoint refused) / not protected, the older backup was used.
 - Regression / evidence: the check now skips only a version-1 manifest whose run differs; anything else is
-  read and validated (and protected) as before. The existing Night workshop check covers it; CI result
-  pending.
+  read and validated (and protected) as before. Automated evidence: `tools/test_night_workshop.gd` passed in
+  GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46033946684 on `d0472fe` (all suites).
 
 ### B61 — The magnifying glass hides clues it has already revealed
 
