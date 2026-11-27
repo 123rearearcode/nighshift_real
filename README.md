@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.1)
+# Nightshift - Godot Foundation Trial (v0.58.2)
+
+0.58.2 backs up the save every morning (the last three mornings of this playthrough are kept) and, if the ticket book is ever damaged, offers to restore this morning's backup instead of getting stuck (B59).
 
 0.58.1 fixes the testing bay's magnifying glass: it now shows the clues it has already revealed (B61).
 

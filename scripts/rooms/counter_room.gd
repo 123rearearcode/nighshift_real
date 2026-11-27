@@ -53,6 +53,8 @@ var slip: Panel
 var slip_title: Label
 var slip_text: Label
 var next_button: Button
+var recovery_slip: Panel   # B59 (0.57.11): shown when the ticket book is damaged
+var restore_button: Button
 var portrait: TextureRect
 var customer_pc: TextureRect
 var visits: Array = []
@@ -94,10 +96,16 @@ func _room_ready() -> void:
     add_child(phone)
     _setup_counter_art()
     _build_storage_drawer()
-    if not GameState.opening_customers.is_empty():
+    _build_recovery_slip()
+    if NightSession.needs_recovery(GameState):
+        _show_recovery()
+    elif not GameState.opening_customers.is_empty():
         _begin_opening()
     elif NightSession.visits_pending:
         _begin_visits()
+    if NightSession.restored_note != "":
+        say(NightSession.restored_note)
+        NightSession.restored_note = ""
 
 
 func _setup_counter_art() -> void:
@@ -437,6 +445,40 @@ func _build_slip() -> void:
     next_button.add_theme_font_size_override("font_size", 16)
     next_button.pressed.connect(_next_visit)
     slip.add_child(next_button)
+
+
+# ---- B59 (0.57.11): a damaged ticket book ----
+# The user (27 November 2026): "try to restore it". Instead of a counter that refuses everything, a slip
+# explains what happened and offers this morning's backup (the last 3 mornings are kept).
+
+func _build_recovery_slip() -> void:
+    recovery_slip = _paper(SLIP_RECT, "RecoverySlip")
+    _ink(recovery_slip, "THE TICKET BOOK IS DAMAGED", Vector2(16, 12), Vector2(SLIP_RECT.size.x - 32, 40), 15)
+    var text: Label = _ink(recovery_slip, "The shop's list of tonight's repair tickets could not be read, so the game has stopped switching PCs and saving to keep every customer's PC safe.\n\nYou can put the shop back the way it was this morning, from the automatic morning backup. Anything done since then is lost; the damaged files are kept next to the save.", Vector2(16, 56), Vector2(SLIP_RECT.size.x - 32, SLIP_RECT.size.y - 130), 15)
+    text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    restore_button = Button.new()
+    restore_button.name = "RestoreBackupButton"
+    restore_button.text = "Restore this morning's backup"
+    restore_button.position = Vector2(14, SLIP_RECT.size.y - 60)
+    restore_button.size = Vector2(SLIP_RECT.size.x - 28, 46)
+    restore_button.add_theme_font_size_override("font_size", 16)
+    restore_button.pressed.connect(_restore_backup)
+    recovery_slip.add_child(restore_button)
+    recovery_slip.hide()
+
+
+func _show_recovery() -> void:
+    slip.hide()
+    recovery_slip.show()
+    say(NightSession.status)
+
+
+func _restore_backup() -> void:
+    AudioFeedback.request(self, "ui.click")
+    if not NightSession.restore_morning(GameState):
+        say(NightSession.status)
+        return
+    Navigation.commit(self, Navigation.COUNTER)   # the counter again, from the restored morning
 
 
 func _build_clipboard() -> void:

@@ -1,6 +1,19 @@
 # Handoff — current state first
 
-## Current — 0.58.1 B61 fixed (developed as 0.57.10), 27 November 2026
+## Current — 0.58.2 B59 fixed (developed as 0.57.11): morning backups and a restore for a damaged ticket book, 27 November 2026
+
+User decisions (D172): fix the backup check; save every morning and keep backups up to 3 days back; when the
+ticket book is damaged, try to restore it. Built: `SaveStore.read(path, accept)` skips a wrong-run manifest;
+`scripts/state/save_backups.gd` backs up the save, ticket book and room memory each morning, per playthrough
+(newest 3; one earlier playthrough archived; B63 from Codex's review fixed);
+the counter's "The ticket book is damaged" slip restores the newest working backup, setting the damaged
+files aside and putting the player's own files back if none works. Test suite: Save safety.
+Also decided, not built: the cable box (D173, `docs/CABLE_BOX_DESIGN.md`) and termopan doors, radiator and
+linoleum for the counter (D174; drafts for review). Stacked on #87 (0.58.1): merge #87 first.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.1 B61 fixed (developed as 0.57.10), 27 November 2026
 
 The testing bay's magnifying glass now draws the same stack as the panel (the close-up, then every revealed
 clue) and stays on the picture (`picture_layers`, `lens_glass` in `testing_bay_view.gd`). #84 (0.57.9), #85

@@ -813,3 +813,31 @@ layout of things, with the existing current assets in the game." So the counter 
 front wall flat, glass door and shop window on the left under one flat shutter box, the workshop door on
 the right, the counter across the front, drawn from the approved Batch A pictures (no new pixels). New
 counter-room art must follow this layout. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D172 — Morning backups and restoring a damaged ticket book (user, 27 November 2026)
+
+For B59 the user chose: fix the backup check; "automatically save every morning, and keep backups up to 3
+days before"; and when the ticket book is damaged, "Sure, try to restore it." So every morning (the new
+game's first morning and each morning after the night ends) the save, its ticket manifest and its room
+memory are copied to `backups/<save>/run_<playthrough>/morning_<night>/`; the newest 3 of the playthrough are
+kept, and a restore only uses the playthrough being recovered (B63). A ticket book from another run
+no longer hides its good backup. When the counter finds the ticket book damaged it offers "Restore this
+morning's backup": the newest backup that loads and checks out is put back, the damaged files are set aside
+(never deleted), and if no backup works the player's own files are put back and the game stays protected.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D173 — The cable box (user, 27 November 2026)
+
+Cable management becomes a minigame around a **cable box**: it "can be moved from room to room", the first
+piece of multi-room inventory management "which the player can later automatize"; it is openable and shows
+the cables in their state; tangles happen "when the box is moved and there are loose cables inside"; the
+untangling should be "more physics-based, if possible"; shop items help. The only scam is customers "who
+claim the shop lost their cable" (no technical cable scams). Design notes and open questions:
+`docs/CABLE_BOX_DESIGN.md`. Not built. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D174 — Termopan doors, a radiator and linoleum in the counter room (user, 27 November 2026)
+
+The doors are termopan, "90s/2000s communist style": white PVC frames, clear glass (user: "White PVC, Clear
+glass"), for the front door + shop window block and the workshop door (keyhole from the user's sketch, D171).
+Add a radiator under the window and a linoleum floor. The flat layout of D171 stays. New art goes through the
+usual draft → user approval → integration path (D167). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

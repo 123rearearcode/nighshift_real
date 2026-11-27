@@ -92,10 +92,11 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
-| B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
+| B59 | Verified | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | 0.58.2 | Automated: Save safety suite, GitHub Actions run 46033946684 |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 | B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.58.1 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
-| B63 | Open | High | Save recovery | PR #88 retains the previous run's later mornings, prunes a new game's morning-1 backup and can restore the old playthrough | — | Automated: Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md |
+| B62 | Verified | Medium | Save | While fixing B59, the new manifest check also skipped a ticket book written by a newer game version, read the older backup instead and would have let the next save overwrite the newer one | 0.58.2 | Automated: Night workshop suite, GitHub Actions run 46033946684 |
+| B63 | Verified | High | Save recovery | PR #88 retains the previous run's later mornings, prunes a new game's morning-1 backup and can restore the old playthrough | 0.58.2 | Automated: Save safety suite, GitHub Actions run 46042764485 |
 | B64 | Verified | Low | Help | Pause still directs the player to the retired Activities screen | 0.58.0 | Graphical: F10 during adware cleanup; docs/ANTIVIRUS_0580_VALIDATION.md |
 | B65 | Verified | Low | Test harness | Initial effects-setting fixture injected root-viewport clicks into a separate dialog window, then tried to cast its unchanged malformed setting to bool | 0.58.0 | Automated: Antivirus 67 checks; dialog control signals and guarded value comparison |
 | B66 | Verified | Low | Antivirus feedback | Per-PC adware names still received a hardcoded FreeCursors reaction after stopping | 0.58.0 | Automated: alias-specific tools/test_antivirus.gd regression (68 checks); graphical mismatch reproduced |
@@ -852,7 +853,14 @@ then-current design wording do not override the current status, D150 or the late
   Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 - Status / severity: Open / High. The original report said Medium; the register defines a blocked
   loop as High. No irrecoverable ownership loss has been demonstrated. This is reproduction, not a fix.
-- Fixed in: —
+- Fixed in: 0.58.2 (developed as 0.57.11), by Claude (Opus 5.5, model id claude-opus-5-5), with the user's recovery policy (D172):
+  `SaveStore.read()` takes an optional accept check and `ensure()` refuses a manifest from another run, so the
+  .bak/.tmp behind it is read; every morning is backed up (`scripts/state/save_backups.gd`, newest 3 kept);
+  when the counter finds the ticket book untrustworthy, or waiting customers without tickets, it shows "The
+  ticket book is damaged" with "Restore this morning's backup" (`NightSession.restore_morning`). Restoring
+  sets the current files aside (never deletes), tries the newest backup that loads and checks out, and puts
+  the player's own files back if none does (the game then stays protected, as before). No job is invented,
+  no pending ID is silently consumed, and the protections are unchanged.
 - Root cause: `NightSession.ensure()` protects an unavailable/invalid manifest by retaining only the
   active job and setting `read_only`. Pending intake still forces the counter through `resume_path()`.
   `opening_cards()` returns no cards when any pending ID has no matching job; if only the recovered
@@ -879,7 +887,14 @@ then-current design wording do not override the current status, D150 or the late
   preserve the original files and every unrecovered job. Do not manufacture jobs, silently consume
   missing pending IDs, or accept only the front ID while a later job is absent (PR #78 proposal 2).
   Recovery behavior remains for a separate gameplay change and human review.
-- Regression / evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
+- Regression / evidence: (0.57.11) `tools/test_save_safety.gd`: the wrong-run primary with a valid backup
+  now ensures and shows both opening cards; with the manifest gone the counter shows the recovery slip,
+  the restore brings back both waiting customers, the counter starts again from that morning, the damaged
+  files are kept aside and both customers can be accepted; ending the night backs up the new morning; a
+  useless backup is refused and the player's own save is put back; only the newest three mornings are
+  kept. Automated evidence: `tools/test_save_safety.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46033946684 on
+  `d0472fe` (all suites); not checked in game by a person.
+  Earlier evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
   plus restoration check at 842d0c2; four healthy controls accepted normally, damaged queues stayed
   unchanged, and money/inventory/active job were preserved (zero setup/ownership failures). The
   diagnostic reports observations and is not a required CI test asserting that a lock should persist.
@@ -904,15 +919,34 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: the glass shows the revealed clue magnified / the glass shows a healthy connector, and the clue is only visible outside the glass.
 - Fix direction (for the bay's owner, not done by the checker): draw each revealed clue overlay into the glass with the same UVs after the base picture, and clamp or mask the glass to `PART_RECT`. A headless test can check that `_draw_lens` samples every non-null `clue_texture(i)`; how it looks needs a graphical check.
 - Regression / evidence: `tools/test_testing_bay.gd` (B61 checks): before looking, the stack is only the close-up; after the power connector is inspected on a dead GPU, the stack is the close-up then that scorch-mark overlay; the glass stays on the picture with every UV in 0..1 at the spot, half off the panel and in the corner; off the panel it magnifies nothing. Automated evidence: `tools/test_testing_bay.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46021841002 on `1ae3133` (all suites); how it looks is not yet checked in game.
+### B62 — The B59 manifest check skipped a newer-format ticket book
+
+- Found: 0.58.2 development (then numbered 0.57.11), GitHub Actions run 46033437449 on `2db0a5c` (push to `fix/b59-save-safety-05711`, not merged)
+- Reported by: CI log: `FAIL: future manifest is protected against overwrite` (Night workshop)
+- Fixed in: 0.58.2 (before release; developed as 0.57.11), by Claude (Opus 5.5, model id claude-opus-5-5)
+- Root cause: the accept check first given to `SaveStore.read()` in `NightSession.ensure()` refused every
+  manifest that was not version 1 of this run. A version-999 manifest (written by a newer build) was
+  therefore skipped like damage, its version-1 `.bak` was read, the session was not protected, and the next
+  checkpoint would have overwritten the newer file. B59 only needed one case skipped: a version-1 manifest
+  from another run.
+- Reproduction: Night workshop suite at `2db0a5c`: write the manifest with `"version": 999` while a valid
+  `.bak` exists, cold-start the session, `ensure()`.
+- Expected / actual: protected (read-only, checkpoint refused) / not protected, the older backup was used.
+- Regression / evidence: the check now skips only a version-1 manifest whose run differs; anything else is
+  read and validated (and protected) as before. Automated evidence: `tools/test_night_workshop.gd` passed in
+  GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46033946684 on `d0472fe` (all suites).
+
 ### B63 — New-game recovery can restore the previous playthrough (PR #88)
 
 - Found: PR #88 head a8667b7, 27 November 2026; not merged in this 0.58.0 baseline.
 - Reported by: Codex, bounded user-requested PR review. B62 is allocated by the separate PR #88.
-- Fixed in: —; Open.
+- Fixed in: 0.58.2 (in PR #88 before merge), by Claude (Opus 5.5, model id claude-opus-5-5): backups are kept per playthrough (`backups/<save>/run_<run id>/morning_<night>/`); the newest 3 mornings are kept within a playthrough and only the newest earlier playthrough stays archived (ordered by a sub-second stamp); `restore_morning` only tries the mornings of the run the main save belongs to and accepts a restored set only if it belongs to that run. Following the review's recommendation, a failed move or copy during a restore now puts the original files back (`set_aside` rolls back, `put_back`).
 - Root cause: backup folders/retention and restoration are scoped by save filename/night number, without canonical run identity.
 - Reproduction: retain morning 20/21/22 of a $777 shop, start a new $100 shop in the same slot, remove its manifest/fallbacks and restore. Its morning 1 was pruned; restore returns old run/night 22/$777.
 - Expected / actual: recover a current-run morning / silently replace it with the previous playthrough.
 - Regression / evidence: Automated Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md preserves output. Optional tools/reproduce_b63.gd observes the case on a tree containing the backup module. Supplied suites passed but omit this cross-run case. No user saves changed; no fix or graphical verification claimed.
+  Fix evidence (0.58.2): `tools/test_save_safety.gd` repeats the review's case (an earlier $777 playthrough with mornings 20–22, a new game in the same slot): the new game keeps its morning 1 next to the archived playthrough, and with its manifest removed the restore returns the new run, night 1 and the new cash with both opening customers; a further new game keeps only the newest earlier playthrough. Automated evidence: `tools/test_save_safety.gd` passed in GitHub
+  Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46042764485 on `57c6485` (all suites). `tools/reproduce_b63.gd` updated to the per-run API.
 
 ### B64 — Pause help points to the retired Activities screen
 

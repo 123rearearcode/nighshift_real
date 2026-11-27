@@ -11,6 +11,7 @@ const ShopRating = preload("res://scripts/rules/shop_rating.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
 const BuildRequest = preload("res://scripts/rules/build_request.gd")
 const Reviews = preload("res://scripts/rules/reviews.gd")
+const Backups = preload("res://scripts/state/save_backups.gd")   # B59 (0.57.11): morning backups
 var tickets: Array = []
 var run_id: String = ""
 var active_id: String = ""
@@ -18,6 +19,7 @@ var bound_path: String = ""
 var status: String = ""
 var read_only: bool = false
 var last_report: Dictionary = {}   # D136 (0.44.0): the morning report just produced; its customers walk in at the counter
+var restored_note: String = ""     # B59 (0.57.11): what the last restore put back, shown once at the counter
 var visits_pending: bool = false   # 0.53.0 (D161): true from the end of the night until the counter has shown every customer
 
 func _marker(gs: Node) -> Dictionary:
@@ -68,7 +70,9 @@ func start(gs: Node, introduce_customers: bool = false) -> bool:
     if not _main_saved(gs):
         status = "New night could not be saved. Repair progress is only in memory; retry Save before quitting."
         return false
-    return _write(gs)
+    if not _write(gs): return false
+    Backups.take(gs.save_path, run_id, int(gs.night_number))   # B59: the first morning is backed up too (B63: per playthrough)
+    return true
 
 func ensure(gs: Node) -> bool:
     var marker := _marker(gs)
@@ -90,7 +94,9 @@ func ensure(gs: Node) -> bool:
             status = "Migrated PC could not be saved. Retry before quitting."
             return false
         return _write(gs)
-    var raw: Variant = Store.read(_path(gs))
+    # B59 (0.57.11): a manifest of this format from another run is skipped like a damaged file, so the good
+    # backup behind it is found. Anything else (a newer format, damaged tickets) is still read and protected.
+    var raw: Variant = Store.read(_path(gs), func(data: Dictionary) -> bool: return data.get("version",0) != 1 or data.get("run","") == run_id)
     if not raw is Dictionary or raw.get("version",0) != 1 or raw.get("run","") != run_id or not raw.get("tickets",null) is Array:
         return _protect(gs,"Ticket manifest is missing, damaged or from another run. Active PC recovered; switching is disabled to protect other jobs.")
     var ids: Dictionary = {}
@@ -268,6 +274,44 @@ func accept_opening_customer(gs: Node, id: String) -> bool:
         return false
     return true
 
+# ----- B59 (0.57.11): recovery from a damaged ticket book -----
+
+# True when the protected state leaves no way on: the ticket manifest could not be trusted (switching and
+# saving are refused), or customers wait at the counter whose tickets cannot be found.
+func needs_recovery(gs: Node) -> bool:
+    if str(_marker(gs).get("run","")) == "": return false   # no ticket book yet: nothing to recover, and no migration here
+    if not ensure(gs) and read_only: return true
+    return not gs.opening_customers.is_empty() and opening_cards(gs).is_empty()
+
+
+# The user (27 November 2026): "try to restore it". Puts back the newest morning backup that loads and whose
+# ticket book checks out, newest first. Nothing is deleted: the damaged files are kept aside by Backups.
+# On failure the game stays protected, as before.
+func restore_morning(gs: Node) -> bool:
+    # B63: only this playthrough's mornings (the run the main save belongs to), never an earlier game's.
+    var run: String = str(_marker(gs).get("run", run_id))
+    var originals: String = ""
+    for morning: String in Backups.mornings(gs.save_path, run):
+        var aside: String = Backups.restore(gs.save_path, run, morning)
+        if aside == "": continue
+        if originals == "": originals = aside
+        bound_path = ""
+        run_id = ""
+        tickets = []
+        if gs.load_game() and str(_marker(gs).get("run", "")) == run and ensure(gs) and (gs.opening_customers.is_empty() or not opening_cards(gs).is_empty()):
+            status = "Restored the shop as it was on the morning of night %d." % Backups.night_of(morning)
+            restored_note = status
+            return true
+    if originals != "": Backups.put_back(gs.save_path, originals)   # the player's own files back (they stay set aside too)
+    bound_path = ""
+    run_id = ""
+    tickets = []
+    gs.load_game()
+    ensure(gs)
+    status = "No morning backup could be restored. The damaged files are kept in the backups folder next to the save."
+    return false
+
+
 # One of tonight's tickets is a PC still in the shop (open, with a physical PC).
 func _open_tickets() -> Array:
     return tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" and str(entry["hardware_trial"]["night_session"].get("pc","")) != "")
@@ -366,6 +410,7 @@ func end_night(gs: Node) -> Dictionary:
     tickets = tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" or str(entry["id"]) == active_id)
     gs.start_next_night()
     if not checkpoint(gs): return {"ok":false,"message":status}
+    Backups.take(gs.save_path, run_id, int(gs.night_number))   # B59 (0.58.2): every morning is backed up; this playthrough's last 3 are kept
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
     visits_pending = true
