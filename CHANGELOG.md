@@ -134,7 +134,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## 0.58.7 - 2026-11-27 - Making the latest build trustworthy: pause cursor, stock-room marks, morning stall, collection slip, saved paste result
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: PR #93's branch (0.58.6), not yet merged; merge #93 first. New bug id B71 (next B72). 0.59.0
+- Based on: PR #93's branch (0.58.6), not yet merged; merge #93 first. New bug ids B71, B72 (next B73). 0.59.0
   (per-part tests, Codex) and 0.60.0 (checker) stay reserved.
 - Type: patch (bug fixes and presentation; one optional job field).
 
@@ -153,6 +153,8 @@ The user asked to move on to roadmap phase p06, "Make the latest build trustwort
 - **Fixed B57:** with little cash, each build-request arrival searched every cheapest build twice for up to
   12 attempts (0.2–0.3 s per slot). `BuildRequest.cheapest()` now remembers its answers and skips
   combinations that cannot beat the best found. The requests that appear are exactly the same.
+- **Fixed B72 (new, before merge):** the new B56 check in the Storage suite reused the variable name `uid` and did
+  not parse (CI run 46062181908); renamed.
 - **Fixed B71 (new):** the collection slip said "Kept in your stock: their working GPU" for every original the
   shop kept, even a broken one, though nobody had tested it. It now says the old part is kept, untested, and
   that the testing bay can tell what it is worth.

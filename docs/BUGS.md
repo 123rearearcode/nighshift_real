@@ -106,6 +106,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B69 | Verified | Medium | Bench presentation | Using the brush instantly covered the whole open PC in a dust texture that could not be moved or vacuumed | 0.58.4 | Automated: Dust flow suite, GitHub Actions run 46053534084 |
 | B70 | Verified | Low | Bench presentation | With the pick in hand, a stray dash showed just above the pick's bend | 0.58.4 | Automated: Bench feedback suite, GitHub Actions run 46053534084 |
 | B71 | Fixed | Medium | Collection presentation | The collection slip called every replaced original kept by the shop "working", even a broken one, although the shop has not tested it | 0.58.7 | Automated: Morning report suite, CI pending |
+| B72 | Fixed | Low | Test harness | The new B56 storage check declared a loop variable `uid` in a function that already has `var uid`, so the Storage suite failed to parse | 0.58.7 | Automated: Storage suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1033,3 +1034,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: replace a customer's GPU with a shop part, call them, end the night; the collection card names the old GPU as "working" whatever its real condition.
 - Expected / actual: the slip says the old part is kept and untested / it says "their working GPU".
 - Regression / evidence: the card now reads "their old <part>, untested (you fitted a replacement, so the old part stays with the shop). The testing bay can tell you what it is worth." `tools/test_morning.gd` checks the text says untested and never "working" or "broken". CI evidence pending.
+
+### B72 — The B56 storage check did not parse
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46062181908 on PR #94 (0.58.7 development), 27 November 2026.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.58.7, before merge.
+- Root cause: the new check in `tools/test_storage.gd` looped with `for uid: String in ...` inside `run_checks()`, which already declares `var uid` earlier; GDScript refuses a second variable of the same name in one scope ("There is already a variable named "uid" declared in this scope"). Godot is not run locally, so the parse error first showed in CI.
+- Reproduction: run the Storage suite at the first 0.58.7 commit (`fix/trust-0587`, first push).
+- Expected / actual: the Storage suite runs, including the B56 check / the script fails to load and the suite prints no summary.
+- Regression / evidence: the loop variables are named `kept_uid`. CI evidence pending.
+
