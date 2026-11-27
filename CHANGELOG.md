@@ -180,7 +180,8 @@ suite; results are under Checks performed. Nobody has yet checked the bench, Dan
 - The pick sprite's 24 frames were checked for isolated pixels (none), which pointed to the drawing code.
 - GitHub Actions on Godot 4.7.2 (headless): run 46052359723 (bench fixes) passed every suite; run 46053097049
   (with Dan and the backpack) failed one Night workshop check that pinned the store at two upgrades (an
-  expected value, updated; not a defect); the final run: see the PR; this entry is updated with the result.
+  expected value, updated; not a defect); the final run 46053534084 on `7d8c8d4` passed every suite (Backpack 19
+  checks). B69 and B70 marked Verified.
 
 ### Decisions proposed (not approved)
 - Backpack sizes and prices, Dan's details (complaint, payout, PC), and holding the mouse still giving a burst

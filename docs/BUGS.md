@@ -103,8 +103,8 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 
 | B67 | Verified | Low | Antivirus presentation | The typing panel lets scan clues show through behind the word input | 0.58.0 | Graphical: corrected opaque prompt; docs/ANTIVIRUS_0580_VALIDATION.md |
 | B68 | Verified | Low | Antivirus feedback | A stopped miner keeps changing its alias while its helper still runs | 0.58.0 | Automated: tools/test_antivirus.gd, final alias retained after clock advance |
-| B69 | Fixed | Medium | Bench presentation | Using the brush instantly covered the whole open PC in a dust texture that could not be moved or vacuumed | 0.58.4 | Pending CI: Dust flow suite (`tools/test_dust_flow.gd`) |
-| B70 | Fixed | Low | Bench presentation | With the pick in hand, a stray dash showed just above the pick's bend | 0.58.4 | Pending CI: Bench feedback suite (`tools/test_bench_feedback.gd`) |
+| B69 | Verified | Medium | Bench presentation | Using the brush instantly covered the whole open PC in a dust texture that could not be moved or vacuumed | 0.58.4 | Automated: Dust flow suite, GitHub Actions run 46053534084 |
+| B70 | Verified | Low | Bench presentation | With the pick in hand, a stray dash showed just above the pick's bend | 0.58.4 | Automated: Bench feedback suite, GitHub Actions run 46053534084 |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1010,7 +1010,7 @@ then-current design wording do not override the current status, D150 or the late
 - Root cause: `CleaningRenderer.draw_dust_films` drew each zone's dust film (ART-17 heavy film, which looks like a mass of small specks) at a strength of "share of the zone's dust not yet removed". The case floor (`case_interior`) starts with no dust, so the first bundle the brush flicked onto it made that share 100%, and the film covered the whole case interior at full strength. A film is a texture, so nothing could move or vacuum it.
 - Reproduction: open a dusty PC on the repair bench, brush a bundle until it is flicked onto the case floor.
 - Expected / actual: the flicked bundle lies on the floor and can be vacuumed / the whole case turns into a speckled film.
-- Regression / evidence: `DustSim.film_share` measures the dust still in a zone against what the zone started with (`zone_start`), so a zone that started clean never gets a film and the film fades where dust leaves. `tools/test_dust_flow.gd` (`test_film`): the floor starts clean, a tossed bundle lands on it (where the old rule read 100%), and the floor film stays 0 while the source zone's film drops. CI result pending; not yet checked in game by a person.
+- Regression / evidence: `DustSim.film_share` measures the dust still in a zone against what the zone started with (`zone_start`), so a zone that started clean never gets a film and the film fades where dust leaves. `tools/test_dust_flow.gd` (`test_film`): the floor starts clean, a tossed bundle lands on it (where the old rule read 100%), and the floor film stays 0 while the source zone's film drops. Automated evidence: `tools/test_dust_flow.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46053534084 on `7d8c8d4` (all suites); not yet checked in game by a person.
 
 ### B70 — A stray dash above the pick's bend
 
@@ -1020,4 +1020,4 @@ then-current design wording do not override the current status, D150 or the late
 - Root cause: with the pick in hand the bench draws a progress ring around its tip for the scraping stroke; it drew at least 1% of the circle (`maxf(0.01, ...)`) even with no stroke, a short dash 12 px above the tip, just at the bend.
 - Reproduction: select the pick (4) on the repair bench and hold it still away from dust.
 - Expected / actual: only the pick / the pick plus a small dash above its bend.
-- Regression / evidence: the ring is drawn only while a stroke is in progress (`pick_progress() > 0`). `tools/test_bench_feedback.gd` checks that with the pick in hand and no stroke the progress is zero. CI result pending.
+- Regression / evidence: the ring is drawn only while a stroke is in progress (`pick_progress() > 0`). `tools/test_bench_feedback.gd` checks that with the pick in hand and no stroke the progress is zero. Automated evidence: `tools/test_bench_feedback.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46053534084 on `7d8c8d4`.
