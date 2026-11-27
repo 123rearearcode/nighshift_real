@@ -110,6 +110,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B73 | Verified | Low | Bench presentation | The vacuum on/off switch stayed on screen while mounting the cooler (the thermal paste stage) | 0.58.9 | Automated: Audio and vacuum suite, GitHub Actions run 46071704212 |
 
 | B74 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.10 | Automated: Counter art suite (40 checks), integrated 41 required suites / 2,648 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
+| B75 | Fixed | High | Monitor / Test harness | windough.gd declared the constant README twice, so the script did not parse; the monitor scene failed to load and every suite that opens it hung until its 10-minute limit | 0.59.0 | Automated: all suites, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1069,3 +1070,14 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: room returns reuse unchanged artwork with minimal setup / the counter reconstructs its large texture set every time.
 - Correction: keep a bounded process-local cache of successful counter-art loads, shared across presentation holders; source timestamp changes invalidate it, missing art remains uncached. No nodes or mutable gameplay state are cached and no artwork bytes change.
 - Regression / evidence: `tools/test_counter_art.gd` tests room disposal/re-entry texture identity without a strong test reference, separate holders, unchanged intake/cash/time and missing/new/revised/removed unimported art. Automated: the final Counter art suite passed 40 checks under Godot 4.7.2; the original 39 required suites passed 2,610 checks locally before integrating #96. The #96 + #97 integration then passed all 41 required suites / 2,648 checks under local Godot 4.7.2; details are in CHANGELOG.md. `tools/measure_counter_loading.gd` passed 15 checks on each measurement run; docs/COUNTER_LOADING.md preserves same-workspace before/after samples and limits. Not target-PC GPU/frame-present or human feel evidence.
+
+### B75 — Windough did not parse: a constant declared twice
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46081628581 on PR #99 (0.59.0 development), 28 November 2026; the user asked why CI was taking so long.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: renaming the art-folder constant to `README` (so `tools/check_project.py` could resolve its path) collided with the existing `README` constant holding the readme.txt note. GDScript refuses the duplicate, `software_view.gd` could not preload `windough.gd`, the monitor scene loaded without its script, and every suite that uses it stopped mid-coroutine and waited for its 10-minute timeout (the run was cancelled after 24 minutes to read the log).
+- Reproduction: run any suite that opens `scenes/software.tscn` at `feat/windough-0590` commit before `7e5e67d`.
+- Expected / actual: the monitor loads with Windough / "Parse Error: Could not preload resource script windough.gd", then "Nonexistent function '_hardware' in base 'Node2D'".
+- Regression / evidence: the note is `README_NOTE`; input handling now casts events before reading their fields. CI evidence pending.
+

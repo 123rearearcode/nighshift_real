@@ -134,7 +134,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## 0.59.0 - 2026-11-28 - Windough 98 on NightBoot USB: the customer PC boots on the monitor
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: main 0.58.10 (a9f576b). No new bug id (next B75). The 0.59.0 slot moves from the dropped per-part
+- Based on: main 0.58.10 (a9f576b). New bug id B75 (next B76). The 0.59.0 slot moves from the dropped per-part
   tests (Codex) to this (D182). 0.60.0 (checker) stays reserved.
 - Type: minor (a new presentation for the diagnostic monitor; approved art).
 
@@ -158,6 +158,8 @@ performed. The look was checked on the approved draft images; nobody has seen it
     rule, night minute and Findings entry is unchanged;
   - Begin: Programs (the apps), Documents (readme.txt, a placeholder note from the last technician), Settings and
     Help (jokes), Shut Down (turns the PC off); the tray clock is the night clock; a pixel mouse cursor.
+- **Fixed B75 (before merge):** a duplicate constant stopped `windough.gd` from parsing, so every monitor suite
+  hung in CI run 46081628581; renamed.
 - `software_view.gd`: the flat button panel is hidden (the buttons remain the place the rules run); power on and
   off drive the boot.
 
@@ -172,6 +174,7 @@ performed. The look was checked on the approved draft images; nobody has seen it
 | `tools/test_windough.gd` | A | New suite (in CI) |
 | `tools/test_antivirus.gd` | M | Clicks Scan and Remove threat in the Task Manajer window |
 | `.github/workflows/tests.yml` | M | Windough suite |
+| `docs/BUGS.md` | M | B75 |
 | `docs/DECISIONS.md` (D182), `docs/PART_TESTS_DESIGN.md`, `docs/ART_ASSET_LOG.md`, `docs/WORK_PLAN.md`, `docs/roadmap.json` | M | Records |
 | `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot` | M | File map, handoff, version 0.59.0 |
 | `CHANGELOG.md` | M | This entry |
