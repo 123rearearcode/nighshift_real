@@ -187,6 +187,7 @@ performed. Nobody has seen these in game yet.
 - GitHub Actions run 46071302278 (first push): every suite passed except one Save safety check that expected the
   slip right after a restore; with D181 the customer talks first. Not a defect: the test now closes the dialogue
   first (as the other slip tests do). Dialogue 20 checks and Wall finishes 14 checks passed there.
+- GitHub Actions run 46071704212: all 42 required suites passed, 2,636 checks, 0 failures (B73 verified).
 
 ### Decisions proposed (not approved)
 - Wall prices ($60, $80, $40, $20) and the placeholder lines for Mara and Relu.
