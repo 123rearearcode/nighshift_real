@@ -134,7 +134,7 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## 0.57.10 - 2026-11-27 - B61: the magnifying glass shows the clues it has revealed
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: main 0.57.9 (4a127f9; #84, #85 and #86 merged with the user's go-ahead). Answers the Code
+- Based on: main 0.57.9 (dfbf5aa; #84, #85 and #86 merged with the user's go-ahead). Answers the Code
   checker's B61 report (#85, under Unreleased). No other PR open; next bug id B62.
 - Type: patch (bug fix, presentation).
 
