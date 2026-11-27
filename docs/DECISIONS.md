@@ -877,4 +877,3 @@ the customer's head, THE WORKSHOP, and outside the shop's name on its front (NIG
 the plate says the room's name, the small title at the top is hidden. Also: the termopan drafts (D174) were
 approved ("aight go on with the PVC") and installed; the user asked for alternatives to the tiles (four
 drafts, pending). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
-
