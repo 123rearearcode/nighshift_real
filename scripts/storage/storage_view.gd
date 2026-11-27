@@ -152,7 +152,7 @@ func _sync_ui() -> void:
     waiting_page = clampi(waiting_page,0,maxi(0,floori((model.overflow().size()-1)/8.0)))
     var counts := {"pc":0,"tool":0,"part":0}
     for item: Dictionary in model.items.values(): counts[item["category"]] += 1
-    summary.text = "%d PC · %d tools · %d parts   |   Room %d / 8 bays   |   %d waiting for space   |   %d under the counter"%[counts.pc,counts.tool,counts.part,model.units.size(),model.overflow().size(),model.in_unit(Data.COUNTER_ID).size()]
+    summary.text = "%d PC · %d tools · %d parts   |   Room %d / 8 bays   |   %d waiting for space   |   %d under the counter   |   %d in your backpack"%[counts.pc,counts.tool,counts.part,model.units.size(),model.overflow().size(),model.in_unit(Data.COUNTER_ID).size(),model.in_unit("backpack").size()]
     status.text = store.status if store.status != "" else ("Arrange room: drag titles into empty bays; furniture is free in this trial." if arranging else "Drag a PC into the workshop slot, or arrange your inventory. Wheel zooms; middle-drag pans.")
     var failed: bool = store.status.contains("not saved") and not store.read_only
     for button: Button in edit_buttons:

@@ -3,6 +3,8 @@ extends Node2D
 const Layout = preload("res://scripts/data/layout.gd")
 
 const NavigationState = preload("res://scripts/night/navigation_state.gd")
+const Customers = preload("res://scripts/data/customers.gd")   # 0.58.4: Hudici Dan
+const Malware = preload("res://scripts/rules/malware.gd")
 const DEMO: String = "res://scenes/rooms/counter.tscn"   # 0.53.0 (D161): the game starts at the shop counter
 var load_button: Button
 var status_label: Label
@@ -79,6 +81,8 @@ func _start_new_game() -> void:
         status_label.text = NightSession.status
         load_button.disabled = not GameState.has_saved_game()
         return
+    # 0.58.4 (user, for playtesting): Hudici Dan's PC waits in storage with a crypto miner.
+    NightSession.add_waiting_pc(GameState, Customers.HUDICI_DAN, Malware.MINER)
     get_tree().change_scene_to_file(DEMO)
 
 

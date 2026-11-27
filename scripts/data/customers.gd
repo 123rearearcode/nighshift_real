@@ -9,6 +9,10 @@
 extends RefCounted
 
 const IDS: Array = ["t001_mara", "t002_relu"]
+# 0.58.4 (user, 27 November 2026): "add a new customer that comes with a virus installed so I can playtest
+# (Hudici Dan by name, he does not appear yet but his PC is in storage)". Not in the IDS rotation: he never
+# comes to the counter; a new game puts his PC, with the crypto miner, in storage (NightSession.add_waiting_pc).
+const HUDICI_DAN := "t003_hudici"
 
 
 static func customer(id: String) -> Dictionary:
@@ -50,5 +54,24 @@ static func customer(id: String) -> Dictionary:
             "payout": 80,
             "needs": {"boots": true, "games": [{"game_id": "counter_stroke_2", "min_fps": 60}]},
             "pc": {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_ssd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"},
+        }
+    if id == HUDICI_DAN:
+        return {
+            "id": HUDICI_DAN,
+            "name": "Hudici Dan",
+            "portrait": "",
+            "scripted": true,
+            "profession": "regular",
+            "persona": "Easy-going, a little embarrassed about the state of his PC.",
+            "about": "Left his PC at the shop before opening day; drops by later to collect it.",
+            "complaint": "The PC is slow and the fans roar all the time, even when nothing is open.",
+            "uses": "Browsing, music and the odd game at the weekend.",
+            "habits": "Installs whatever promises free stuff. Would notice the fans and the speed straight away.",
+            "patience": "In no hurry.",
+            "trust_start": 55,
+            "budget": 100,
+            "payout": 65,
+            "needs": {"boots": true, "quiet": true},
+            "pc": {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"},
         }
     return {}

@@ -133,7 +133,7 @@ func run_checks() -> void:
     current_scene._start_new_game()
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and night.tickets.size() == 2,"New game opens the shop counter with two playable tickets")
+    check(current_scene.scene_file_path == "res://scenes/rooms/counter.tscn" and night.tickets.size() == 3 and gs.opening_customers.size() == 2,"New game opens the shop counter with two customers to serve and (0.58.4) Hudici Dan's PC already in storage")
     # New game now has real opening intake. Serve the seeded customers before this suite's
     # existing night-work journey instead of bypassing its new navigation gate.
     for visit in range(2):
@@ -145,7 +145,7 @@ func run_checks() -> void:
     change_scene_to_file("res://scenes/storage.tscn")
     await process_frame
     await process_frame
-    check(pcs(current_scene.model.items) == 2,"opening rack from a loaded title restores inactive customer PCs too")
+    check(pcs(current_scene.model.items) == 3,"opening rack from a loaded title restores inactive customer PCs too (0.58.4: with Hudici Dan's)")
     current_scene._leave()
     await process_frame
     await process_frame

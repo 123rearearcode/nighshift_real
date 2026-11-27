@@ -1,15 +1,23 @@
 # Pure furniture/placement rules. Sources own items; this model owns only shelf allocations.
 extends RefCounted
 const Data = preload("res://scripts/storage/storage_data.gd")
+const Backpack = preload("res://scripts/rules/backpack.gd")   # 0.58.4: the player's backpack is one more unit
 var items: Dictionary = {}
 var units: Array = []
-var fixed_units: Array = [{"id":Data.COUNTER_ID,"model":Data.COUNTER_ID,"room_cell":Vector2i(-1,-1)}]   # 0.55.0: not in the room
+var fixed_units: Array = [{"id":Data.COUNTER_ID,"model":Data.COUNTER_ID,"room_cell":Vector2i(-1,-1)},   # 0.55.0: not in the room
+    {"id":Backpack.ID,"model":Backpack.ID,"room_cell":Vector2i(-1,-1)}]                            # 0.58.4: carried, never auto-filled
+var backpack_size: Vector2i = Backpack.LEVELS[0]["size"]
 var placements: Dictionary = {}
 var next_unit: int = 1
 var held: String = ""
 var held_rotation: int = 0
 
-func setup(sources: Dictionary, saved: Dictionary = {}) -> void:
+func setup(sources: Dictionary, saved: Dictionary = {}, backpack: Vector2i = Vector2i(-1,-1)) -> void:
+    # 0.58.4: the backpack's size is the best one owned (asked of GameState unless given), set BEFORE the saved
+    # placements are restored so nothing carried falls out.
+    if backpack.x > 0 and backpack.y > 0: backpack_size = backpack
+    elif Engine.get_main_loop() is SceneTree and (Engine.get_main_loop() as SceneTree).root.has_node("GameState"):
+        backpack_size = Backpack.size_for((Engine.get_main_loop() as SceneTree).root.get_node("GameState").upgrades)
     items = sources.duplicate(true)
     units.clear()
     placements.clear()
@@ -22,7 +30,7 @@ func setup(sources: Dictionary, saved: Dictionary = {}) -> void:
             if not raw is Dictionary or units.size() >= Data.MAX_UNITS: continue
             var uid: String = str(raw.get("id",""))
             var kind: String = str(raw.get("model",""))
-            if uid == "" or uid.length()>80 or seen.has(uid) or uid == Data.COUNTER_ID or not Data.MODELS.has(kind): continue
+            if uid == "" or uid.length()>80 or seen.has(uid) or uid in [Data.COUNTER_ID, Backpack.ID] or not Data.MODELS.has(kind): continue
             units.append({"id":uid,"model":kind,"room_cell":Vector2i(-1,-1)})
             var rc: Variant = raw.get("room_cell",null)
             if rc is Array and rc.size() == 2 and _integer(rc[0]) and _integer(rc[1]):
@@ -91,11 +99,15 @@ func remove_unit(id: String) -> bool:
             return true
     return false
 
+# A unit's shape: the backpack's depends on the one owned (0.58.4).
+func spec_of(model_id: String) -> Dictionary:
+    return Backpack.spec(backpack_size) if model_id == Backpack.ID else Data.spec(model_id)
+
 func can_place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int) -> bool:
     if not items.has(uid): return false
     var furniture: Dictionary = unit(unit_id)
     if furniture.is_empty(): return false
-    var spec: Dictionary = Data.spec(str(furniture["model"]))
+    var spec: Dictionary = spec_of(str(furniture["model"]))
     if not items[uid]["category"] in spec["accepts"] or shelf<0 or shelf>=int(spec["shelves"]): return false
     var area := Rect2i(cell,Data.footprint(items[uid],rotation))
     if not Rect2i(Vector2i.ZERO,spec["size"]).encloses(area): return false
@@ -157,15 +169,15 @@ func fill_unplaced() -> void:
 
 func arrange() -> void:
     cancel()
-    for uid: String in placements.keys():   # 0.55.0: what you keep under the counter stays there
-        if placements[uid]["unit"] != Data.COUNTER_ID: placements.erase(uid)
+    for uid: String in placements.keys():   # 0.55.0: what you keep under the counter stays there (0.58.4: and in your backpack)
+        if not placements[uid]["unit"] in [Data.COUNTER_ID, Backpack.ID]: placements.erase(uid)
     fill_unplaced()
 
 # 0.55.0: the first free spot in one unit (either rotation). False when it does not fit.
 func place_first(uid: String, unit_id: String) -> bool:
     var furniture: Dictionary = unit(unit_id)
     if furniture.is_empty() or not items.has(uid): return false
-    var spec: Dictionary = Data.spec(str(furniture["model"]))
+    var spec: Dictionary = spec_of(str(furniture["model"]))
     for shelf in range(int(spec["shelves"])):
         for rotation in [0,1]:
             for y in range(spec["size"].y):

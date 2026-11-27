@@ -110,7 +110,7 @@ func _rebuild_list() -> void:
         row.alignment = HORIZONTAL_ALIGNMENT_LEFT
         row.custom_minimum_size = Vector2(LIST_RECT.size.x - 24, 34)
         row.add_theme_font_size_override("font_size", 14)
-        row.text = "%s · %s%s" % [item["label"], item["model"], "" if model.placements.has(uid) else "  (waiting for space)"]
+        row.text = "%s · %s%s" % [item["label"], item["model"], ("  (in your backpack)" if model.placements[uid]["unit"] == "backpack" else "") if model.placements.has(uid) else "  (waiting for space)"]
         row.disabled = store.read_only
         row.pressed.connect(_bring.bind(str(uid)))
         list_box.add_child(row)

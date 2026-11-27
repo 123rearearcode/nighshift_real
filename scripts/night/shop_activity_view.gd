@@ -14,14 +14,14 @@ func _ready() -> void:
     _label("Tool upgrades are sold here. Spare parts are ordered on the hardware bench (Order parts).",Vector2(32,84),Vector2(1100,40),18)
     Navigation.exit(self,"Outside",Navigation.OUTSIDE)   # 0.55.0: the store is down the street
     cash_label = _label("",Vector2(32,136),Vector2(600,40),24)
-    var y: float = 200
+    var y: float = 186
     for upgrade: Dictionary in Upgrades.LIST:
         var id: String = upgrade["id"]
-        var button := _button("",Rect2(32,y,430,64),"")
+        var button := _button("",Rect2(32,y,430,52),"")
         button.pressed.connect(_buy.bind(id))
         upgrade_buttons[id] = button
-        _label(str(upgrade["blurb"]),Vector2(484,y + 18),Vector2(740,40),18)
-        y += 84
+        _label(str(upgrade["blurb"]),Vector2(484,y + 12),Vector2(740,40),18)
+        y += 62
     # 0.58.3 (D173): things for the cable box (user: "you can get things from the shop to help you fix this").
     _label("FOR THE CABLE BOX",Vector2(32,y + 4),Vector2(600,30),18)
     y += 36
