@@ -132,6 +132,83 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.7 - 2026-11-27 - Making the latest build trustworthy: pause cursor, stock-room marks, morning stall, collection slip, saved paste result
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: PR #93's branch (0.58.6), not yet merged; merge #93 first. New bug ids B71, B72 (next B73). 0.59.0
+  (per-part tests, Codex) and 0.60.0 (checker) stay reserved.
+- Type: patch (bug fixes and presentation; one optional job field).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. Nobody has looked at these changes in game yet; the paste panel text and the restored meters
+were checked only through their test assertions.
+
+### Added / Changed / Fixed / Removed
+The user asked to move on to roadmap phase p06, "Make the latest build trustworthy".
+- **Fixed B55:** pausing (F10) with the magnifying glass over a part left the cursor hidden for the whole
+  pause menu (the testing bay gets no input while paused). The bay now shows the cursor when the game pauses
+  and hides it again afterwards only if the glass is still over the part; the pause menu also shows it.
+- **Fixed B56:** the stock room drew a small mark at its top-left corner for every item kept under the
+  counter, and since 0.58.4 for every item in the backpack. It now draws only items on its own furniture.
+- **Fixed B57:** with little cash, each build-request arrival searched every cheapest build twice for up to
+  12 attempts (0.2–0.3 s per slot). `BuildRequest.cheapest()` now remembers its answers and skips
+  combinations that cannot beat the best found. The requests that appear are exactly the same.
+- **Fixed B72 (new, before merge):** the new B56 check in the Storage suite reused the variable name `uid` and did
+  not parse (CI run 46062181908); renamed.
+- **Fixed B71 (new):** the collection slip said "Kept in your stock: their working GPU" for every original the
+  shop kept, even a broken one, though nobody had tested it. It now says the old part is kept, untested, and
+  that the testing bay can tell what it is worth.
+- **Restored thermal result agrees with itself (roadmap p06-02).** The paste picture is still not saved, but
+  after leaving the bench or Continue the CPU-covered and squeezed-out meters show the saved result instead of
+  0 %, and the locked cooler shows its screws as they were turned instead of untouched (new optional job field
+  `paste_screw_clicks`, saved with the install faults, cleared with the paste; older saves simply have none).
+- **Paste amount explained (roadmap p06-05).** The amount counts all paste in the socket area, so it now reads
+  "Paste: 46 units · on the CPU 12 · beside it 34", and after re-entry "Saved result: N units at the press".
+- **Help text (roadmap p06-06).** README has a current Controls list (V vacuum switch, B backpack, F10/Esc,
+  the glass); the old "1 Vacuum, 2 Brush" line is corrected; the bench hint line mentions V.
+- `docs/roadmap.json` p06 items updated (about.main 0.58.7).
+
+### Files changed
+| File | Change | What |
+|---|---|---|
+| `scripts/night/testing_bay_view.gd` | M | B55: `cursor_hidden`, `_set_cursor`, pause notifications |
+| `scripts/night/pause_menu.gd` | M | B55: show the cursor when pausing |
+| `scripts/storage/storage_view.gd` | M | B56: `room_drawn_items()` |
+| `scripts/rules/build_request.gd` | M | B57: remembered `cheapest()`, `_search` with pruning |
+| `scripts/night/morning_text.gd` | M | B71: kept old part is untested |
+| `scripts/state/game_state.gd` | M | `paste_screw_clicks` (default, clear, sanitize, `set_install_faults`) |
+| `scripts/view/bench_thermal.gd` | M | Save the screw turns with the install faults |
+| `scripts/view/bench_view.gd` | M | `_restore_saved_mount`; saved meters in the panel; hint mentions V |
+| `scripts/view/paste_renderer.gd` | M | `amount_text` (on the CPU / beside it / saved) |
+| `tools/test_testing_bay.gd` | M | B55 regression |
+| `tools/test_storage.gd` | M | B56 regression |
+| `tools/test_build_requests.gd` | M | B57 identical-results and search-count regression |
+| `tools/test_morning.gd` | M | B71 regression |
+| `tools/test_install_technique.gd` | M | Re-entry: saved screws, meters, amount line |
+| `docs/BUGS.md` | M | B55, B56, B57 fixed; B71 added |
+| `docs/PERFORMANCE.md` | M | B57 follow-up note |
+| `docs/roadmap.json` | M | p06 items, about.main |
+| `docs/WORK_PLAN.md` | M | 0.58.7 bounded assignment (hot files) |
+| `HANDOFF.md` | M | Current section 0.58.7 |
+| `README.md`, `project.godot` | M | Version 0.58.7, Controls list |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- Locally: `python3 -I tools/check_project.py` PASSED; `check_bug_register.py` 0 problems; `test_bug_register.py` OK.
+- GitHub Actions run 46062181908 (first push): the Storage suite failed to parse (B72); every other suite passed.
+- GitHub Actions run 46062635008 on `cd204ef` (Godot 4.7.2 headless): all 40 required suites passed, 2,596 checks,
+  0 failures. Storage 83, Testing bay 66, Build requests 193, Morning report 29, Install technique 39.
+- B57 timing printed by the Build requests suite for the checker's 24 low-cash draws: 790 ms without the cache,
+  242 ms with it (494 versus 146 searches). The uncached figure already includes the new pruning.
+
+### Known issues and open items
+- Still for a human: play through 0.58.7 (p06-01), the pickup/held-tool clarity (p06-03), cable tuning
+  (p06-10), the termopan look (p06-11) and the wall finish pick (p06-12).
+- Saves from before 0.58.7 with a locked mount show its screws untouched until the next mount.
+
+### Next action
+Merge #93, then this PR; play through the build.
+
 ## 0.58.6 - 2026-11-27 - The roadmap in the repo, for every agent
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.58.5 (edaf72e). No new bug id (next B71). 0.59.0 (per-part tests, Codex) and 0.60.0

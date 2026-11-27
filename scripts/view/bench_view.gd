@@ -176,6 +176,7 @@ func _ready() -> void:
     case_fan_zone = DustZones.index_of("case_fan")
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
     VacuumState.restore(GameState.vacuum_state, bin, tools.flow)   # 0.48.1: the bin and hose keep what they held
+    _restore_saved_mount()
     _initialize_dust()
     cooler_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(cooler_zone)) if GameState.job["pc_powered"] else 0.0
     case_rpm = lerpf(FAN_RPM_DUSTY, FAN_RPM_CLEAN, dust.removed_fraction(case_fan_zone)) if GameState.job["pc_powered"] else 0.0
@@ -290,7 +291,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 556)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. 1 brush / 2 vacuum / 3 parts / 4 pick. Wheel or Q/E: rotate."
+        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. 1 brush / 2 vacuum (V: on/off) / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
             _set_status("Cleanliness target met. %d real dust groups remain; finish vacuuming or continue to paste. New dirty PC starts another practice job." % dust.visible_count(), 1)
         else:
@@ -597,7 +598,17 @@ func _draw_paste_stage() -> void:
     PasteRenderer.draw_lever(self, SECURE_LEVER, mount.active, locked, SECURE_LEVER.has_point(get_global_mouse_position()), vfx_time)
 
 func _draw_paste_panel() -> void:
-    PasteRenderer.draw_panel(self, paste, PANEL_X, mount, not mount_result.is_empty(), live_stats)
+    var saved: bool = mount_result.is_empty() and str(GameState.job["paste_grade"]) != ""
+    PasteRenderer.draw_panel(self, paste, PANEL_X, mount, not mount_result.is_empty() or saved, live_stats, float(GameState.job.get("paste_graded_units", 0.0)) if saved else -1.0)
+
+
+# 0.58.7 (roadmap p06: restored thermal indicators agree): the paste picture is not saved, but the grade is.
+# After leaving the bench or Continue, the meters show the saved coverage and squeeze-out instead of 0 %, and
+# the locked cooler shows the screws as they were turned, not untouched.
+func _restore_saved_mount() -> void:
+    if str(GameState.job["paste_grade"]) == "": return
+    live_stats = {"coverage": float(GameState.job.get("paste_coverage", 0.0)), "overflow": float(GameState.job.get("paste_overflow", 0.0))}
+    locked_screw_clicks = (GameState.job.get("paste_screw_clicks", []) as Array).duplicate()
 
 func _draw_paste_cursor() -> void:
     ToolRenderer.draw_tools(self,tools,Ids.PASTE_TOOLS)

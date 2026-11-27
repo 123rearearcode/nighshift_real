@@ -207,6 +207,17 @@ func run_checks() -> void:
     check(gs.night_minutes == 31 and bay.looked(0), "holding it over a spot takes a close look (one night minute) and ticks the spot off")
     for f in range(60): await process_frame
     check(gs.night_minutes == 31, "resting on a spot already looked at costs nothing more")
+    # B55: the glass over the part hides the cursor; pausing must show it (the bay gets no input while paused).
+    check(bay.cursor_hidden, "with the glass over the part the system cursor is hidden")
+    var pause: Node = bay.get_node_or_null("PauseMenu")
+    check(pause != null, "the bay has the shared pause layer")
+    if pause != null:
+        pause.open()
+        await process_frame
+        check(paused and not bay.cursor_hidden and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE, "pausing with the glass over the part shows the cursor (B55)")
+        pause.close()
+        await process_frame
+        check(not paused and bay.lens_held and bay.cursor_hidden and gs.night_minutes == 31, "after the pause the glass is still in hand and hides the cursor again")
     await hover(bay.spot_center(1) + Vector2(200, 200))
     var key := InputEventKey.new()
     key.keycode = KEY_ESCAPE

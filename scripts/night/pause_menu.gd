@@ -66,6 +66,7 @@ func open() -> void:
     if get_parent().has_method("_pause_activity"): get_parent().call("_pause_activity")
     was_paused = get_tree().paused
     get_tree().paused = true
+    Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)   # B55: whatever the screen did with the cursor, pause shows it
     note.text = "Use the workshop's stations to work on PCs. Title screen leaves the game session."
     if resume_warning != "": note.text += "\n"+resume_warning
     shade.show()

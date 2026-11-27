@@ -122,6 +122,32 @@ func run_checks() -> void:
         if not order.is_empty() and int(order["cost"]) > int(order["build"]["deposit"]): poor += 1
     check(poor == 0, "a request is only offered when the shop can pay for its cheapest build")
 
+    # ---- B57: the remembered search gives exactly the same mornings, with far fewer searches ----
+    var draws: Array = []
+    var spent: Array = []
+    var counts: Array = []
+    for cached: bool in [false, true]:
+        BuildRequest.use_cache = cached
+        BuildRequest._cache.clear()
+        BuildRequest.searches = 0
+        var out: Array = []
+        var started: int = Time.get_ticks_usec()
+        for low_night: int in [4, 6, 8, 12]:
+            for slot in range(6):
+                var rs: RandomNumberGenerator = Generator.rng_for(12345, low_night, slot)
+                var drawn: Dictionary = Generator.draw_build(gs.make_ticket_job(""), Generator.new_person(rs, "p97%02d" % slot), 0, low_night, rs)
+                out.append(JSON.stringify({} if drawn.is_empty() else {"build": drawn["build"], "cost": drawn["cost"], "payout": drawn["job"].get("payout", 0), "who": drawn["person"].get("name", "")}, "", true, true))
+        spent.append(Time.get_ticks_usec() - started)
+        counts.append(BuildRequest.searches)
+        draws.append(out)
+    BuildRequest.use_cache = true
+    check(draws[0] == draws[1], "remembering cheapest builds changes no build request: 24 low-cash draws are identical (B57)")
+    check(int(counts[1]) * 3 <= int(counts[0]), "the remembered search runs at most a third as many searches (%d instead of %d)" % [counts[1], counts[0]])
+    print("info  B57 timing, 24 low-cash draws: plain %.1f ms, remembered %.1f ms (%d vs %d searches)" % [float(spent[0]) / 1000.0, float(spent[1]) / 1000.0, counts[0], counts[1]])
+    var first: Dictionary = BuildRequest.cheapest(BuildRequest.needs_for("light_office", 30), "compact")
+    if not first.is_empty(): first["cost"] = -1
+    check(int(BuildRequest.cheapest(BuildRequest.needs_for("light_office", 30), "compact").get("cost", 0)) > 0, "changing a returned build does not change the remembered one")
+
     # ---- an empty build at the bench ----
     gs.night_minutes = 0
     var order_a: Dictionary = _active_build(gs, night, 4242, 4)

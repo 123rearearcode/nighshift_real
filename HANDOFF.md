@@ -1,6 +1,17 @@
 # Handoff — current state first
 
-## Current — 0.58.6 the roadmap in the repo, 27 November 2026
+## Current — 0.58.7 making the latest build trustworthy, 27 November 2026
+
+Roadmap phase p06 (the user: "lets move onto making the next release trustworthy"). Fixed B55 (pause shows the
+cursor with the glass), B56 (stock-room marks), B57 (cheapest-build cache; identical requests), B71 (new: the
+collection slip called a kept, untested old part "working"). The bench now restores the saved mount's meters
+and screws after re-entry (`paste_screw_clicks`) and the paste amount says on the CPU / beside it. README has
+a current Controls list. Hot files touched narrowly (WORK_PLAN). Stacked on #93 (0.58.6).
+Left for a human: p06-01 playthrough, p06-03 pickup clarity, p06-10 cable tuning, p06-11, p06-12.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.6 the roadmap in the repo, 27 November 2026
 
 The user asked for a live roadmap AIs can read, and for Codex to know to read it in the repo.
 `docs/roadmap.json` mirrors the live page (https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C): read it before

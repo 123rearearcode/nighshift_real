@@ -156,6 +156,23 @@ func run_checks() -> void:
     view.waiting_page = 99
     view._sync_ui()
     check(view.waiting_page == 0,"refreshing fewer waiting items keeps the visible overflow page in range")
+    # B56: things kept under the counter or carried in the backpack are not drawn in the stock room.
+    var kept: Array = []
+    for fixed: Dictionary in view.model.fixed_units:
+        for kept_uid: String in view.model.items:
+            if str(view.model.items[kept_uid]["category"]) != "pc" and not kept_uid in kept and view.model.place_first(kept_uid, str(fixed["id"])):
+                kept.append(kept_uid)
+                break
+    var drawn: Array = view.room_drawn_items()
+    var ghost: bool = false
+    for kept_uid: String in kept:
+        if kept_uid in drawn: ghost = true
+    var all_real: bool = true
+    for kept_uid: String in drawn:
+        if not view.item_rect(kept_uid).has_area(): all_real = false
+    check(kept.size() >= 1 and not ghost and all_real, "items under the counter or in the backpack are not drawn as marks in the stock room (B56)")
+    for kept_uid: String in kept: view.model.to_room(kept_uid)
+    view._refresh()
     await test_room_gui(view)
     _remove_save_files(view.store.path)
     view.queue_free()

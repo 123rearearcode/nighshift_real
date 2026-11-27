@@ -6,6 +6,7 @@ const Faults = preload("res://scripts/rules/install_faults.gd")
 const Pickup = preload("res://scripts/rules/pickup_score.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
+const Paste = preload("res://scripts/view/paste_renderer.gd")
 
 func _initialize() -> void: call_deferred("run_checks")
 
@@ -152,7 +153,23 @@ func run_checks() -> void:
         if bench.wipe_told: break
     check(bench.wipe_told and float(bench.live_stats["overflow"]) <= bench.thermal.OVERFLOW_CLEAN and str(bench.status_label.text).contains("Clean"), "wiping updates the figure and confirms when it is clean")
     check(bench.thermal.guide_step() == 5, "the guide reaches its last step")
+    # 0.58.7 (roadmap p06): leave the bench and come back. The paste picture is not saved, but the meters, the
+    # screws and the amount line must agree with the saved result instead of showing 0 % and untouched screws.
+    var amount_now: String = Paste.amount_text(bench.paste)
+    check(amount_now.contains("on the CPU") and amount_now.contains("beside it"), "the amount line says how much is on the CPU and how much beside it")
+    check((gs.job["paste_screw_clicks"] as Array).size() == 8, "the locked mount's screw turns are saved with the job")
     bench.queue_free()
+    await process_frame
+    var again: Node = load("res://scenes/bench.tscn").instantiate()
+    root.add_child(again)
+    again.set_physics_process(false)
+    await process_frame
+    check(again.paste.total_deposited == 0.0 and again.locked_screw_clicks.size() == 8, "back at the bench, the locked cooler shows its tightened screws")
+    check(is_equal_approx(float(again.live_stats["coverage"]), float(gs.job["paste_coverage"])) and float(again.live_stats["coverage"]) > 0.0, "the CPU-covered meter shows the saved coverage, not 0 %")
+    check(Paste.amount_text(again.paste, float(gs.job["paste_graded_units"])).begins_with("Saved result: ") and float(gs.job["paste_graded_units"]) > 0.0, "the amount line names the saved amount instead of 0 units")
+    gs.job["paste_screw_clicks"] = [9, -1, "x", 2, 2.0]
+    check(preload("res://scripts/state/game_state.gd").sanitize_screw_clicks(gs.job["paste_screw_clicks"]) == [2, 2], "saved screw turns keep only real corners")
+    again.queue_free()
     await process_frame
     restore_save(gs)
     finish("Install technique")

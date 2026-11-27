@@ -28,6 +28,9 @@ func run_checks() -> void:
     check(ticked["due"].size() == 1 and ticked["pending"].size() == 1 and ticked["pending"][0]["nights_left"] == 1, "comebacks count down one morning at a time")
     check(Morning.sanitize_pending([{"faults": ["film_left"], "nights_left": 2}, "junk", {"faults": ["gpu_loose"], "nights_left": "x"}]).is_empty() and Morning.sanitize_pending([{"faults": ["gpu_loose"], "nights_left": 3}])[0]["nights_left"] == 3, "saved comebacks keep only delayed faults and sane counts")
     check(Morning.comeback_trust(["gpu_loose"]) < 0, "a comeback always costs trust")
+    # B71: a replaced original kept by the shop is untested stock; the slip must not call it working.
+    var kept_text: String = MorningText.card_text({"kind": "collected", "customer": "Mara", "ticket": "T001", "reaction": "", "kept": ["GeForse GT 610"]})
+    check(kept_text.contains("their old GeForse GT 610, untested") and not kept_text.to_lower().contains("working") and not kept_text.to_lower().contains("broken"), "the collection slip calls a kept old part untested, never working or broken (B71)")
 
     # Night one: both customers called. Mara's PC starts (film left on, GPU screws loose); Relu's GPU is broken.
     gs.tickets_taken = 0

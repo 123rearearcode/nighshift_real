@@ -123,9 +123,9 @@ static func _legend_item(canvas: CanvasItem, pos: Vector2, color: Color, text: S
     UiStyle.label(canvas, pos + Vector2(22, 13), text, 13)
 
 
-static func draw_panel(canvas: CanvasItem, paste: PasteSim, panel_x: float, mount: MountSession, has_result: bool, live_stats: Dictionary) -> void:
+static func draw_panel(canvas: CanvasItem, paste: PasteSim, panel_x: float, mount: MountSession, has_result: bool, live_stats: Dictionary, saved_units: float = -1.0) -> void:
     var tone: int = paste.gauge_tone()
-    UiStyle.label(canvas, Vector2(panel_x, 310), "Paste on the CPU socket: %d units" % roundi(paste.total_deposited), 17)
+    UiStyle.label(canvas, Vector2(panel_x, 310), amount_text(paste, saved_units), 17)
     UiStyle.label(canvas, Vector2(panel_x, 332), "Gauge: " + paste.gauge_text(), 15, UiStyle.TONE_COLORS[tone])
     var full: float = PasteSim.GAUGE_FULL
     var bar := Rect2(panel_x, 342, 520, 14)
@@ -151,6 +151,18 @@ static func draw_panel(canvas: CanvasItem, paste: PasteSim, panel_x: float, moun
 
 # D130: the cooler's contact plate. With the clear plastic film on, a pale blue sheet with a pull tab
 # covers the metal; peeled, it is bare brushed metal. It is drawn, never explained.
+# 0.58.7 (roadmap p06: explain thermal residue): the amount counts ALL paste in the socket area, including a thin
+# film too faint to see and paste squeezed out beside the CPU. Say where it is, so "46 units" on a CPU that
+# looks clean makes sense. After leaving the bench only the saved amount at the press is known.
+static func amount_text(paste: PasteSim, saved_units: float = -1.0) -> String:
+    if paste.total_deposited <= 0.0 and saved_units > 0.0:
+        return "Saved result: %d units at the press (the paste picture is not kept)" % roundi(saved_units)
+    var total: int = roundi(paste.total_deposited)
+    if total <= 0: return "Paste on the CPU socket: 0 units"
+    var beside: int = clampi(roundi(paste.total_deposited * float(paste.measure()["overflow"])), 0, total)
+    return "Paste: %d units · on the CPU %d · beside it %d" % [total, total - beside, beside]
+
+
 static func draw_cooler_base(canvas: CanvasItem, rect: Rect2, peeled: bool) -> void:
     canvas.draw_rect(rect, Color(0.62, 0.64, 0.68) if peeled else Color(0.55, 0.57, 0.61))
     canvas.draw_rect(rect, Color(0.85, 0.87, 0.9), false, 2.0)
