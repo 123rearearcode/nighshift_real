@@ -132,6 +132,49 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.8 - 2026-11-27 - The repair bench on the user's desk painting
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: PR #94's branch (0.58.7), not yet merged; merge #93 and #94 first. No new bug id (next B73).
+  0.59.0 (per-part tests, Codex) and 0.60.0 (checker) stay reserved.
+- Type: patch (approved art integration).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. The look was checked only on a static composite (the background with the case picture and boxes
+where the controls sit); nobody has seen it in game yet.
+
+### Added / Changed / Fixed / Removed
+- **The repair bench background (D179).** The user supplied a desk painting and asked for it on the bench,
+  with the mat more pixelated. `tools/art_batch_d/bench_mat.py` rebuilt it at 1280 x 720 for the bench's layout;
+  the user picked layout A (the mat under the PC and service tray, the controls on the dark tray material),
+  mat pixel 4 and lightly pixelated wood, and approved the final file ("Approve, put it in").
+  `scripts/view/bench_backdrop.gd` draws it behind everything (both stages); with the picture the service tray
+  is the mat itself (outline and label only). Without the file the bench keeps its plain colour.
+
+### Files changed
+| File | Change | What |
+|---|---|---|
+| `art/bench/background/bench_background.png` | A | The approved background (SHA-256 in the manifest) |
+| `art/bench/background/manifest.json`, `README.md` | A | Approval record and description |
+| `art/drafts/bench_mat/*` | A | The user's painting, layout and pixel-size drafts, previews (not loaded) |
+| `tools/art_batch_d/bench_mat.py` | A | Builds the drafts and the approved file |
+| `scripts/view/bench_backdrop.gd` | M | `picture()`; draws it; tray without its fill when the picture is there |
+| `tools/test_bench_feedback.gd` | M | The approved file, byte for byte, drawn behind the bench |
+| `docs/ART_ASSET_LOG.md`, `docs/DECISIONS.md` (D179), `DEVELOPMENT.md` | M | Credits, approval, decision, file map |
+| `docs/roadmap.json` | M | p06-14, about.main |
+| `HANDOFF.md`, `README.md`, `project.godot` | M | Version 0.58.8 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- Locally: `check_project.py`, `check_bug_register.py`, `test_bug_register.py` (results in the PR).
+- GitHub Actions: recorded after the run.
+
+### Known issues and open items
+- In-game visual acceptance by the user. The version line at the bottom left now sits on wood.
+
+### Next action
+Merge #93, #94, then this PR; look at the bench in game.
+
 ## 0.58.7 - 2026-11-27 - Making the latest build trustworthy: pause cursor, stock-room marks, morning stall, collection slip, saved paste result
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #93's branch (0.58.6), not yet merged; merge #93 first. New bug ids B71, B72 (next B73). 0.59.0

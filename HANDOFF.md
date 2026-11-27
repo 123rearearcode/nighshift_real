@@ -1,6 +1,14 @@
 # Handoff — current state first
 
-## Current — 0.58.7 making the latest build trustworthy, 27 November 2026
+## Current — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
+
+The user supplied a desk painting for the repair bench (D179). `tools/art_batch_d/bench_mat.py` rebuilt it for
+the bench layout; the user picked layout A, mat pixel 4, lightly pixelated wood, and approved the final file.
+`art/bench/background/` (hash in its manifest), drawn by `bench_backdrop.gd`. Stacked on #94 (0.58.7) and #93.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.7 making the latest build trustworthy, 27 November 2026
 
 Roadmap phase p06 (the user: "lets move onto making the next release trustworthy"). Fixed B55 (pause shows the
 cursor with the glass), B56 (stock-room marks), B57 (cheapest-build cache; identical requests), B71 (new: the

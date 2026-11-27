@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.58.7",
+  "main": "0.58.8",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -622,6 +622,20 @@
      "checkNote": "0.58.6.",
      "order": 130,
      "updatedAt": "2026-11-27T20:15:00Z"
+    },
+    {
+     "id": "p06-14",
+     "title": "The repair bench on your desk painting",
+     "status": "done",
+     "detail": "Your desk painting rebuilt for the bench: the mat under the PC and tray, the controls on the dark tray material, mat pixel 4, wood lightly pixelated.",
+     "refs": [
+      "art/bench/background/README.md",
+      "tools/art_batch_d/bench_mat.py"
+     ],
+     "checkState": "new",
+     "checkNote": "0.58.8 (D179), approved: \"Approve, put it in\". Needs your look in game.",
+     "order": 140,
+     "updatedAt": "2026-11-27T21:20:00Z"
     }
    ]
   },
