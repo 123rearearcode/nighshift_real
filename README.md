@@ -1,4 +1,8 @@
-# Nightshift - Godot Foundation Trial (v0.57.9)
+# Nightshift - Godot Foundation Trial (v0.58.0)
+
+0.58.0 makes Task Manajer livelier and easy to read: Read scan clues, click an app to find out what it does, stop the trouble and its returning helper, turn off Start with PC for that helper, then Reboot & verify. Adware makes ridiculous adverts; miners garble their names and hog power. The six rows stay fixed. Settings (title or Pause) has Reduce flashing and movement: steady colours, no shake and slower text, with the same clues and rules. Costs remain ten night minutes per attempt.
+
+Claude's PRs #87/#88 were reviewed before this feature; B63 is a reproduced save-recovery issue in unmerged #88. See [review](docs/PR_87_88_REVIEW.md). This branch is based on main 0.57.9 and does not include those unmerged fixes.
 
 0.57.9 lays the counter room out the way the user drew it: the front wall faces you flat, with the glass door and shop window on the left under one shutter box and the workshop door on the right, all from the art already in the game.
 

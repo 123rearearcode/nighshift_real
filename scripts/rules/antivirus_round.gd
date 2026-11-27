@@ -1,4 +1,4 @@
-# D157: the approved standard infection, not the rejected disappearing-row boss experiment.
+# D157 / D163: simple clues, fixed targets and the actual customer's infection.
 # Local cleanup simulation only. The monitor owns clock/save transactions and the canonical infection.
 extends RefCounted
 const Malware = preload("res://scripts/rules/malware.gd")
@@ -8,6 +8,9 @@ const ALIAS_SECONDS: float = 8.0
 const RETURN_SECONDS: float = 5.0
 const WORDS: Array[String] = ["BANANA", "POTATO", "CHEESE"]
 const ALIASES: Array[String] = ["CoolCoin.exe", "SystemHeater.exe", "DefinitelyIdle.exe"]
+const ADWARE_NAMES: Array[String] = ["FreeCursors.exe", "HappyOffers.exe", "BonusSmiles.exe"]
+const INVOICE_NAMES: Array[String] = ["Invoice_FINAL2.exe", "Receipts_FinalFINAL.exe", "BudgetBuddy.exe"]
+const RGB_NAMES: Array[String] = ["RGB_FanClub.exe", "RainbowKeyboard.exe", "DiscoMouse.exe"]
 const OFFERS: Array[String] = ["YOU WON A FREE MOUSE. Shipping: $499.", "HOT SINGLE CORES IN YOUR AREA.", "DOWNLOAD MORE RAM. Now with extra RAM."]
 var strain: String = ""
 var processes: Array[Dictionary] = []
@@ -26,8 +29,9 @@ var hacks: int = 0
 var outcome: String = "running"
 var status: String = "Fixed rows. No hiding. End the source and its watchdog, then reboot to verify."
 var history: Array[String] = []
+var case_variant: int = 0
 
-func _init(infection: String = "") -> void:
+func _init(infection: String = "", case_key: String = "") -> void:
     strain = Malware.sanitize(infection)
     if strain == "":
         outcome = "invalid"
@@ -35,14 +39,32 @@ func _init(infection: String = "") -> void:
         return
     var miner: bool = strain == Malware.MINER
     processes = [
-        _row("desktop", "desktop.exe", ":|", 2, "Macrosoft", "System/Desktop", "Critical desktop service. Holds this whole mess together."),
-        _row("source", "CoolCoin.exe" if miner else "FreeCursors.exe", ":3" if miner else ":D", 88 if miner else 12, "Local Heating Solutions" if miner else "Trust Me Bro LLC", "Temp/FreeMoney" if miner else "Downloads/FreeStuff", "Recent CPU: 88%, 92%, 89%. Protected: needs a mainframe override." if miner else "Produces an advert every 12 seconds. End this parent to stop the offers.", true, miner),
-        _row("invoice", "Invoice_FINAL2.exe", ":)", 3, "BudgetBooks Ltd.", "Programs/Accounting", "A genuine customer program with an unfortunate filename."),
-        _row("watchdog", "Zombie.exe", ":P", 8, "Back Again Software", "Startup/Zombie", "This infection's watchdog. Returns after five seconds unless its auto-start is disabled.", true),
-        _row("printer", "PrintSpooler.exe", "-_-", 0, "Macrosoft", "System/Printing", "Legitimate. Waiting for the printer to develop enthusiasm."),
-        _row("rgb", "RGB_FanClub.exe", ":)", 1, "Colourful Peripherals", "Programs/RGB", "Legitimate lighting utility. It thinks it is essential. It is not.")
+        _row("desktop", "desktop.exe", ":|", 2, "Macrosoft", "System/Desktop", "Keeps the desktop running. Leave this one alone: stopping it crashes the PC."),
+        _row("source", "CoolCoin.exe" if miner else "FreeCursors.exe", ":3" if miner else ":D", 88 if miner else 12, "Local Heating Solutions" if miner else "Trust Me Bro LLC", "Temp/FreeMoney" if miner else "Downloads/FreeStuff", "Makes coins for somebody else, using nearly all the PC's power. Stopping it needs a silly password." if miner else "Opens unwanted adverts, even when no browser is open. Came with a free download.", true, miner),
+        _row("invoice", "Invoice_FINAL2.exe", ":)", 3, "BudgetBooks Ltd.", "Programs/Accounting", "The customer's invoices. A silly name, but it only opens their receipts."),
+        _row("watchdog", "Zombie.exe", ":P", 8, "Back Again Software", "Startup/Zombie", "Brings unwanted software back. Turn off Start with PC, then stop this app.", true),
+        _row("printer", "PrintSpooler.exe", "-_-", 0, "Macrosoft", "System/Printing", "Waits for the customer's printer. Uses almost no power. Mostly waits."),
+        _row("rgb", "RGB_FanClub.exe", ":)", 1, "Colourful Peripherals", "Programs/RGB", "Changes the keyboard lights. The customer installed it. Doesn't open adverts or make coins.")
     ]
+    if case_key != "": _vary_case(case_key)
     advert = not miner
+    status = "Click an app to read what it does. Scan clues help you find the trouble."
+
+
+# A PC keeps the same layout and names on retry. Different PCs get small, reproducible variations.
+# No process ever moves during a round; no extra infection or hidden difficulty is generated.
+func _vary_case(case_key: String) -> void:
+    var rng := RandomNumberGenerator.new()
+    rng.seed = case_key.hash()
+    case_variant = rng.randi_range(0, ADWARE_NAMES.size() - 1)
+    if strain == Malware.ADWARE: process("source")["label"] = ADWARE_NAMES[case_variant]
+    process("invoice")["label"] = INVOICE_NAMES[rng.randi_range(0, INVOICE_NAMES.size() - 1)]
+    process("rgb")["label"] = RGB_NAMES[rng.randi_range(0, RGB_NAMES.size() - 1)]
+    for i in range(processes.size() - 1, 0, -1):
+        var at: int = rng.randi_range(0, i)
+        var held: Dictionary = processes[i]
+        processes[i] = processes[at]
+        processes[at] = held
 
 func _row(id: String, label: String, face: String, cpu: int, publisher: String, path: String, detail: String, bad: bool = false, locked: bool = false) -> Dictionary:
     return {"id":id, "label":label, "face":face, "cpu":cpu, "publisher":publisher, "path":path, "detail":detail, "bad":bad, "locked":locked, "ended":false}
@@ -53,9 +75,22 @@ func process(id: String) -> Dictionary:
     return {}
 
 func label(id: String) -> String:
-    if id == "source" and strain == Malware.MINER:
-        return ALIASES[int(elapsed / ALIAS_SECONDS) % ALIASES.size()]
+    if id == "source" and strain == Malware.MINER and not bool(process(id).get("ended",false)):
+        return ALIASES[(int(elapsed / ALIAS_SECONDS) + case_variant) % ALIASES.size()]
     return str(process(id).get("label", ""))
+
+
+func scan_clues() -> String:
+    if strain == Malware.MINER:
+        return "Find the app making coins with the PC's power. Then find the helper that brings unwanted software back."
+    return "Find the app opening unwanted adverts. Then find the helper that brings unwanted software back."
+
+
+func next_step() -> String:
+    if remaining() == 0:
+        return "Both stopped. Turn off Start with PC for the helper, then reboot." if startup else "Both stopped. Reboot to check they stay gone."
+    if not active("source"): return "Main trouble stopped. Check the app that brings unwanted software back."
+    return "Unwanted activity raises the pressure. Pause any time to read at your own pace."
 
 func active(id: String) -> bool:
     var item: Dictionary = process(id)
@@ -81,15 +116,17 @@ func end_task(id: String) -> void:
         _end(id)
 
 func _end(id: String) -> void:
+    var stopped_name: String = label(id)
+    process(id)["label"] = stopped_name
     process(id)["ended"] = true
     history.append("Ended " + label(id) + ".")
     if bool(process(id)["bad"]): overload = maxf(0.0, overload - 12.0)
     if id == "source":
         advert = false
-        status = "MAINFRAME HACKED. Local heating economy devastated." if strain == Malware.MINER else "FreeCursors: 'But you were our millionth visitor!' The adverts stop."
+        status = "MAINFRAME HACKED. Local heating economy devastated." if strain == Malware.MINER else "%s: 'But you were our millionth visitor!' The adverts stop." % label("source")
     elif id == "watchdog":
         respawn_left = RETURN_SECONDS if startup else 0.0
-        status = "Zombie stopped. Auto-start is preparing an encore." if startup else "Zombie stopped. No more encores."
+        status = "Helper stopped. Start with PC is still on, so it will come back." if startup else "Helper stopped. No more encores."
     else:
         status = "An innocent program closed. Suspicious name, innocent little guy."
 
@@ -113,12 +150,12 @@ func disable_startup() -> void:
     startup = false
     respawn_left = 0.0
     history.append("Disabled the visible Zombie auto-start entry.")
-    status = "Auto-start disabled. End its running process too."
+    status = "Start with PC is off. Stop the helper too, so it cannot keep running."
 
 func scan() -> void:
     if not interactive(): return
     scanned = true
-    status = "Budget scan flags the source and its watchdog. Ordinary customer programs can stay."
+    status = scan_clues()
 
 func close_advert() -> void:
     if not interactive(): return
@@ -128,17 +165,17 @@ func close_advert() -> void:
 func verify() -> void:
     if not interactive(): return
     if remaining() > 0:
-        status = "Verification: suspicious activity remains. Finish the cleanup first."
+        status = "An unwanted app is still running. Read the scan clues and check what each app does."
     elif startup:
         process("watchdog")["ended"] = false
         respawn_left = 0.0
         returns += 1
-        status = "Reboot launched Zombie again. Disable its auto-start."
+        status = "Zombie came back after reboot. Turn off Start with PC, then stop it again."
         history.append("Zombie returned after the verification reboot.")
     else:
         outcome = "won"
         advert = false
-        status = "Clean reboot. Source and watchdog stopped; no auto-start return. Actual professional service."
+        status = "Clean reboot. Both unwanted apps stayed stopped. Start with PC is off. Actual professional service."
         history.append("Reboot verification: no matching processes returned.")
 
 func abort() -> void:

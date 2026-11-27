@@ -80,6 +80,7 @@ var fake_orders: Array = []     # 0.52.0: nights on which fake reviews were boug
 var vacuum_state: Dictionary = {"bin": 0.0, "hose": []}   # 0.48.1 (user): the vacuum keeps its bin and hose contents across screens and reloads (a shop tool, not per PC)
 var world_seed: int = 0         # 0.48.0: seeds every generated morning, so the same save always gets the same customers
 var sound_volume: float = 1.0   # master volume 0..1 (D107); lives in its own settings file, never in the game save
+var reduce_flashing: bool = false   # D163 / 0.58.0: app preference, shared by title and pause Settings
 var settings_path: String = SETTINGS_PATH # injectable for isolated regression tests
 
 
@@ -933,15 +934,28 @@ func set_sound_volume(value: float, persist: bool = true) -> void:
     AudioServer.set_bus_mute(bus, sound_volume <= 0.001)
     AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(sound_volume, 0.001)))
     if persist:
-        SaveStore.write(settings_path, {"sound_volume": sound_volume})
+        _save_settings()
+
+
+func set_reduce_flashing(enabled: bool, persist: bool = true) -> void:
+    reduce_flashing = enabled
+    if persist: _save_settings()
+
+
+func _save_settings() -> void:
+    SaveStore.write(settings_path, {"sound_volume":sound_volume, "reduce_flashing":reduce_flashing})
 
 
 func _load_settings() -> void:
     var parsed: Variant = SaveStore.read(settings_path)
     var value: float = 1.0
+    var reduced: bool = false
     if parsed is Dictionary:
         value = float((parsed as Dictionary).get("sound_volume", 1.0))
+        var stored: Variant = parsed.get("reduce_flashing", false)
+        reduced = stored if stored is bool else false
     set_sound_volume(value, false)
+    set_reduce_flashing(reduced, false)
 
 
 # Called once, when the ticket first passes: score the pickup (D95) and write trust and history.
