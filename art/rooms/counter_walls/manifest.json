@@ -1,0 +1,17 @@
+{
+ "approved_on": "2026-11-27",
+ "approved_by": "the user (human), in the Claude chat",
+ "approval_quote": "i kinda f with all of them",
+ "request_quote": "Later on in the game, you can change wallpaper, so you start w the second one but all should be included",
+ "reviewed_files": {
+  "art/drafts/walls/wall_options_sheet.png": "71f5bb2df2ca085ae83465a5088609c9f1d6be1fb06163feade60c1b64a90385"
+ },
+ "proof": "tools/art_batch_d/walls_export.py rebuilds each approved draft from these layers with zero pixel difference",
+ "creator": "Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL (tools/art_batch_d/walls.py)",
+ "sha256": {
+  "wall_oil_paint.png": "f12c3f0177ea6a90a23eaa8dfc1a42f4e746898079040209f8380241eedff21e",
+  "wall_cream_tiles.png": "7e6ad3d5fb9267ad772377781ad843c12c5605e9c7cf615f0c97fca0d46a1d5f",
+  "wall_pine_wallpaper.png": "3697e8af7870e7d166dd2743623e3d73187f97c51a1c30d348829eb030a8e518",
+  "wall_blue_plaster.png": "bfd8171ff66b060b1619d742e3face474484ffe41a2788388b2bee602704bb70"
+ }
+}

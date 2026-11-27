@@ -869,6 +869,25 @@ appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto mine
 in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
 (Opus 5.5, model id claude-opus-5-5).
 
+### D181 — Customers talk: dialogue that unrolls (user, 27 November 2026)
+
+"when a customer comes in, you should be able to click/space for dialogue to unroll. so dialogue needs to be work
+in that way, as the game will be story driven anyhow." A shared dialogue box (`scripts/ui/dialogue_box.gd`) types
+each line out; a click anywhere below the top bar, Space or Enter finishes the line, the next goes on; after the
+last line it closes. Lines can name their speaker, for later scenes. At the counter every customer who walks in
+speaks first (greeting, the problem in their words, what they use the PC for, their timing; a collection says
+how it went) and the ticket slip with Accept follows. Spoken lines never reveal hidden faults or money. Mara's and
+Relu's greeting and timing lines are placeholders for the user's story. Recorded by Claude (Opus 5.5, model id
+claude-opus-5-5).
+
+### D180 — All four counter walls, bought at the store (user, 27 November 2026)
+
+On the wall drafts: "i kinda f with all of them. Later on in the game, you can change wallpaper, so you start w
+the second one but all should be included", and (answering) the finishes are bought at the store; once bought,
+the player can switch back and forth for free. The shop starts with B (two-tone oil paint); A (cream tiles), C
+(pine and 70s wallpaper), D (blue plaster) and the old teal tiles are sold at the store (prices are proposals:
+$60, $80, $40, $20). New games start with B again. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
 ### D179 — The repair bench on the user's desk painting (user, 27 November 2026)
 
 "can you integrate this into the game for the repair bench? Maybe pixelate the mat a bit more." The user

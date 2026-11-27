@@ -7,6 +7,7 @@
 extends RefCounted
 
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
+const WallFinishes = preload("res://scripts/data/wall_finishes.gd")   # 0.58.9 (D180)
 const README := "res://art/rooms/counter_batch_a/README.md"
 const SOURCE := Vector2(1672, 941)
 const SCREEN := Vector2(1280, 720)
@@ -56,6 +57,9 @@ const WINDOW := Rect2(213, 106, 391, 304)           # the termopan shop window, 
 
 var textures: Dictionary = {}
 var termopan: Dictionary = {}
+# 0.58.9 (D180): the wall finish the shop has up (data/wall_finishes.gd). The counter room sets it from the save.
+var wall_finish: String = WallFinishes.DEFAULT
+var wall_pictures: Dictionary = {}
 
 
 class Layer extends Node2D:
@@ -83,6 +87,12 @@ func _init() -> void:
 
 
 # 0.58.5: the whole termopan set is installed (otherwise the 0.57.9 flat layout of Batch A is drawn).
+# The approved picture of a wall finish ({} for the teal tiles, which are the shell's own wall).
+func wall_picture(id: String) -> Texture2D:
+    if not wall_pictures.has(id): wall_pictures[id] = RoomArt.texture(WallFinishes.path(id))
+    return wall_pictures[id]
+
+
 func termopan_ready() -> bool:
     for key: String in TERMOPAN_FILES:
         if termopan.get(key) == null: return false
@@ -150,6 +160,8 @@ func draw_room(canvas: CanvasItem, morning: bool, front_open: bool, workshop_ope
 # layout (D171); the window now stops at its sill so the radiator fits under it. The street keeps the 0.57.8
 # eye-level mapping, seen through the door and the window.
 func _draw_termopan(canvas: CanvasItem, morning: bool, front_open: bool, workshop_open: bool, shutter_down: bool) -> void:
+    var wall: Texture2D = wall_picture(wall_finish)
+    if wall != null: canvas.draw_texture_rect(wall, Rect2(Vector2.ZERO, wall.get_size()), false)   # 1:1 over the flat tiles; the lamp, pipe and doorway are holes in it
     _layer(canvas, termopan["floor"])
     var outside: Texture2D = textures.get("morning" if morning else "dusk")
     if outside != null:

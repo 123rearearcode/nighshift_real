@@ -107,6 +107,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B70 | Verified | Low | Bench presentation | With the pick in hand, a stray dash showed just above the pick's bend | 0.58.4 | Automated: Bench feedback suite, GitHub Actions run 46053534084 |
 | B71 | Verified | Medium | Collection presentation | The collection slip called every replaced original kept by the shop "working", even a broken one, although the shop has not tested it | 0.58.7 | Automated: Morning report suite, GitHub Actions run 46062635008 |
 | B72 | Verified | Low | Test harness | The new B56 storage check declared a loop variable `uid` in a function that already has `var uid`, so the Storage suite failed to parse | 0.58.7 | Automated: Storage suite, GitHub Actions run 46062635008 |
+| B73 | Fixed | Low | Bench presentation | The vacuum on/off switch stayed on screen while mounting the cooler (the thermal paste stage) | 0.58.9 | Automated: Audio and vacuum suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1044,4 +1045,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run the Storage suite at the first 0.58.7 commit (`fix/trust-0587`, first push).
 - Expected / actual: the Storage suite runs, including the B56 check / the script fails to load and the suite prints no summary.
 - Regression / evidence: the loop variables are named `kept_uid`. Automated evidence: `Storage` suite passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46062635008 on `cd204ef`.
+
+### B73 — The vacuum switch showed while mounting the cooler
+
+- Found: 0.58.8 playtest by the user, 27 November 2026.
+- Reported by: the user: "when you are mounting the cooler, the vacuum button appears".
+- Fixed in: 0.58.9, by Claude (Opus 5.5, model id claude-opus-5-5).
+- Root cause: 0.58.4 added the `VacuumSwitch` button in `scripts/view/bench_ui.gd` but not to `bv.clean_controls`, the list of cleaning-only controls the bench hides at the thermal paste stage, so it stayed visible over the cooler mount. (The V key was already limited to cleaning.)
+- Reproduction: repair bench, switch to the thermal paste stage (or mount the cooler); the "Vacuum: OFF" button is still on the panel.
+- Expected / actual: no vacuum controls at the paste stage / the switch shows.
+- Regression / evidence: the switch is in `clean_controls`. `tools/test_audio_and_vacuum.gd` checks it is hidden at the paste stage and back when cleaning. CI evidence pending.
 

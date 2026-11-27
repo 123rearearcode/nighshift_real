@@ -91,9 +91,11 @@ func run_checks() -> void:
     check(Memory.resume_path(gs) == Nav.COUNTER, "pending opening overrides a stale last-scene preference")
     var before_pending: Array = gs.opening_customers.duplicate()
     night.read_only = true
+    await finish_dialogue(counter)
     await press(counter.next_button)
     check(gs.opening_customers == before_pending and counter.slip_text.text.contains("Mara V."), "a protected save cannot acknowledge or skip a customer")
     night.read_only = false
+    await finish_dialogue(counter)
     await press(counter.next_button)
     check(counter.visiting() and counter.slip_text.text.contains("Relu D.") and gs.opening_customers == [ids[1]], "accepting Mara presents the second existing customer")
     var relu_sprite: TextureRect = counter.get_node("CustomerPortrait")
@@ -103,6 +105,7 @@ func run_checks() -> void:
     counter = current_scene
     check(counter.opening_visits and counter.slip_text.text.contains("Relu D.") and gs.opening_customers == [ids[1]], "cold Continue retains acceptance progress without replaying Mara")
     check(not night.accept_opening_customer(gs, str(ids[0])) and gs.opening_customers == [ids[1]], "repeated/out-of-order acceptance is rejected")
+    await finish_dialogue(counter)
     await press(counter.next_button)
     check(not counter.visiting() and not counter.opening_visits and gs.opening_customers.is_empty() and not counter.slip.visible, "last acceptance ends opening intake")
     check(not counter.get_node("CustomerPortrait").visible and not counter.get_node("CustomerPC").visible, "when the last customer leaves, the window and the counter top are empty again")

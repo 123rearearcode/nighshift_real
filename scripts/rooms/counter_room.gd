@@ -19,6 +19,7 @@ const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const MorningText = preload("res://scripts/night/morning_text.gd")
 const Phone = preload("res://scripts/night/phone_panel.gd")
 const CounterArt = preload("res://scripts/rooms/counter_art.gd")
+const DialogueBox = preload("res://scripts/ui/dialogue_box.gd")   # 0.58.9 (D181): customers talk first
 const VISITORS: Array = ["collected", "comeback", "new"]   # cards of people who walk in (waiting ones did not come)
 const SLIP_RECT := Rect2(24, 176, 416, 374)
 # 0.57.3: the ticket clipboard close-up is the approved skin (art/ui/ticket_clipboard.png, 300 x 350 at
@@ -36,6 +37,7 @@ const CUSTOMER_PC_PROP := "pc_tower_closed"
 const CUSTOMER_PC_BASE := CounterArt.CUSTOMER_PC_BASE     # bottom centre on the foreground worktop
 
 var counter_art := CounterArt.new()
+var dialogue: Control                  # 0.58.9 (D181): the customer's lines unroll; the slip comes after
 # 0.57.8 (user, 25 November 2026): no storage button; hovering the bottom edge pulls the storage up.
 const STORAGE_SLIDE: float = 0.22       # seconds to slide fully open or closed
 const STORAGE_CLOSE_Y: float = 64.0     # moving the mouse above this line (with nothing held) slides it back down
@@ -97,6 +99,9 @@ func _room_ready() -> void:
     _setup_counter_art()
     _build_storage_drawer()
     _build_recovery_slip()
+    dialogue = DialogueBox.new()
+    add_child(dialogue)
+    dialogue.finished.connect(_dialogue_done)
     if NightSession.needs_recovery(GameState):
         _show_recovery()
     elif not GameState.opening_customers.is_empty():
@@ -109,6 +114,7 @@ func _room_ready() -> void:
 
 
 func _setup_counter_art() -> void:
+    counter_art.wall_finish = GameState.wall_finish   # 0.58.9 (D180): the wall finish the shop has up
     # Preserve the existing explicit flat-background override used by artists and fallback tests.
     var flat_background: TextureRect = get_node_or_null("Background")
     if flat_background != null and flat_background.texture != null: return
@@ -327,8 +333,17 @@ func _show_visit(index: int) -> void:
         slip_title.text = "MORNING · %d customer%s came in · %d of %d" % [arrived, "" if arrived == 1 else "s", index + 1, arrived]
         slip_text.text = MorningText.card_text(card)
         next_button.text = "Next customer ▸" if index < visits.size() - 1 else "That's everyone: open up for the night"
-    slip.show()
     _show_customer(person)
+    # 0.58.9 (D181): the customer speaks first (click or Space unrolls each line); the ticket slip follows.
+    slip.hide()
+    var said: Array = MorningText.opening_lines(card, person) if opening_visits else MorningText.visit_lines(card, person)
+    dialogue.play(str(card.get("customer", person.get("name", ""))), said)
+    refresh()
+
+
+func _dialogue_done() -> void:
+    if visit_index < 0: return
+    slip.show()
     refresh()
 
 
@@ -359,6 +374,7 @@ func _hide_customer() -> void:
 
 
 func _next_visit() -> void:
+    if dialogue != null and dialogue.active: dialogue.skip_all()   # 0.58.9: never leave a customer talking over the room
     if opening_visits and not NightSession.accept_opening_customer(GameState, str(visits[visit_index]["ticket"])):
         say(NightSession.status)
         return

@@ -60,3 +60,10 @@ func click(target: Node, button: int, pressed: bool, at: Vector2) -> void:
 func finish(suite: String) -> void:
     print("%s checks: %d, failures: %d" % [suite, checks, failed])
     quit(1 if failed else 0)
+
+
+# 0.58.9 (D181): customers speak first; tests that are not about the dialogue close it before using the slip.
+func finish_dialogue(room: Node) -> void:
+    var talk: Variant = room.get("dialogue")
+    if talk != null and talk.active: talk.skip_all()
+    await process_frame

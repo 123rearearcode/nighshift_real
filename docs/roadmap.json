@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.58.8",
+  "main": "0.58.9",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -598,16 +598,16 @@
     },
     {
      "id": "p06-12",
-     "checkNote": "Drafts made in 0.58.5; waiting for your pick.",
+     "checkNote": "0.58.9 (D180).",
      "checkState": "new",
-     "detail": "Four alternatives to the teal tiles: A cream faience, B two-tone oil paint, C pine panelling with 70s wallpaper, D blue plaster. Or keep the tiles, or mix.",
+     "detail": "You liked all four: the shop starts with B (two-tone oil paint); A, C, D and the old teal tiles are sold at the store and, once bought, switched for free.",
      "order": 120,
      "refs": [
       "art/drafts/walls/wall_options_sheet.png"
      ],
-     "status": "next",
-     "title": "Pick the counter's wall finish",
-     "updatedAt": "2026-11-27T20:30:00Z"
+     "status": "done",
+     "title": "All four counter walls, bought at the store",
+     "updatedAt": "2026-11-27T22:00:00Z"
     },
     {
      "id": "p06-13",
@@ -636,6 +636,32 @@
      "checkNote": "0.58.8 (D179), approved: \"Approve, put it in\". Needs your look in game.",
      "order": 140,
      "updatedAt": "2026-11-27T21:20:00Z"
+    },
+    {
+     "id": "p06-15",
+     "title": "The vacuum switch no longer shows while mounting the cooler",
+     "status": "done",
+     "detail": "B73: the switch was missing from the cleaning-only controls.",
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "checkState": "new",
+     "checkNote": "0.58.9 (B73).",
+     "order": 150,
+     "updatedAt": "2026-11-27T22:00:00Z"
+    },
+    {
+     "id": "p06-16",
+     "title": "Customers talk: click or Space unrolls their lines",
+     "status": "done",
+     "detail": "A shared dialogue box types each line out; click, Space or Enter goes on. At the counter customers speak first, then the ticket slip. Built to be reused for the story.",
+     "refs": [
+      "scripts/ui/dialogue_box.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.58.9 (D181). Mara's and Relu's greeting lines are placeholders for your story.",
+     "order": 160,
+     "updatedAt": "2026-11-27T22:00:00Z"
     }
    ]
   },
@@ -955,7 +981,7 @@
     },
     {
      "id": "p11-04",
-     "detail": "Professional trust, personal closeness, meaningful history and lasting facts. The Balkan/communist-block look exists; cast and plot need authorship.",
+     "detail": "Professional trust, personal closeness, meaningful history and lasting facts. The Balkan/communist-block look exists; cast and plot need authorship. Since 0.58.9 customers speak through the dialogue box (scripts/ui/dialogue_box.gd), so written lines can be dropped in.",
      "order": 40,
      "refs": [],
      "status": "planned",
@@ -1159,13 +1185,13 @@
   },
   {
    "id": "d03",
-   "answer": "",
+   "answer": "All four: start with B (oil paint); the others and the teal tiles are bought at the store, then switched for free. (D180)",
    "ask": "One of A–D, keep the teal tiles, or a mix?",
    "context": "Drafts in art/drafts/walls/: A cream faience, B two-tone oil paint, C pine panelling with 70s wallpaper, D blue plaster.",
    "order": 30,
    "question": "Which wall finish for the counter?",
-   "state": "open",
-   "updatedAt": "2026-11-27T20:30:00Z"
+   "state": "settled",
+   "updatedAt": "2026-11-27T22:00:00Z"
   },
   {
    "id": "d04",

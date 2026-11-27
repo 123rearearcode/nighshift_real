@@ -1,6 +1,16 @@
 # Handoff — current state first
 
-## Current — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
+## Current — 0.58.9 customers talk, all four walls, vacuum switch fix, 27 November 2026
+
+Dialogue (D181): `scripts/ui/dialogue_box.gd` (click/Space/Enter unrolls; speakers per line); customers at the
+counter speak first, then the slip (`MorningText.opening_lines`/`visit_lines`). Walls (D180): the four approved
+walls in `art/rooms/counter_walls/`; start with B (oil paint); the rest and the teal tiles are bought at the store
+(`data/wall_finishes.gd`, `GameState.wall_finish`). B73: vacuum switch hidden at the paste stage.
+Tests that use the customer slip call `finish_dialogue` first (test_support). Hot file: game_state (WORK_PLAN).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.8 the repair bench on the user's desk painting, 27 November 2026
 
 The user supplied a desk painting for the repair bench (D179). `tools/art_batch_d/bench_mat.py` rebuilt it for
 the bench layout; the user picked layout A, mat pixel 4, lightly pixelated wood, and approved the final file.

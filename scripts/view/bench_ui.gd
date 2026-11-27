@@ -88,7 +88,8 @@ func _build_ui() -> void:
         bv.retract_button.add_theme_stylebox_override(state,face)
     bv.retract_button.size = Layout.BENCH_RETRACT.size
     bv.retract_button.tooltip_text = "Retract hose into the vacuum bin. Pull the vacuum or hose to feed it out again."
-    bv.clean_controls = [bv.retract_button,vac,brush,reset_dust,bv.move_button,pick_button,bv.empty_bin_button,bv.stock_button,bv.vacuum_status]
+    # B73 (0.58.9): the vacuum switch belongs to cleaning; it showed during the cooler mount because it was missing here.
+    bv.clean_controls = [bv.retract_button,vac,brush,reset_dust,bv.move_button,pick_button,bv.empty_bin_button,bv.stock_button,bv.vacuum_status,bv.vacuum_switch]
     bv._refresh_vacuum_status()
 
     bv.mount_button = _make_button("Mount cooler",Vector2(bv.PASTE_ORIGIN.x,628),Vector2(PasteSim.GRID*bv.PASTE_CELL,44),bv._on_mount_pressed)
