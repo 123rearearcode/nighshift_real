@@ -48,7 +48,7 @@ const BOXES: Dictionary = {"overclock": Rect2i(60, 16, 354, 220), "readme": Rect
     "settings": Rect2i(120, 60, 230, 110), "help": Rect2i(120, 60, 230, 110)}
 const DEFAULT_BOX := Rect2i(122, 16, 292, 220)
 # A note from the last technician (placeholder story hook; the user writes the story).
-const README := "To whoever gets this job after me:\n\nThe stick boots anything with a plug. Leave their disk alone.\n\nWrite down what you actually measured. Customers talk, and so do reviews.\n\nAnd don't sell their old parts as new. Somebody always finds out.\n\n- V."
+const README_NOTE := "To whoever gets this job after me:\n\nThe stick boots anything with a plug. Leave their disk alone.\n\nWrite down what you actually measured. Customers talk, and so do reviews.\n\nAnd don't sell their old parts as new. Somebody always finds out.\n\n- V."
 
 var monitor: Node                      # software_view.gd: apps, buttons, output, clock, busy state
 var state: String = "off"              # off, no_signal, bios, nightboot, splash, desktop
@@ -207,7 +207,7 @@ func app_text(app: String) -> String:
         "game": return out if mine else "Counter Stroke 2: play a match and measure the frame rate. Takes %d night minutes." % Clock.GAME_TEST_MINUTES
         "stress": return out if mine else "Stress lab: %s. The only way to see instability before the customer does." % str(monitor.long_button.text)
         "overclock": return str(monitor.oc_label.text) + "\n\n" + (out if mine else "Push the CPU harder. Heat shows in every check; instability only in a stress test.")
-        "readme": return README
+        "readme": return README_NOTE
         "bin": return "The Bin of Regret is empty. For now."
         "settings": return "There is nothing to set. It is 1998."
         "help": return "There is no help. There was never any help."
@@ -328,24 +328,27 @@ func _menu_action(label: String) -> void:
 # ---------------------------------------------------------------- input
 
 func _gui_input(event: InputEvent) -> void:
-    if event is InputEventMouseMotion:
-        if menu_open: _hover(Vector2i(event.position / 2.0))
+    var motion := event as InputEventMouseMotion
+    if motion != null:
+        if menu_open: _hover(Vector2i(motion.position / 2.0))
         return
-    if not (event is InputEventMouseButton and event.pressed): return
-    var p := Vector2i(event.position / 2.0)
-    if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-        if state == "desktop" and open_app != "" and layout(open_app)["body"].has_point(p):
-            scroll = maxi(0, scroll + (1 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1))
+    var mb := event as InputEventMouseButton
+    if mb == null or not mb.pressed: return
+    var p := Vector2i(mb.position / 2.0)
+    if mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+        var body: Rect2i = layout(open_app)["body"] if open_app != "" else Rect2i()
+        if state == "desktop" and body.has_point(p):
+            scroll = maxi(0, scroll + (1 if mb.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1))
             queue_redraw()
             accept_event()
         return
-    if event.button_index != MOUSE_BUTTON_LEFT: return
+    if mb.button_index != MOUSE_BUTTON_LEFT: return
     accept_event()
     match state:
         "bios": _enter("nightboot")
         "nightboot": _enter("splash")
         "splash": _enter("desktop")
-        "desktop": _click(p, bool(event.double_click))
+        "desktop": _click(p, mb.double_click)
 
 
 func _click(p: Vector2i, double: bool) -> void:
@@ -377,10 +380,12 @@ func _click(p: Vector2i, double: bool) -> void:
                 if not Rect2i(entry[2]).has_point(p): continue
                 if entry[1] == null:
                     close_window()
-                elif not entry[1].disabled:
-                    result_app = open_app
-                    scroll = 0
-                    entry[1].pressed.emit()
+                else:
+                    var target: Button = entry[1]
+                    if not target.disabled:
+                        result_app = open_app
+                        scroll = 0
+                        target.pressed.emit()
                 queue_redraw()
                 return
             return
@@ -416,12 +421,13 @@ func _hover(p: Vector2i) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-    if not visible or not (event is InputEventKey and event.pressed and not event.echo): return
-    var key: int = event.keycode
-    if state == "nightboot" and key in [KEY_ENTER, KEY_KP_ENTER]:
+    var k := event as InputEventKey
+    if not visible or k == null or not k.pressed or k.echo: return
+    var enter: bool = k.keycode == KEY_ENTER or k.keycode == KEY_KP_ENTER
+    if state == "nightboot" and enter:
         _enter("splash")
         get_viewport().set_input_as_handled()
-    elif state == "desktop" and key in [KEY_ENTER, KEY_KP_ENTER] and selected >= 0 and open_app == "":
+    elif state == "desktop" and enter and selected >= 0 and open_app == "":
         open(ICONS[selected][0])
         get_viewport().set_input_as_handled()
 
@@ -465,8 +471,8 @@ func _draw_splash() -> void:
     var y1: int = 188
     var end: int = x0 + 2 + int(float(x1 - x0 - 4) * fraction)
     for x in range(x0 + 2, end):                 # the dough rising along the tray (the drafts' rule)
-        var bump: int = 1 if (x / 5) % 2 else 0
-        _rect(x, y0 + 3 - bump, x, y1 - 2, DOUGH if (x / 5) % 3 else DOUGH_SHADE)
+        var bump: int = 1 if (x / 5) % 2 != 0 else 0
+        _rect(x, y0 + 3 - bump, x, y1 - 2, DOUGH if (x / 5) % 3 != 0 else DOUGH_SHADE)
     if end > x0 + 2: _rect(x0 + 2, y0 + 3, end, y0 + 3, DOUGH_HI)
 
 
