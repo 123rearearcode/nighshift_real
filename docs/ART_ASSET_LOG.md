@@ -356,6 +356,19 @@ References (not loaded, no runtime approval): `art/references/counter_flat_layou
 `feat/counter-flat-layout-0579`, by Claude (Opus 5.5, model id claude-opus-5-5). Human in-game visual
 acceptance: not yet recorded (the user runs the build and merges).
 
+## Repair bench background: approval and integration (0.58.8)
+
+Source: the user's own desk painting (worn boards, teal work mat, dark tool tray), supplied 27 November 2026:
+"can you integrate this into the game for the repair bench? Maybe pixelate the mat a bit more". Kept as
+`art/drafts/bench_mat/source_user_desk.png`. Rebuilt for the bench layout by Claude (Opus 5.5, model id
+claude-opus-5-5) with Python/PIL (`tools/art_batch_d/bench_mat.py`): mat nine-sliced under the PC and tray,
+tray material behind the controls panel, boards continued, mat pixelated in 4-pixel blocks, wood in 2. Drafts
+shown: layouts A/B at pixel 3/4/6 (`art/drafts/bench_mat/preview_*.png`, `mat_pixel_sizes.png`). The user
+picked A, 4, lightly pixelated wood; the final file was shown and approved: "Approve, put it in".
+Installed: `art/bench/background/bench_background.png`, SHA-256 `ff0c62d3463a0fd06c7e323b4afb4428958908b659dc5ab930b8ba7f3be0c61c` (also in its
+`manifest.json`, checked by the Bench feedback suite), drawn by `scripts/view/bench_backdrop.gd`.
+Created: yes; Human approved: yes (quote above); Integrated: 0.58.8; Visually accepted in game: not yet.
+
 ## Termopan counter set: approval and integration (0.58.5)
 
 Drafts shown 27 November 2026 (review sheets `art/drafts/termopan/termopan_four_states.png`,

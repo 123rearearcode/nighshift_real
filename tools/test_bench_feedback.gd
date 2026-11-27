@@ -35,6 +35,17 @@ func run_checks() -> void:
     # B70 (0.58.4): picking up the pick showed a stray dash above its bend (a 1% progress ring).
     bench._select_tool(3)
     check(bench.active_tool == 3 and bench.tools.equipped and is_zero_approx(bench.pick_progress()),"with the pick in hand and no stroke yet, no progress ring is drawn")
+    # 0.58.8: the approved desk background (the user's painting) is drawn behind the bench, byte for byte.
+    var art_dir: String = bench.Backdrop.BACKGROUND_README.get_base_dir() + "/"
+    var approved: Variant = JSON.parse_string(FileAccess.get_file_as_string(art_dir + "manifest.json"))
+    var same: bool = approved is Dictionary and str(approved.get("approval_quote", "")) == "Approve, put it in" \
+        and FileAccess.get_sha256(art_dir + "bench_background.png") == str((approved.get("sha256", {}) as Dictionary).get("bench_background.png", ""))
+    var picture: Texture2D = bench.Backdrop.picture()
+    check(same and picture != null and picture.get_size() == Vector2(1280, 720), "the bench background is the approved 1280 x 720 file")
+    var drawn: int = bench.backdrop.draw_count
+    bench.backdrop.queue_redraw()
+    await process_frame
+    check(bench.backdrop.draw_count > drawn and bench.backdrop.get_parent() == bench and bench.backdrop.z_index < 0, "it is drawn behind everything on the bench")
     bench.free()
     for profile: String in ["tower","compact"]:
         bench = new_bench(gs)

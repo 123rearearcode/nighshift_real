@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.7)
+# Nightshift - Godot Foundation Trial (v0.58.8)
+
+0.58.8 puts the repair bench on your desk painting: wooden boards, the teal mat under the PC (pixelated), and the controls on the dark tool tray.
 
 0.58.7 makes the latest build more trustworthy: pausing with the magnifying glass shows the cursor (B55), the stock room no longer draws marks for things under the counter or in your backpack (B56), mornings with little cash no longer stall (B57), the collection slip stops calling a kept old part "working" (B71), and the repair bench shows your saved paste result, meters and screws after you leave and come back, with the paste amount split into on the CPU and beside it.
 

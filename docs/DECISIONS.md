@@ -869,6 +869,15 @@ appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto mine
 in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
 (Opus 5.5, model id claude-opus-5-5).
 
+### D179 — The repair bench on the user's desk painting (user, 27 November 2026)
+
+"can you integrate this into the game for the repair bench? Maybe pixelate the mat a bit more." The user
+supplied a desk painting. Choices (asked with drafts): layout A (the mat under the PC and the service tray,
+the controls on the dark tool-tray material), the mat pixelated in 4-pixel blocks, the wood lightly (2). The
+final file was approved: "Approve, put it in" (hash in `art/bench/background/manifest.json`). With the picture
+the service tray is the mat itself (outline and label only). Recorded by Claude (Opus 5.5, model id
+claude-opus-5-5).
+
 ### D178 — The name of the place on its wall (user, 27 November 2026)
 
 "I liked how there used to be the name of the place on the wall, I want that as a feature." Rooms show their
