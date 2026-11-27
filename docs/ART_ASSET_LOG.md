@@ -356,6 +356,20 @@ References (not loaded, no runtime approval): `art/references/counter_flat_layou
 `feat/counter-flat-layout-0579`, by Claude (Opus 5.5, model id claude-opus-5-5). Human in-game visual
 acceptance: not yet recorded (the user runs the build and merges).
 
+## Termopan counter set: approval and integration (0.58.5)
+
+Drafts shown 27 November 2026 (review sheets `art/drafts/termopan/termopan_four_states.png`,
+`termopan_closeup.png`). User approval, same day: "aight go on with the PVC". Created by Claude (Opus 5.5,
+model id claude-opus-5-5), code-drawn with Python/PIL (`tools/art_batch_d/termopan.py`); the installed
+files are pixel-identical to the layers behind those sheets. Installed in `art/rooms/counter_termopan/` (nine files, SHA-256 in its
+`manifest.json`, checked by the Counter art suite), used by `scripts/rooms/counter_art.gd`. Created: yes;
+Human approved: yes (quote above); Integrated: 0.58.5; Visually accepted in game: not yet.
+
+The name plates on the walls (0.58.5, D178) are drawn by code (`room_view.gd`), not an art file; the user
+asked for the feature, and its look is shown in the PR for acceptance.
+
+Wall alternatives (0.58.5, pending): `art/drafts/walls/` (four options). Nothing loaded.
+
 ## Drafts for review (0.57.8, pending approval)
 
 - `art/drafts/connectors/`: the two power connectors the user asked for ("Add connectors (only 2 kinds for

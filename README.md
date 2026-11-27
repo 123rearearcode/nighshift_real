@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.4)
+# Nightshift - Godot Foundation Trial (v0.58.5)
+
+0.58.5 puts the approved termopan doors, PVC shutter, radiator and linoleum floor in the counter room, and brings the name of each place back onto its wall.
 
 0.58.4 fixes the brush flooding the PC with dust, gives the vacuum an on/off switch (V), removes the hose clamp and the pick's stray mark, puts Hudici Dan's PC (with a crypto miner) in storage for playtesting, and adds your backpack: a personal inventory you open in any room (B), with bigger backpacks at the store.
 

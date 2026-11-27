@@ -24,6 +24,10 @@ const CABLE_SPOTS: Dictionary = {"counter": Rect2(236, 498, 140, 62), "workshop"
 @export var art_name: String = ""
 ## Shown top-left so the player always knows where they are.
 @export var room_title: String = ""
+## 0.58.5: the place's name on its wall (user, 27 November 2026: "I liked how there used to be the name of
+## the place on the wall, I want that as a feature"). Empty text = the room title; empty rect = no sign.
+@export var wall_sign: String = ""
+@export var wall_sign_rect: Rect2 = Rect2()
 ## Placeholder colours, used only until the room has its art.
 @export var wall_color: Color = Color("1c2630")
 @export var floor_color: Color = Color("232c33")
@@ -60,6 +64,7 @@ func _ready() -> void:
     _room_ready()
     _setup_cable_box()
     _setup_backpack()
+    _setup_wall_sign()
     refresh()
     queue_redraw()
 
@@ -67,6 +72,42 @@ func _ready() -> void:
 # For the room scripts.
 func _room_ready() -> void:
     pass
+
+
+# ---- the name on the wall (0.58.5) ----
+
+func sign_text() -> String:
+    return wall_sign if wall_sign != "" else room_title
+
+
+func _setup_wall_sign() -> void:
+    if wall_sign_rect.size.x <= 0.0 or sign_text() == "": return
+    var plate := Control.new()
+    plate.name = "WallSign"
+    plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    plate.position = wall_sign_rect.position
+    plate.size = wall_sign_rect.size
+    plate.z_index = -5            # on the wall: over the room picture, behind people, the counter and hotspots
+    plate.draw.connect(_draw_wall_sign.bind(plate))
+    add_child(plate)
+    if sign_text() == room_title and is_instance_valid(title): title.visible = false   # the wall says it now
+
+
+# An enamelled name plate screwed to the wall (drawn; no art file yet).
+func _draw_wall_sign(plate: Control) -> void:
+    var r := Rect2(Vector2.ZERO, plate.size)
+    plate.draw_rect(Rect2(r.position + Vector2(3, 4), r.size), Color(0, 0, 0, 0.35))
+    plate.draw_rect(r, Color("1f3a5f"))
+    plate.draw_rect(r.grow(-4), Color("e8e2d0"), false, 2.0)
+    plate.draw_rect(r, Color("0e1a2b"), false, 2.0)
+    for corner: Vector2 in [Vector2(8, 8), Vector2(r.size.x - 8, 8), Vector2(8, r.size.y - 8), r.size - Vector2(8, 8)]:
+        plate.draw_circle(corner, 2.5, Color("9aa3ad"))
+    var font: Font = ThemeDB.fallback_font
+    var font_size: int = int(clampf(r.size.y * 0.52, 12.0, 30.0))
+    var width: float = font.get_string_size(sign_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+    var at := Vector2((r.size.x - width) * 0.5, r.size.y * 0.5 + font_size * 0.36)
+    plate.draw_string(font, at + Vector2(1, 1), sign_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("0e1a2b"))
+    plate.draw_string(font, at, sign_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("f1ead6"))
 
 
 # ---- your backpack (0.58.4: "the player can have a personal inventory (he can buy backpacks to upgrade)") ----

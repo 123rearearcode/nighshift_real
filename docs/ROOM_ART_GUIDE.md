@@ -8,6 +8,12 @@ shutter box; the workshop door on the right; the counter across the front. Scree
 `scripts/rooms/counter_art.gd` (GLASS, DOOR, SHUTTER, FLOOR_Y 505). New counter art must follow this layout;
 the user's sketch and the reference mockups are in `art/references/counter_flat_layout/`.
 
+## Termopan set and wall name plates — 0.58.5 (D174, D178)
+
+The counter now draws the approved termopan set (`art/rooms/counter_termopan/`) over the shell's flat wall:
+linoleum floor, radiator, PVC frame (window down to its sill at y 410), doors and shutter. Each room can show
+its name on the wall: set `wall_sign` (empty = the room title) and `wall_sign_rect` on the room scene.
+
 ## Counter Batch A layers — 0.57.5
 
 The approved counter now uses `scripts/rooms/counter_art.gd` and the unchanged PNGs under

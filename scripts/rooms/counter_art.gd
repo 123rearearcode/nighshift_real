@@ -2,6 +2,8 @@
 # art/rooms/counter_batch_a/manifest.json. This is presentation only: no clock, inventory or PC state.
 # Source art is mapped at draw time; it has not been repainted onto a different native pixel grid.
 # 0.57.9: the same approved pixels laid out on a flat front wall (see draw_room).
+# 0.58.5 (D174): the approved termopan set (art/rooms/counter_termopan/, manifest with hashes) replaces the
+# doors, shutter and frame, and adds the radiator and the linoleum floor, when all of it is present.
 extends RefCounted
 
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
@@ -42,7 +44,18 @@ const TILE_STRIP := Rect2(606, 0, 169, 941)         # five whole tiles of the sh
 const TILE_ROWS: Array = [28, 62, 95, 128, 161, 193, 226, 257, 288, 319, 349, 381, 412, 445, 478, 511, 544, 577, 610]
 const TILE_SHIFTS: Array = [0, 6, 13, 3, 9]         # row index each strip starts its tiles from
 
+# 0.58.5: the termopan set (user, 27 November 2026: "aight go on with the PVC"). Full-canvas layers.
+const TERMOPAN_README := "res://art/rooms/counter_termopan/README.md"
+const TERMOPAN_FILES := {
+    "floor": "floor-linoleum.png", "radiator": "radiator.png", "frame": "termopan-front-frame.png",
+    "door_closed": "termopan-front-door-closed.png", "door_open": "termopan-front-door-open.png",
+    "ws_closed": "termopan-workshop-closed.png", "ws_open": "termopan-workshop-open.png",
+    "box_up": "pvc-shutter-up.png", "box_down": "pvc-shutter-down.png",
+}
+const WINDOW := Rect2(213, 106, 391, 304)           # the termopan shop window, down to its sill (screen px)
+
 var textures: Dictionary = {}
+var termopan: Dictionary = {}
 
 
 class Layer extends Node2D:
@@ -65,6 +78,19 @@ class Layer extends Node2D:
 func _init() -> void:
     for key: String in FILES:
         textures[key] = RoomArt.texture(folder() + str(FILES[key]))
+    for key: String in TERMOPAN_FILES:
+        termopan[key] = RoomArt.texture(TERMOPAN_README.get_base_dir() + "/" + str(TERMOPAN_FILES[key]))
+
+
+# 0.58.5: the whole termopan set is installed (otherwise the 0.57.9 flat layout of Batch A is drawn).
+func termopan_ready() -> bool:
+    for key: String in TERMOPAN_FILES:
+        if termopan.get(key) == null: return false
+    return true
+
+
+func _layer(canvas: CanvasItem, tex: Texture2D) -> void:
+    if tex != null: canvas.draw_texture_rect(tex, Rect2(Vector2.ZERO, Vector2(tex.get_size()) * SCREEN / SOURCE), false)
 
 
 static func folder() -> String:
@@ -96,6 +122,9 @@ func draw_room(canvas: CanvasItem, morning: bool, front_open: bool, workshop_ope
     # front wall faces the player flat. The shell's painted corner glazing is covered by its own flat tiles,
     # and the glass door, shop window, shutter and street all sit flat on that wall. Existing pixels only.
     _flat_wall(canvas)
+    if termopan_ready():
+        _draw_termopan(canvas, morning, front_open, workshop_open, shutter_down)
+        return
     var outside: Texture2D = textures.get("morning" if morning else "dusk")
     # The street at eye level (0.57.8 mapping kept): source = (280, 302) + screen position * 1.032.
     if outside != null:
@@ -115,6 +144,23 @@ func draw_room(canvas: CanvasItem, morning: bool, front_open: bool, workshop_ope
         Rect2(1109, 100, 139, 395) if workshop_open else Rect2(1062, 118, 186, 372))
     if shutter_down: _shutter_down(canvas)
     else: _sprite(canvas, "shutter_up", SHUTTER)
+
+
+# 0.58.5 (D174): white PVC termopan, clear glass, a radiator under the window, a linoleum floor. The same flat
+# layout (D171); the window now stops at its sill so the radiator fits under it. The street keeps the 0.57.8
+# eye-level mapping, seen through the door and the window.
+func _draw_termopan(canvas: CanvasItem, morning: bool, front_open: bool, workshop_open: bool, shutter_down: bool) -> void:
+    _layer(canvas, termopan["floor"])
+    var outside: Texture2D = textures.get("morning" if morning else "dusk")
+    if outside != null:
+        for glass: Rect2 in [DOOR, WINDOW]:
+            canvas.draw_texture_rect_region(outside, glass, Rect2(Vector2(280, 302) + glass.position * 1.032, glass.size * 1.032))
+    _layer(canvas, termopan["radiator"])
+    _layer(canvas, termopan["frame"])
+    _layer(canvas, termopan["door_open" if front_open else "door_closed"])
+    _sprite(canvas, "sign", Rect2(400, 128, 60, 122))
+    _layer(canvas, termopan["ws_open" if workshop_open else "ws_closed"])
+    _layer(canvas, termopan["box_down" if shutter_down else "box_up"])
 
 
 # The shell's own flat wall (5 whole tiles, source x 606..775), repeated leftwards over the painted corner.

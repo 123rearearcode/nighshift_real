@@ -1,6 +1,15 @@
 # Handoff — current state first
 
-## Current — 0.58.4 bench fixes, Hudici Dan, the backpack, 27 November 2026
+## Current — 0.58.5 termopan counter, names on the walls, wall drafts, 27 November 2026
+
+The user approved the termopan drafts ("aight go on with the PVC"): `art/rooms/counter_termopan/` (hashes in its
+manifest) is drawn by `counter_art.gd` (`_draw_termopan`) over the flat wall; the window now ends at a sill with
+the radiator under it. Rooms show their name on a wall plate (D178; `wall_sign`, `wall_sign_rect`). Four wall
+alternatives to the teal tiles are drafts in `art/drafts/walls/`, pending the user's pick. Stacked on #91 (0.58.4).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.4 bench fixes, Hudici Dan, the backpack, 27 November 2026
 
 User requests: fix the brush (B69: the dust film covered the PC; `DustSim.film_share`), a vacuum on/off switch
 (button or V; holding still bursts), remove the hose clamp (`ToolRig.CLAMP_ENABLED = false`), the pick's
