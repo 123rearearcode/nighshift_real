@@ -868,3 +868,12 @@ model id claude-opus-5-5).
 appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto miner"). A New game puts his PC
 in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
 (Opus 5.5, model id claude-opus-5-5).
+
+### D178 — The name of the place on its wall (user, 27 November 2026)
+
+"I liked how there used to be the name of the place on the wall, I want that as a feature." Rooms show their
+name on an enamelled plate on the wall (`wall_sign` / `wall_sign_rect` on the room scene): THE COUNTER above
+the customer's head, THE WORKSHOP, and outside the shop's name on its front (NIGHTSHIFT · PC REPAIR). Where
+the plate says the room's name, the small title at the top is hidden. Also: the termopan drafts (D174) were
+approved ("aight go on with the PVC") and installed; the user asked for alternatives to the tiles (four
+drafts, pending). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

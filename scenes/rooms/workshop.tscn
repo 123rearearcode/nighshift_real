@@ -7,6 +7,7 @@
 script = ExtResource("1")
 art_name = "workshop"
 room_title = "THE WORKSHOP"
+wall_sign_rect = Rect2(660, 80, 300, 46)
 
 [node name="Background" type="TextureRect" parent="."]
 offset_right = 1280.0

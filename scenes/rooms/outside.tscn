@@ -7,6 +7,8 @@
 script = ExtResource("1")
 art_name = "outside"
 room_title = "OUTSIDE"
+wall_sign = "NIGHTSHIFT · PC REPAIR"
+wall_sign_rect = Rect2(900, 90, 360, 44)
 
 [node name="Background" type="TextureRect" parent="."]
 offset_right = 1280.0

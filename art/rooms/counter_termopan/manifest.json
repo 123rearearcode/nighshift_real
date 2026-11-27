@@ -1,0 +1,28 @@
+{
+  "revision": "termopan-1",
+  "decision": "D174",
+  "approved_by": "user",
+  "approved_on": "2026-11-27",
+  "approval_quote": "aight go on with the PVC",
+  "shown_for_review": [
+    "art/drafts/termopan/termopan_four_states.png",
+    "art/drafts/termopan/termopan_closeup.png"
+  ],
+  "creator": "Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL",
+  "source": "tools/art_batch_d/termopan.py",
+  "canvas": [
+    1672,
+    941
+  ],
+  "sha256": {
+    "floor-linoleum.png": "5035d76e15caaa37473a25da850d4ded25101b21435ff34b687eb575cbbf14c8",
+    "pvc-shutter-down.png": "d992c1d7bf57e5bfb8c7c6a84069cfd61777de010276c3a9282da38f91c4cf37",
+    "pvc-shutter-up.png": "2f20b1903d7bc35bf46e0c80160ac971a59f45ef57ec3476eb8977f83b11b698",
+    "radiator.png": "239df8ab899d5bd176e3bfb8c532e27e8fc41d513cccb3919893fa5f701765fe",
+    "termopan-front-door-closed.png": "5130c3a1498e8b964d12113f6c7b903f1177efb7c538d8ed21fa3998a7409f80",
+    "termopan-front-door-open.png": "bbdf75fc32218ab3f42c8677c28afb1f946cf797dfe18483dd5f1893a0ec9ece",
+    "termopan-front-frame.png": "241b56cb6b6fad2c6a683f28fade6d0962d8eacfb87656f19fd6a0c553ad34a1",
+    "termopan-workshop-closed.png": "9b4599cb65386d4636943fd6c7849cff6afc31509b1b05e3c735f049ba1e9935",
+    "termopan-workshop-open.png": "7c1422fc0ccec893b5544de7e546deeb9c4b24184c3b106f88751fdccf52dfda"
+  }
+}

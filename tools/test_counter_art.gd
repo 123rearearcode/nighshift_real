@@ -62,6 +62,13 @@ func run_checks() -> void:
         for file: Dictionary in approved["files"]:
             if FileAccess.get_sha256(Art.folder() + str(file["file"])) != str(file["sha256"]): exact = false
     check(exact, "every installed raster matches its human-approved revision-02 hash")
+    # 0.58.5 (D174, user: "aight go on with the PVC"): the approved termopan set is installed byte for byte.
+    var termopan: Variant = JSON.parse_string(FileAccess.get_file_as_string(Art.TERMOPAN_README.get_base_dir() + "/manifest.json"))
+    var same: bool = art.termopan_ready() and termopan is Dictionary and (termopan.get("sha256", {}) as Dictionary).size() == Art.TERMOPAN_FILES.size()
+    if same:
+        for file: String in termopan["sha256"]:
+            if FileAccess.get_sha256(Art.TERMOPAN_README.get_base_dir() + "/" + file) != str(termopan["sha256"][file]): same = false
+    check(same and str(termopan.get("approval_quote", "")) == "aight go on with the PVC", "the termopan doors, shutter, radiator and floor are the approved files, used by the counter")
     check(not counter.placeholders and counter.room_layer.morning and counter.counter_layer.morning, "intake uses the morning exterior with the real layered room")
     var customer: TextureRect = counter.get_node("CustomerPortrait")
     var pc: TextureRect = counter.get_node("CustomerPC")
@@ -122,6 +129,13 @@ func run_checks() -> void:
     root.push_input(up, true)
     await settle_storage(counter)
     check(not counter.storage_open and not counter.storage_drawer.visible and current_scene == counter and not counter.visiting(), "moving the mouse up slides the storage away, back at the same counter")
+    # 0.58.5 (D178, user: "I liked how there used to be the name of the place on the wall"): name plates.
+    var plate: Control = counter.get_node_or_null("WallSign")
+    check(plate != null and counter.sign_text() == "THE COUNTER" and not counter.title.visible and plate.position == Vector2(640, 86) and plate.z_index < counter.get_node("CustomerPortrait").z_index, "the counter's name is on its wall, behind the customer, instead of the small title")
+    await scene("res://scenes/rooms/workshop.tscn")
+    check(current_scene.get_node_or_null("WallSign") != null and current_scene.sign_text() == "THE WORKSHOP", "the workshop has its name on the wall")
+    await scene("res://scenes/rooms/outside.tscn")
+    check(current_scene.get_node_or_null("WallSign") != null and current_scene.sign_text() == "NIGHTSHIFT · PC REPAIR" and current_scene.title.visible, "outside, the shop's front carries the shop's name (the place title stays)")
     restore_save(gs)
     for path: String in [manifest, preferences]: _remove_save_files(path)
     finish("Counter art")
