@@ -1021,4 +1021,3 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: select the pick (4) on the repair bench and hold it still away from dust.
 - Expected / actual: only the pick / the pick plus a small dash above its bend.
 - Regression / evidence: the ring is drawn only while a stroke is in progress (`pick_progress() > 0`). `tools/test_bench_feedback.gd` checks that with the pick in hand and no stroke the progress is zero. CI result pending.
-

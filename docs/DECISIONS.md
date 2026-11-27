@@ -868,4 +868,3 @@ model id claude-opus-5-5).
 appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto miner"). A New game puts his PC
 in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
 (Opus 5.5, model id claude-opus-5-5).
-
