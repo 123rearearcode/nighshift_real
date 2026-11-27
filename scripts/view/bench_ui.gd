@@ -73,10 +73,12 @@ func _build_ui() -> void:
     bv.stock_button = _make_button("Replacement stock",Vector2(bv.PANEL_X+270,220),Vector2(250,32),bv._open_replacements)
     bv.vacuum_status = Label.new()
     bv.vacuum_status.position = Vector2(bv.PANEL_X,260)
-    bv.vacuum_status.size = Vector2(520,24)
+    bv.vacuum_status.size = Vector2(360,24)
     bv.vacuum_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
     bv.vacuum_status.add_theme_font_size_override("font_size",16)
     bv.add_child(bv.vacuum_status)
+    bv.vacuum_switch = _make_button("Vacuum: OFF",Vector2(bv.PANEL_X+370,254),Vector2(150,32),bv.toggle_vacuum)   # 0.58.4; also V
+    bv.vacuum_switch.name = "VacuumSwitch"
     bv.retract_button = _make_button("RETRACT",Layout.BENCH_RETRACT.position,Layout.BENCH_RETRACT.size,bv._retract_hose)
     bv.retract_button.add_theme_font_size_override("font_size",9)
     for state: String in ["normal","hover","pressed","hover_pressed"]:

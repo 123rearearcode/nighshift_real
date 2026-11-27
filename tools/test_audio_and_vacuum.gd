@@ -40,7 +40,7 @@ func run_checks() -> void:
         if event["id"] == "bin.full" and event["event"] == "cue": full_cues += 1
     check(full_cues==1,"bin filling requests one warning rather than a cue every frame")
     bench.empty_bin_button.pressed.emit()
-    check(bench.bin.fill==0.0 and bench.vacuum_status.text.contains("Vacuum ready"),"Empty bin button clears blockage without new ticket/reset")
+    check(bench.bin.fill==0.0 and bench.vacuum_status.text.contains("Vacuum off"),"Empty bin button clears blockage without new ticket/reset")
     bench.holding=true
     for frame in range(180):bench._physics_process(1.0/60.0)
     check(bench.dust.remaining_fraction()<before,"vacuum resumes extracting dirt after emptying")
@@ -48,6 +48,23 @@ func run_checks() -> void:
     bench.holding=false
     bench._physics_process(1.0/60.0)
     check(not has_loop(bench,"vacuum.motor"),"releasing use stops its loop")
+    # 0.58.4 (user: "i want the vacuum to have an on/off button"): switched on, it runs without holding.
+    var switch: Button = bench.get_node_or_null("VacuumSwitch")
+    check(switch != null and switch.text == "Vacuum: OFF" and not bench.vacuum_on, "the vacuum has an on/off switch, off to start")
+    for i in range(bench.dust.count):
+        if bench.dust.b_state[i] == 0 and not bench.dust.is_hidden(i):   # a stuck, reachable bundle
+            bench.scripted_pointer = bench.dust.b_center[i]
+            break
+    var before_switch: float = bench.dust.remaining_fraction()
+    if switch != null: switch.pressed.emit()
+    for frame in range(180): bench._physics_process(1.0/60.0)
+    check(bench.vacuum_on and switch.text == "Vacuum: ON" and has_loop(bench,"vacuum.motor") and bench.dust.remaining_fraction() < before_switch and bench.vacuum_status.text.contains("Vacuum on"), "switched on, the vacuum runs and sucks up dirt without holding the mouse")
+    var v := InputEventKey.new()
+    v.keycode = KEY_V
+    v.pressed = true
+    bench._input(v)
+    bench._physics_process(1.0/60.0)
+    check(not bench.vacuum_on and not has_loop(bench,"vacuum.motor"), "V switches it off again")
     # Visible UI buttons do not overlap each other after grouping tools/maintenance.
     var buttons: Array=[]
     for child: Node in bench.get_children():

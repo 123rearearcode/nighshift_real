@@ -79,6 +79,7 @@ var vac_ramp: float = 0.0
 # One entry per bundle (parallel arrays).
 var case_bounds := Rect2()
 var floor_zone: int = -1
+var zone_start := PackedFloat32Array()   # 0.58.4 (B69): each zone's dust when the PC came in, for the dust film
 var motion_changed: bool = false
 var b_launch_zone := PackedInt32Array()
 var b_zone: PackedInt32Array = PackedInt32Array()
@@ -203,6 +204,7 @@ func setup(zones: Array, origin: Vector2, seed_value: int) -> void:
             zone_weight[zi] += float(n)
         zone_bundles.append(list)
     count = b_zone.size()
+    zone_start = zone_weight.duplicate()
     if not case_bounds.has_area():
         for z: Dictionary in zones:
             var area: Rect2 = z["rect"]
@@ -217,6 +219,14 @@ func reset() -> void:
 
 func zone_count() -> int:
     return zone_bundles.size()
+
+
+# 0.58.4 (B69): how strong a zone's dust film is (0..1): the dust still in the zone against what the zone
+# started with. A zone that started clean (the case floor) never gets a film from dust knocked onto it; that
+# dust is drawn as the bundles it is, which can be vacuumed.
+func film_share(zone: int) -> float:
+    if zone < 0 or zone >= zone_start.size() or zone_start[zone] <= 0.00001: return 0.0
+    return clampf((zone_weight[zone] - zone_removed[zone]) / zone_start[zone], 0.0, 1.0)
 
 
 # Share (0..1) of a zone's dust that has been removed.

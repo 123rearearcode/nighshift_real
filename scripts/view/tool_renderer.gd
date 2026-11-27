@@ -11,7 +11,7 @@ static func draw_tools(canvas: CanvasItem, rig: RefCounted, visible: Array) -> v
         order.append(rig.selected)
     if Ids.VACUUM in order:
         draw_hose(canvas, rig)
-        draw_clamp(canvas, rig)
+        if rig.CLAMP_ENABLED: draw_clamp(canvas, rig)   # 0.58.4: the clamp was removed
     for id: String in order:
         var motion: RefCounted = rig.motions[id]
         var body: RefCounted = rig.bodies[id]

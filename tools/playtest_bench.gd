@@ -348,10 +348,7 @@ func state_table() -> void:
     state_row("grab the hose" + ("" if grabbed else " (MISSED)"), "CARRYING_HOSE")
     view.tools.release_hose()
     state_row("let go of the hose", "FREE")
-    var clamped: bool = view.tools.begin_clamp_drag(view.tools.clamp_rect().get_center())
-    state_row("take the clamp" + ("" if clamped else " (MISSED)"), "DRAGGING_CLAMP")
-    view.tools.end_clamp_drag()
-    state_row("park the clamp", "FREE")
+    # 0.58.4: the clamp was removed from the bench.
     var part: bool = view.access.begin(view.access.current_rect(Ids.COOLER).get_center())
     state_row("lift the cooler" + ("" if part else " (MISSED)"), "DRAGGING_PART")
     view.access.finish(view.access.drag_rect.get_center())
