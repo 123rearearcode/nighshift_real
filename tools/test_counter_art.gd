@@ -134,10 +134,46 @@ func run_checks() -> void:
     # 0.58.5 (D178, user: "I liked how there used to be the name of the place on the wall"): name plates.
     var plate: Control = counter.get_node_or_null("WallSign")
     check(plate != null and counter.sign_text() == "THE COUNTER" and not counter.title.visible and plate.position == Vector2(640, 86) and plate.z_index < counter.get_node("CustomerPortrait").z_index, "the counter's name is on its wall, behind the customer, instead of the small title")
+    # B74: leave through a real room transition with no strong test reference keeping the art alive.
+    # Otherwise ResourceLoader's ordinary cache would disguise the repeated-load bug in this test.
+    var shell_id: int = art.textures["shell"].get_instance_id()
+    var art_holder_id: int = art.get_instance_id()
+    var shell_ref: WeakRef = weakref(art.textures["shell"])
+    var pvc_id: int = art.termopan["frame"].get_instance_id()
+    var pvc_ref: WeakRef = weakref(art.termopan["frame"])
+    check(under.environment.textures["shell"].get_instance_id() == shell_id and under.environment.termopan["frame"].get_instance_id() == pvc_id, "the counter and its hidden drawer share the same approved texture objects")
+    art = null
     await scene("res://scenes/rooms/workshop.tscn")
     check(current_scene.get_node_or_null("WallSign") != null and current_scene.sign_text() == "THE WORKSHOP", "the workshop has its name on the wall")
+    check(shell_ref.get_ref() != null and pvc_ref.get_ref() != null, "both counter art sets remain resident after the counter and its drawer are freed")
     await scene("res://scenes/rooms/outside.tscn")
     check(current_scene.get_node_or_null("WallSign") != null and current_scene.sign_text() == "NIGHTSHIFT · PC REPAIR" and current_scene.title.visible, "outside, the shop's front carries the shop's name (the place title stays)")
+    await scene(Nav.COUNTER)
+    check(current_scene.counter_art.textures["shell"].get_instance_id() == shell_id and current_scene.counter_art.termopan["frame"].get_instance_id() == pvc_id, "returning to the counter reuses the texture objects instead of decoding new copies")
+    check(current_scene.counter_art.get_instance_id() != art_holder_id and current_scene.counter_art != current_scene.storage_drawer.environment, "views retain separate presentation holders while sharing only the immutable pictures")
+    check(not current_scene.visiting() and gs.money == money and gs.night_minutes == minutes, "a cached-art return does not replay intake or change cash/night time")
+    await _check_texture_fallback()
     restore_save(gs)
     for path: String in [manifest, preferences]: _remove_save_files(path)
     finish("Counter art")
+
+
+func _check_texture_fallback() -> void:
+    var path: String = "user://counter_art_cache_fixture.png"
+    if FileAccess.file_exists(path): DirAccess.remove_absolute(path)
+    check(Art._texture(path) == null, "a missing picture still uses the caller's fallback")
+    var image: Image = Image.create(4, 4, false, Image.FORMAT_RGBA8)
+    image.fill(Color("2c7067"))
+    check(image.save_png(path) == OK, "a disposable unimported artist picture can be written")
+    var first: Texture2D = Art._texture(path)
+    check(first != null and first.get_image().get_pixel(0, 0).is_equal_approx(Color("2c7067")), "missing results are not cached: the picture supplied later appears")
+    var same: Texture2D = Art._texture(path)
+    check(same == first, "an unchanged unimported picture is reused rather than decoded again")
+    # FileAccess exposes whole-second modification times. Cross that boundary for an actual rewrite.
+    await create_timer(1.1).timeout
+    image.fill(Color("b89650"))
+    check(image.save_png(path) == OK, "the disposable artist picture is revised")
+    var revised: Texture2D = Art._texture(path)
+    check(revised != null and revised != first and revised.get_image().get_pixel(0, 0).is_equal_approx(Color("b89650")), "a source timestamp change reloads an unimported picture")
+    DirAccess.remove_absolute(path)
+    check(Art._texture(path) == null, "removing an unimported picture restores its fallback instead of retaining stale pixels")

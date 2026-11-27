@@ -132,6 +132,72 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.10 - 2026-11-27 - Reuse the counter art between room visits (B74)
+- Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work.
+- Based on: PR #96 / 0.58.9, 2a19795345abacb417fed08fbf92d017d6d6e5c0, integrated into PR #97.
+  Original cache measurements used main 0.58.8 / d0710c0. Merge #96 first. The earlier unmerged #97
+  allocation of 0.58.9 / B73 / p06-15 collided with #96 and is corrected to 0.58.10 / B74 / p06-17.
+- Type: patch (bounded correction for the user-reported repeat loading pause; no artwork or gameplay change).
+
+### Execution status
+Codex actually ran Godot 4.7.2.stable.official.ed1daf0bf locally, headless, with isolated disposable
+XDG data/config/cache. Imported the project, reproduced the repeat loading path, ran the targeted
+counter-art regressions and measured the cache candidate. The original isolated cache patch passed 39 suites / 2,610 checks. The integrated #96 + #97 tree
+passed all 41 required suites / 2,648 checks under Godot 4.7.2. No graphical playtest or user-machine/GPU timing is claimed.
+
+### Added / Changed / Fixed / Removed
+- B74: retain only the bounded counter-art texture set between room visits. Counter and hidden-drawer
+  presentation holders share the immutable approved textures; new scenes still build their own UI/state.
+- Reuse a successful load until its source timestamp changes. Missing pictures remain uncached and the
+  existing imported/unimported loader and placeholder behavior remain. No PNG, atlas, dimensions or art
+  approvals change. Cache lives in memory, never in the save.
+- Extended the required Counter art suite with real room disposal/re-entry, object reuse without a strong
+  test-held reference, separate holders, unchanged intake/money/time and missing/new/revised/removed
+  unimported-picture checks. Added a disposable-save reproduction tool and exact targeted evidence.
+- In the same workspace, the median of four following counter returns fell from 298.670 ms to 19.038 ms
+  (about 94%). These are headless scene/setup observations, not the user's display latency or FPS.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/counter_art.gd` | M | Bounded cross-room successful-texture cache with source timestamp invalidation |
+| `tools/test_counter_art.gd` | M | Actual disposal/re-entry reuse and artist fallback/revision regressions |
+| `tools/measure_counter_loading.gd` | A | Targeted reproducible raw art/scene samples with disposable progress |
+| `docs/COUNTER_LOADING.md` | A | Cause, measurements, reproduction, memory/first-load limits |
+| `docs/BUGS.md` | M | B74 report, root cause and validation state |
+| `docs/roadmap.json` | M | p06-17; about.main 0.58.10 |
+| `docs/WORK_PLAN.md` | M | Bounded assignment and no hot-file ownership |
+| `DEVELOPMENT.md` | M | File map and cache contract |
+| `HANDOFF.md`, `README.md`, `project.godot` | M | Version and current behavior/handoff |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- Godot 4.7.2 editor import: exit 0; no import script errors.
+- Required Counter art suite: 40 checks, 0 failures, including the final holder-identity assertion.
+- Targeted before/after measurement: 15 checks, 0 failures per run; all raw samples and limits in
+  docs/COUNTER_LOADING.md. First art construction remains necessary (676.866 / 629.972 ms here).
+- Original isolated cache patch: 39 required Godot suites / 2,610 checks passed locally; its GitHub
+  Actions run 46071831524 also succeeded. Those results predate the #96 integration.
+- Integrated #96 + #97: all 41 required Godot suites passed locally, 2,648 checks / 0 failures,
+  sequential 123.4-second run. No SCRIPT ERROR, Parse Error or FAIL lines in the suite logs.
+- python3 -I tools/check_project.py: passed (0 problems); CI-scope tests: 9 passed; bug-register checker:
+  0 problems; bug-register tests: 12 passed; git diff --check: passed.
+
+### Decisions proposed (not approved)
+None. Retain the existing artwork, routes, input, clock, ownership and saves.
+
+### Known issues and open items
+- Keeping the art resident trades memory while away from the counter for fast return trips. It is one
+  bounded set, not new copies per visit. First entry still loads it once.
+- Imported art still follows Godot reimport. Source timestamps have one-second precision; restart the
+  running game if repeatedly overwriting an existing artist file inside that interval.
+- Human target-PC perceived loading and graphical acceptance remain unmeasured.
+
+### Next action
+Claude cross-reviews the cache boundary and the user integrates
+and tries counter/workshop/outside returns on their machine. No merge or new scheduled audit in this task.
+The per-part tests reservation stays 0.59.0 and the scheduled checker 0.60.0.
+
 ## 0.58.9 - 2026-11-27 - Customers talk, all four walls at the store, vacuum switch hidden while mounting
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.58.8 (d0710c0). New bug id B73 (next B74). 0.59.0 (per-part tests, Codex) and 0.60.0

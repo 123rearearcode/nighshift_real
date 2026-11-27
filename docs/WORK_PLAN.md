@@ -1,5 +1,16 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.10, 27 November 2026
+
+PR #97 is stacked on #96 (0.58.9); its earlier unmerged version/bug/task claims are corrected to
+0.58.10 / B74 / p06-17. Preserve #96 and merge it first. User-reported counter return delay: Codex owns only the bounded CounterArt texture cache, its regressions,
+targeted reproduction/evidence and release/roadmap records. No hot file is reserved or changed, and no
+scene/navigation/gameplay/save contract changes. This is an author’s targeted fix and validation, not the
+scheduled Code checker performance review. Claude cross-reviews the loading/cache boundary; user-controlled
+integration remains. 0.59.0 Codex and 0.60.0 checker reservations stay unchanged.
+Signed: Codex (GPT-6, model id not exposed by this session), ChatGPT Work.
+
+
 ## Current bounded assignment — 0.58.9, 27 November 2026
 
 User requests: customers' dialogue that unrolls (D181), all four counter walls bought at the store (D180), and

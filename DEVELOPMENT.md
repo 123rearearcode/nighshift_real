@@ -91,12 +91,14 @@ Update this table whenever files change. The checker fails if a file is missing 
 
 | File | Layer | Purpose |
 | --- | --- | --- |
-| `scripts/rooms/counter_art.gd` | view | Approved Batch A source loading, background/foreground layers, endpoint crops and decorative storage mapping |
+| `scripts/rooms/counter_art.gd` | view | Approved counter art and bounded cross-room texture reuse (B74); background/foreground layers, endpoint crops and decorative storage mapping |
 | `tools/test_item_art.gd` | tooling | 0.57.8: the one item picture lookup and the approved Batch C files (sizes, turns, lens spots, clue overlays, tool frames) |
 | `tools/test_save_safety.gd` | test | 0.57.11 (B59): wrong-run ticket book falls back to its backup; morning backups (last 3); the counter's restore from a damaged ticket book |
 | `tools/test_cable_box.gd` | test | 0.58.3 (D173): cable box rules, file, physics, rooms and store supplies |
 | `tools/test_backpack.gd` | test | 0.58.4: backpack sizes, the storage unit, the store's backpacks, the room button and view |
-| `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors and full 20×10 storage art contract |
+| `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors, full 20×10 storage contract and B74 reuse/fallback regressions |
+| `tools/measure_counter_loading.gd` | tooling | Disposable-save targeted art-construction/counter-return timing and texture-identity samples; no speed threshold |
+| `docs/COUNTER_LOADING.md` | documentation | B73 cause, bounded cache contract, targeted before/after measurements, limits and reproduction |
 | `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
 | `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
 | `tools/test_first_customer.gd` | tooling | Native first-day intake, cold Continue, duplicate/identity/payment safeguards and legacy saves |
@@ -1003,3 +1005,14 @@ Round accepts an optional stable case_key (run and ticket); only initial names/o
 GameState.reduce_flashing and set_reduce_flashing(enabled, persist=true) share the existing app settings file with sound_volume. Every setting write retains both values. Missing or non-boolean optional effects values default false; no campaign save/schema changes. Title and pause use CheckButton controls. Shared Pause and word prompts freeze effects. The monitor still owns one-time charging and same-ticket, same-strain reboot-only cure. Keep all existing Antivirus journeys; its new fixtures cover plain clues, stable variation/geometry, effects, settings round-trip and old optional-field compatibility. Popup control-signal checks are not claims of native OS-window mouse routing; the graphical pass checks that separately.
 
 Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
+## 0.58.10 counter-art lifetime (B74)
+
+CounterArt alone retains its bounded successful texture loads across room disposal. Cache values hold
+immutable Texture2D resources and source modification timestamps, never nodes, scene/UI state or game
+records. A missing source is not a negative cache entry. Changed source timestamps route through the
+existing RoomArt loader; imported resources follow Godot reimport. This deliberately keeps the counter
+art resident while visiting another room, without accumulating copies per visit. Approved source bytes,
+art placement, first-entry loading and gameplay/navigation/save behavior are otherwise unchanged. The
+Counter art suite proves disposal/re-entry reuse with weak references (no strong test holder masking
+the original bug); the optional targeted measurement has no host-speed assertion.

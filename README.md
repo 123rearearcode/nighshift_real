@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.9)
+# Nightshift - Godot Foundation Trial (v0.58.10)
+
+0.58.10 keeps the counter’s approved art cached between room visits (B74). This is PR #97, stacked after PR #96 (0.58.9); merge #96 first. The first visit still loads the art once. See [counter loading evidence](docs/COUNTER_LOADING.md).
 
 0.58.9: customers talk when they come in (click or Space unrolls each line, then the ticket slip); the counter starts with the two-tone oil paint, and the other walls (cream tiles, pine and 70s wallpaper, blue plaster, the old teal tiles) are sold at the store; the vacuum switch no longer shows while you mount the cooler.
 
