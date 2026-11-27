@@ -162,7 +162,8 @@ not how it looks. No human in-game visual check yet.
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
 - The glass shape was checked numerically with a Python copy of `lens_glass` at the spot, half off the panel,
   in the corner and off the panel (UVs stay in 0..1; empty off the panel).
-- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+- GitHub Actions on Godot 4.7.2 (headless): run 46021841002 on `1ae3133` passed, every suite including the
+  new B61 checks; B61 marked Verified.
 
 ### Decisions proposed (not approved)
 - None.
