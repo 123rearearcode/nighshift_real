@@ -22,6 +22,9 @@ const MIN_DEPLOYED: float = 140.0     # hose left on the desk after reeling in
 const PAYOUT_SPEED: float = 900.0    # hose feeds out only when the nozzle/hose is pulled
 const SPOOL_SPEED: float = 520.0     # px/s; how fast the spool reels the vacuum in
 const HOSE_PULL_BACK: float = 0.35   # share of the stretch past the hose's length that is pulled back each step
+# 0.58.4 (user, 27 November 2026: "Remove the clamp, it is not useful"): the hose clamp is gone from the
+# bench. It cannot be hit, picked up or clipped to; the hose code that could pin a point stays for the hand.
+const CLAMP_ENABLED: bool = false
 const CLAMP_RECT: Rect2 = Layout.BENCH_CLAMP
 const CLAMP_POINT: Vector2 = Layout.BENCH_CLAMP_POINT
 const HOSE_GRAB_RADIUS: float = 12.0  # px; how close to the hose a right click must be to grab it
@@ -376,6 +379,7 @@ func park() -> void:
 
 # Is `point` on the (possibly turned) clamp?
 func clamp_hit(point: Vector2) -> bool:
+    if not CLAMP_ENABLED: return false
     var local: Vector2 = (point - clamp_position).rotated(-clamp_angle)
     var half: Vector2 = CLAMP_RECT.size * 0.5
     return absf(local.x) <= half.x and absf(local.y) <= half.y

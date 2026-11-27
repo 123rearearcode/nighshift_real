@@ -14,6 +14,8 @@ const WORKBENCH: Array = ["repair", "hardware", "monitor"]
 const CableBox = preload("res://scripts/rules/cable_box.gd")          # 0.58.3 (D173): the movable cable box
 const CableStore = preload("res://scripts/state/cable_store.gd")
 const CableBoxView = preload("res://scripts/view/cable_box_view.gd")
+const BackpackView = preload("res://scripts/view/backpack_view.gd")   # 0.58.4: the personal inventory
+const BACKPACK_BUTTON := Rect2(1150, 650, 110, 34)
 # Where the box stands in each room that can hold it (screen px).
 const CABLE_SPOTS: Dictionary = {"counter": Rect2(236, 498, 140, 62), "workshop": Rect2(560, 540, 150, 66), "outside": Rect2(520, 470, 140, 62)}
 
@@ -35,6 +37,8 @@ var cable_place: String = ""       # this room's place name, if the cable box ca
 var cable_spot: Button             # the box itself, standing here
 var cable_drop: Button             # "Put the cable box down here" while carrying it
 var cable_view: Control            # the open box
+var backpack_button: Button        # 0.58.4: opens your backpack, in every room
+var backpack_view: Control
 
 
 func _ready() -> void:
@@ -55,6 +59,7 @@ func _ready() -> void:
     Navigation.pause(self)
     _room_ready()
     _setup_cable_box()
+    _setup_backpack()
     refresh()
     queue_redraw()
 
@@ -62,6 +67,33 @@ func _ready() -> void:
 # For the room scripts.
 func _room_ready() -> void:
     pass
+
+
+# ---- your backpack (0.58.4: "the player can have a personal inventory (he can buy backpacks to upgrade)") ----
+
+func _setup_backpack() -> void:
+    backpack_button = Button.new()
+    backpack_button.name = "BackpackButton"
+    backpack_button.text = "Backpack (B)"
+    backpack_button.position = BACKPACK_BUTTON.position
+    backpack_button.size = BACKPACK_BUTTON.size
+    backpack_button.z_index = 5
+    backpack_button.pressed.connect(open_backpack)
+    add_child(backpack_button)
+
+
+func open_backpack() -> void:
+    if backpack_view != null or cable_view != null: return
+    var view: Control = BackpackView.new()
+    add_child(view)
+    view.open()
+    view.closed.connect(_close_backpack)
+    backpack_view = view
+
+
+func _close_backpack() -> void:
+    if backpack_view != null: backpack_view.queue_free()
+    backpack_view = null
 
 
 # ---- the cable box (0.58.3, D173: "can be moved from room to room") ----
@@ -219,6 +251,10 @@ func _navigate(path: String) -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+    if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_B and backpack_view == null:
+        open_backpack()
+        get_viewport().set_input_as_handled()
+        return
     if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
         outlines = not outlines
         for h: Variant in hotspots.values():

@@ -64,7 +64,9 @@ func run_checks() -> void:
     var money: int = gs.money
     var seq: int = gs.ticket_sequence
     var infection: String = str(night.ticket_job(gs, str(ids[1])).get("infection", ""))
-    check(ids.size() == 2 and pcs.size() == 2 and pcs[0] != pcs[1], "intake introduces the two existing unique jobs and PCs")
+    check(ids.size() == 3 and pcs.size() == 3 and pcs[0] != pcs[1] and pcs[1] != pcs[2] and pcs[0] != pcs[2] and gs.opening_customers == ids.slice(0, 2), "intake introduces the two existing unique jobs and PCs (0.58.4: plus Hudici Dan's, waiting in storage)")
+    var dan: Dictionary = night.ticket_job(gs, str(ids[2]))
+    check(str(dan.get("customer", "")) == "Hudici Dan" and str(dan.get("infection", "")) == "miner" and not str(ids[2]) in gs.opening_customers, "0.58.4: Hudici Dan's PC is in storage with a crypto miner; he does not come to the counter")
     check(gs.night_number == 1 and gs.night_minutes == 0 and night.last_report.is_empty() and not night.visits_pending, "opening is separate from paid collection and end-night reports")
     for f in range(5): await process_frame
     check(gs.night_minutes == 0 and counter.hotspot("BackDoor").disabled and counter.hotspot("Shutter").disabled, "untimed intake holds night work and closing")

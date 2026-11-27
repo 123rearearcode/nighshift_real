@@ -106,6 +106,12 @@ var paste_texture: ImageTexture
 var paste_dirty: bool = true
 
 var holding: bool = false              # mouse held, and the press started in the work area
+
+# 0.58.4: flip the vacuum's switch (the panel button or V).
+func toggle_vacuum() -> void:
+    vacuum_on = not vacuum_on
+    _sound("ui.click")
+    if is_instance_valid(vacuum_switch): vacuum_switch.text = "Vacuum: ON" if vacuum_on else "Vacuum: OFF"
 var last_mouse: Vector2 = Vector2.ZERO
 var tool_vel: Vector2 = Vector2.ZERO
 var dust_dirty: bool = false
@@ -143,6 +149,8 @@ var paste_controls: Array = []
 var tool_buttons: Array = []
 var empty_bin_button: Button
 var vacuum_status: Label
+var vacuum_switch: Button              # 0.58.4: the vacuum's on/off switch (user: "i want the vacuum to have an on/off button")
+var vacuum_on: bool = false            # switched on, the vacuum sucks while it is in your hand; no button to hold
 var _audio_activity: Dictionary = {}
 var _impact_counts: Dictionary = {}
 var stock_button: Button
@@ -282,7 +290,7 @@ func _select_stage(new_stage: int) -> void:
     if stage == STAGE_CLEAN:
         status_label.position = Vector2(PANEL_X, 556)
         status_label.size = Vector2(520, 85)
-        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. Drag clamp: move (outside PC). Click clamp: unclip. 1 brush / 2 vacuum / 3 parts / 4 pick. Wheel or Q/E: rotate."
+        title_label.text = "NIGHTSHIFT - clean the PC\nLeft hold: use. Right-drag: throw. Shift + right-drag: hose. 1 brush / 2 vacuum / 3 parts / 4 pick. Wheel or Q/E: rotate."
         if _done_count() == zones.size():
             _set_status("Cleanliness target met. %d real dust groups remain; finish vacuuming or continue to paste. New dirty PC starts another practice job." % dust.visible_count(), 1)
         else:
@@ -554,6 +562,10 @@ func _draw_dust() -> void:
 func _draw_clean_panel() -> void:
     CleaningRenderer.draw_panel(self, dust, zones, zone_done, _done_count(), PANEL_X, cooler_rpm, case_rpm)
 
+# How far the current pick stroke is (0 = no stroke yet).
+func pick_progress() -> float:
+    return clampf(pick.elapsed / DustPick.STROKE_SECONDS, 0.0, 1.0)
+
 func _draw_clean_cursor() -> void:
     if replacement_panel.visible: return
     if active_tool == 2 and _work_rect().has_point(get_global_mouse_position()):
@@ -562,7 +574,9 @@ func _draw_clean_cursor() -> void:
     if active_tool == 3 and tools.equipped:
         var point: Vector2 = tools.contact()
         var id: String = _pick_target(point)
-        draw_arc(point,12,-PI/2,-PI/2+TAU*maxf(0.01,pick.elapsed/DustPick.STROKE_SECONDS),24,Color("ffca7a"),2)
+        # B70 (0.58.4): the ring only shows a stroke in progress. It used to draw at least 1% of a circle,
+        # a stray dash just above the pick's bend whenever the pick was in hand.
+        if pick_progress() > 0.0: draw_arc(point,12,-PI/2,-PI/2+TAU*pick_progress(),24,Color("ffca7a"),2)
         if id != "":
             _text(Vector2(clampf(point.x-90,42,330),maxf(140,point.y-35)),"%s: %d trapped / 12%% risk" % [id,dust.trapped_count(id)],13,Color("ffca7a"))
 

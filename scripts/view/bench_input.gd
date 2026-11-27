@@ -206,5 +206,7 @@ func _input(event: InputEvent) -> void:
                     bv._select_tool(2)
                 elif key.keycode == KEY_4:
                     bv._select_tool(3)
+                elif key.keycode == KEY_V:
+                    bv.toggle_vacuum()   # 0.58.4
             elif key.keycode == KEY_3:
                 bv._select_dispense()

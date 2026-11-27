@@ -1,6 +1,17 @@
 # Handoff — current state first
 
-## Current — 0.58.3 the cable box, 27 November 2026
+## Current — 0.58.4 bench fixes, Hudici Dan, the backpack, 27 November 2026
+
+User requests: fix the brush (B69: the dust film covered the PC; `DustSim.film_share`), a vacuum on/off switch
+(button or V; holding still bursts), remove the hose clamp (`ToolRig.CLAMP_ENABLED = false`), the pick's
+stray mark (B70: a 1% progress ring), Hudici Dan's PC in storage with a miner for playtesting
+(`NightSession.add_waiting_pc`, New game only), and a personal inventory: the backpack (a storage unit that
+goes with you; Backpack button / B; pockets 4x2, backpacks 6x3 / 8x4 at the store; "Just carry, no gating").
+Hot files touched narrowly (WORK_PLAN). Placeholder drawings for the backpack.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.3 the cable box, 27 November 2026
 
 The user merged Codex's #89 (0.58.0) and asked Claude to build the cable box (D173; answers: one box,
 automation later tied to the van's trunk/outside, cables can break). Built: `scripts/rules/cable_box.gd`

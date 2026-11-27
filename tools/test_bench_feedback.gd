@@ -1,4 +1,4 @@
-# Visible trapped tails, real clamp input, short hose reach and mount-phase put-down regression.
+# Visible trapped tails, no clamp (removed 0.58.4), short hose reach and mount-phase put-down regression.
 extends "res://tools/test_support.gd"
 const Dust = preload("res://scripts/bench/dust_sim.gd")
 const Zones = preload("res://scripts/data/dust_zones.gd")
@@ -22,33 +22,19 @@ func run_checks() -> void:
     gs.save_path = "user://bench_feedback_test_only.json"
     test_tails()
     var bench: Node = new_bench(gs)
-    var blocked_by_ui: bool = false
-    for child: Node in bench.get_children():
-        if child is Button and child.visible and child.get_global_rect().intersects(bench.tools.clamp_rect()): blocked_by_ui = true
-    check(not blocked_by_ui,"clamp has no overlapping button swallowing mouse input")
+    # 0.58.4: the hose clamp was removed (user: "Remove the clamp, it is not useful").
     var start: Vector2 = bench.tools.clamp_position
     click(bench,MOUSE_BUTTON_LEFT,true,start)
     bench.scripted_pointer = Vector2(450,625)
     for frame in range(20): bench._physics_process(1.0/60.0)
     click(bench,MOUSE_BUTTON_LEFT,false,bench.scripted_pointer)
-    check(bench.tools.clamp_position.distance_to(start) > 100.0 and not bench.tools.clamp_dragging,"ordinary left drag moves and releases clamp")
-    var moved: Vector2 = bench.tools.clamp_position
-    click(bench,MOUSE_BUTTON_LEFT,true,moved)
-    click(bench,MOUSE_BUTTON_LEFT,false,bench.dust.case_bounds.get_center())
-    check(bench.tools.clamp_position == moved,"dragging clamp into PC leaves its last valid position")
-    click(bench,MOUSE_BUTTON_RIGHT,true,moved)
-    click(bench,MOUSE_BUTTON_RIGHT,false,Vector2(500,625))
-    check(bench.tools.clamp_position.distance_to(Vector2(500,625)) < 1.0,"right drag also moves fixture without an intervening physics frame")
+    check(not bench.tools.clamp_dragging and bench.clamp_button == 0 and bench.tools.clamp_position == start,"there is no clamp to drag where it used to be")
     bench.tools.hose_grab = 8
     bench.tools.release_hose(bench.tools.clamp_position)
-    click(bench,MOUSE_BUTTON_LEFT,true,bench.tools.clamp_position)
-    click(bench,MOUSE_BUTTON_LEFT,false,bench.tools.clamp_position)
-    check(bench.tools.hose_clamp == -1,"stationary left click still unclips parked hose")
-    var before_switch: Vector2 = bench.tools.clamp_position
-    click(bench,MOUSE_BUTTON_LEFT,true,before_switch)
-    bench._select_tool(0)
-    click(bench,MOUSE_BUTTON_LEFT,false,bench.dust.case_bounds.get_center())
-    check(bench.tools.clamp_position == before_switch and not bench.tools.clamp_dragging and bench.clamp_button == 0,"switching tools cancels clamp capture without a later phantom move")
+    check(bench.tools.hose_clamp == -1,"the hose cannot be clipped to a clamp")
+    # B70 (0.58.4): picking up the pick showed a stray dash above its bend (a 1% progress ring).
+    bench._select_tool(3)
+    check(bench.active_tool == 3 and bench.tools.equipped and is_zero_approx(bench.pick_progress()),"with the pick in hand and no stroke yet, no progress ring is drawn")
     bench.free()
     for profile: String in ["tower","compact"]:
         bench = new_bench(gs)

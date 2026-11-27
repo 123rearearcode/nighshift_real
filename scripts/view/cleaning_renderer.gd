@@ -147,8 +147,8 @@ static func draw_dust_films(canvas: CanvasItem, dust: DustSim) -> void:
     var film: Texture2D = ItemArt.tiled(ItemArt.bench("dust/dust_film_heavy"))
     if film == null: return
     for z in range(mini(dust.zone_count(), dust.zone_center.size())):
-        if dust.hidden_zones.has(z) or dust.zone_weight[z] <= 0.00001: continue
-        var left: float = 1.0 - dust.removed_fraction(z)
+        if dust.hidden_zones.has(z): continue
+        var left: float = dust.film_share(z)   # B69: not "share left", which made a clean floor fully dusty
         if left <= 0.02: continue
         var half: Vector2 = dust.zone_half[z]
         canvas.draw_set_transform(dust.zone_center[z], dust.zone_angle[z])

@@ -91,6 +91,7 @@ func run_checks() -> void:
     current_scene.free()
     test_transport()
     test_clamp()
+    test_film()
     for suffix in ["", ".bak", ".tmp"]: DirAccess.remove_absolute(gs.save_path+suffix)
     gs.save_path = original_path
     gs.new_game(false)
@@ -160,19 +161,32 @@ func test_transport() -> void:
     var fresh_mass: float = mass(clean)
     check(not Snapshot.restore(clean,invalid) and is_equal_approx(mass(clean),fresh_mass), "bad snapshot rejects atomically without losing dirt")
 
+# B69 (0.58.4): brushing dust onto the clean case floor painted the dust film over the whole case.
+func test_film() -> void:
+    var dust := Dust.new()
+    dust.setup(Zones.zones(), Vector2(40,105), 77)
+    var floor: int = dust.floor_zone
+    var b: int = -1
+    for i in range(dust.count):
+        if dust.b_state[i] == Dust.STUCK and dust.b_zone[i] != floor:
+            b = i
+            break
+    check(floor >= 0 and b >= 0 and is_zero_approx(dust.film_share(floor)), "B69: the case floor starts clean, with no dust film")
+    if floor < 0 or b < 0: return
+    var source: int = dust.b_zone[b]
+    var source_before: float = dust.film_share(source)
+    dust.b_center[b] = dust.case_bounds.get_center()
+    dust._toss(b, Vector2(300, 0))
+    check(dust.b_zone[b] == floor and 1.0 - dust.removed_fraction(floor) >= 0.99, "a brushed bundle lands on the case floor (which the old film rule read as 100% dusty)")
+    check(is_zero_approx(dust.film_share(floor)) and dust.film_share(source) < source_before, "B69: dust knocked onto the floor paints no film there; the film fades where the dust came from")
+
+
 func test_clamp() -> void:
+    # 0.58.4 (user: "Remove the clamp, it is not useful"): there is no hose clamp on the bench any more.
     var rig := Rig.new()
-    rig.clamp_pc = Rect2(120,105,450,400)
-    check(rig.begin_clamp_drag(rig.clamp_position), "right-drag can pick up clamp")
-    check(rig.move_clamp(Vector2(450,615)), "clamp can move on desk outside PC")
-    var parked: Vector2 = rig.clamp_position
-    check(not rig.move_clamp(Vector2(400,300)) and rig.clamp_position == parked, "clamp rejects placement inside PC")
-    check(not rig.move_clamp(Vector2(120,300)), "whole clamp footprint cannot overlap case edge")
-    check(not rig.move_clamp(Vector2(610,570)), "clamp cannot overlap dust bin")
+    check(not rig.CLAMP_ENABLED and not rig.clamp_hit(rig.clamp_position) and not rig.begin_clamp_drag(rig.clamp_position) and not rig.clamp_dragging, "the hose clamp is gone: nothing to click or pick up")
     rig.hose_grab = 8
     rig.release_hose(rig.clamp_position)
-    for frame in range(30): rig.step(1.0/60.0,rig.clamp_position,false)
-    check(rig.hose_clamp == 8 and rig.hose.pos[8].distance_to(rig.clamp_position) < 0.1, "hose parks at moved clamp rather than old coordinate")
-    rig.end_clamp_drag()
+    check(rig.hose_clamp == -1 and rig.hose_grab == -1, "dropping the hose where the clamp was leaves it free")
     rig.select("brush",Vector2(300,300))
-    check(not rig.clamp_dragging and rig.hose_clamp == 8, "tool can be selected after parking on moved clamp")
+    check(rig.selected == "brush", "tools are picked up as before")

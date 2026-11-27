@@ -132,6 +132,68 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.4 - 2026-11-27 - Repair bench fixes, a vacuum switch, no clamp, Hudici Dan's PC, and your backpack
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.58.3 (`732a0e4`; #87, #88 and #90 merged at the user's request). No other PR open. B69 and
+  B70 used here (next B71). 0.59.0 (per-part tests, Codex) and 0.60.0 (checker) stay reserved.
+- Type: patch (fixes) with two small features, kept on the 0.58 line because 0.59.0/0.60.0 are reserved.
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2, including the new Backpack
+suite; results are under Checks performed. Nobody has yet checked the bench, Dan's PC or the backpack in game.
+
+### Added / Changed / Fixed / Removed
+- **B69 fixed (user-reported):** using the brush no longer covers the whole PC in a speckled dust film that
+  cannot be moved or vacuumed. The film now follows how much dust each area started with; dust flicked onto
+  the clean case floor is just the bundles you can see and vacuum. (Introduced in 0.57.8.)
+- **Vacuum on/off switch (D175):** a "Vacuum: OFF / ON" button on the bench panel (or V). Switched on, the
+  vacuum sucks while it is in your hand, no mouse button to hold; holding the mouse still gives a quick burst.
+- **The hose clamp is removed (D175):** not drawn, not clickable, the hose can no longer be clipped. The hose
+  itself is unchanged. (Its pixel art stays in `art/tools/`, unused.)
+- **B70 fixed (user-reported):** the stray dash just above the pick's bend when the pick is in hand was a 1%
+  progress ring drawn with no stroke; it now appears only during a stroke. The pick art was not changed.
+- **Hudici Dan (D177):** a New game puts his PC in storage as a third ticket with the 0.58.0 crypto miner, for
+  playtesting the anti-virus. He does not come to the counter.
+- **Your backpack (D176):** a personal inventory you can open in any room (Backpack button, bottom right, or B).
+  Pack tools and parts from the stock room or from under the counter, rearrange them (click to pick up, click
+  to put down, R to turn), unpack them to the stock room or under the counter. You start with pockets (4 x 2);
+  the store now sells a small backpack (6 x 3, $45) and a hiking backpack (8 x 4, $120). Carrying something
+  does not change where it can be used ("Just carry, no gating"). Placeholder drawing.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/bench/dust_sim.gd`, `scripts/view/cleaning_renderer.gd` | M | B69: `zone_start`, `film_share`; the film follows it |
+| `scripts/view/bench_view.gd`, `scripts/view/bench_ui.gd`, `scripts/view/bench_cleaning.gd`, `scripts/view/bench_input.gd` | M | Vacuum switch (button, V); B70 pick ring; help text |
+| `scripts/bench/tool_rig.gd`, `scripts/view/tool_renderer.gd` | M | Clamp disabled (`CLAMP_ENABLED`) and not drawn |
+| `scripts/data/customers.gd`, `scripts/night/night_session.gd`, `scripts/view/start_view.gd` | M | Hudici Dan; `add_waiting_pc`; New game adds his PC |
+| `scripts/rules/backpack.gd`, `scripts/view/backpack_view.gd` | A | Backpack sizes; the backpack view |
+| `scripts/storage/storage_model.gd`, `scripts/storage/storage_view.gd`, `scripts/rooms/under_counter_view.gd`, `scripts/rooms/room_view.gd` | M | The backpack unit; labels; the Backpack button in rooms |
+| `scripts/data/upgrades.gd`, `scripts/state/game_state.gd`, `scripts/night/shop_activity_view.gd` | M | Two backpacks at the store (prices only in GameState); store layout |
+| `tools/test_backpack.gd`, `.github/workflows/tests.yml` | A/M | New suite "Backpack" |
+| `tools/test_dust_flow.gd`, `tools/test_bench_feedback.gd`, `tools/test_regressions.gd`, `tools/test_audio_and_vacuum.gd`, `tools/playtest_bench.gd`, `tools/test_first_customer.gd`, `tools/test_night_workshop.gd`, `tools/test_hardware_ticket_pc.gd` | M | B69/B70 checks, switch checks, the clamp checks now check it is gone, three tickets after New game, four upgrades |
+| `docs/BUGS.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/MENU_NAVIGATION.md` | M | B69, B70; D175–D177; hot-file claim; navigation |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.58.4, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
+- The pick sprite's 24 frames were checked for isolated pixels (none), which pointed to the drawing code.
+- GitHub Actions on Godot 4.7.2 (headless): run 46052359723 (bench fixes) passed every suite; run 46053097049
+  (with Dan and the backpack) failed one Night workshop check that pinned the store at two upgrades (an
+  expected value, updated; not a defect); the final run 46053534084 on `7d8c8d4` passed every suite (Backpack 19
+  checks). B69 and B70 marked Verified.
+
+### Decisions proposed (not approved)
+- Backpack sizes and prices, Dan's details (complaint, payout, PC), and holding the mouse still giving a burst
+  of suction alongside the switch. All easy to change.
+
+### Known issues and open items
+- The storage layout file is shared by all saves (as before), so the backpack's contents are too.
+- Backpack and cable box art are placeholders; termopan drafts (D174) still await review.
+
+### Next action
+- The user merges the PR and playtests the bench, Dan's miner and the backpack.
+
 ## 0.58.3 - 2026-11-27 - The cable box: move it between rooms, untangle its cables, tie them, mind they can snap
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #88's branch (0.58.2, B63 fixed) on #87 (0.58.1) on main 0.58.0 (`79de01f`, Codex's #89 merged

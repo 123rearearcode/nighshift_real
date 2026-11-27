@@ -53,6 +53,6 @@ func run_checks() -> void:
     await process_frame
 
     # Shop data.
-    check(Upgrades.LIST.size() == 2 and Upgrades.LIST.all(func(u: Dictionary) -> bool: return gs.UPGRADE_PRICES.has(u["id"])), "every shop upgrade has a price")
+    check(Upgrades.LIST.size() == 4 and Upgrades.LIST.all(func(u: Dictionary) -> bool: return gs.UPGRADE_PRICES.has(u["id"])), "every shop upgrade has a price")
     restore_save(gs)
     finish("Hardware ticket PC")

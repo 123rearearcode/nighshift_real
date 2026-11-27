@@ -274,6 +274,44 @@ func accept_opening_customer(gs: Node, id: String) -> bool:
         return false
     return true
 
+# 0.58.4 (user, 27 November 2026, for playtesting): a customer's PC that is already in the shop's storage
+# when the game starts, with `strain` malware installed. The customer never comes to the counter (not in
+# the opening queue). Built like the second demo PC in start(): the same job shape, its own ticket id and
+# physical PC. Returns true if it is there (already or now).
+func add_waiting_pc(gs: Node, cid: String, strain: String) -> bool:
+    if not ensure(gs): return false
+    for entry: Dictionary in tickets:
+        if str(entry.get("customer_id", "")) == cid: return true
+    var who: Dictionary = Customers.customer(cid)
+    if who.is_empty() or not strain in Malware.IDS: return false
+    capture(gs)
+    var pc: Dictionary = gs.job.duplicate(true)
+    var id: String = "T%03d" % (gs.ticket_sequence + 1)
+    pc["id"] = id
+    pc["customer_id"] = cid
+    pc["customer"] = who["name"]
+    pc["complaint"] = who["complaint"]
+    pc["payout"] = who["payout"]
+    pc["parts"] = PcBuild.sanitize(who.get("pc", {}))
+    pc["pc_specs"] = PcBuild.specs(pc["parts"])
+    pc["layout"] = "tower"
+    pc["broken_parts"] = []
+    pc["findings"] = []
+    Malware.infect(pc, strain)
+    _tag(pc, id, run_id + ":pc:" + id)
+    tickets.append(pc)
+    gs.ticket_sequence += 1
+    gs.save_game()
+    if not _main_saved(gs) or not _write(gs):
+        tickets.pop_back()
+        gs.ticket_sequence -= 1
+        gs.save_game()
+        status = "The waiting PC could not be saved."
+        return false
+    Backups.take(gs.save_path, run_id, int(gs.night_number))   # this morning's backup includes it
+    return true
+
+
 # ----- B59 (0.57.11): recovery from a damaged ticket book -----
 
 # True when the protected state leaves no way on: the ticket manifest could not be trusted (switching and

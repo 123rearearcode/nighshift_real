@@ -1131,21 +1131,11 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     check(rig.hose_hit(Vector2(319,200)), "hose can be grabbed between its simulation nodes")
     check(rig.grab_hose(Vector2(319,200)), "continuous hose pick starts a carry")
     rig.release_hose(ToolRig.CLAMP_POINT)
-    check(rig.hose_clamp > 0 and rig.hose_grab == -1, "dropping carried hose into desk clamp parks it")
-    var clamp_index: int = rig.hose_clamp
+    # 0.58.4: the desk clamp was removed (user: "Remove the clamp, it is not useful").
+    check(rig.hose_clamp == -1 and rig.hose_grab == -1, "dropping carried hose where the clamp was leaves it free (no clamp)")
     rig.select("brush", Vector2(300,250))
     for frame in range(120): rig.step(1.0/60.0, Vector2(380,260), false)
-    check(rig.hose_clamp == clamp_index and rig.hose.pos[clamp_index].distance_to(ToolRig.CLAMP_POINT) < 0.1, "clamp stays pinned while another tool is used")
-    check(rig.contact().distance_to(Vector2(380,260)) < 1.0, "brush follows cursor independently of clamped hose")
-    rig.unclamp_hose()
-    check(rig.hose_clamp == -1, "player can release the desk clamp")
-    rig.hose_grab = 1
-    rig.release_hose(ToolRig.CLAMP_POINT)
-    # 0.21.0 (D80): instead of refusing (which read as "the hose does not attach"), the nearest
-    # section that CAN stay stretched here is clipped; the short section itself is never stretched.
-    check(rig.hose_clamp > 1 and rig.hose.segment * float(rig.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(rig.clamp_position),
-        "a too-short bin-side drop clips the nearest reachable section instead")
-    rig.unclamp_hose()
+    check(rig.contact().distance_to(Vector2(380,260)) < 1.0, "brush follows the cursor with the hose lying free")
     rig.hose_grab = 8
     rig.release_hose(Vector2(200,200))
     check(rig.hose_clamp == -1 and rig.hose_grab == -1, "ordinary drops release hose without auto-clamping")
@@ -1171,7 +1161,7 @@ func test_hose_housing_and_clamp(gs: Node) -> void:
     release.button_index = MOUSE_BUTTON_RIGHT
     release.position = ToolRig.CLAMP_POINT
     bench._input(release)
-    check(bench.tools.hose_clamp == 8, "bench mouse release connects hose carry to visible clamp")
+    check(bench.tools.hose_clamp == -1, "0.58.4: releasing the hose on the old clamp spot does not clip it (no clamp)")
     press.shift_pressed = false
     press.position = ToolRig.CLAMP_POINT
     press.button_index = MOUSE_BUTTON_LEFT
@@ -1431,20 +1421,10 @@ func test_promoted_contracts(gs: Node) -> void:
 # 0.21.0: rotatable clamp, hose always clips to a reachable section, 95% wipe threshold, GPU power.
 func test_0_21(gs: Node) -> void:
     var rig := ToolRig.new()
-    check(rig.begin_clamp_drag(rig.clamp_position), "fixture grabs the clamp")
+    # 0.58.4: the rotatable clamp was removed; nothing grabs or turns it.
+    check(not rig.begin_clamp_drag(rig.clamp_position) and not rig.clamp_dragging, "there is no clamp to grab")
     rig.rotate_held(1)
-    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "wheel/Q/E turns the carried clamp, not a tool")
-    var tip: Vector2 = rig.clamp_position + Vector2(rig.CLAMP_RECT.size.x * 0.5 - 2.0, 0).rotated(rig.clamp_angle)
-    check(rig.clamp_hit(tip), "the turned clamp is hit where it is drawn")
-    rig.end_clamp_drag()
-    check(not rig.clamp_dragging, "clamp parks turned")
-    rig.rotate_held(1)
-    check(absf(rig.clamp_angle - PI / 12.0) < 0.001, "a parked clamp does not turn")
-    var near_bin := ToolRig.new()
-    near_bin.hose_grab = 2   # a section too close to the bin to stay stretched at the clamp
-    near_bin.release_hose(near_bin.clamp_position)
-    check(near_bin.hose_clamp > 2 and near_bin.hose.segment * float(near_bin.hose_clamp) * 0.98 >= Bin.hose_anchor().distance_to(near_bin.clamp_position),
-        "dropping a too-short section on the clamp clips the nearest section that reaches (got %d)" % near_bin.hose_clamp)
+    check(absf(rig.clamp_angle) < 0.001, "wheel/Q/E never turns a clamp")
     gs.new_game()
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)
@@ -1454,7 +1434,7 @@ func test_0_21(gs: Node) -> void:
     for frame in range(60): bench._physics_process(1.0 / 60.0)
     check(bench.tools.grab_hose(bench.tools.hose.pos[8]), "fixture grabs the hose")
     click(bench, MOUSE_BUTTON_RIGHT, false, bench.tools.clamp_position)
-    check(bench.tools.hose_clamp > 0, "dropping the hose on the clamp clips it")
+    check(bench.tools.hose_clamp == -1, "0.58.4: dropping the hose where the clamp was leaves it free")
     bench.tools.rewind_hose()
     # Wiping a graded CPU: the result survives until the paste falls below 95% of its graded amount.
     bench._select_stage(1)
@@ -1516,16 +1496,10 @@ func test_0_22(gs: Node) -> void:
     rig.select(Ids.VACUUM, Vector2(560, 380))
     rig.park()
     for frame in range(60): rig.step(1.0/60.0, Vector2(560, 380), false)
-    rig.hose_grab = Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1   # a section near the nozzle
-    rig.release_hose(rig.clamp_position)
-    var pin: int = rig.hose_clamp
-    check(pin == Hose.POINTS - ToolRig.HOSE_GRAB_KEEP - 1, "the hose is clipped near its nozzle end")
+    # 0.58.4: no clamp to clip the hose to; the hose end still follows the vacuum.
     for frame in range(360): rig.step(1.0/60.0, Vector2(100, 200), false)
     var last: int = Hose.POINTS - 1
     check(rig.hose.pos[last].distance_to(rig.hose_end()) < 10.0, "the simulated hose end stays at the vacuum (lag %.1f px; the drawing bridges it)" % rig.hose.pos[last].distance_to(rig.hose_end()))
-    var leash: float = rig.hose.segment * float(last - pin) * ToolRig.HOSE_STRETCH_LIMIT
-    var apart: float = rig.hose.pin_point.distance_to(rig.hose_end())
-    check(apart <= leash + 6.0, "a hose clipped near the nozzle keeps the vacuum on a short leash (%.0f of %.0f px)" % [apart, leash])
     gs.new_game()
     var bench: Node = load("res://scenes/bench.tscn").instantiate()
     root.add_child(bench)

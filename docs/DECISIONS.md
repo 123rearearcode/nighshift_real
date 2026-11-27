@@ -844,3 +844,27 @@ The doors are termopan, "90s/2000s communist style": white PVC frames, clear gla
 glass"), for the front door + shop window block and the workshop door (keyhole from the user's sketch, D171).
 Add a radiator under the window and a linoleum floor. The flat layout of D171 stays. New art goes through the
 usual draft → user approval → integration path (D167). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D175 — Repair bench: a vacuum switch, no hose clamp (user, 27 November 2026)
+
+"i want the vacuum to have an on/off button" and "Remove the clamp, it is not useful." The vacuum has an
+on/off switch (panel button or V): switched on, it sucks while in your hand without holding the mouse;
+holding the mouse still gives a quick burst. The hose clamp is gone from the bench (not drawn, not
+clickable, the hose cannot be clipped); its pixel art stays in `art/tools/` unused. Recorded by Claude
+(Opus 5.5, model id claude-opus-5-5).
+
+### D176 — A personal inventory: pockets and backpacks (user, 27 November 2026)
+
+"the player can have a personal inventory (he can buy backpacks to upgrade)", and, asked what carrying
+should do, "Just carry, no gating". The backpack is one more storage grid that goes with you into every
+room (Backpack button or B): pockets 4 x 2 to start, a small backpack (6 x 3, $45) and a hiking backpack
+(8 x 4, $120) at the store. Tools and parts only; whole PCs do not fit. Carrying something does not change
+where it can be used. Placeholder drawing until backpack art is approved. Recorded by Claude (Opus 5.5,
+model id claude-opus-5-5).
+
+### D177 — Hudici Dan, a playtest customer whose PC waits in storage (user, 27 November 2026)
+
+"add a new customer that comes with a virus installed so I can playtest (Hudici Dan by name, he does not
+appear yet but his PC is in storage)", with a crypto miner (answer: "Crypto miner"). A New game puts his PC
+in storage as a third ticket with the 0.58.0 miner; he does not come to the counter. Recorded by Claude
+(Opus 5.5, model id claude-opus-5-5).

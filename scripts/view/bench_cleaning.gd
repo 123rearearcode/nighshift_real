@@ -75,7 +75,7 @@ func _clean_hint() -> String:
     if bv.active_tool == 2:
         return "Move parts: drag cooler or GPU onto the tray. Clean their surfaces there, then clean the exposed board. Drag each back to its mount before final check."
     if bv.active_tool == DustSim.TOOL_VACUUM:
-        return "Vacuum: hold over dirt. Tails hanging from under parts can be pulled very slowly with precise suction; remove the part for easier access. Short hose: rotate/re-route to reach the far-left corner."
+        return "Vacuum: switch it on (Vacuum button or V) and move the nozzle over dirt, or hold the mouse for a quick burst. Tails hanging from under parts can be pulled very slowly with precise suction; remove the part for easier access. Short hose: rotate/re-route to reach the far-left corner."
     return "Brush: sweep the bristles over dust to loosen it (it turns lighter). Fast strokes scatter it through the case; watch for trapped dust and clogged filter. The brush removes nothing by itself; vacuum the loosened bundle afterwards, which is faster."
 
 
@@ -117,7 +117,9 @@ func _step_clean(delta: float, mouse: Vector2) -> void:
     if bv.active_tool == 1:
         var angle: float = bv.tools.motions[Ids.BRUSH].angle
         for point: Vector2 in bv.tools.brush.tips(): bv.dust.brush_contacts.append(mouse+point.rotated(angle))
-    var working: bool = bv.holding and not modal_open and bv.tools.equipped and not bv.tools.carrying and not bv.tools.clamp_dragging
+    var in_hand: bool = not modal_open and bv.tools.equipped and not bv.tools.carrying and not bv.tools.clamp_dragging
+    var working: bool = bv.holding and in_hand
+    if bv.active_tool == DustSim.TOOL_VACUUM: working = (bv.vacuum_on or bv.holding) and in_hand   # 0.58.4: switched on, or a quick burst while holding
     var vacuum_ok: bool = not (bv.active_tool == DustSim.TOOL_VACUUM and bv.bin.is_full())   # a full bin stops the suction
     bv.dust.step(delta, bv.active_tool, mouse, bv.tools.speed, working and vacuum_ok)
     bv._audio_loop("vacuum.motor",working and vacuum_ok and bv.active_tool == 0,{"ramp":bv.dust.vac_ramp,"bin_fill":bv.bin.fraction()})
@@ -250,7 +252,7 @@ func _refresh_vacuum_status() -> void:
     if key == bv._vacuum_ui_key: return
     bv._vacuum_ui_key = key
     bv.vacuum_ui_updates += 1
-    bv.vacuum_status.text = "BIN FULL — suction paused. Empty bin to continue." if full else "Vacuum ready  /  bin %d%%" % roundi(bv.bin.fraction()*100.0)
+    bv.vacuum_status.text = "BIN FULL — suction paused. Empty bin to continue." if full else "Vacuum %s  /  bin %d%%" % ["on" if bv.vacuum_on else "off", roundi(bv.bin.fraction()*100.0)]
     bv.vacuum_status.add_theme_color_override("font_color",bv.TONE_COLORS[2] if full else bv.TONE_COLORS[0])
     bv.empty_bin_button.text = "Empty bin (%d%%)" % roundi(bv.bin.fraction()*100.0)
     bv.empty_bin_button.disabled = bv.bin.fill <= 0.0
