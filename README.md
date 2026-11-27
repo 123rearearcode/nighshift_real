@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.57.8)
+# Nightshift - Godot Foundation Trial (v0.57.9)
+
+0.57.9 lays the counter room out the way the user drew it: the front wall faces you flat, with the glass door and shop window on the left under one shutter box and the workshop door on the right, all from the art already in the game.
 
 0.57.8 puts Batch C in the game: the PC lies open on the repair bench with the approved case, board, parts, fans, dust, pixel-art tools and paste socket; the hardware board uses the same pictures; the testing bay shows the inspection close-ups with a real magnifying glass; the monitor and phone have frames. Every scene takes item pictures from one place. Storage under the counter now pulls up from the bottom edge (no button), and items there can be clicked up and turned. The workshop door fits its frame and the shop window shows the street at eye level.
 

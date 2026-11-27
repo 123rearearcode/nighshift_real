@@ -39,14 +39,14 @@ placeholder_color = Color(0.294, 0.247, 0.184, 1)
 ui_label = true
 
 [node name="FrontDoor" type="Button" parent="Hotspots"]
-offset_left = 30.0
-offset_top = 100.0
-offset_right = 232.0
-offset_bottom = 575.0
+offset_left = 52.0
+offset_top = 108.0
+offset_right = 213.0
+offset_bottom = 505.0
 script = ExtResource("2")
 action = "go:outside"
 label = "Front door: go outside"
-art_hint = "The shop's front door, on the left. Leads out to the street."
+art_hint = "The shop's glass front door, on the left of the flat front wall (0.57.9), standing on the floor line. Leads out to the street."
 placeholder_color = Color(0.235, 0.310, 0.369, 1)
 closed_at_dawn = true
 
@@ -62,14 +62,14 @@ art_hint = "The window/opening where customers stand. Customer portraits appear 
 placeholder_color = Color(0.114, 0.165, 0.2, 0.25)
 
 [node name="Shutter" type="Button" parent="Hotspots"]
-offset_left = 48.0
-offset_top = 58.0
-offset_right = 464.0
-offset_bottom = 99.0
+offset_left = 44.0
+offset_top = 56.0
+offset_right = 612.0
+offset_bottom = 106.0
 script = ExtResource("2")
 action = "end_night"
 label = "Shutter: close for the night"
-art_hint = "The shutter switch or pull chain. Closing it ends the night."
+art_hint = "The shutter box over the whole glass front (0.57.9: flat on the front wall). Closing it ends the night."
 placeholder_color = Color(0.420, 0.231, 0.231, 1)
 
 [node name="BackDoor" type="Button" parent="Hotspots"]

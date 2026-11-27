@@ -792,3 +792,16 @@ and the outside view should be "a street-level view" (door fitted, window framed
 Outside room gets a street-level picture, drafted for review). "Add connectors (only 2 kinds for now), but
 make sure they look clean" (drafted for review: 24-pin and 8-pin power cables). Recorded by Claude (Opus
 5.5, model id claude-opus-5-5).
+
+### D171 — The counter room's front wall faces the player flat (user, 26 November 2026)
+
+The user: the door and window "supposed to be like the corner of the room ... doesn't make any sense because
+you have the ... thing you put down at night ... just like straight down ... while the thing is like on a
+weird like angle", the door "changes position when you hover over it, but neither of the two positions is
+it being closed", and "the street outside, it looks like it's just straight". They sketched the room they
+want ("with the glass part being larger (more akin to current version's size) than what is depicted here")
+and approved the mockups: "so the design of the layout looks good. we will push this as a change to the
+layout of things, with the existing current assets in the game." So the counter room is one-point: the
+front wall flat, glass door and shop window on the left under one flat shutter box, the workshop door on
+the right, the counter across the front, drawn from the approved Batch A pictures (no new pixels). New
+counter-room art must follow this layout. Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
