@@ -158,7 +158,7 @@ func run_checks() -> void:
     current_scene._go("res://scenes/night_shop.tscn")
     await process_frame
     await process_frame
-    check(current_scene.scene_file_path == "res://scenes/night_shop.tscn" and current_scene.upgrade_buttons.size() == 2,"Shop lists every tool upgrade")
+    check(current_scene.scene_file_path == "res://scenes/night_shop.tscn" and current_scene.upgrade_buttons.size() == 4,"Shop lists every tool upgrade (0.58.4: with the two backpacks)")
     money = gs.money
     current_scene._buy("square_cloth")
     check(gs.has_upgrade("square_cloth") and gs.money == money-gs.UPGRADE_PRICES["square_cloth"],"tool upgrades are purchasable from the Shop")

@@ -36,6 +36,7 @@ Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
 | --- | --- | --- | --- |
 | **Counter** (main screen) | `scenes/rooms/counter.tscn` | New game, Continue fallback, morning | front door (the glass door on the left of the flat front wall, 0.57.9 D171) → Outside; back door → Workshop; under the window → Under the counter; shutter (the box over the glass) → end of night |
 | **Cable box** (an object, not a place; 0.58.3, D173) | `scripts/rooms/room_view.gd` + `scripts/view/cable_box_view.gd` | Stands in the counter, the workshop or outside by the van | click it → the open box (Close returns to the room); Carry the box → "Put the cable box down here" in another of those rooms |
+| **Backpack** (personal inventory, an overlay; 0.58.4, D176) | `scripts/view/backpack_view.gd` | The Backpack button (bottom right) or B, in every room | pack from the stock room / under the counter, rearrange, unpack; Close or Esc returns to the room |
 | **Workshop** | `scenes/rooms/workshop.tscn` | Counter back door | repair bench, hardware board, monitor (the PC on the bench), testing bay, stock room door, door to Counter |
 | **Outside** | `scenes/rooms/outside.tscn` | Counter front door | van → Salvage dump; the store → Store; shop door → Counter; parts supplier (later, a separate place) |
 | Stock room (close-up) | `scenes/storage.tscn` | Workshop | ← Workshop; Resume work → a bench |

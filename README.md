@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.3)
+# Nightshift - Godot Foundation Trial (v0.58.4)
+
+0.58.4 fixes the brush flooding the PC with dust, gives the vacuum an on/off switch (V), removes the hose clamp and the pick's stray mark, puts Hudici Dan's PC (with a crypto miner) in storage for playtesting, and adds your backpack: a personal inventory you open in any room (B), with bigger backpacks at the store.
 
 0.58.3 adds the cable box: carry it between the counter, the workshop and the van; moving it tangles the loose cables; open it and pull the cables free by their plugs (the wrong plug tightens the knot and can snap the cable); tie cables with zip ties or velcro straps from the store so they never tangle.
 

@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.4, 27 November 2026
+
+The user asked Claude for repair-bench fixes (brush dust film B69, a vacuum on/off switch, removing the hose
+clamp, the pick's stray mark B70), Hudici Dan's playtest PC and a personal inventory (backpacks). Claude
+touched the hot files narrowly: `bench_view.gd` (vacuum switch, pick ring), `tool_rig.gd` (clamp disabled
+via `CLAMP_ENABLED`), `game_state.gd` (backpack upgrade prices only). No ownership/fitting/collection or save
+migration change (backpacks live in the storage layout; parts are not gated by location). 0.59.0 (per-part
+tests, Codex) and 0.60.0 (checker) stay reserved.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.58.3, 27 November 2026
 
 The user asked Claude to build the cable box (D173) after merging #89. Claude owns the cable box rules/file/
