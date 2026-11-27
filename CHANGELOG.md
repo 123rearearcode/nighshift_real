@@ -179,7 +179,7 @@ untangling yet: the feel (rope speed, how hard a knot holds, how long before a c
 - A Python copy of the rope physics: pulling the open plug frees a knot in about 0.85 s; pulling the other
   plug snaps the cable in about 3 s; a still preview of the open box was drawn from it.
 - GitHub Actions on Godot 4.7.2 (headless): run 46043738971 on the first version (`148ee62`) passed every suite
-  (Cable box 28 checks); the final version: see the PR; this entry is updated with the result.
+  (Cable box 28 checks); the final version, run 46044695324 on `6302a0e`, passed every suite.
 
 ### Decisions proposed (not approved)
 - Prices (zip ties $4 for 10, velcro $12 for 4), the starting five cables, where the box stands in each room,
