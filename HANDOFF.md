@@ -1,6 +1,21 @@
 # Handoff — current state first
 
-## Current — 0.57.8 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
+## Current — 0.57.9 counter room with a flat front wall (the user's sketch), 26 November 2026
+
+The user found the counter's corner perspective inconsistent (shutter straight down, glass angled, door
+hover endpoints neither looking closed, street straight) and drew the room they want: you behind the
+counter facing the shop's front wall flat; one glass block on the left (glass door + shop window, bigger
+than in the sketch) under one flat shutter box; the workshop door with a keyhole on the right. They approved
+Claude's mockups and asked to push the layout "with the existing current assets in the game" (D171).
+`scripts/rooms/counter_art.gd` now draws only the approved Batch A pixels in that layout: the shell, its own
+flat tiles over the painted corner, the door picture and stretches of its frame, the shutter box and the
+down shutter (whole slats repeated), the sign, the street at the 0.57.8 eye-level mapping. FrontDoor and
+Shutter hotspots moved; all other anchors unchanged. References (not loaded): `art/references/counter_flat_layout/`.
+Still waiting for review: the 0.57.8 drafts (connectors, case walls, street-level Outside).
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.8 Batch C in the game, one picture per item, storage pull-up, 25 November 2026
 
 User decisions (D170): stay 2D; every item uses ONE model drawn from on top (and from the side only where a
 scene needs it) via `scripts/view/item_art.gd`, used by storage, hardware board, repair bench and testing

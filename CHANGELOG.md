@@ -52,6 +52,18 @@ the integrating contributor turns them into a numbered entry at merge time.
   `profile_salvage_physics` 2× per commit, plus 4 A/A `profile_bench` runs. No game code, test, tool or CI change.
 - Next action: testing-bay owner may measure and take proposal 2; Claude may add the profiler cases in proposal 4.
 
+### Code checker change review — 2026-11-26 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.57.8 (df5c03f). The integrator assigns the version.
+- Added: bug **B61** (Low, Diagnosis / Presentation) in `docs/BUGS.md`: the testing bay's magnifying glass
+  samples only the healthy inspection picture, so a clue it already revealed vanishes inside the glass.
+  Found by reading the code, not reproduced; not fixed.
+- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
+- Execution: documentation only; no Godot run, no game code, test, tool or CI change.
+- Checks: `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`.
+- Next action: the testing bay's owner picks up B61.
+
 ### Scheduled performance review — 2026-11-23 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
@@ -119,6 +131,67 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Checks: `python3 -I tools/check_project.py` passed (0 problems); `git diff --check` passed.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
+
+## 0.57.9 - 2026-11-26 - Counter room: the front wall faces you flat (user's sketch), existing art only
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.57.8 (df5c03f, #83 merged). No other PR open; 0.58.0/0.59.0 stay reserved for Codex,
+  0.60.0 for the checker. No new bug id used (next is B61).
+- Type: patch (room layout; presentation only, no new artwork).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. Headless runs draw nothing, so the look was checked only on a static Python composite that
+repeats the same drawing steps (`art/references/counter_flat_layout/in_game_preview.png`); no human in-game
+visual acceptance yet.
+
+### Added / Changed / Fixed / Removed
+- **The counter room's front wall now faces you flat** (user, 26 November 2026: the corner made no sense:
+  the shutter came straight down while the glass was on an angle, the door changed position on hover
+  without either position looking closed, and the street was straight behind an angled wall; they drew
+  the room they want, then approved the layout: "the design of the layout looks good. we will push this as
+  a change to the layout of things, with the existing current assets in the game").
+  - The shell's painted corner glazing is covered by the shell's own flat tiles (five whole tiles, rows
+    moved round so the stains do not repeat); the floor line stays level.
+  - One glass block on the left, bigger than in the sketch as asked: the glass front door (the approved
+    door picture, standing on the floor line) and the shop window beside it, framed with stretches of the
+    door's own frame; the street behind it at eye level, flat like the wall.
+  - The approved shutter box sits flat over the whole glass; at night the approved down shutter covers it
+    from the box to the floor (whole slats repeated, not stretched). The hanging sign moved into the window.
+  - The front door's open endpoint swings on the same hinge as the closed one; the closed door fills its
+    frame exactly. The workshop door keeps its 0.57.8 fit in the painted doorway.
+  - FrontDoor and Shutter hotspots moved onto their pictures. The customer, PC, clipboard, counter and
+    storage anchors are unchanged.
+- Reference pictures (not loaded): the user's sketch, Claude's reading, the mockups and the static preview
+  in `art/references/counter_flat_layout/`.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rooms/counter_art.gd` | M | Flat front wall from the approved pictures: wall strips, glass block, frame, shutter |
+| `scenes/rooms/counter.tscn` | M | FrontDoor and Shutter hotspots on their pictures |
+| `tools/test_counter_art.gd` | M | Glass block on the floor line under the shutter box; hotspots on their pictures |
+| `art/references/counter_flat_layout/` | A | Sketch, reading, mockups, static preview, README, `.gdignore` |
+| `docs/DECISIONS.md`, `docs/ART_ASSET_LOG.md`, `docs/ROOM_ART_GUIDE.md`, `docs/MENU_NAVIGATION.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | D171, approval of the new use of the Batch A pictures, guides |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.9, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
+- No installed raster changed: all fourteen Batch A hashes still match their approval manifest (checked by
+  the Counter art suite).
+- Static composite of the four states from the same drawing steps (Python/PIL).
+- GitHub Actions on Godot 4.7.2 (headless): run 45713592643 on `c743545` passed, every suite including
+  Counter art with the new layout checks.
+
+### Decisions proposed (not approved)
+- None. The new layout itself is the user's decision (D171).
+
+### Known issues and open items
+- No human in-game visual acceptance. The tiles over the old corner are copies of the shell's own wall, so a
+  repeat can show where few stains fall. The Outside room picture, connectors and case walls still await
+  review (0.57.8 drafts).
+
+### Next action
+- The user runs the build, checks the counter, and merges the PR.
 
 ## 0.57.8 - 2026-11-25 - Batch C in the game; one picture per item; storage pulls up from the edge
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

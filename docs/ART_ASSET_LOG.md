@@ -343,6 +343,19 @@ Approval: Approved for this integration. Integration state: implementation/testi
 | `art/ui/monitor_bezel.png` | `1839d7fed38806cc86bc53680034b5d12c6d76053b4ddc9d5523321a68c74093` |
 | `art/ui/phone_shell.png` | `48c45d42381d4279983d1f7c80f576f3f8a52934bbb1030705338486da47ecec` |
 
+## New use of the approved Batch A pictures: flat front-wall layout (0.57.9)
+
+The user reviewed Claude's layout mockups (26 November 2026, 00:20): "so the design of the layout looks good.
+we will push this as a change to the layout of things, with the existing current assets in the game." Covered:
+the fourteen Batch A files listed above, with unchanged bytes and hashes (`room-shell`, `front-door-closed`,
+`front-door-open`, `hanging-sign`, `shutter-up`, `shutter-down`, `workshop-door-*`, exteriors, counter, light),
+now placed in the flat layout by `scripts/rooms/counter_art.gd`: the shell's own tiles copied over its painted
+corner, the door picture and stretches of its frame, the shutter box and repeated whole slat bands of the down
+shutter. No pixel is edited or exported; the mockups' code-drawn tiles, frames and doors are NOT used.
+References (not loaded, no runtime approval): `art/references/counter_flat_layout/`. Integration: branch
+`feat/counter-flat-layout-0579`, by Claude (Opus 5.5, model id claude-opus-5-5). Human in-game visual
+acceptance: not yet recorded (the user runs the build and merges).
+
 ## Drafts for review (0.57.8, pending approval)
 
 - `art/drafts/connectors/`: the two power connectors the user asked for ("Add connectors (only 2 kinds for

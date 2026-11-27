@@ -68,6 +68,12 @@ func run_checks() -> void:
     check(customer.position + customer.size == Vector2(800, 488) and pc.position + pc.size == Vector2(1094, 550), "Batch B sprites follow the shared customer/PC anchors without resizing their pixels")
     check(customer.z_index < counter.counter_layer.z_index and pc.z_index > counter.counter_layer.z_index and counter.get_node("Hotspots").z_index > counter.counter_layer.z_index, "counter occludes the customer while the separate PC and clipboard remain above it")
     check(not counter.slip.get_rect().intersects(customer.get_rect()) and not counter.slip.get_rect().intersects(pc.get_rect()), "the intake paper leaves the customer and their PC visible")
+    # 0.57.9 (user's sketch): the front wall is flat; the glass block stands on the floor line and the door and
+    # shutter hotspots sit exactly on their pictures.
+    var door_spot: Rect2 = counter.hotspot("FrontDoor").get_rect()
+    var shutter_spot: Rect2 = counter.hotspot("Shutter").get_rect()
+    check(is_equal_approx(Art.GLASS.end.y, Art.FLOOR_Y) and is_equal_approx(Art.DOOR.end.y, Art.FLOOR_Y) and Art.GLASS.encloses(Art.DOOR) and is_equal_approx(Art.SHUTTER.end.y, Art.GLASS.position.y), "the glass door and shop window stand on the floor line, flat under the shutter box")
+    check(Art.DOOR.encloses(door_spot) and door_spot.size.x >= Art.DOOR.size.x - 1 and shutter_spot == Art.SHUTTER and not door_spot.intersects(shutter_spot), "the front-door and shutter hotspots sit on their pictures without overlapping")
     await hover(counter.hotspot("FrontDoor"))
     check(not counter.room_layer.front_open, "gated intake does not visually open the disabled front door")
     var glass: bool = true
