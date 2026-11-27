@@ -169,6 +169,50 @@ func clue_texture(i: int) -> Texture2D:
     return ItemArt.clue("%s_%s" % [kind, "herring" if condition == "working" else condition])
 
 
+# The pictures stacked on the part panel, bottom first: the approved close-up, then every clue overlay the
+# lens has revealed. Empty when this kind has no picture. The panel and the glass draw the same stack (B61).
+func picture_layers(kind: String) -> Array:
+    var picture: Texture2D = ItemArt.inspect(kind)
+    if picture == null: return []
+    var layers: Array = [picture]
+    for i in range(PartCondition.spots(kind).size()):
+        var clue: Texture2D = clue_texture(i)
+        if clue != null: layers.append(clue)
+    return layers
+
+
+# The magnified part of the glass at `c`: the lens circle cut to where both the glass and what it magnifies
+# lie on the picture, so no edge pixels are smeared (B61). {"points", "uvs"}, or {} when it shows nothing.
+func lens_glass(c: Vector2) -> Dictionary:
+    # A point p in the glass shows the picture at c + (p - c) / 2, which stays on the panel while p is inside
+    # the panel scaled 2x about c.
+    var shown := Rect2(PART_RECT.position * 2.0 - c, PART_RECT.size * 2.0).intersection(PART_RECT)
+    if shown.size.x <= 0.0 or shown.size.y <= 0.0: return {}
+    var points := PackedVector2Array()
+    var uvs := PackedVector2Array()
+    for k in range(40):
+        var p: Vector2 = (c + Vector2.from_angle(k * TAU / 40.0) * LENS_RADIUS).clamp(shown.position, shown.end)
+        if not points.is_empty() and points[points.size() - 1].is_equal_approx(p): continue
+        points.append(p)
+        uvs.append(((c + (p - c) * 0.5) - PART_RECT.position) / PART_RECT.size)
+    if points.size() > 2 and points[0].is_equal_approx(points[points.size() - 1]):
+        points.remove_at(points.size() - 1)
+        uvs.remove_at(uvs.size() - 1)
+    var k: int = 0
+    while points.size() > 3 and k < points.size():      # drop points lying on a straight cut edge
+        var a: Vector2 = points[(k - 1 + points.size()) % points.size()]
+        var b: Vector2 = points[(k + 1) % points.size()]
+        if absf((points[k] - a).cross(b - points[k])) < 0.01:
+            points.remove_at(k)
+            uvs.remove_at(k)
+        else:
+            k += 1
+    var area: float = 0.0
+    for j in range(points.size()): area += points[j].cross(points[(j + 1) % points.size()])
+    if points.size() < 3 or absf(area) < 8.0: return {}     # the glass is off the picture: nothing to magnify
+    return {"points": points, "uvs": uvs}
+
+
 func looked(i: int) -> bool:
     var record: Dictionary = _record()
     var spots: Array = PartCondition.spots(_kind(record)) if not record.is_empty() else []
@@ -278,12 +322,9 @@ func _draw() -> void:
     var kind: String = _kind(record)
     var body := Rect2(PART_RECT.position + PART_RECT.size * Vector2(0.1, 0.12), PART_RECT.size * Vector2(0.8, 0.76))
     var colour: Color = KIND_COLOURS.get(kind, Color("7a8a90"))
-    var picture: Texture2D = ItemArt.inspect(kind)
-    if picture != null:           # 0.57.8: the approved close-up (always a healthy-looking part) + revealed clues
-        draw_texture_rect(picture, PART_RECT, false)
-        for i in range(PartCondition.spots(kind).size()):
-            var clue: Texture2D = clue_texture(i)
-            if clue != null: draw_texture_rect(clue, PART_RECT, false)
+    var layers: Array = picture_layers(kind)
+    if not layers.is_empty():     # 0.57.8: the approved close-up (always a healthy-looking part) + revealed clues
+        for layer: Texture2D in layers: draw_texture_rect(layer, PART_RECT, false)
     else:
         draw_rect(body, colour.darkened(0.25))
         draw_rect(body, colour.lightened(0.3), false, 3.0)
@@ -326,16 +367,14 @@ func _draw_spots(record: Dictionary) -> void:
 func _draw_lens(_record_shown: Dictionary, kind: String, body: Rect2, colour: Color) -> void:
     var c: Vector2 = lens_at
     var font: Font = ThemeDB.fallback_font
-    # The glass: a magnified look at what is under it. With the approved picture it really magnifies (2x).
-    var picture: Texture2D = ItemArt.inspect(kind)
-    if picture != null and PART_RECT.grow(LENS_RADIUS).has_point(c):
-        var ring := PackedVector2Array()
-        var uvs := PackedVector2Array()
-        for k in range(40):
-            var p: Vector2 = c + Vector2.from_angle(k * TAU / 40.0) * LENS_RADIUS
-            ring.append(p)
-            uvs.append(((c + (p - c) * 0.5) - PART_RECT.position) / PART_RECT.size)
-        draw_polygon(ring, PackedColorArray([Color.WHITE]), uvs, picture)
+    # The glass: a magnified look at what is under it. With the approved picture it really magnifies (2x),
+    # clues it has already revealed included (B61).
+    var layers: Array = picture_layers(kind)
+    var glass: Dictionary = lens_glass(c)
+    if not layers.is_empty() and not glass.is_empty():
+        draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.16))
+        for layer: Texture2D in layers:
+            draw_polygon(glass["points"], PackedColorArray([Color.WHITE]), glass["uvs"], layer)
         draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.10))
     else:
         draw_circle(c, LENS_RADIUS, Color(0.82, 0.9, 1.0, 0.16) if not body.has_point(c) else colour.lightened(0.15))

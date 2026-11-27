@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.57.9)
+# Nightshift - Godot Foundation Trial (v0.57.10)
+
+0.57.10 fixes the testing bay's magnifying glass: it now shows the clues it has already revealed (B61).
 
 0.57.9 lays the counter room out the way the user drew it: the front wall faces you flat, with the glass door and shop window on the left under one shutter box and the workshop door on the right, all from the art already in the game.
 

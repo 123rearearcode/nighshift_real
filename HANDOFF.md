@@ -1,6 +1,17 @@
 # Handoff — current state first
 
-## Current — 0.57.9 counter room with a flat front wall (the user's sketch), 26 November 2026
+## Current — 0.57.10 B61 fixed, 27 November 2026
+
+The testing bay's magnifying glass now draws the same stack as the panel (the close-up, then every revealed
+clue) and stays on the picture (`picture_layers`, `lens_glass` in `testing_bay_view.gd`). #84 (0.57.9), #85
+(B61 report) and #86 (performance review) were merged first with the user's go-ahead; #86's changelog clash
+with #85 was resolved by keeping both Unreleased notes. In discussion with the user: a cable-management
+minigame (a separate cable drawer whose cables tangle, shop items that help), termopan (white PVC, 90s/2000s)
+doors and the rest of the counter art, and the B59 recovery policy.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.57.9 counter room with a flat front wall (the user's sketch), 26 November 2026
 
 The user found the counter's corner perspective inconsistent (shutter straight down, glass angled, door
 hover endpoints neither looking closed, street straight) and drew the room they want: you behind the
