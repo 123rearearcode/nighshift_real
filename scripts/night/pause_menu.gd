@@ -5,6 +5,7 @@ var shade: ColorRect
 var settings: AcceptDialog
 var slider: HSlider
 var note: Label
+var reduce_flashing_toggle: CheckButton
 var was_paused: bool = false
 var resume_warning: String = ""
 func _ready() -> void:
@@ -45,6 +46,12 @@ func _ready() -> void:
     slider.custom_minimum_size = Vector2(340,40)
     slider.value_changed.connect(func(value: float) -> void: get_node("/root/GameState").set_sound_volume(value/100.0))
     body.add_child(slider)
+    reduce_flashing_toggle = CheckButton.new()
+    reduce_flashing_toggle.name = "ReduceFlashingToggle"
+    reduce_flashing_toggle.text = "Reduce flashing and movement"
+    reduce_flashing_toggle.tooltip_text = "Steady colours, no shake, and text changes at most once a second. Same clues and game rules."
+    reduce_flashing_toggle.toggled.connect(func(enabled: bool) -> void: get_node("/root/GameState").set_reduce_flashing(enabled))
+    body.add_child(reduce_flashing_toggle)
     settings.add_child(body)
     add_child(settings)
     shade.hide()
@@ -59,7 +66,7 @@ func open() -> void:
     if get_parent().has_method("_pause_activity"): get_parent().call("_pause_activity")
     was_paused = get_tree().paused
     get_tree().paused = true
-    note.text = "Activities chooses what to do tonight. Title screen leaves the game session."
+    note.text = "Use the workshop's stations to work on PCs. Title screen leaves the game session."
     if resume_warning != "": note.text += "\n"+resume_warning
     shade.show()
 func close() -> void:
@@ -70,7 +77,8 @@ func close() -> void:
     if get_parent().has_method("_resume_activity"): get_parent().call("_resume_activity")
 func _settings() -> void:
     slider.set_value_no_signal(get_node("/root/GameState").sound_volume*100.0)
-    settings.popup_centered(Vector2i(400,160))
+    reduce_flashing_toggle.set_pressed_no_signal(get_node("/root/GameState").reduce_flashing)
+    settings.popup_centered(Vector2i(440,220))
 func _title() -> void:
     var tree: SceneTree = get_tree()
     var activity: Node = get_parent()

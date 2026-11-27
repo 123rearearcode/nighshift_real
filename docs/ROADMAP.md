@@ -1,5 +1,11 @@
 # Nightshift — Roadmap
 
+## Current antivirus update — 0.58.0 / 27 November 2026
+
+0.58.0 is the user-authorized antivirus update (D163), implemented for review on this branch: simple clue-based cleanup, distinct infection feedback and shared reduced-effects Settings. All 36 required suites / 2,510 checks and bounded graphical UI verification are complete; user review/merge remains. Per-part tests 0.59.0 remain design work for a separate review/implementation. The scheduled checker owns 0.60.0. PR #88 save recovery has the independently reproduced B63 finding; see PR_87_88_REVIEW.md.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ## Current counter art — 0.57.5 / 25 November 2026
 
 User-approved Batch A revision 02 is integrated on the new PR branch after Claude's Batch B #79 was

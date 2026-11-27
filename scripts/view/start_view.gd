@@ -11,6 +11,7 @@ var achievements_dialog: AcceptDialog
 var settings_dialog: AcceptDialog
 var volume_slider: HSlider
 var volume_label: Label
+var reduce_flashing_toggle: CheckButton
 
 
 func _ready() -> void:
@@ -90,7 +91,7 @@ func _on_load_game() -> void:
         status_label.text = "No readable save was found. Start a new game."
 
 
-# Settings (D107): just the sound slider for now. The value applies as it moves and is kept
+# Settings (D107 / D163): volume and reduced effects. Values apply immediately and are kept
 # in its own settings file, so it survives new games and never touches the save.
 func _build_settings_dialog() -> void:
     settings_dialog = AcceptDialog.new()
@@ -109,14 +110,21 @@ func _build_settings_dialog() -> void:
     volume_slider.custom_minimum_size = Vector2(340, 24)
     volume_slider.value_changed.connect(_on_volume_changed)
     box.add_child(volume_slider)
+    reduce_flashing_toggle = CheckButton.new()
+    reduce_flashing_toggle.name = "ReduceFlashingToggle"
+    reduce_flashing_toggle.text = "Reduce flashing and movement"
+    reduce_flashing_toggle.tooltip_text = "Steady colours, no shake, and text changes at most once a second. Same clues and game rules."
+    reduce_flashing_toggle.toggled.connect(func(enabled: bool) -> void: GameState.set_reduce_flashing(enabled))
+    box.add_child(reduce_flashing_toggle)
     settings_dialog.add_child(box)
     add_child(settings_dialog)
 
 
 func _on_settings() -> void:
     volume_slider.set_value_no_signal(roundf(GameState.sound_volume * 100.0))
+    reduce_flashing_toggle.set_pressed_no_signal(GameState.reduce_flashing)
     _update_volume_label()
-    settings_dialog.popup_centered(Vector2i(420, 190))
+    settings_dialog.popup_centered(Vector2i(440, 230))
 
 
 func _on_volume_changed(value: float) -> void:

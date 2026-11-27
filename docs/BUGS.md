@@ -94,7 +94,14 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
 | B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
-| B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.57.10 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
+| B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.58.1 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
+| B63 | Open | High | Save recovery | PR #88 retains the previous run's later mornings, prunes a new game's morning-1 backup and can restore the old playthrough | — | Automated: Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md |
+| B64 | Verified | Low | Help | Pause still directs the player to the retired Activities screen | 0.58.0 | Graphical: F10 during adware cleanup; docs/ANTIVIRUS_0580_VALIDATION.md |
+| B65 | Verified | Low | Test harness | Initial effects-setting fixture injected root-viewport clicks into a separate dialog window, then tried to cast its unchanged malformed setting to bool | 0.58.0 | Automated: Antivirus 67 checks; dialog control signals and guarded value comparison |
+| B66 | Verified | Low | Antivirus feedback | Per-PC adware names still received a hardcoded FreeCursors reaction after stopping | 0.58.0 | Automated: alias-specific tools/test_antivirus.gd regression (68 checks); graphical mismatch reproduced |
+
+| B67 | Verified | Low | Antivirus presentation | The typing panel lets scan clues show through behind the word input | 0.58.0 | Graphical: corrected opaque prompt; docs/ANTIVIRUS_0580_VALIDATION.md |
+| B68 | Verified | Low | Antivirus feedback | A stopped miner keeps changing its alias while its helper still runs | 0.58.0 | Automated: tools/test_antivirus.gd, final alias retained after clock advance |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -891,9 +898,70 @@ then-current design wording do not override the current status, D150 or the late
 
 - Found: 0.57.8, scheduled Code checker change review of main `df5c03f` (PR #83 merged), 26 November 2026
 - Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code
-- Fixed in: 0.57.10, by Claude (Opus 5.5, model id claude-opus-5-5): the panel and the glass now draw the same stack, `picture_layers(kind)` (the close-up, then every revealed clue); the glass is `lens_glass(c)`, the lens circle cut to where both the glass and the point it magnifies lie on the picture, so nothing past the edge is smeared, and it shows nothing once it is off the panel.
+- Fixed in: 0.58.1 (developed as 0.57.10), by Claude (Opus 5.5, model id claude-opus-5-5): the panel and the glass now draw the same stack, `picture_layers(kind)` (the close-up, then every revealed clue); the glass is `lens_glass(c)`, the lens circle cut to where both the glass and the point it magnifies lie on the picture, so nothing past the edge is smeared, and it shows nothing once it is off the panel.
 - Root cause: `scripts/night/testing_bay_view.gd` `_draw()` (lines 281-286) draws the approved inspection picture and then each revealed clue overlay (`clue_texture(i)`) over `PART_RECT`. `_draw_lens()` (lines 330-339) then draws the glass as a polygon textured with `ItemArt.inspect(kind)` only, the healthy base picture, at 2x. The clue overlays are never sampled, so inside the glass the revealed scorch mark, domed capacitors or red herring is covered by a clean part. Near the panel edge (`PART_RECT.grow(LENS_RADIUS)`) the UVs also fall outside 0..1 and the border pixels of the picture are smeared into the glass.
 - Reproduction (expected from the code; Godot was not run): a GPU with a visible broken tell; look at "Power connector" with the lens until the clue is revealed; move the lens back over the power connector.
 - Expected / actual: the glass shows the revealed clue magnified / the glass shows a healthy connector, and the clue is only visible outside the glass.
 - Fix direction (for the bay's owner, not done by the checker): draw each revealed clue overlay into the glass with the same UVs after the base picture, and clamp or mask the glass to `PART_RECT`. A headless test can check that `_draw_lens` samples every non-null `clue_texture(i)`; how it looks needs a graphical check.
 - Regression / evidence: `tools/test_testing_bay.gd` (B61 checks): before looking, the stack is only the close-up; after the power connector is inspected on a dead GPU, the stack is the close-up then that scorch-mark overlay; the glass stays on the picture with every UV in 0..1 at the spot, half off the panel and in the corner; off the panel it magnifies nothing. Automated evidence: `tools/test_testing_bay.gd` passed in GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46021841002 on `1ae3133` (all suites); how it looks is not yet checked in game.
+### B63 — New-game recovery can restore the previous playthrough (PR #88)
+
+- Found: PR #88 head a8667b7, 27 November 2026; not merged in this 0.58.0 baseline.
+- Reported by: Codex, bounded user-requested PR review. B62 is allocated by the separate PR #88.
+- Fixed in: —; Open.
+- Root cause: backup folders/retention and restoration are scoped by save filename/night number, without canonical run identity.
+- Reproduction: retain morning 20/21/22 of a $777 shop, start a new $100 shop in the same slot, remove its manifest/fallbacks and restore. Its morning 1 was pruned; restore returns old run/night 22/$777.
+- Expected / actual: recover a current-run morning / silently replace it with the previous playthrough.
+- Regression / evidence: Automated Godot 4.7.2 reproduction on a8667b7; PR_87_88_REVIEW.md preserves output. Optional tools/reproduce_b63.gd observes the case on a tree containing the backup module. Supplied suites passed but omit this cross-run case. No user saves changed; no fix or graphical verification claimed.
+
+### B64 — Pause help points to the retired Activities screen
+
+- Found: 0.57.9 source and earlier preserved first-day reports.
+- Reported by: prior playtests; corrected during the 0.58.0 shared Settings work.
+- Fixed in: 0.58.0.
+- Root cause: shared pause copy was not updated when room navigation replaced Activities.
+- Reproduction: F10 on any night station; read the pause help.
+- Expected / actual: workshop/room instructions / instructions to use Activities.
+- Regression / evidence: source now refers to workshop stations; shared Pause opens in the Antivirus suite. Graphical Codex [observation](ANTIVIRUS_0580_VALIDATION.md): F10 during the isolated adware cleanup displayed the corrected workshop-station text. The executable Pause journey is in `tools/test_antivirus.gd`; this is verified presentation, not human feel acceptance.
+
+### B65 — Initial popup-setting fixture used the wrong input surface
+
+- Found: 0.58.0 local test development, before delivery.
+- Reported by: failed Antivirus fixture under Godot 4.7.2.
+- Fixed in: 0.58.0 before release.
+- Root cause: the fixture treated a native AcceptDialog Window as the root viewport; the toggle never fired, then bool() on the untouched malformed string aborted the test coroutine. No product toggle failure was established.
+- Reproduction: send root-style pointer coordinates into the title Settings dialog, then cast its still-string fixture value to bool.
+- Expected / actual: a control change with a normal test summary / unchanged setting and an invalid-constructor error.
+- Regression / evidence: Automated `tools/test_antivirus.gd`: Antivirus 67 checks, zero failures/script errors. The headless fixture uses the actual CheckButton state/signal and guarded comparison; native OS-window pointer routing is reserved for graphical verification.
+
+
+### B66 — Adware reaction names the wrong app after a case variation
+
+- Found: graphical 0.58.0 development check, before delivery.
+- Reported by: Codex, isolated adware cleanup with BonusSmiles.exe.
+- Fixed in: 0.58.0 before release.
+- Root cause: the source-stopped joke still hardcoded FreeCursors although D163 allows different initial adware names.
+- Reproduction: start a case whose source has a different name, then stop that app.
+- Expected / actual: the reaction names the stopped app / it says FreeCursors instead.
+- Regression / evidence: graphical observation reproduced the mismatch; the reaction now reads the source label. Automated alias-specific assertion in `tools/test_antivirus.gd` passes on Godot 4.7.2 (68 checks, zero failures).
+
+
+### B67 — Typing prompt lets the scan clues show through
+
+- Found: graphical 0.58.0 miner cleanup, before delivery.
+- Reported by: Codex, the word input over the scan-clue area.
+- Fixed in: 0.58.0 before release.
+- Root cause: the default panel style did not provide an opaque backdrop for the overlaid typing prompt.
+- Reproduction: Read scan clues, stop the miner, inspect the word input: the clue text remains visible behind it.
+- Expected / actual: an unobstructed typing prompt / overlapping background text.
+- Regression / evidence: direct graphical observation; explicit opaque StyleBoxFlat now covers the prompt. The final graphical launch confirmed the unobstructed opaque prompt; see the [graphical record](ANTIVIRUS_0580_VALIDATION.md). The protected-process journey is in `tools/test_antivirus.gd`; no implementation-mirroring assertion was added for a colour/style change.
+
+### B68 — Stopped miner keeps changing its alias
+
+- Found: graphical 0.58.0 miner cleanup, before delivery; inherited from the previous alias logic.
+- Reported by: Codex, the stopped source row changes from SystemHeater to CoolCoin and back while working on its helper.
+- Fixed in: 0.58.0 before release.
+- Root cause: Round.label calculated aliases from elapsed time even for an ended process.
+- Reproduction: stop a protected miner, complete the word, leave its helper running for more than eight seconds.
+- Expected / actual: all source interference stops / the stopped row still changes name.
+- Regression / evidence: graphical observation; the final visible alias is now stored at stop. Automated clock-advance assertion in `tools/test_antivirus.gd` passes on Godot 4.7.2 (69 checks, zero failures).

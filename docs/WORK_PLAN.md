@@ -1,5 +1,11 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.0, 27 November 2026
+
+The user authorized the reviewed antivirus direction, with very simple clues for nontechnical players, then asked for Claude's new PRs to be reviewed first. Codex owns antivirus rules/panel/effects, monitor launch, shared Settings in title/pause, and only the app-preference portion of GameState for this feature. No PC ownership, save migration, bench or tool-rig rewrite. Reviewed #87/#88 on a8667b7; B63 is recorded, both remain unmerged by this task. Base is merged main dfbf5aa. Per-part work stays 0.59.0 and scheduled checker 0.60.0.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ## Current bounded assignment — 0.57.5, 25 November 2026
 
 The user reviewed Batch A v2, authorized installation, and requested Claude's art PR be merged first.

@@ -1,3 +1,19 @@
+# Task Manajer — simple deduction, 0.58.0 (D163)
+
+## Current approved update — 27 November 2026
+
+The user selected light deduction and explicitly required intuitive clues for players without computer knowledge, then authorized 0.58.0. Scan leads describe unwanted adverts or coin-making; selecting an app gives a stable plain-language explanation. No exact-target scan highlighting. The helper explains turning off Start with PC before stopping it; reboot verifies the actual cleanup.
+
+Different PCs have small seeded name/layout variations; a retry of the same PC repeats them. Six rows never move, disappear or spawn during play. Adware uses the one fixed advert slot, italic names and slow colour cycling. Miner row names garble and CPU readings fluctuate; its selected inspection stays readable. Only decorative miner text jitters by one pixel; controls never move and there is no actual cursor lag. Interference stops with the responsible process.
+
+Reduce flashing and movement is in both title and pause Settings, stored beside sound volume. It uses steady colours, no jitter and text/CPU updates at most once per second. Clues, outcomes, timing and difficulty stay the same. Typing and pause freeze effects as well as simulation. The critical desktop is clearly described; ordinary apps remain recoverable mistakes.
+
+One paid ten-minute attempt, actual strain, source/watchdog/startup/reboot verification, native uppercase SEND/Enter, abort/power-off/reload and stale-ticket safeguards are retained. Extra viruses, power-ups, scanner tiers and bosses remain later. Per-part tests are 0.59.0, separate. Version labels in the older briefs below are historical.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
+## Historical 0.49.0 standard and original proposals
+
 # Task Manajer — approved standard infection, implemented in 0.49.0
 
 ## Next: a livelier infection — brief for Codex (0.57.0, D162)
