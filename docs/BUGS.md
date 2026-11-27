@@ -111,6 +111,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 
 | B74 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.10 | Automated: Counter art suite (40 checks), integrated 41 required suites / 2,648 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
 | B75 | Fixed | High | Monitor / Test harness | windough.gd declared the constant README twice, so the script did not parse; the monitor scene failed to load and every suite that opens it hung until its 10-minute limit | 0.59.0 | Automated: all suites, CI pending |
+| B76 | Fixed | High | Monitor / Test harness | windough.gd named a helper wrap(), which Godot already has as a built-in function; calls with two arguments did not compile and the monitor suites hung again | 0.59.0 | Automated: all suites, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1080,4 +1081,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run any suite that opens `scenes/software.tscn` at `feat/windough-0590` commit before `7e5e67d`.
 - Expected / actual: the monitor loads with Windough / "Parse Error: Could not preload resource script windough.gd", then "Nonexistent function '_hardware' in base 'Node2D'".
 - Regression / evidence: the note is `README_NOTE`; input handling now casts events before reading their fields. CI evidence pending.
+
+### B76 — Windough did not compile: a helper named like a built-in
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46084080907 on PR #99 (after B75's fix), 28 November 2026; cancelled after 10 minutes (a normal run takes 2) to read the log.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: `static func wrap(s, chars)` in `windough.gd` shares its name with GDScript's global `wrap(value, min, max)`; the global wins, so `wrap(label, 9)` is "Too few arguments" and the script fails to compile. As with B75, every suite that opens the monitor then stopped mid-coroutine until its timeout. Godot is not run locally, so both errors first showed in CI.
+- Reproduction: any monitor suite at commit `ce953e6`.
+- Expected / actual: the monitor loads / "Parse Error: Too few arguments for wrap() call. Expected at least 3 but received 2."
+- Regression / evidence: renamed `word_wrap`; every function name in the new scripts was checked against Godot's global function list. CI evidence pending.
 

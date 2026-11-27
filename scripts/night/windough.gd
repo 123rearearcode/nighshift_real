@@ -483,7 +483,7 @@ func _draw_desktop() -> void:
         var spot: Vector2i = icon_spot(i)
         var icon: Texture2D = selected_icons.get(kind) if i == selected else tex.get("icon_" + kind)
         if icon != null: draw_texture(icon, Vector2(spot.x + 18, spot.y))
-        var parts: Array = wrap(str(ICONS[i][1]), 9)
+        var parts: Array = word_wrap(str(ICONS[i][1]), 9)
         for k in range(parts.size()):
             var part: String = parts[k]
             var tx: int = spot.x + 30 - text_width(part) / 2
@@ -533,7 +533,7 @@ func _draw_window(app: String) -> void:
         if line == "":
             if skipped >= scroll: y += 5
             continue
-        for part: String in wrap(line, chars):
+        for part: String in word_wrap(line, chars):
             if skipped < scroll:
                 skipped += 1
                 continue
@@ -685,7 +685,7 @@ static func text_width(s: String, scale: int = 1, bold: bool = false) -> int:
     return s.length() * (7 if bold else 6) * scale - scale
 
 
-static func wrap(s: String, chars: int) -> Array:
+static func word_wrap(s: String, chars: int) -> Array:
     var out: Array = []
     var line: String = ""
     for word: String in s.split(" "):
