@@ -92,7 +92,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B56 | Open | Low | Storage | The stock room still draws each item kept under the counter, as a degenerate rectangle at the room's origin | — | Not reproduced; code review of PR #69 head 928610e |
 | B57 | Open | Low | Performance | When the shop is low on cash, each build-request arrival blocks the morning step for about 165 ms (up to about 317 ms): the cheapest-build search runs twice per attempt for all 12 attempts | — | Measured: scratch timing of `draw_build` at 960b847, Godot 4.7.2 headless (PERFORMANCE.md, 2026-11-23) |
 | B58 | Verified | Low | Test harness | Night-workshop fixture bypassed new opening intake, then assumed a PC switch and bench return had succeeded | 0.57.0 | Automated: intake-aware Night workshop 57 checks, First customer 32 |
-| B59 | Open | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | — | Automated reproduction at 842d0c2 (0.57.6), Godot 4.7.2; diagnostic and matrix below; not fixed |
+| B59 | Fixed | High | Save / Navigation | Invalid ticket manifest during pending opening intake blocks continuation; a wrong-run primary can hide a valid backup | 0.57.11 | Pending CI: Save safety suite (`tools/test_save_safety.gd`) |
 | B60 | Verified | Low | Test harness | The new storage pull-up checks looked at the drawer a fixed 30 frames after hovering or leaving; headless frames are faster than the 0.22 s slide, so the drawer was still moving | 0.57.8 | Automated: Rooms and Counter art suites, GitHub Actions run 45703005341 |
 | B61 | Verified | Low | Diagnosis / Presentation | In the testing bay the magnifying glass shows only the healthy inspection picture, so a clue the lens has already revealed disappears inside the glass when you look at it again | 0.57.10 | Automated: Testing bay suite, GitHub Actions run 46021841002 |
 
@@ -845,7 +845,14 @@ then-current design wording do not override the current status, D150 or the late
   Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 - Status / severity: Open / High. The original report said Medium; the register defines a blocked
   loop as High. No irrecoverable ownership loss has been demonstrated. This is reproduction, not a fix.
-- Fixed in: —
+- Fixed in: 0.57.11, by Claude (Opus 5.5, model id claude-opus-5-5), with the user's recovery policy (D172):
+  `SaveStore.read()` takes an optional accept check and `ensure()` refuses a manifest from another run, so the
+  .bak/.tmp behind it is read; every morning is backed up (`scripts/state/save_backups.gd`, newest 3 kept);
+  when the counter finds the ticket book untrustworthy, or waiting customers without tickets, it shows "The
+  ticket book is damaged" with "Restore this morning's backup" (`NightSession.restore_morning`). Restoring
+  sets the current files aside (never deletes), tries the newest backup that loads and checks out, and puts
+  the player's own files back if none does (the game then stays protected, as before). No job is invented,
+  no pending ID is silently consumed, and the protections are unchanged.
 - Root cause: `NightSession.ensure()` protects an unavailable/invalid manifest by retaining only the
   active job and setting `read_only`. Pending intake still forces the counter through `resume_path()`.
   `opening_cards()` returns no cards when any pending ID has no matching job; if only the recovered
@@ -872,7 +879,13 @@ then-current design wording do not override the current status, D150 or the late
   preserve the original files and every unrecovered job. Do not manufacture jobs, silently consume
   missing pending IDs, or accept only the front ID while a later job is absent (PR #78 proposal 2).
   Recovery behavior remains for a separate gameplay change and human review.
-- Regression / evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
+- Regression / evidence: (0.57.11) `tools/test_save_safety.gd`: the wrong-run primary with a valid backup
+  now ensures and shows both opening cards; with the manifest gone the counter shows the recovery slip,
+  the restore brings back both waiting customers, the counter starts again from that morning, the damaged
+  files are kept aside and both customers can be accepted; ending the night backs up the new morning; a
+  useless backup is refused and the player's own save is put back; only the newest three mornings are
+  kept. CI result pending; not checked in game by a person.
+  Earlier evidence: automated reproduction, not fixed-bug verification. Ten disposable fixtures
   plus restoration check at 842d0c2; four healthy controls accepted normally, damaged queues stayed
   unchanged, and money/inventory/active job were preserved (zero setup/ownership failures). The
   diagnostic reports observations and is not a required CI test asserting that a lock should persist.

@@ -3,7 +3,8 @@
 # Safe writing (0.11.2): the new save is written to "<path>.tmp" and read back first; only if it
 # parses is the old save moved to "<path>.bak" and the new one moved into place. So a crash or a full
 # disk while saving cannot destroy the previous save. Reading falls back to .bak, then .tmp, if the
-# main file is missing or damaged. The .bak is just the previous save, not a long-term backup.
+# main file is missing or damaged. The .bak is just the previous save, not a long-term backup; the
+# long-term morning backups are scripts/state/save_backups.gd (0.57.11).
 extends RefCounted
 
 
@@ -51,7 +52,9 @@ static func write(path: String, data: Dictionary) -> bool:
 
 # Read the save at `path`. Returns the parsed Dictionary from the first of path, path.bak, path.tmp
 # that parses to one, or null if none does. Warns when it had to use a fallback or found damage.
-static func read(path: String) -> Variant:
+# B59 (0.57.11): `accept`, when given, is asked about each parsed candidate; one it refuses (say, a ticket
+# manifest from another run) is skipped like a damaged file, so it cannot hide a good backup behind it.
+static func read(path: String, accept: Callable = Callable()) -> Variant:
     var candidates: Array = [path, path + ".bak", path + ".tmp"]
     var saw_file: bool = false
     for i in range(candidates.size()):
@@ -60,7 +63,7 @@ static func read(path: String) -> Variant:
             continue
         saw_file = true
         var parsed: Variant = _parse(candidate)
-        if typeof(parsed) == TYPE_DICTIONARY:
+        if typeof(parsed) == TYPE_DICTIONARY and (not accept.is_valid() or bool(accept.call(parsed))):
             if i > 0:
                 push_warning("Save file was missing or damaged; recovered from %s." % candidate)
             return parsed

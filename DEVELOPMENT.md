@@ -93,6 +93,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | --- | --- | --- |
 | `scripts/rooms/counter_art.gd` | view | Approved Batch A source loading, background/foreground layers, endpoint crops and decorative storage mapping |
 | `tools/test_item_art.gd` | tooling | 0.57.8: the one item picture lookup and the approved Batch C files (sizes, turns, lens spots, clue overlays, tool frames) |
+| `tools/test_save_safety.gd` | test | 0.57.11 (B59): wrong-run ticket book falls back to its backup; morning backups (last 3); the counter's restore from a damaged ticket book |
 | `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors and full 20×10 storage art contract |
 | `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
 | `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
@@ -288,7 +289,8 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/view/paste_renderer.gd` | view | Draws the paste stage, paste picture and paste side panel (presentation only) |
 | `scripts/view/cleaning_renderer.gd` | view | Draws dust bundles and the cleaning side panel (presentation only) |
 | `scripts/bench/mount_session.gd` | sim/controller | Timed cooler-mounting pressure session; takes a pressing flag, reads no input, draws nothing |
-| `scripts/state/save_store.gd` | state | Safe JSON save writing (temp file, read-back, `.bak`) and reading with fallback; GameState decides contents and validation |
+| `scripts/state/save_store.gd` | state | Safe JSON save writing (temp file, read-back, `.bak`) and reading with fallback (0.57.11: an optional accept check skips a wrong candidate, B59); GameState decides contents and validation |
+| `scripts/state/save_backups.gd` | state | 0.57.11 (B59): morning backups of a save (main save, ticket manifest, room memory), newest 3 kept; restore sets the current files aside, never deletes |
 | `scripts/view/workshop_view.gd` | view | Hardware sandbox: free arrangement, pickup animation, rotation, fit previews, persisted profiles |
 | `scripts/view/hover_card.gd` | view | Draws the fading hover card |
 
@@ -341,6 +343,7 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `art/bench/README.md` | art | 0.57.8: approved repair-bench layers (dust, paste stage, fan) |
 | `art/tools/README.md` | art | 0.57.8: approved pixel-art bench tools with 24 pre-turned frames, hose, clamp, bin, cloth |
 | `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
+| `docs/CABLE_BOX_DESIGN.md` | docs | The cable box (D173): a movable, openable box whose loose cables tangle when moved; physics untangling; shop helpers; "you lost my cable" customers. Not built |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |
 | `tools/test_rooms.gd` | tooling | Rooms: every hotspot's action and art hint, placeholders vs art, native walking between rooms, counter objects, 06:00, the morning's customers, retired-screen redirects (0.53.0) |

@@ -132,6 +132,63 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.57.11 - 2026-11-27 - B59: morning backups and restoring a damaged ticket book; cable box and termopan decisions
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: PR #87's branch (0.57.10, `79ab79b`), not yet merged; merge #87 first. No other PR open; next bug
+  id B62. 0.58.0/0.59.0 stay reserved for Codex, 0.60.0 for the checker.
+- Type: patch (bug fix: save safety) plus decisions and a design note.
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2, including the new Save
+safety suite; results are under Checks performed. Nobody has yet seen the recovery slip in game.
+
+### Added / Changed / Fixed / Removed
+- **B59 fixed, with the user's recovery policy (D172):**
+  - A ticket book (manifest) from another run no longer hides its good backup: `SaveStore.read()` takes an
+    optional accept check and skips a refused candidate like a damaged file.
+  - **Every morning is saved as a backup** (the new game's first morning, and each morning after the night
+    ends): the save, its ticket book and its room memory go to `backups/<save>/morning_<night>/` next to the
+    save; the newest **3** are kept (`scripts/state/save_backups.gd`).
+  - When the counter finds the ticket book damaged (or customers waiting whose tickets cannot be found), a
+    slip says "The ticket book is damaged" and offers **"Restore this morning's backup"**. The newest backup
+    that loads and checks out is put back and the counter starts again from that morning. The damaged files
+    are set aside, never deleted; if no backup works, the player's own files are put back and the game stays
+    protected as before. No job is invented and no waiting customer is silently dropped.
+- **Decisions recorded:** D172 (save backups and restore), D173 (the cable box: movable between rooms,
+  openable, loose cables tangle when it is moved, physics untangling, shop helpers, only "you lost my cable"
+  customers as a scam), D174 (termopan doors in white PVC with clear glass, a radiator under the window and a
+  linoleum floor). Design notes: `docs/CABLE_BOX_DESIGN.md`.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/state/save_backups.gd` | A | Morning backups (newest 3), restore with set-aside, put-back |
+| `scripts/state/save_store.gd` | M | Optional accept check on read |
+| `scripts/night/night_session.gd` | M | Wrong-run manifest skipped; morning backups; `needs_recovery`, `restore_morning` |
+| `scripts/rooms/counter_room.gd` | M | The recovery slip with "Restore this morning's backup" |
+| `tools/test_save_safety.gd` | A | New suite "Save safety" (added to the workflow) |
+| `tools/test_support.gd` | M | A disposable test save takes its backups with it |
+| `.github/workflows/tests.yml` | M | Save safety suite |
+| `docs/CABLE_BOX_DESIGN.md` | A | Cable box design notes and open questions |
+| `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59 Fixed; D172–D174 |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.11, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
+- GitHub Actions on Godot 4.7.2 (headless): see the PR; this entry is updated with the result.
+
+### Decisions proposed (not approved)
+- Keeping "3 days before" as the newest three morning backups (the user can ask for more).
+- The under-counter storage layout (`user://nightshift_storage.json`, shared by all saves) is not part of a
+  morning backup.
+
+### Known issues and open items
+- Termopan art, the radiator and the linoleum floor are drafts for the user's review, not in the game.
+- The cable box is not built; its open questions are in `docs/CABLE_BOX_DESIGN.md`.
+
+### Next action
+- The user merges #87 then this PR, and reviews the termopan drafts.
+
 ## 0.57.10 - 2026-11-27 - B61: the magnifying glass shows the clues it has revealed
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.57.9 (dfbf5aa; #84, #85 and #86 merged with the user's go-ahead). Answers the Code
