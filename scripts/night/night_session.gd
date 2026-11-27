@@ -71,7 +71,7 @@ func start(gs: Node, introduce_customers: bool = false) -> bool:
         status = "New night could not be saved. Repair progress is only in memory; retry Save before quitting."
         return false
     if not _write(gs): return false
-    Backups.take(gs.save_path, int(gs.night_number))   # B59: the first morning is backed up too
+    Backups.take(gs.save_path, run_id, int(gs.night_number))   # B59: the first morning is backed up too (B63: per playthrough)
     return true
 
 func ensure(gs: Node) -> bool:
@@ -288,19 +288,21 @@ func needs_recovery(gs: Node) -> bool:
 # ticket book checks out, newest first. Nothing is deleted: the damaged files are kept aside by Backups.
 # On failure the game stays protected, as before.
 func restore_morning(gs: Node) -> bool:
+    # B63: only this playthrough's mornings (the run the main save belongs to), never an earlier game's.
+    var run: String = str(_marker(gs).get("run", run_id))
     var originals: String = ""
-    for morning: String in Backups.mornings(gs.save_path):
-        var aside: String = Backups.restore(gs.save_path, morning)
+    for morning: String in Backups.mornings(gs.save_path, run):
+        var aside: String = Backups.restore(gs.save_path, run, morning)
         if aside == "": continue
         if originals == "": originals = aside
         bound_path = ""
         run_id = ""
         tickets = []
-        if gs.load_game() and ensure(gs) and (gs.opening_customers.is_empty() or not opening_cards(gs).is_empty()):
+        if gs.load_game() and str(_marker(gs).get("run", "")) == run and ensure(gs) and (gs.opening_customers.is_empty() or not opening_cards(gs).is_empty()):
             status = "Restored the shop as it was on the morning of night %d." % Backups.night_of(morning)
             restored_note = status
             return true
-    if originals != "" and Backups.set_aside(gs.save_path) != "": Backups.copy_in(gs.save_path, originals)   # the player's own files back
+    if originals != "": Backups.put_back(gs.save_path, originals)   # the player's own files back (they stay set aside too)
     bound_path = ""
     run_id = ""
     tickets = []
@@ -408,7 +410,7 @@ func end_night(gs: Node) -> Dictionary:
     tickets = tickets.filter(func(entry: Dictionary) -> bool: return entry.get("state","open") != "done" or str(entry["id"]) == active_id)
     gs.start_next_night()
     if not checkpoint(gs): return {"ok":false,"message":status}
-    Backups.take(gs.save_path, int(gs.night_number))   # B59 (0.57.11): every morning is backed up; the last 3 are kept
+    Backups.take(gs.save_path, run_id, int(gs.night_number))   # B59 (0.58.2): every morning is backed up; this playthrough's last 3 are kept
     var earned: int = 0
     for card: Dictionary in cards: earned += int(card.get("paid",0))
     visits_pending = true

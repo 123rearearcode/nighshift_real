@@ -27,13 +27,13 @@ func run() -> void:
     gs.money = 777
     for day in [20, 21, 22]:
         gs.night_number = day
-        if not night.checkpoint(gs) or not backups.take(gs.save_path, day):
+        if not night.checkpoint(gs) or not backups.take(gs.save_path, night.run_id, day):   # 0.58.2: per-run API
             push_error("B63 fixture could not save its morning.")
             quit(1)
             return
     gs.new_game(false)
     night.start(gs, true)
-    print("B63 new_run_differs=", old_run != night.run_id, " cash=", gs.money, " retained=", backups.mornings(gs.save_path))
+    print("B63 new_run_differs=", old_run != night.run_id, " cash=", gs.money, " retained=", backups.mornings(gs.save_path, night.run_id))
     for extra: String in ["", ".bak", ".tmp"]:
         DirAccess.remove_absolute(gs.save_path + ".night.json" + extra)
     night.bound_path = ""
@@ -44,12 +44,7 @@ func run() -> void:
     var restored: bool = night.restore_morning(gs)
     print("B63 protected=", protected, " restored=", restored, " cash=", gs.money,
         " night=", gs.night_number, " restored_old_run=", night.run_id == old_run)
-    var dir: String = backups.folder(gs.save_path)
-    for sub: String in DirAccess.get_directories_at(dir):
-        for file: String in DirAccess.get_files_at(dir.path_join(sub)):
-            DirAccess.remove_absolute(dir.path_join(sub).path_join(file))
-        DirAccess.remove_absolute(dir.path_join(sub))
-    DirAccess.remove_absolute(dir)
+    backups.remove_tree(backups.folder(gs.save_path))
     for suffix: String in ["", ".night.json", ".navigation.json"]:
         for extra: String in ["", ".bak", ".tmp"]:
             DirAccess.remove_absolute(gs.save_path + suffix + extra)

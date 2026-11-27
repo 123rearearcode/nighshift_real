@@ -147,13 +147,18 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
   - A ticket book (manifest) from another run no longer hides its good backup: `SaveStore.read()` takes an
     optional accept check and skips a refused candidate like a damaged file.
   - **Every morning is saved as a backup** (the new game's first morning, and each morning after the night
-    ends): the save, its ticket book and its room memory go to `backups/<save>/morning_<night>/` next to the
-    save; the newest **3** are kept (`scripts/state/save_backups.gd`).
+    ends): the save, its ticket book and its room memory go to `backups/<save>/run_<playthrough>/morning_<night>/`
+    next to the save; the newest **3** of this playthrough are kept, and only the newest earlier playthrough
+    stays archived (`scripts/state/save_backups.gd`).
   - When the counter finds the ticket book damaged (or customers waiting whose tickets cannot be found), a
     slip says "The ticket book is damaged" and offers **"Restore this morning's backup"**. The newest backup
     that loads and checks out is put back and the counter starts again from that morning. The damaged files
     are set aside, never deleted; if no backup works, the player's own files are put back and the game stays
     protected as before. No job is invented and no waiting customer is silently dropped.
+- **B63 fixed (Codex's review of this PR, in #89):** a new game could lose its own first-morning backup to an
+  older game's later mornings, and the restore could bring back that older playthrough. Backups are now kept
+  per playthrough and a restore only uses the playthrough being recovered; a failed move or copy during a
+  restore puts the original files back.
 - **B62 (fixed before release):** the first version of the B59 check also skipped a ticket book written by a
   newer game version and read the older backup; caught by the Night workshop suite. Now only a ticket book of
   this format from another run is skipped.
@@ -173,14 +178,16 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
 | `tools/test_support.gd` | M | A disposable test save takes its backups with it |
 | `.github/workflows/tests.yml` | M | Save safety suite |
 | `docs/CABLE_BOX_DESIGN.md` | A | Cable box design notes and open questions |
-| `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59 Fixed, B62; D172–D174 |
+| `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59, B62, B63; D172–D174 |
+| `tools/reproduce_b63.gd` | M | Codex's opt-in diagnostic, moved to the per-playthrough API |
 | `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.58.2, this entry |
 
 ### Checks performed
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
 - GitHub Actions on Godot 4.7.2 (headless): run 46033437449 on `2db0a5c` failed one Night workshop check (B62);
   after the fix, run 46033946684 on `d0472fe` passed every suite, including the new Save safety suite (15
-  checks). B59 and B62 marked Verified.
+  checks). B59 and B62 marked Verified. After the B63 fix and the merge of main 0.58.0: see the PR; this entry
+  is updated with the result.
 
 ### Decisions proposed (not approved)
 - Keeping "3 days before" as the newest three morning backups (the user can ask for more).

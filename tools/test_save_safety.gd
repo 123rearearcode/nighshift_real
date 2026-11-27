@@ -1,4 +1,4 @@
-# 0.57.11 (B59): save safety. A ticket book from another run no longer hides the good backup beside it;
+# 0.58.2 (B59, B63): save safety. A ticket book from another run no longer hides the good backup beside it;
 # every morning is backed up and the last 3 are kept; a damaged ticket book at the counter offers the
 # morning backup instead of a dead end, and a restore never deletes the player's own files.
 # User, 27 November 2026: "automatically save every morning, and keep backups up to 3 days before";
@@ -32,11 +32,7 @@ func cold(night: Node) -> void:
 
 
 func clear_backups(gs: Node) -> void:
-    var dir: String = Backups.folder(gs.save_path)
-    if not DirAccess.dir_exists_absolute(dir): return
-    for sub: String in DirAccess.get_directories_at(dir):
-        for file: String in DirAccess.get_files_at(dir.path_join(sub)): DirAccess.remove_absolute(dir.path_join(sub).path_join(file))
-        DirAccess.remove_absolute(dir.path_join(sub))
+    Backups.remove_tree(Backups.folder(gs.save_path))
 
 
 func set_asides(gs: Node) -> Array:
@@ -67,8 +63,8 @@ func run_checks() -> void:
     gs.new_game(false)
     check(night.start(gs, true) and gs.opening_customers.size() == 2, "a new game starts with its two opening customers")
     var first: String = "morning_%04d" % int(gs.night_number)
-    check(Backups.mornings(gs.save_path) == [first], "the first morning is backed up as soon as the game starts")
-    var kept: String = Backups.folder(gs.save_path).path_join(first)
+    check(Backups.mornings(gs.save_path, night.run_id) == [first], "the first morning is backed up as soon as the game starts")
+    var kept: String = Backups.run_folder(gs.save_path, night.run_id).path_join(first)
     check(FileAccess.file_exists(kept.path_join(gs.save_path.get_file())) and FileAccess.file_exists(kept.path_join(manifest.get_file())), "the backup holds the save and its ticket book")
 
     # ---- B59, second fault: a ticket book from another run hid the good backup ----
@@ -102,21 +98,43 @@ func run_checks() -> void:
 
     # ---- every morning is backed up ----
     var report: Dictionary = night.end_night(gs)
-    check(bool(report.get("ok", false)) and Backups.mornings(gs.save_path)[0] == "morning_%04d" % int(gs.night_number), "ending the night backs up the new morning")
+    check(bool(report.get("ok", false)) and Backups.mornings(gs.save_path, night.run_id)[0] == "morning_%04d" % int(gs.night_number), "ending the night backs up the new morning")
 
     # ---- a backup that does not fix it is not left in place ----
     clear_backups(gs)
     remove_family(manifest)
-    check(Backups.take(gs.save_path, 99), "a backup can be taken without a ticket book (to test a useless one)")
+    check(Backups.take(gs.save_path, night.run_id, 99), "a backup can be taken without a ticket book (to test a useless one)")
     cold(night)
     gs.load_game()
     var own: String = FileAccess.get_file_as_string(gs.save_path)
-    check(not night.restore_morning(gs) and night.read_only and FileAccess.get_file_as_string(gs.save_path) == own and set_asides(gs).size() == 2, "a backup that cannot fix it is refused and the player's own save is put back (and also kept aside)")
+    check(not night.restore_morning(gs) and night.read_only and FileAccess.get_file_as_string(gs.save_path) == own and set_asides(gs).size() == 1, "a backup that cannot fix it is refused and the player's own save is put back (and also kept aside)")
 
     # ---- only the last 3 mornings are kept ----
     clear_backups(gs)
-    for n in range(5): Backups.take(gs.save_path, 20 + n)
-    check(Backups.mornings(gs.save_path) == ["morning_0024", "morning_0023", "morning_0022"], "only the newest three mornings are kept")
+    var run: String = night.run_id
+    for n in range(5): Backups.take(gs.save_path, run, 20 + n)
+    check(Backups.mornings(gs.save_path, run) == ["morning_0024", "morning_0023", "morning_0022"], "only the newest three mornings are kept")
+
+    # ---- B63 (Codex's reproduction): a new game keeps its own first morning and never restores the old one ----
+    gs.new_game(false)
+    check(night.start(gs, true), "an earlier playthrough starts in the same slot")
+    var old_run: String = night.run_id
+    gs.money = 777
+    for n in [20, 21, 22]:
+        gs.night_number = n
+        check(night.checkpoint(gs) and Backups.take(gs.save_path, old_run, n), "the earlier playthrough saves its night %d morning" % n)
+    gs.new_game(false)
+    check(night.start(gs, true) and night.run_id != old_run and int(gs.money) != 777, "a new game in the same slot is a different playthrough")
+    var new_run: String = night.run_id
+    check(Backups.mornings(gs.save_path, new_run) == ["morning_%04d" % int(gs.night_number)] and Backups.mornings(gs.save_path, old_run).size() == 3, "B63: the new game keeps its own first morning; the old playthrough stays archived beside it")
+    var new_cash: int = int(gs.money)
+    remove_family(manifest)
+    cold(night)
+    gs.load_game()
+    check(not night.ensure(gs) and night.read_only, "the new game's ticket book is gone: protected")
+    check(night.restore_morning(gs) and night.run_id == new_run and int(gs.money) == new_cash and int(gs.night_number) == 1 and gs.opening_customers.size() == 2, "B63: the restore brings back the new game's own first morning, never the old playthrough")
+    gs.new_game(false)
+    check(night.start(gs, true) and Backups.runs(gs.save_path).size() == 2 and not Backups.runs(gs.save_path).has(Backups.run_folder(gs.save_path, old_run).get_file()) and Backups.runs(gs.save_path).has(Backups.run_folder(gs.save_path, new_run).get_file()), "only the newest earlier playthrough stays archived")
 
     change_scene_to_file("res://scenes/start.tscn")
     for f in range(2): await process_frame

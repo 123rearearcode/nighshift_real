@@ -4,7 +4,8 @@
 
 User decisions (D172): fix the backup check; save every morning and keep backups up to 3 days back; when the
 ticket book is damaged, try to restore it. Built: `SaveStore.read(path, accept)` skips a wrong-run manifest;
-`scripts/state/save_backups.gd` backs up the save, ticket book and room memory each morning (newest 3);
+`scripts/state/save_backups.gd` backs up the save, ticket book and room memory each morning, per playthrough
+(newest 3; one earlier playthrough archived; B63 from Codex's review fixed);
 the counter's "The ticket book is damaged" slip restores the newest working backup, setting the damaged
 files aside and putting the player's own files back if none works. Test suite: Save safety.
 Also decided, not built: the cable box (D173, `docs/CABLE_BOX_DESIGN.md`) and termopan doors, radiator and

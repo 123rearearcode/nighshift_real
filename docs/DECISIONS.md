@@ -819,7 +819,8 @@ counter-room art must follow this layout. Recorded by Claude (Opus 5.5, model id
 For B59 the user chose: fix the backup check; "automatically save every morning, and keep backups up to 3
 days before"; and when the ticket book is damaged, "Sure, try to restore it." So every morning (the new
 game's first morning and each morning after the night ends) the save, its ticket manifest and its room
-memory are copied to `backups/<save>/morning_<night>/`; the newest 3 are kept. A ticket book from another run
+memory are copied to `backups/<save>/run_<playthrough>/morning_<night>/`; the newest 3 of the playthrough are
+kept, and a restore only uses the playthrough being recovered (B63). A ticket book from another run
 no longer hides its good backup. When the counter finds the ticket book damaged it offers "Restore this
 morning's backup": the newest backup that loads and checks out is put back, the damaged files are set aside
 (never deleted), and if no backup works the player's own files are put back and the game stays protected.

@@ -37,13 +37,14 @@ func _remove_save_files(path: String) -> void:
             DirAccess.remove_absolute(path + suffix)
     # 0.57.11 (B59): a disposable save's morning backups (backups/<name>/morning_*, damaged_*) go with it.
     if path.ends_with(".json") and not path.ends_with(".night.json") and not path.ends_with(".navigation.json"):
-        var backups: String = path.get_base_dir().path_join("backups").path_join(path.get_file().get_basename())
-        if DirAccess.dir_exists_absolute(backups):
-            for sub: String in DirAccess.get_directories_at(backups):
-                for file: String in DirAccess.get_files_at(backups.path_join(sub)):
-                    DirAccess.remove_absolute(backups.path_join(sub).path_join(file))
-                DirAccess.remove_absolute(backups.path_join(sub))
-            DirAccess.remove_absolute(backups)
+        _remove_tree(path.get_base_dir().path_join("backups").path_join(path.get_file().get_basename()))
+
+
+func _remove_tree(dir: String) -> void:
+    if not DirAccess.dir_exists_absolute(dir): return
+    for sub: String in DirAccess.get_directories_at(dir): _remove_tree(dir.path_join(sub))
+    for file: String in DirAccess.get_files_at(dir): DirAccess.remove_absolute(dir.path_join(file))
+    DirAccess.remove_absolute(dir)
 
 
 # A real mouse button event sent straight to a scene's input handler (no window needed).
