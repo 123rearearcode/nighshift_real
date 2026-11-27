@@ -194,8 +194,12 @@ The user asked to move on to roadmap phase p06, "Make the latest build trustwort
 | `CHANGELOG.md` | M | This entry |
 
 ### Checks performed
-- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: run locally, results in the PR.
-- GitHub Actions (all suites, Godot 4.7.2 headless): results recorded after the run.
+- Locally: `python3 -I tools/check_project.py` PASSED; `check_bug_register.py` 0 problems; `test_bug_register.py` OK.
+- GitHub Actions run 46062181908 (first push): the Storage suite failed to parse (B72); every other suite passed.
+- GitHub Actions run 46062635008 on `cd204ef` (Godot 4.7.2 headless): all 40 required suites passed, 2,596 checks,
+  0 failures. Storage 83, Testing bay 66, Build requests 193, Morning report 29, Install technique 39.
+- B57 timing printed by the Build requests suite for the checker's 24 low-cash draws: 790 ms without the cache,
+  242 ms with it (494 versus 146 searches). The uncached figure already includes the new pruning.
 
 ### Known issues and open items
 - Still for a human: play through 0.58.7 (p06-01), the pickup/held-tool clarity (p06-03), cable tuning
