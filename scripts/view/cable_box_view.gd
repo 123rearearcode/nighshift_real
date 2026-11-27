@@ -26,8 +26,10 @@ const PICK_RADIUS: float = 12.0
 const FRICTION: float = 0.82
 const ITERATIONS: int = 12
 const PULL_START: float = 1.08                    # how far past its rope length the plug must be pulled
+const FULL_PULL: float = 0.2                      # ... and how much further counts as a full pull
+const MAX_STRETCH: float = 1.35                   # a cable goes taut; it does not stretch like elastic
 const SLIDE_RATE: float = 0.55                    # fraction of the cable per second at a full pull
-const STRAIN_RATE: float = 0.7                    # of BREAK_STRAIN per second at a full pull
+const STRAIN_RATE: float = 0.45                   # of BREAK_STRAIN per second at a full pull (about 3 s to snap)
 const RELAX_RATE: float = 0.12
 const FREE_AT: float = 0.03
 
@@ -37,7 +39,8 @@ var ropes: Dictionary = {}       # cable id -> {"p": PackedVector2Array, "o": Pa
 var anchors: Array = []          # one point per knot, in step with state["knots"]
 var held_id: String = ""
 var held_end: int = -1           # 0 = first plug, 1 = last plug
-var held_at := Vector2.ZERO
+var held_at := Vector2.ZERO      # where the held plug is (kept within the cable's reach of its knots)
+var held_target := Vector2.ZERO  # where the mouse is
 var pulling: Dictionary = {}     # knot index -> pull strength this step (for drawing)
 var selected: String = ""
 var title: Label
@@ -138,6 +141,7 @@ func _knot_point(k: Dictionary, which: String) -> Vector2:
 # One physics step. Called every frame; tests call it directly.
 func step(dt: float) -> void:
     pulling.clear()
+    if held_id != "": held_at = _reach(held_target)
     for id: String in ropes:
         var r: Dictionary = ropes[id]
         var p: PackedVector2Array = r["p"]
@@ -181,7 +185,21 @@ func step(dt: float) -> void:
     queue_redraw()
 
 
-# The held cable is pulled: each knot on it either slides toward the pulled plug (its open end) or tightens.
+# The plug can go no further from each knot than the cable between them allows (a little give, then taut).
+func _reach(target: Vector2) -> Vector2:
+    var at: Vector2 = target.clamp(FLOOR.position, FLOOR.end)
+    var n: int = (ropes[held_id]["p"] as PackedVector2Array).size()
+    for k_i in CableBox.knots_of(state, held_id):
+        var k: Dictionary = state["knots"][k_i]
+        var which: String = "a" if k["a"] == held_id else "b"
+        var reach: float = maxf(absf(_knot_index(k, which) - (0 if held_end == 0 else n - 1)) * SEG, SEG) * MAX_STRETCH
+        var from: Vector2 = anchors[k_i]
+        if at.distance_to(from) > reach: at = from + (at - from).normalized() * reach
+    return at
+
+
+# The held cable is pulled. Pulled by its open end, it is drawn through each knot (the knot moves along the
+# cable toward its far end until that end slips out); pulled by the other end, the knot only tightens.
 func _pull(dt: float) -> void:
     var freed: Array = []
     var snapped: bool = false
@@ -193,10 +211,10 @@ func _pull(dt: float) -> void:
         var rest: float = maxf(absf(_knot_index(k, which) - plug) * SEG, SEG)
         var stretch: float = held_at.distance_to(anchors[k_i]) / rest
         if stretch <= PULL_START: continue
-        var pull: float = clampf((stretch - PULL_START) / 0.5, 0.0, 1.0)
+        var pull: float = clampf((stretch - PULL_START) / FULL_PULL, 0.0, 1.0)
         pulling[k_i] = pull
         if int(k["open_" + which]) == held_end:
-            var at: float = float(k["at_" + which]) + (-1.0 if held_end == 0 else 1.0) * SLIDE_RATE * pull * dt
+            var at: float = float(k["at_" + which]) + (1.0 if held_end == 0 else -1.0) * SLIDE_RATE * pull * dt
             k["at_" + which] = clampf(at, 0.0, 1.0)
             if at <= FREE_AT or at >= 1.0 - FREE_AT: freed.append(k_i)
         elif CableBox.strain(state, k_i, held_id, STRAIN_RATE * pull * dt):
@@ -247,7 +265,8 @@ func press_at(at: Vector2) -> void:
                 held_id = id
                 held_end = end
     if held_id != "":
-        held_at = at.clamp(FLOOR.position, FLOOR.end)
+        held_target = at
+        held_at = _reach(at)
         selected = held_id
     else:
         selected = _cable_at(at)
@@ -255,7 +274,7 @@ func press_at(at: Vector2) -> void:
 
 
 func drag_to(at: Vector2) -> void:
-    held_at = at.clamp(FLOOR.position, FLOOR.end)
+    held_target = at
 
 
 func grab(id: String, end: int) -> void:
@@ -264,6 +283,7 @@ func grab(id: String, end: int) -> void:
     held_end = end
     var p: PackedVector2Array = ropes[id]["p"]
     held_at = p[0 if end == 0 else p.size() - 1]
+    held_target = held_at
     selected = id
 
 

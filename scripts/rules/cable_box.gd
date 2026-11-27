@@ -5,9 +5,9 @@
 # are loose cables inside"; untangling is physics-based (scripts/view/cable_box_view.gd); the shop sells
 # things that help; and cables "can break".
 #
-# A knot holds two cables together. Each cable can slip out of a knot only through ONE of its ends (its
-# "open" end): pulling that end slides the knot along the cable and off it; pulling the other end tightens
-# the knot, and pulled too hard the cable snaps. Tied cables (zip tie or velcro strap) never tangle.
+# A knot holds two cables together. Each cable comes out of a knot only when pulled by ONE of its plugs (its
+# "open" end): pulled by that plug, the cable is drawn through the knot until its far end slips out; pulled
+# by the other plug, the knot tightens, and pulled too hard the cable snaps. Tied cables (zip tie or velcro strap) never tangle.
 extends RefCounted
 
 const VERSION: int = 1
