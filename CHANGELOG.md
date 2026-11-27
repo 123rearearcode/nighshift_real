@@ -132,6 +132,69 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.9 - 2026-11-27 - Customers talk, all four walls at the store, vacuum switch hidden while mounting
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.58.8 (d0710c0). New bug id B73 (next B74). 0.59.0 (per-part tests, Codex) and 0.60.0
+  (checker) stay reserved.
+- Type: patch (a dialogue system, approved art with a store feature, a bug fix; one optional save field).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. Nobody has seen these in game yet.
+
+### Added / Changed / Fixed / Removed
+- **Customers talk (D181; user: "when a customer comes in, you should be able to click/space for dialogue to
+  unroll ... the game will be story driven anyhow").** `scripts/ui/dialogue_box.gd`, reusable: lines type out;
+  a click anywhere below the top bar, Space or Enter finishes the line, the next goes on; after the last line it
+  closes (`finished`). Lines can name their speaker. At the counter every customer speaks first and the ticket
+  slip with Accept follows (`MorningText.opening_lines`, `visit_lines`); nothing said reveals hidden faults or
+  money. Mara and Relu got placeholder greeting and timing lines (`greeting`, `patience_line`).
+- **All four walls (D180; user: "i kinda f with all of them ... you start w the second one but all should be
+  included"; bought at the store).** The approved drafts became runtime layers (`art/rooms/counter_walls/`,
+  proven pixel-identical to the approved pictures). The shop starts with B, the two-tone oil paint; the store
+  sells A (cream tiles $60), C (pine and 70s wallpaper $80), D (blue plaster $40) and the old teal tiles ($20)
+  in a new row; once bought a finish goes back up for free. `GameState.wall_finish` (saved; unknown or unbought
+  falls back to B), `has_wall`, `set_wall`, `buy_wall`. The store's rows are a little more compact to fit.
+- **Fixed B73:** the vacuum switch showed while mounting the cooler (missing from the cleaning-only controls).
+
+### Files changed
+| File | Change | What |
+|---|---|---|
+| `scripts/ui/dialogue_box.gd` | A | The dialogue box |
+| `scripts/rooms/counter_room.gd` | M | Customers speak first; the slip after (`_dialogue_done`); wall finish to the art |
+| `scripts/night/morning_text.gd` | M | `opening_lines`, `visit_lines` |
+| `scripts/data/customers.gd` | M | Mara's and Relu's greeting and timing lines (placeholders) |
+| `scripts/data/wall_finishes.gd` | A | The five finishes |
+| `art/rooms/counter_walls/*` | A | Four approved wall layers, manifest, README |
+| `scripts/rooms/counter_art.gd` | M | Draws the chosen wall (`wall_finish`, `wall_picture`) |
+| `scripts/state/game_state.gd` | M | `wall_finish` (saved), `has_wall`/`set_wall`/`buy_wall`, wall prices |
+| `scripts/night/shop_activity_view.gd` | M | Walls row; compact rows |
+| `scripts/view/bench_ui.gd` | M | B73 |
+| `tools/test_dialogue.gd`, `tools/test_wall_finishes.gd` | A | New suites (also in CI) |
+| `tools/test_support.gd` | M | `finish_dialogue` |
+| `tools/test_counter_art.gd`, `test_first_customer.gd`, `test_rooms.gd`, `test_morning.gd`, `test_save_safety.gd` | M | Close the dialogue before using the slip |
+| `tools/test_data_schemas.gd` | M | Optional customer keys `greeting`, `patience_line` |
+| `tools/test_audio_and_vacuum.gd` | M | B73 regression |
+| `tools/art_batch_d/walls.py`, `walls_export.py`, `flat.py` | A | Wall drawing, export and proof |
+| `.github/workflows/tests.yml` | M | Two new suites |
+| `docs/BUGS.md`, `docs/DECISIONS.md` (D180, D181), `docs/ART_ASSET_LOG.md`, `docs/roadmap.json`, `docs/WORK_PLAN.md` | M | Records |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot` | M | File map, handoff, version 0.58.9 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- Locally: `check_project.py`, `check_bug_register.py`, `test_bug_register.py` (results in the PR).
+- `walls_export.py`: each approved draft rebuilt from the new layers with maximum pixel difference 0.
+- GitHub Actions run 46071302278 (first push): every suite passed except one Save safety check that expected the
+  slip right after a restore; with D181 the customer talks first. Not a defect: the test now closes the dialogue
+  first (as the other slip tests do). Dialogue 20 checks and Wall finishes 14 checks passed there.
+- GitHub Actions run 46071704212: all 42 required suites passed, 2,636 checks, 0 failures (B73 verified).
+
+### Decisions proposed (not approved)
+- Wall prices ($60, $80, $40, $20) and the placeholder lines for Mara and Relu.
+
+### Next action
+Merge; play the morning intake and try the store's walls.
+
 ## 0.58.8 - 2026-11-27 - The repair bench on the user's desk painting
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #94's branch (0.58.7), not yet merged; merge #93 and #94 first. No new bug id (next B73).

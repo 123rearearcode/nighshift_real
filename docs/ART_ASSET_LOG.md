@@ -356,6 +356,16 @@ References (not loaded, no runtime approval): `art/references/counter_flat_layou
 `feat/counter-flat-layout-0579`, by Claude (Opus 5.5, model id claude-opus-5-5). Human in-game visual
 acceptance: not yet recorded (the user runs the build and merges).
 
+## Counter wall finishes: approval and integration (0.58.9)
+
+The four wall drafts (0.58.5, `art/drafts/walls/wall_options_sheet.png`) were approved 27 November 2026: "i kinda
+f with all of them". Created by Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL
+(`tools/art_batch_d/walls.py`, helper `flat.py`). `tools/art_batch_d/walls_export.py` exported the same walls as
+runtime layers (the lamp, pipe and workshop doorway cut out, as in the drafts) and rebuilt each approved picture
+from them with zero pixel difference. Installed in `art/rooms/counter_walls/` (four files, SHA-256 in its
+`manifest.json`, checked by the Wall finishes suite), drawn by `scripts/rooms/counter_art.gd`. Created: yes;
+Human approved: yes (quote above); Integrated: 0.58.9; Visually accepted in game: not yet.
+
 ## Repair bench background: approval and integration (0.58.8)
 
 Source: the user's own desk painting (worn boards, teal work mat, dark tool tray), supplied 27 November 2026:

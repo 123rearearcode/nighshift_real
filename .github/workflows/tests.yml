@@ -113,6 +113,8 @@ jobs:
           test_save_safety|Save safety
           test_cable_box|Cable box
           test_backpack|Backpack
+          test_wall_finishes|Wall finishes
+          test_dialogue|Dialogue
           test_delivered_parts|Delivered parts"
           bad=0
           while IFS='|' read -r file name; do

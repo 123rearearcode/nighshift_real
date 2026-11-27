@@ -18,6 +18,35 @@ static func opening_text(card: Dictionary, person: Dictionary) -> String:
     lines.append("Accept the PC and put its ticket on the clipboard. No money changes hands now.")
     return "\n\n".join(lines)
 
+# 0.58.9 (D181): what a new customer SAYS at the counter, line by line (dialogue_box.gd). Only what they would
+# say themselves: greeting, the problem in their words, what they use it for, their timing. Story customers
+# can have their own `greeting` and `patience_line` (data/customers.gd); others get plain lines. Never the
+# hidden faults, infection, condition or true budget.
+static func opening_lines(card: Dictionary, person: Dictionary) -> Array:
+    var out: Array = [str(person.get("greeting", "Good morning. Is this the computer repair shop?"))]
+    var complaint: String = str(card.get("complaint", person.get("complaint", "")))
+    if complaint != "": out.append(complaint)
+    var uses: String = str(person.get("uses", ""))
+    if uses != "": out.append("I use it for " + uses.left(1).to_lower() + uses.substr(1))
+    if str(person.get("patience_line", "")) != "": out.append(str(person["patience_line"]))
+    return out
+
+
+# What someone walking in on a morning says: a new customer as above, a collection by how it went, a comeback.
+static func visit_lines(card: Dictionary, person: Dictionary) -> Array:
+    match str(card.get("kind", "")):
+        "new": return opening_lines(card, person)
+        "comeback": return ["It's acting up again. I'm bringing it back."]
+        "collected":
+            var reaction: String = str(card.get("reaction", ""))
+            if reaction.begins_with("Furious"): return ["It doesn't even turn on! I'm not paying for this."]
+            if reaction.begins_with("Happy"): return ["Thank you! It runs like new."]
+            if reaction.begins_with("Disappointed"): return ["Hm. I expected better, to be honest."]
+            if reaction.begins_with("Angry"): return ["This is not what I paid for."]
+            return ["I'm here for my PC."]
+    return []
+
+
 static func card_text(card: Dictionary) -> String:
     var kind: String = str(card.get("kind","new"))
     var lines: Array = ["%s · %s · %s"%[TITLES.get(kind,""),str(card.get("customer","")),str(card.get("ticket",""))],str(card.get("reaction",""))]

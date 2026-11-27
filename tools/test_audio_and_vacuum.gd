@@ -65,6 +65,11 @@ func run_checks() -> void:
     bench._input(v)
     bench._physics_process(1.0/60.0)
     check(not bench.vacuum_on and not has_loop(bench,"vacuum.motor"), "V switches it off again")
+    # B73 (user, 27 Nov: "when you are mounting the cooler, the vacuum button appears").
+    bench._select_stage(1)
+    check(switch != null and not switch.visible, "the vacuum switch is hidden at the thermal paste stage (B73)")
+    bench._select_stage(0)
+    check(switch != null and switch.visible, "it is back when cleaning")
     # Visible UI buttons do not overlap each other after grouping tools/maintenance.
     var buttons: Array=[]
     for child: Node in bench.get_children():

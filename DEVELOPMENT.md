@@ -108,6 +108,14 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `art/rooms/counter_termopan/README.md` | docs | 0.58.5 (D174): the approved termopan counter set (doors, PVC shutter, radiator, linoleum) and its approval |
 | `art/bench/background/README.md` | docs | 0.58.8 (D179): the repair bench background made from the user's desk painting, and its approval |
 | `tools/art_batch_d/bench_mat.py` | tool | 0.58.8: rebuilds the user's desk painting for the bench layout (Python/PIL); drafts, options and the approved file |
+| `art/rooms/counter_walls/README.md` | docs | 0.58.9 (D180): the four approved counter wall finishes and their approval |
+| `scripts/data/wall_finishes.gd` | data | 0.58.9 (D180): the counter's wall finishes (starting paint, store prices, pictures) |
+| `scripts/ui/dialogue_box.gd` | ui | 0.58.9 (D181): spoken lines that unroll; click, Space or Enter goes on |
+| `tools/test_wall_finishes.gd` | test | 0.58.9: wall finishes (approved files, buying, switching, saving, the counter) |
+| `tools/test_dialogue.gd` | test | 0.58.9: the dialogue box and customers talking first at the counter |
+| `tools/art_batch_d/walls.py` | tool | 0.58.5/0.58.9: draws the four wall finishes over the counter shell and the review pictures |
+| `tools/art_batch_d/walls_export.py` | tool | 0.58.9: exports the approved walls as runtime layers and proves they rebuild the drafts |
+| `tools/art_batch_d/flat.py` | tool | helper for walls.py: the flat counter front from the approved Batch A pictures |
 | `tools/art_batch_d/termopan.py` | tool | 0.58.5: draws the termopan counter layers (Python/PIL); regenerates the approved files byte for byte |
 | `docs/PC_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 record/save/migration proposal from PR #19; current lifecycle docs supersede it |
 | `docs/PC_OWNED_PART_MODEL_PROPOSAL.md` | docs | Historical 0.19.3 player-facing PC/part proposal from PR #19; not a current implementation assignment |

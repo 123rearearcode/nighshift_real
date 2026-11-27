@@ -1,5 +1,13 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.9, 27 November 2026
+
+User requests: customers' dialogue that unrolls (D181), all four counter walls bought at the store (D180), and
+B73. Claude touched one hot file narrowly: `game_state.gd` (`wall_finish` saved field, `has_wall`/`set_wall`/
+`buy_wall`, four wall prices in `UPGRADE_PRICES`). `bench_ui.gd` (not hot) for B73. No ownership, fitting,
+collection or migration change. 0.59.0 (Codex) and 0.60.0 (checker) stay reserved.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.58.7, 27 November 2026
 
 The user asked Claude to make the latest build trustworthy (roadmap phase p06). Claude touched the hot files
