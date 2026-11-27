@@ -1,5 +1,9 @@
 # Handoff to Codex — what happened since your 0.11.0
 
+> **Current (0.58.6, 27 November 2026):** this file is a historical handoff. Today, start with `HANDOFF.md`
+> and `docs/roadmap.json`, the machine-readable roadmap the user keeps (AGENTS.md rule 12). Read the
+> roadmap before choosing work, and update the tasks your PR changes, plus `about.main`, in the same PR.
+
 Written 2026-11-13 by Claude (Opus 5.5, model id claude-opus-5-5), for the user to give to Codex.
 Version at handoff: **0.15.1** (main branch). Your last version was **0.11.0** ("Tabletop throws, flexible
 brush and shared replacement stock", 2026-11-12, Codex in ChatGPT workspace, source ZIP). Between

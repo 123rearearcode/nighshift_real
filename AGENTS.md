@@ -1,7 +1,7 @@
 # For any AI agent or tool working in this project
 
-Read, in this order: `HANDOFF.md`, `DEVELOPMENT.md`, the newest entry of `CHANGELOG.md`, then the
-scripts you will touch. Do not start from this file alone.
+Read, in this order: `HANDOFF.md`, `docs/roadmap.json` (the current plan; rule 12), `DEVELOPMENT.md`, the newest
+entry of `CHANGELOG.md`, then the scripts you will touch. Do not start from this file alone.
 
 Project rules:
 1. Log every change in `CHANGELOG.md` with a new version number (steps in `HANDOFF.md`, section 4).
@@ -38,3 +38,11 @@ Every handoff ZIP must include docs/PROJECT_BRIEF.md, docs/DESIGN.md, docs/ROADM
     recorded with evidence/hashes. AI review, a Created checkbox, CI or reference/concept acceptance is
     not human runtime approval. Keep unapproved drafts/reference files non-loaded; changed art needs
     renewed human approval. Never replace a runtime asset or bind scenes/code to unapproved artwork.
+
+12. Read `docs/roadmap.json` before choosing work (0.58.6, user request 27 November 2026). It is the
+    machine-readable roadmap: phases, tasks with status (done / next / planned / idea), and the decision desk
+    with the user's answers. When your PR finishes or changes a task, update that task in the same PR (keep its
+    id; a new task gets a new id in its phase) and set `about.main` to your version; `tools/check_project.py`
+    fails if `about.main` differs from `project.godot`. The user edits the live page named in `about.live`;
+    if the file and the page disagree, the page wins and Claude syncs the file. Do not start a task the
+    roadmap marks as another agent's reserved version (0.59.0 Codex, 0.60.0 checker) without the user.

@@ -1,4 +1,4 @@
-# Nightshift - Godot Foundation Trial (v0.58.5)
+# Nightshift - Godot Foundation Trial (v0.58.6)
 
 0.58.5 puts the approved termopan doors, PVC shutter, radiator and linoleum floor in the counter room, and brings the name of each place back onto its wall.
 

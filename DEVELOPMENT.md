@@ -176,7 +176,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `STABILISATION.md` | docs | Current checks, persistence risks and proposed bench refactor |
 | `docs/PROJECT_BRIEF.md` | docs | Reconciled core project document version 1.13 |
 | `docs/DESIGN.md` | docs | Reconciled core project document version 1.13 |
-| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.13 |
+| `docs/ROADMAP.md` | docs | Reconciled core project document version 1.13; points to `docs/roadmap.json` (0.58.6), the machine-readable roadmap every agent reads (AGENTS.md rule 12) |
 | `docs/DECISIONS.md` | docs | Reconciled core project document version 1.13 |
 | `docs/CURRENT_STATE.md` | docs | Reconciled core project document version 1.13 |
 | `DEVELOPMENT.md` | docs | This guide |

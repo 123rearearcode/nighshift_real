@@ -1,0 +1,1367 @@
+{
+ "about": {
+  "checkedBy": "Claude (Opus 5.5, claude-opus-5-5)",
+  "checkedOn": "2026-11-27",
+  "commit": "see git log",
+  "corrections": [
+   "Main is 0.58.5 (edaf72e), not 0.58.3: #91 (0.58.4) and #92 (0.58.5) were merged on 27 Nov.",
+   "Added the 0.58.4–0.58.5 phase: B69 dust fix, vacuum switch, no hose clamp, B70 pick fix, Hudici Dan's PC, the backpack, the termopan counter and the wall name plates.",
+   "The termopan review is done. In its place: look at it in game, and pick a wall finish (A–D).",
+   "The hose clamp listed under physical handling was removed (D175).",
+   "A New game now has 3 tickets: Hudici Dan's PC waits in storage besides Mara and Relu.",
+   "The store also sells backpacks.",
+   "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
+  ],
+  "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
+  "main": "0.58.6",
+  "notChecked": [
+   "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
+   "The forecast calendar is a planning assumption, not measured velocity."
+  ],
+  "repo": "https://github.com/123rearearcode/nighshift_real",
+  "source": "ChatGPT's development roadmap (snapshot main 0.58.3 / 732a0e4), checked against the repository at main 0.58.5 and the work done in the Claude chat.",
+  "title": "Nightshift roadmap",
+  "updatedAt": "2026-11-27T20:30:00Z",
+  "live": "https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C",
+  "howToUpdate": "Agents: read this file before choosing work. When your PR finishes or changes a roadmap item, update that item's status/detail here in the same PR (keep ids; new items get a new id in their phase). Set about.main to the PR's version. Claude syncs this file with the live page the user edits; if they disagree, the live page wins."
+ },
+ "phases": [
+  {
+   "end": "2026-11-14",
+   "forecast": false,
+   "gate": "Implementation history recorded. Individual systems still need current-build human acceptance.",
+   "order": 1,
+   "start": "2026-11-11",
+   "state": "done",
+   "summary": "The tactile repair bench, hardware handling and first customer systems.",
+   "title": "Hands-on repair foundation",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.7–0.25",
+   "id": "p01",
+   "items": [
+    {
+     "id": "p01-01",
+     "checkNote": "Since 0.58.4 the vacuum has an on/off switch (bench button or V) and the brush no longer covers the PC in unmovable dust (B69).",
+     "checkState": "corrected",
+     "detail": "Hands-on cleaning, protected dust, paste application, pressure/lever flow and damage choices exist. Feel and clarity work still helps.",
+     "order": 10,
+     "refs": [
+      "CHANGELOG.md"
+     ],
+     "status": "done",
+     "title": "Brush, vacuum, cloth, paste and risky pick",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p01-02",
+     "checkNote": "The roadmap listed a hose clamp here. The clamp was removed in 0.58.4 (D175; ToolRig.CLAMP_ENABLED = false).",
+     "checkState": "corrected",
+     "detail": "Rotation, flicks, bounded throws, settling, flexible brush and hose/bin interactions exist. Weight, reach and feedback are tuning, not final balance.",
+     "order": 20,
+     "refs": [
+      "scripts/bench/tool_rig.gd"
+     ],
+     "status": "done",
+     "title": "Parts and tools have physical handling",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p01-03",
+     "detail": "Normal paste, super-paste and toothpaste share the thermal flow. The physical shortcut exists; the full family of scam consequences is not complete.",
+     "order": 30,
+     "refs": [],
+     "status": "done",
+     "title": "Thermal materials and the toothpaste shortcut",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p01-04",
+     "detail": "Customer records, history, trust and complaint/promise information exist. Recurring lore and the final cast are later content work.",
+     "order": 40,
+     "refs": [],
+     "status": "done",
+     "title": "Customer identities and relationship foundations",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-11-20",
+   "forecast": false,
+   "gate": "Core repair loop implemented; salvage remains partly isolated and broad campaign acceptance is still open.",
+   "order": 2,
+   "start": "2026-11-14",
+   "state": "done",
+   "summary": "Salvage prototype, storage, monitor, diagnosis, collections, builds and reviews.",
+   "title": "A connected repair loop",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.26–0.52",
+   "id": "p02",
+   "items": [
+    {
+     "id": "p02-01",
+     "checkNote": "L4 (outings use the demo clock) is still Open in BUGS.md.",
+     "checkState": "confirmed",
+     "detail": "Side-view gravity, piles, open containers, fourteen collectible kinds, heavy obstacles and trunk packing exist. Prototype only: campaign time/stock integration remains work.",
+     "order": 10,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "A physical dumpster and trunk prototype",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-02",
+     "checkNote": "Since 0.58.4 the storage also has your backpack, a unit that goes with you into every room (D176).",
+     "checkState": "corrected",
+     "detail": "Whole PCs, parts and tools can occupy storage; furniture has layouts and reservations. Capacity/economy and drawer overflow are separate follow-ups.",
+     "order": 20,
+     "refs": [
+      "scripts/storage/storage_model.gd"
+     ],
+     "status": "done",
+     "title": "Grid storage, racks and room furniture",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-03",
+     "checkNote": "L1 and L2 are still Investigating in BUGS.md.",
+     "checkState": "confirmed",
+     "detail": "CPU/GPU/RAM/storage/PSU/cooler workflows, screw/film technique and customer-PC links are implemented. Legacy-original identities and orphan marks remain explicit debt.",
+     "order": 30,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "Customer hardware, stock and installation",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-04",
+     "detail": "Boot, hardware, Stress lab, simulated game FPS, antivirus and CPU overclocking are present. These are game simulations, not real PC benchmarks.",
+     "order": 40,
+     "refs": [],
+     "status": "done",
+     "title": "Diagnostic desktop and timed performance tests",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-05",
+     "detail": "Customers describe symptoms; observations and test results support diagnosis. Generated tickets and morning arrivals exist; the optional diagnosis manual is deferred.",
+     "order": 50,
+     "refs": [],
+     "status": "done",
+     "title": "Symptoms, Findings and generated repair tickets",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-06",
+     "detail": "Mark/call ready PCs, close the shutter, receive payment/reviews and retain uncalled jobs. Multi-day edge cases still need broader validation.",
+     "order": 60,
+     "refs": [],
+     "status": "done",
+     "title": "Night end, calls, collections and morning settlement",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-07",
+     "detail": "Budget/needs build requests, workload support stats, assembly and initial elegance/review systems exist. Full catalogue and long-run balance remain later.",
+     "order": 70,
+     "refs": [],
+     "status": "done",
+     "title": "Build requests and workload matching",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p02-08",
+     "detail": "Collections can change trust and ratings; a phone shows review/shop-level progress. The complete endgame and story economy are not established by that.",
+     "order": 80,
+     "refs": [],
+     "status": "done",
+     "title": "Reviews, trustworthiness and shop progression foundations",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-11-26",
+   "forecast": false,
+   "gate": "First day repeatedly reached Night 2 on 0.57.8 (ChatGPT playtest records). Art creation and acceptance are separate gates.",
+   "order": 3,
+   "start": "2026-11-21",
+   "state": "done",
+   "summary": "Room-based navigation, store, opening intake and approved pixel-art batches.",
+   "title": "Rooms, opening day and art",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.53–0.57.9",
+   "id": "p03",
+   "items": [
+    {
+     "id": "p03-01",
+     "checkNote": "D170 and D171 in DECISIONS.md.",
+     "checkState": "confirmed",
+     "detail": "Counter, workshop, outside and store replace the old Activities hub. The flat-front counter follows the user sketch; 2D is the settled direction.",
+     "order": 10,
+     "refs": [
+      "docs/DECISIONS.md"
+     ],
+     "status": "done",
+     "title": "Navigate through rooms and objects",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p03-02",
+     "checkNote": "Since 0.58.4 a New game also puts Hudici Dan's PC (a crypto miner) in storage, so the ticket book shows 3 tickets. Only Mara and Relu come to the counter (D177).",
+     "checkState": "corrected",
+     "detail": "New game presents Mara and Relu at the counter before repair work. Pending intake survives Continue; no duplicate drop-off payments are implied.",
+     "order": 20,
+     "refs": [
+      "scripts/night/night_session.gd"
+     ],
+     "status": "done",
+     "title": "Opening customers appear before Night 1",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p03-03",
+     "checkNote": "ART_PRODUCTION_PROGRESS.md: 17 / 18 created, ART-13 missing.",
+     "checkState": "confirmed",
+     "detail": "Counter/items/bench/tool/monitor/phone artwork is integrated. 17/18 creation tasks exist; ART-13 workshop and separate approvals/visual acceptance remain.",
+     "order": 30,
+     "refs": [
+      "docs/ART_PRODUCTION_PROGRESS.md"
+     ],
+     "status": "done",
+     "title": "Approved art batches A, B and C integrated",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p03-04",
+     "checkNote": "The store also sells backpacks since 0.58.4: small $45, hiking $120.",
+     "checkState": "corrected",
+     "detail": "Storage pulls up at the counter edge and supports item rotation. The store sells upgrades, parts and cable supplies; a rich generated supplier market is later.",
+     "order": 40,
+     "refs": [
+      "scripts/night/shop_activity_view.gd"
+     ],
+     "status": "done",
+     "title": "Bottom-edge storage and the shop down the street",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p03-05",
+     "detail": "0.54.0 preserves individual shop-part identity, condition and receipts through delivery and later reuse. It does not finish legacy-original migration or orphan recovery.",
+     "order": 50,
+     "refs": [],
+     "status": "done",
+     "title": "Delivered shop parts retain their physical records",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-11-27",
+   "forecast": false,
+   "gate": "Cable feel and recovery presentation await direct playtesting.",
+   "order": 4,
+   "start": "2026-11-27",
+   "state": "done",
+   "summary": "Intuitive antivirus, lens correction, morning save recovery and the cable box.",
+   "title": "Antivirus, recovery and the cable box",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.58.0–0.58.3",
+   "id": "p04",
+   "items": [
+    {
+     "id": "p04-01",
+     "checkNote": "0.58.0 (#89). B64, B66, B67, B68 Verified in 0.58.0.",
+     "checkState": "confirmed",
+     "detail": "Inspect six stable app slots, stop the source/helper, disable startup and reboot. Adware/miner reactions differ; shared reduced-effects settings are saved.",
+     "order": 10,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "Simple clue-based antivirus and reduced effects",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p04-02",
+     "checkNote": "B61, Verified in 0.58.1 (#87).",
+     "checkState": "confirmed",
+     "detail": "The inspection magnifying glass draws the same revealed-clue layers as the base panel.",
+     "order": 20,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "The lens preserves already revealed clues",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p04-03",
+     "checkNote": "0.58.2 (#88), D172. B59, B62, B63 Verified.",
+     "checkState": "confirmed",
+     "detail": "Keep the newest three mornings per playthrough; restore a valid backup while retaining damaged files.",
+     "order": 30,
+     "refs": [
+      "scripts/state/save_backups.gd",
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "Per-run morning backups and damaged-ticket recovery",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p04-04",
+     "checkNote": "0.58.3 (#90), D173.",
+     "checkState": "confirmed",
+     "detail": "One box moves among counter, workshop and outside. Loose cables tangle, ties prevent it, the wrong hard pull can snap a cable, and supplies are sold. Placeholder art; repair use, clock cost and automation remain open.",
+     "order": 40,
+     "refs": [
+      "docs/CABLE_BOX_DESIGN.md",
+      "scripts/rules/cable_box.gd"
+     ],
+     "status": "done",
+     "title": "The movable, physical cable box",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-11-27",
+   "forecast": false,
+   "gate": "Merged 27 Nov (#91, #92) with CI green. Needs your hands-on look in game.",
+   "order": 5,
+   "start": "2026-11-27",
+   "state": "done",
+   "summary": "Your bench requests, a playtest virus customer, the personal inventory, the approved termopan counter and the name of each room on its wall. This is main now (0.58.5).",
+   "title": "Bench fixes, the backpack and the termopan counter",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.58.4–0.58.5",
+   "id": "p05",
+   "items": [
+    {
+     "id": "p05-01",
+     "checkNote": "B69, Verified in 0.58.4.",
+     "checkState": "new",
+     "detail": "The brush used to cover the whole open PC in a dust texture that could not be moved or vacuumed. The film now only shows the share of dust still left.",
+     "order": 10,
+     "refs": [
+      "scripts/bench/dust_sim.gd",
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "The brush no longer floods the PC with dust",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-02",
+     "checkNote": "D175, 0.58.4.",
+     "checkState": "new",
+     "detail": "A switch on the bench panel, or the V key. Holding the vacuum still gives a burst.",
+     "order": 20,
+     "refs": [
+      "scripts/view/bench_view.gd"
+     ],
+     "status": "done",
+     "title": "A vacuum on/off switch",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-03",
+     "checkNote": "D175, 0.58.4.",
+     "checkState": "new",
+     "detail": "Removed because it was not useful. The code stays behind a switch that is off.",
+     "order": 30,
+     "refs": [
+      "scripts/bench/tool_rig.gd"
+     ],
+     "status": "done",
+     "title": "The hose clamp is gone",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-04",
+     "checkNote": "B70, Verified in 0.58.4.",
+     "checkState": "new",
+     "detail": "The stray dash above the pick's bend was an empty progress ring; it is drawn only once there is progress.",
+     "order": 40,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "done",
+     "title": "The pick's stray pixel is gone",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-05",
+     "checkNote": "D177, 0.58.4.",
+     "checkState": "new",
+     "detail": "A playtest customer whose tower PC has a crypto miner. It is put in storage on New game; he does not visit yet. Payout $65.",
+     "order": 50,
+     "refs": [
+      "scripts/data/customers.gd",
+      "scripts/night/night_session.gd"
+     ],
+     "status": "done",
+     "title": "Hudici Dan's PC waits in storage",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-06",
+     "checkNote": "D176, 0.58.4.",
+     "checkState": "new",
+     "detail": "A personal inventory that goes with you into every room: Backpack button or B. Pockets 4×2, small backpack 6×3, hiking backpack 8×4, bought at the store. Just carry, no gating. Placeholder drawings.",
+     "order": 60,
+     "refs": [
+      "scripts/rules/backpack.gd",
+      "scripts/view/backpack_view.gd"
+     ],
+     "status": "done",
+     "title": "Pockets and backpacks",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-07",
+     "checkNote": "D174. Approved 27 Nov (\"aight go on with the PVC\"); files and hashes in art/rooms/counter_termopan/. 0.58.5.",
+     "checkState": "new",
+     "detail": "White PVC door and window frames, clear glass, a radiator under the window, a linoleum floor.",
+     "order": 70,
+     "refs": [
+      "art/rooms/counter_termopan/manifest.json",
+      "scripts/rooms/counter_art.gd"
+     ],
+     "status": "done",
+     "title": "The termopan counter",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p05-08",
+     "checkNote": "D178, 0.58.5.",
+     "checkState": "new",
+     "detail": "Name plates: THE COUNTER, THE WORKSHOP, and NIGHTSHIFT · PC REPAIR on the shop front outside.",
+     "order": 80,
+     "refs": [
+      "scripts/rooms/room_view.gd"
+     ],
+     "status": "done",
+     "title": "The name of the place on its wall",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-12-06",
+   "forecast": true,
+   "gate": "Latest-build opening day completes; warm/cold thermal indicators agree; no misleading retained-part claim; cable and recovery flows have graphical evidence.",
+   "order": 6,
+   "start": "2026-11-30",
+   "state": "next",
+   "summary": "Recheck the latest build, correct misleading feedback and close the highest-impact reliability gaps.",
+   "title": "Make the latest build trustworthy",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Next patch series",
+   "id": "p06",
+   "items": [
+    {
+     "id": "p06-01",
+     "checkNote": "The roadmap said 0.58.3; main is 0.58.5, which adds the bench fixes, backpack, Hudici Dan and the termopan counter.",
+     "checkState": "corrected",
+     "detail": "Repeat intake, honest repairs, collections, Continue and one pending job on latest main. Exercise the cable box, damaged-ticket recovery, the vacuum switch, the backpack and Hudici Dan's miner separately. Earlier 0.57.8 results are a baseline, not proof of this build.",
+     "order": 10,
+     "refs": [],
+     "status": "next",
+     "title": "Play through the actual 0.58.5 build",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-02",
+     "checkNote": "From ChatGPT's playtest records on 0.57.8. Claude has not reproduced it.",
+     "checkState": "unverified",
+     "detail": "Reproduce the preserved PERFECT verdict with 0/0 meters, unturned-looking screws and stale hints after re-entry/Continue. Fix the presentation if still present; do not assume the repair itself was lost.",
+     "order": 20,
+     "refs": [],
+     "status": "next",
+     "title": "Make restored thermal indicators agree",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-03",
+     "checkNote": "From ChatGPT's playtest records. Claude has not reproduced it.",
+     "checkState": "unverified",
+     "detail": "Make equipped state and left/right pickup/drop behaviour easy to see. Retest cloth wiping and moved-tool selection; the reports do not show wiping or screws are broken.",
+     "order": 30,
+     "refs": [],
+     "status": "next",
+     "title": "Clarify pickup, held tool and put-down recovery",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-04",
+     "checkNote": "From ChatGPT's playtest records. Claude has not reproduced it.",
+     "checkState": "unverified",
+     "detail": "Check the collection slip against actual known evidence. Keep uncertain condition neutral and preserve customer ownership; a collection sentence must not invent a successful test.",
+     "order": 40,
+     "refs": [],
+     "status": "next",
+     "title": "Stop calling an untested retained GPU \"working\"",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-05",
+     "checkNote": "From ChatGPT's playtest records. Claude has not reproduced it.",
+     "checkState": "unverified",
+     "detail": "One attempt cleared the visible CPU while a 46-unit counter remained. Use a controlled cloth wipe before deciding if this is a defect. Explain amount versus current coverage.",
+     "order": 50,
+     "refs": [],
+     "status": "next",
+     "title": "Explain thermal residue and rework",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-06",
+     "checkNote": "B64 Verified in 0.58.0.",
+     "checkState": "confirmed",
+     "detail": "Pause Activities help was fixed as B64 in 0.58.0. Check that fix and the earlier README brush/vacuum reversal. Since 0.58.4 the help should also mention V (vacuum switch) and B (backpack).",
+     "order": 60,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "next",
+     "title": "Reconcile the remaining help and hotkey text",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-07",
+     "checkNote": "B55 still Open.",
+     "checkState": "confirmed",
+     "detail": "B55: pausing with the lens over a part may hide the cursor. Separate from the revealed-clue lens fix.",
+     "order": 70,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "next",
+     "title": "Reproduce the hidden cursor during Pause",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-08",
+     "checkNote": "B56 still Open.",
+     "checkState": "confirmed",
+     "detail": "B56: reproduce the origin rectangle from items held under the counter before applying a bounded rendering fix.",
+     "order": 80,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "next",
+     "title": "Check under-counter stock ghosts in the stock room",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-09",
+     "checkNote": "B57 still Open.",
+     "checkState": "confirmed",
+     "detail": "B57 measured about 165 ms per arrival, up to 317 ms on an older build. Measure the current path, then optimise the repeated search without excluding viable requests.",
+     "order": 90,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "next",
+     "title": "Remove the low-cash build-arrival stall",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-10",
+     "detail": "Try both plugs, tied versus loose moves, breakage, supplies and reload. Rope speeds, strain timing, starting contents and prices are provisional.",
+     "order": 100,
+     "refs": [
+      "docs/CABLE_BOX_DESIGN.md"
+     ],
+     "status": "next",
+     "title": "Tune cable untangling with a human playtest",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-11",
+     "checkNote": "The roadmap still had \"review the termopan drafts\" as next; that was done on 27 Nov.",
+     "checkState": "corrected",
+     "detail": "The drafts were approved and integrated in 0.58.5. What is left is your in-game visual acceptance.",
+     "order": 110,
+     "refs": [
+      "art/rooms/counter_termopan/README.md"
+     ],
+     "status": "next",
+     "title": "Look at the termopan counter in game",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-12",
+     "checkNote": "Drafts made in 0.58.5; waiting for your pick.",
+     "checkState": "new",
+     "detail": "Four alternatives to the teal tiles: A cream faience, B two-tone oil paint, C pine panelling with 70s wallpaper, D blue plaster. Or keep the tiles, or mix.",
+     "order": 120,
+     "refs": [
+      "art/drafts/walls/wall_options_sheet.png"
+     ],
+     "status": "next",
+     "title": "Pick the counter's wall finish",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p06-13",
+     "title": "The roadmap lives in the repo",
+     "status": "done",
+     "detail": "docs/roadmap.json mirrors the live roadmap page. AGENTS.md tells every agent to read it before choosing work and to update the items its PR changes; tools/check_project.py checks its shape and version.",
+     "refs": [
+      "docs/roadmap.json",
+      "AGENTS.md"
+     ],
+     "checkState": "new",
+     "checkNote": "0.58.6.",
+     "order": 130,
+     "updatedAt": "2026-11-27T20:15:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-12-20",
+   "forecast": true,
+   "gate": "Six part families have understandable tests; failed tries spend time; evidence, condition, pause and PC isolation stay correct. Timing and difficulty need playtests.",
+   "order": 7,
+   "start": "2026-12-07",
+   "state": "planned",
+   "summary": "Short, intuitive, hardware-specific minigames replace the quick/long bay buttons. Owner: Codex (reserved version).",
+   "title": "Every part gets its own test",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.59.0",
+   "id": "p07",
+   "items": [
+    {
+     "id": "p07-01",
+     "detail": "Pin selection and a meter band are proposed. Prototype a forgiving mouse task and explain it without hardware expertise.",
+     "order": 10,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "PSU: paperclip and a wobbling meter",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-02",
+     "detail": "Short memory-test parody. Errors must reflect the part's real condition; player skill must not invent or heal faults.",
+     "order": 20,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "RAM: spot the digit that does not belong",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-03",
+     "detail": "A load/temperature parody. Choose an accessible input before settling any rapid-click requirement or difficulty.",
+     "order": 30,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "CPU: manage a rising heat reading",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-04",
+     "detail": "A spinning furry donut and artifact spotting. Offer reduced effects and readable clues; only the real hidden condition supplies the outcome.",
+     "order": 40,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "GPU: a FurBall artifact test",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-05",
+     "detail": "HDD rhythm / SSD transfer behaviour. Ensure an equivalent visual route; audible feedback is not yet validated.",
+     "order": 50,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "Storage: clicks, copy stalls and a clear reading",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-06",
+     "detail": "A finger-spin/wobble parody. Keep it short and readable, and record only the evidence the player actually obtained.",
+     "order": 60,
+     "refs": [
+      "docs/PART_TESTS_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "Cooler: spin, wobble and airflow",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p07-07",
+     "checkNote": "0.59.0 is still reserved for Codex in WORK_PLAN.md.",
+     "checkState": "confirmed",
+     "detail": "Replace the quick/long buttons with per-kind tests. Failures lose night minutes; known.tests reflects actual work. Keep per-PC state, focus-loss pause and the 06:00 boundary. 5/+5 minutes and 8–20 seconds are proposals.",
+     "order": 70,
+     "refs": [
+      "docs/WORK_PLAN.md"
+     ],
+     "status": "planned",
+     "title": "Preserve test evidence, time and pause rules",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2026-12-27",
+   "forecast": true,
+   "gate": "Findings are recorded, triaged and assigned. No unresolved critical save/custody blocker passes to the campaign.",
+   "order": 8,
+   "start": "2026-12-21",
+   "state": "planned",
+   "summary": "The scheduled code checker reviews the milestone; the game owners take bounded fixes afterwards.",
+   "title": "Structural review and follow-up triage",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "0.60.0",
+   "id": "p08",
+   "items": [
+    {
+     "id": "p08-01",
+     "checkNote": "0.60.0 is still the checker's reserved version.",
+     "checkState": "confirmed",
+     "detail": "The scheduled code checker owns the review. Record findings and assign fixes to the game owners.",
+     "order": 10,
+     "refs": [
+      "docs/WORK_PLAN.md"
+     ],
+     "status": "planned",
+     "title": "0.60.0 structural review and triage",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2027-01-31",
+   "forecast": true,
+   "gate": "A fresh player completes the tutorial plus five ordinary days, repairs and assembles a PC, and makes a sale without lost property, duplicate payments or dead ends.",
+   "order": 9,
+   "start": "2026-12-28",
+   "state": "planned",
+   "summary": "Connect salvage, stock, building and selling while proving ownership and economy over multiple days.",
+   "title": "One shop, several connected days",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Campaign",
+   "id": "p09",
+   "items": [
+    {
+     "id": "p09-01",
+     "detail": "L1: original parts still have slot/order-derived identity. L2: orphan fitted_in marks lack a recovery UI. Never free unknown property by guessing.",
+     "order": 10,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "planned",
+     "title": "Finish legacy identity and orphan recovery work",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-02",
+     "detail": "L4 keeps outings on the demo clock. Agree travel/effort charging, cargo identity, unloading, capacity and checkpoints first.",
+     "order": 20,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "planned",
+     "title": "Connect salvage to real campaign time and stock",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-03",
+     "detail": "L5: stock visible to the testing bay may be hidden by a full drawer. Give overflow a visible, recoverable place without changing ownership.",
+     "order": 30,
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "status": "planned",
+     "title": "Expose hardware-drawer overflow safely",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-04",
+     "detail": "Connect actual cable availability to repairs and routing after the connector art (c9 draft) and the gameplay contract are approved.",
+     "order": 40,
+     "refs": [
+      "docs/CABLE_BOX_DESIGN.md"
+     ],
+     "status": "planned",
+     "title": "Use box cables in repairs",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-05",
+     "detail": "Timed monitor tests exist. Reconcile night length, travel, manual work, voluntary closing and fatigue into one campaign clock.",
+     "order": 50,
+     "refs": [],
+     "status": "planned",
+     "title": "Settle campaign pacing and overtime",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-06",
+     "detail": "Prove assembly and testing, then a basic asynchronous listing/offer/sale route. Settle ownership and payment exactly once.",
+     "order": 60,
+     "refs": [],
+     "status": "planned",
+     "title": "Finish the build-to-sale loop",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p09-07",
+     "detail": "A compact test campaign: repairs, a stock decision, a build, an optional salvage trip, a sale and competing commitments. Proposed scenarios, not locked encounters.",
+     "order": 70,
+     "refs": [],
+     "status": "planned",
+     "title": "Tutorial plus five ordinary days",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2027-03-07",
+   "forecast": true,
+   "gate": "Fresh players understand a measured 20–30 minute session. Human art acceptance, real audio and target-PC performance are recorded.",
+   "order": 10,
+   "start": "2027-02-01",
+   "state": "planned",
+   "summary": "A clear opening, approved environment art, sound and a representative short session.",
+   "title": "A polished, playable slice",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Playtest candidate",
+   "id": "p10",
+   "items": [
+    {
+     "id": "p10-01",
+     "detail": "ART-13 is the last missing initial creation task. Then move outstanding approval/integration work to the permanent queue.",
+     "order": 10,
+     "refs": [
+      "docs/ART_PRODUCTION_PROGRESS.md"
+     ],
+     "status": "planned",
+     "title": "Create the remaining workshop room art",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p10-02",
+     "checkNote": "Termopan is no longer on this list: approved and integrated in 0.58.5. Added the backpack and wall finish.",
+     "checkState": "corrected",
+     "detail": "Connectors (c9), case inner walls, street-level outside (c10), the cable box, the backpack and the wall finish each need their own review.",
+     "order": 20,
+     "refs": [
+      "docs/ART_ASSET_LOG.md"
+     ],
+     "status": "planned",
+     "title": "Approve and integrate the remaining art",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p10-03",
+     "detail": "Make tool pickup, checklists, due dates, hotkeys, evidence versus guesses and pickup calls understandable. Build from observed confusion.",
+     "order": 30,
+     "refs": [],
+     "status": "planned",
+     "title": "Teach the shop through the first jobs",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p10-04",
+     "detail": "Original/licensed clips for parts, tools, fans, screws and cues; keep visual alternatives. Earlier dummy-audio playtests do not verify audible feedback.",
+     "order": 40,
+     "refs": [],
+     "status": "planned",
+     "title": "Add sound with a consistent, readable palette",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p10-05",
+     "detail": "Save paths, frame pacing, audio, mouse feel, window sizes and a cold launch outside the editor.",
+     "order": 50,
+     "refs": [],
+     "status": "planned",
+     "title": "Validate the packaged game on real hardware",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2027-05-02",
+   "forecast": true,
+   "gate": "Early, middle and later play offer different decisions; catalogue, cashflow, customer outcomes and progression survive extended playtests.",
+   "order": 11,
+   "start": "2027-03-08",
+   "state": "planned",
+   "summary": "Broader hardware, customer stories, suppliers, honest/dishonest choices and meaningful progression.",
+   "title": "A shop worth coming back to",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Content alpha",
+   "id": "p11",
+   "items": [
+    {
+     "id": "p11-01",
+     "detail": "Dozens of models per major category, unique board footprints, compatibility, heights, heat and performance. The catalogue stays user-led.",
+     "order": 10,
+     "refs": [],
+     "status": "planned",
+     "title": "Expand the authored hardware catalogue",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-02",
+     "detail": "Generated availability, opening times, fluctuating prices, rare stock and spending-based bulk access. Thresholds, discounts and fraud outcomes need design.",
+     "order": 20,
+     "refs": [],
+     "status": "planned",
+     "title": "Give suppliers stock, risk and personality",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-03",
+     "detail": "A/B/D/E/F/G/H accepted: toothpaste, visible-only cleaning, inferior substitution, used-as-new, blamed pick damage, old paste billed fresh, unnecessary replacement. C is excluded. Discovery and delayed outcomes are not a complete system.",
+     "order": 30,
+     "refs": [],
+     "status": "planned",
+     "title": "Connect the accepted scams to believable consequences",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-04",
+     "detail": "Professional trust, personal closeness, meaningful history and lasting facts. The Balkan/communist-block look exists; cast and plot need authorship.",
+     "order": 40,
+     "refs": [],
+     "status": "planned",
+     "title": "Build recurring people and customer stories",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-05",
+     "detail": "Balance elegance, reputation, workload needs, upgrades, tool reach/speed and storage (backpacks included). Move beyond higher numbers.",
+     "order": 50,
+     "refs": [],
+     "status": "planned",
+     "title": "Make progression change daily decisions",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-06",
+     "detail": "Build/keep/sell/upgrade the technician PC. 1% daily failure after at least five protected days is recorded; recovery details remain open.",
+     "order": 60,
+     "refs": [],
+     "status": "planned",
+     "title": "Make the personal diagnostic PC matter",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p11-07",
+     "detail": "Extended playthroughs with varied customers, budgets, backlog, suppliers and dishonesty outcomes.",
+     "order": 70,
+     "refs": [],
+     "status": "planned",
+     "title": "Balance the early, middle and late shop",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "2027-05-30",
+   "forecast": true,
+   "gate": "Release scope and price chosen; supported machines tested; store requirements verified at that time. Launch date set only after these gates.",
+   "order": 12,
+   "start": "2027-05-03",
+   "state": "planned",
+   "summary": "Package and validate the game, decide commercial scope, and prepare truthful store materials.",
+   "title": "Steam release readiness",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Release candidate",
+   "id": "p12",
+   "items": [
+    {
+     "id": "p12-01",
+     "detail": "Desktop builds, persistence/performance/accessibility checks, store copy, trailer, asset/licence/AI-content records.",
+     "order": 10,
+     "refs": [],
+     "status": "planned",
+     "title": "Package, test and prepare the Steam store",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p12-02",
+     "detail": "Demo, Early Access or 1.0; pricing, platforms and optional Steam features. Finishing preparation does not set the launch date.",
+     "order": 20,
+     "refs": [],
+     "status": "planned",
+     "title": "Choose the release scope, price and launch date",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  },
+  {
+   "end": "",
+   "forecast": false,
+   "gate": "",
+   "order": 13,
+   "start": "",
+   "state": "later",
+   "summary": "Ideas the user wants or has discussed, not yet placed in a milestone.",
+   "title": "Possibilities without a slot",
+   "updatedAt": "2026-11-27T20:30:00Z",
+   "version": "Unscheduled",
+   "id": "p13",
+   "items": [
+    {
+     "id": "p13-01",
+     "detail": "D56: careless brushing has consequences. Prototype only after deciding it improves clarity and fun.",
+     "order": 10,
+     "refs": [],
+     "status": "idea",
+     "title": "Fans carry loose dust under components",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-02",
+     "detail": "Requested earlier: part heat, airflow and player-drawn liquid tubes. A deeper spatial simulation is a separate design choice.",
+     "order": 20,
+     "refs": [],
+     "status": "idea",
+     "title": "Deeper airflow and drawn liquid-cooling tubes",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-03",
+     "checkNote": "The backpack (0.58.4) now also carries things between rooms.",
+     "checkState": "corrected",
+     "detail": "Multi-room inventory and later automation tied to the trunk/outside. Cable-box movement and the backpack are the first pieces; automation itself is not built.",
+     "order": 30,
+     "refs": [
+      "docs/CABLE_BOX_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "Automate inventory through the van and outside",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-04",
+     "detail": "The only selected cable-deception hook. Evidence, settlement and timing still need design.",
+     "order": 40,
+     "refs": [
+      "docs/CABLE_BOX_DESIGN.md"
+     ],
+     "status": "idea",
+     "title": "The \"you lost my cable\" customer",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-05",
+     "detail": "Unlock conditions, service scale and release placement undecided.",
+     "order": 50,
+     "refs": [],
+     "status": "idea",
+     "title": "B2B orders and bulk customer sales",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-06",
+     "detail": "Initial release versus a later update is undecided.",
+     "order": 60,
+     "refs": [],
+     "status": "idea",
+     "title": "Servers and more complex late-game demands",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-07",
+     "detail": "Read-only reference; must not reveal hidden faults.",
+     "order": 70,
+     "refs": [],
+     "status": "idea",
+     "title": "An optional diagnosis manual",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-08",
+     "detail": "Relabel similar parts only; must not rewrite condition or invent test evidence. Outside 0.59.0.",
+     "order": 80,
+     "refs": [],
+     "status": "idea",
+     "title": "A later relabeler tool",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-09",
+     "detail": "Advanced apps that need particular technician hardware could support progression.",
+     "order": 90,
+     "refs": [],
+     "status": "idea",
+     "title": "More demanding diagnostic software",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    },
+    {
+     "id": "p13-10",
+     "detail": "Not selected. Decide value and support cost when the release scope is set.",
+     "order": 100,
+     "refs": [],
+     "status": "idea",
+     "title": "Achievements, cloud, controller and extra platforms",
+     "updatedAt": "2026-11-27T20:30:00Z"
+    }
+   ]
+  }
+ ],
+ "decisions": [
+  {
+   "id": "d01",
+   "answer": "",
+   "ask": "Which interaction and accessibility variant works for each part, and what time penalty is fair?",
+   "context": "Short per-kind tests, time lost on failure, and testing versus merely labelling are approved. Exact inputs and timing are proposals.",
+   "order": 10,
+   "question": "How should the six part tests feel?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d02",
+   "answer": "",
+   "ask": "What consumes a cable, how much night time does sorting cost, and what resolves a lost-cable claim?",
+   "context": "One movable box, tangles on loose-cable moves, breakage and supplies are settled. Repair consumption, night-minute cost and the lost-cable customer are not built.",
+   "order": 20,
+   "question": "When does the cable box become repair work?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d03",
+   "answer": "",
+   "ask": "One of A–D, keep the teal tiles, or a mix?",
+   "context": "Drafts in art/drafts/walls/: A cream faience, B two-tone oil paint, C pine panelling with 70s wallpaper, D blue plaster.",
+   "order": 30,
+   "question": "Which wall finish for the counter?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d04",
+   "answer": "",
+   "ask": "How are travel/effort charged, cargo unloaded and identity/capacity kept across saves?",
+   "context": "Physical searching, trunk capacity, probabilistic sites and refresh direction exist. Outings still use demo time (L4).",
+   "order": 40,
+   "question": "How does salvage join the main campaign?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d05",
+   "answer": "",
+   "ask": "What should manual work, travel, voluntary closing, fatigue and overtime cost?",
+   "context": "Day visitors are untimed; limited nights and manual pause are the direction. Some tests already charge time and respect 06:00.",
+   "order": 50,
+   "question": "What makes a night feel limited, but fair?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d06",
+   "answer": "",
+   "ask": "Which payment, shipping, return and fee rules are needed for the first build-to-sale route?",
+   "context": "Asynchronous listings, offers/questions, player prices and reputation influence are confirmed directions.",
+   "order": 60,
+   "question": "What is the first complete online sale?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d07",
+   "answer": "",
+   "ask": "What representative range is needed now, and which families justify later expansion?",
+   "context": "Dozens of models per category and unique layouts are ambitions; the catalogue is user-led.",
+   "order": 70,
+   "question": "What belongs in the first release catalogue?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d08",
+   "answer": "",
+   "ask": "What thresholds, discounts, guarantees, delays and fraud outcomes keep supply viable?",
+   "context": "Stock/price variation, opening times, exclusives, hidden dishonesty and spend-unlocked bulk are confirmed. About 90% refers to immediately bulk-enabled suppliers being shady.",
+   "order": 80,
+   "question": "How risky and useful are suppliers?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d09",
+   "answer": "",
+   "ask": "Which discoveries, remedies, delayed complaints and relationship costs make each scam distinct?",
+   "context": "A/B/D/E/F/G/H accepted; C excluded. Some physical scam hooks exist.",
+   "order": 90,
+   "question": "How do shortcuts get discovered and matter?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d10",
+   "answer": "",
+   "ask": "Which of airflow, fan-driven dust and liquid routing creates useful decisions?",
+   "context": "Fans carrying loose dust remain queued. Heat/airflow and drawn liquid tubes were requested.",
+   "order": 100,
+   "question": "How deep should cooling and dust simulation go?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d11",
+   "answer": "",
+   "ask": "What counts as new, when is failure rolled, and how does the player recover?",
+   "context": "1% daily failure after at least five protected days is recorded.",
+   "order": 110,
+   "question": "What happens when the technician PC breaks?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d12",
+   "answer": "",
+   "ask": "Which upgrades belong in the slice, and what is automated only after the player learns it?",
+   "context": "Tool/storage progression is wanted (backpacks exist since 0.58.4). Inventory automation is later work tied to the van and outside.",
+   "order": 120,
+   "question": "Which upgrades change the way the shop works?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d13",
+   "answer": "",
+   "ask": "Which setting details, recurring characters and arcs anchor the first campaign?",
+   "context": "Customer lore with separate professional trust and personal closeness is required. The Balkan/communist-block look is set.",
+   "order": 130,
+   "question": "Who are the recurring people of Nightshift?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d14",
+   "answer": "",
+   "ask": "Do these define the launch endgame, or earn a later update?",
+   "context": "Long-term ambitions, not prerequisites for the opening slice.",
+   "order": 140,
+   "question": "B2B and servers: release or later update?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d15",
+   "answer": "",
+   "ask": "Demo, Early Access or 1.0; what price, platforms and feature cutoff?",
+   "context": "Steam publication is confirmed. Windows-first/offline is a recommendation.",
+   "order": 150,
+   "question": "What exactly are we releasing on Steam?",
+   "state": "open",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d16",
+   "answer": "",
+   "ask": "Follow the chosen layout for new art.",
+   "context": "D170/D171: stay in 2D, one item model, the counter's front wall drawn flat.",
+   "order": 160,
+   "question": "2D and the front-facing counter",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d17",
+   "answer": "",
+   "ask": "Look at it in game.",
+   "context": "D174. Drafts approved 27 Nov (\"aight go on with the PVC\") and integrated in 0.58.5.",
+   "order": 170,
+   "question": "White PVC, clear glass, radiator and linoleum",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d18",
+   "answer": "",
+   "ask": "Check recovery graphically; the policy stays.",
+   "context": "D172, 0.58.2. B63 prevents restoring another run.",
+   "order": 180,
+   "question": "Three morning backups, bound to their playthrough",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d19",
+   "answer": "",
+   "ask": "Discuss discovery and consequences without reopening the selection.",
+   "context": "A/B/D/E/F/G/H accepted, C (filter face-lift) excluded.",
+   "order": 190,
+   "question": "The accepted scam concepts and the excluded one",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d20",
+   "answer": "",
+   "ask": "",
+   "context": "D173, 0.58.3. Only scam: a customer claims the shop lost their cable.",
+   "order": 200,
+   "question": "One cable box, automation via the trunk, cables can break",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d21",
+   "answer": "",
+   "ask": "",
+   "context": "D175, 0.58.4.",
+   "order": 210,
+   "question": "A vacuum switch and no hose clamp",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d22",
+   "answer": "",
+   "ask": "",
+   "context": "D176, 0.58.4. Carrying a part does not change where it can be used.",
+   "order": 220,
+   "question": "Pockets and backpacks: just carry, no gating",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d23",
+   "answer": "",
+   "ask": "",
+   "context": "D177, 0.58.4. His PC waits in storage; he does not visit yet.",
+   "order": 230,
+   "question": "Hudici Dan, a crypto-miner playtest PC",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  },
+  {
+   "id": "d24",
+   "answer": "",
+   "ask": "",
+   "context": "D178, 0.58.5.",
+   "order": 240,
+   "question": "The name of the place on its wall",
+   "state": "settled",
+   "updatedAt": "2026-11-27T20:30:00Z"
+  }
+ ]
+}
