@@ -1,5 +1,14 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.58.3, 27 November 2026
+
+The user asked Claude to build the cable box (D173) after merging #89. Claude owns the cable box rules/file/
+view, the room hook in `room_view.gd` and the store's supply buttons, plus ONE small addition to GameState:
+`spend_cash(amount)` (pay for non-upgrade supplies). No other GameState, bench or tool-rig change; no save
+migration (the box has its own `.cables.json`). #87 (0.58.1) and #88 (0.58.2, B63 fixed) come first. Per-part
+tests stay 0.59.0 (Codex) and the checker 0.60.0.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.58.0, 27 November 2026
 
 The user authorized the reviewed antivirus direction, with very simple clues for nontechnical players, then asked for Claude's new PRs to be reviewed first. Codex owns antivirus rules/panel/effects, monitor launch, shared Settings in title/pause, and only the app-preference portion of GameState for this feature. No PC ownership, save migration, bench or tool-rig rewrite. Reviewed #87/#88 on a8667b7; B63 is recorded, both remain unmerged by this task. Base is merged main dfbf5aa. Per-part work stays 0.59.0 and scheduled checker 0.60.0.

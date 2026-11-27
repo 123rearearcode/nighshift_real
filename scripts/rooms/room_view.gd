@@ -11,6 +11,11 @@ const NightClock = preload("res://scripts/rules/night_clock.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const Hotspot = preload("res://scripts/rooms/hotspot.gd")
 const WORKBENCH: Array = ["repair", "hardware", "monitor"]
+const CableBox = preload("res://scripts/rules/cable_box.gd")          # 0.58.3 (D173): the movable cable box
+const CableStore = preload("res://scripts/state/cable_store.gd")
+const CableBoxView = preload("res://scripts/view/cable_box_view.gd")
+# Where the box stands in each room that can hold it (screen px).
+const CABLE_SPOTS: Dictionary = {"counter": Rect2(236, 498, 140, 62), "workshop": Rect2(560, 540, 150, 66), "outside": Rect2(520, 470, 140, 62)}
 
 ## The room's picture file name in art/rooms/ (without ".png"), used when the Background node has no
 ## texture set. "counter" loads art/rooms/counter.png when that file exists.
@@ -26,6 +31,10 @@ var outlines: bool = false
 var hotspots: Dictionary = {}     # node name -> hotspot
 var message: Label
 var title: Label
+var cable_place: String = ""       # this room's place name, if the cable box can stand here
+var cable_spot: Button             # the box itself, standing here
+var cable_drop: Button             # "Put the cable box down here" while carrying it
+var cable_view: Control            # the open box
 
 
 func _ready() -> void:
@@ -45,6 +54,7 @@ func _ready() -> void:
     message = _label(NightSession.status, Vector2(24, 664), Vector2(1100, 50), 16)
     Navigation.pause(self)
     _room_ready()
+    _setup_cable_box()
     refresh()
     queue_redraw()
 
@@ -52,6 +62,91 @@ func _ready() -> void:
 # For the room scripts.
 func _room_ready() -> void:
     pass
+
+
+# ---- the cable box (0.58.3, D173: "can be moved from room to room") ----
+
+func _setup_cable_box() -> void:
+    for place: String in Navigation.PLACES:
+        if Navigation.PLACES[place] == scene_file_path: cable_place = place
+    if not CABLE_SPOTS.has(cable_place): return
+    var spot: Rect2 = CABLE_SPOTS[cable_place]
+    cable_spot = Button.new()
+    cable_spot.name = "CableBoxSpot"
+    cable_spot.flat = true
+    cable_spot.tooltip_text = "The cable box"
+    cable_spot.position = spot.position
+    cable_spot.size = spot.size
+    cable_spot.z_index = 4
+    cable_spot.draw.connect(_draw_cable_box.bind(cable_spot))
+    cable_spot.pressed.connect(open_cable_box)
+    add_child(cable_spot)
+    cable_drop = Button.new()
+    cable_drop.name = "CableBoxDrop"
+    cable_drop.text = "Put the cable box down here"
+    cable_drop.position = Vector2(spot.position.x - 30, spot.position.y - 44)
+    cable_drop.size = Vector2(spot.size.x + 60, 36)
+    cable_drop.z_index = 4
+    cable_drop.pressed.connect(put_cable_box_down)
+    add_child(cable_drop)
+    _show_cable_box()
+
+
+func _show_cable_box() -> void:
+    if cable_spot == null: return
+    var box: Dictionary = CableStore.load_box(GameState)
+    cable_spot.visible = not bool(box["carried"]) and str(box["room"]) == cable_place
+    cable_drop.visible = bool(box["carried"])
+
+
+func open_cable_box() -> void:
+    if cable_view != null: return
+    var view: Control = CableBoxView.new()
+    add_child(view)
+    view.open(GameState, CableStore.load_box(GameState))
+    view.closed.connect(_close_cable_box)
+    view.carry_requested.connect(_carry_cable_box)
+    cable_view = view
+
+
+func _close_cable_box() -> void:
+    if cable_view != null: cable_view.queue_free()
+    cable_view = null
+    _show_cable_box()
+
+
+func _carry_cable_box() -> void:
+    var box: Dictionary = cable_view.state if cable_view != null else CableStore.load_box(GameState)
+    CableBox.pick_up(box)
+    CableStore.save_box(GameState, box)
+    _close_cable_box()
+    say("You pick up the cable box. Put it down in the room where you need it.")
+
+
+func put_cable_box_down() -> void:
+    var box: Dictionary = CableStore.load_box(GameState)
+    var loose: int = CableBox.loose(box).size()
+    var moved: bool = str(box["room"]) != cable_place
+    var knots: int = CableBox.put_down(box, cable_place)
+    if knots < 0: return
+    CableStore.save_box(GameState, box)
+    _show_cable_box()
+    if not moved: say("You put the cable box back down.")
+    elif knots > 0: say("You put the cable box down. The loose cables rattled around on the way: %d new knot%s." % [knots, "" if knots == 1 else "s"])
+    elif loose > 0: say("You put the cable box down. The loose cables shifted, but nothing tangled this time.")
+    else: say("You put the cable box down. Everything is tied, so nothing tangled.")
+
+
+func _draw_cable_box(spot: Button) -> void:
+    # Placeholder until the box art is approved (D167): a dark plastic crate with cables showing.
+    var r := Rect2(Vector2.ZERO, spot.size)
+    spot.draw_rect(r, Color("2b2f36"))
+    spot.draw_rect(r.grow(-6), Color("4a4f57"))
+    for i in range(3):
+        var y: float = 14.0 + i * 12.0
+        spot.draw_line(Vector2(14, y), Vector2(r.size.x - 14, y + 6.0 * (1 - i)), Color("15171b"), 5.0)
+    spot.draw_rect(r, Color("111317"), false, 3.0)
+    spot.draw_string(ThemeDB.fallback_font, Vector2(8, r.size.y - 6), "CABLES", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e8e2d0"))
 
 
 func hotspot(name: String) -> Hotspot:

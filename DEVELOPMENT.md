@@ -94,6 +94,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/rooms/counter_art.gd` | view | Approved Batch A source loading, background/foreground layers, endpoint crops and decorative storage mapping |
 | `tools/test_item_art.gd` | tooling | 0.57.8: the one item picture lookup and the approved Batch C files (sizes, turns, lens spots, clue overlays, tool frames) |
 | `tools/test_save_safety.gd` | test | 0.57.11 (B59): wrong-run ticket book falls back to its backup; morning backups (last 3); the counter's restore from a damaged ticket book |
+| `tools/test_cable_box.gd` | test | 0.58.3 (D173): cable box rules, file, physics, rooms and store supplies |
 | `tools/test_counter_art.gd` | tooling | Exact source approvals, native door/shutter state, occlusion/anchors and full 20×10 storage art contract |
 | `art/rooms/counter_batch_a/README.md`, `manifest.json`, `layout.json`, `capacity-proof.svg`, `capacity-proof.json` | art docs | Per-file source credits/human approval, current coordinates and exact capacity handoff |
 | `docs/ART_PRODUCTION_PROGRESS.md` | docs | Permanent art work router, continuing queue, first-day retirement and mandatory human approval |
@@ -295,6 +296,9 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/bench/mount_session.gd` | sim/controller | Timed cooler-mounting pressure session; takes a pressing flag, reads no input, draws nothing |
 | `scripts/state/save_store.gd` | state | Safe JSON save writing (temp file, read-back, `.bak`) and reading with fallback (0.57.11: an optional accept check skips a wrong candidate, B59); GameState decides contents and validation |
 | `scripts/state/save_backups.gd` | state | 0.57.11 (B59): morning backups of a save (main save, ticket manifest, room memory), newest 3 kept; restore sets the current files aside, never deletes |
+| `scripts/state/cable_store.gd` | state | 0.58.3 (D173): the cable box's file next to the save (`.cables.json`), per playthrough |
+| `scripts/rules/cable_box.gd` | rules | 0.58.3 (D173): the cable box: moving tangles loose cables, knots with one open end, ties and supplies, breaking |
+| `scripts/view/cable_box_view.gd` | view | 0.58.3 (D173): the open cable box: verlet-rope cables, pulling plugs frees or tightens knots; placeholder drawings |
 | `scripts/view/workshop_view.gd` | view | Hardware sandbox: free arrangement, pickup animation, rotation, fit previews, persisted profiles |
 | `scripts/view/hover_card.gd` | view | Draws the fading hover card |
 

@@ -392,6 +392,16 @@ func buy_upgrade(upgrade_id: String) -> bool:
     return true
 
 
+# 0.58.3 (D173): pay for something that is not an upgrade (cable-box supplies). Returns false, spending
+# nothing, if the price is not positive or there is not enough cash. Saved like an upgrade purchase.
+func spend_cash(amount: int) -> bool:
+    if amount <= 0 or money < amount:
+        return false
+    money -= amount
+    save_game()
+    return true
+
+
 # A finished mount: the result is recorded, but the repaste only counts once completed.
 func set_paste(result: Dictionary, cpu_units: float = 0.0) -> void:
     job["paste_grade"] = result["grade"]

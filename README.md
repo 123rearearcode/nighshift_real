@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.58.2)
+# Nightshift - Godot Foundation Trial (v0.58.3)
+
+0.58.3 adds the cable box: carry it between the counter, the workshop and the van; moving it tangles the loose cables; open it and pull the cables free by their plugs (the wrong plug tightens the knot and can snap the cable); tie cables with zip ties or velcro straps from the store so they never tangle.
 
 0.58.2 backs up the save every morning (the last three mornings of this playthrough are kept) and, if the ticket book is ever damaged, offers to restore this morning's backup instead of getting stuck (B59).
 

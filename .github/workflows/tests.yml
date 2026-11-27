@@ -111,6 +111,7 @@ jobs:
           test_counter_art|Counter art
           test_item_art|Item art
           test_save_safety|Save safety
+          test_cable_box|Cable box
           test_delivered_parts|Delivered parts"
           bad=0
           while IFS='|' read -r file name; do

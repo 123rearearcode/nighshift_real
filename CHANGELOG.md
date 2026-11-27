@@ -132,6 +132,66 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.58.3 - 2026-11-27 - The cable box: move it between rooms, untangle its cables, tie them, mind they can snap
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: PR #88's branch (0.58.2, B63 fixed) on #87 (0.58.1) on main 0.58.0 (`79de01f`, Codex's #89 merged
+  at the user's request). Merge #87, then #88, then this. 0.59.0 (per-part tests, Codex) and 0.60.0
+  (checker) stay reserved. No bug id used (next B69).
+- Type: feature (kept on the 0.58 line because 0.59.0/0.60.0 are reserved).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2, including the new Cable
+box suite; results are under Checks performed. Headless runs draw nothing and nobody has played the
+untangling yet: the feel (rope speed, how hard a knot holds, how long before a cable snaps) needs a person.
+
+### Added / Changed / Fixed / Removed
+- **The cable box (D173).** One box of cables (two 24-pin motherboard cables, three 8-pin graphics cables to
+  start) that stands in the counter, the workshop or outside next to the van.
+  - Click it to **open** it: the cables lie in their real state. **Carry the box** to take it with you and
+  **Put the cable box down here** in another of those rooms. Moving it with loose cables inside tangles them
+  (the more loose cables, the more knots).
+  - **Physics untangling**: every loose cable is a rope; grab a plug and pull. Each knot lets a cable out
+  only when it is pulled by one of its plugs: then it is drawn through until its far end slips out. Pulled by
+  the other plug the knot tightens (its ring turns red) and, after about three seconds of hard pulling, the
+  **cable snaps**. A broken cable is useless and can be thrown away.
+  - **Ties**: a tied cable never tangles. The store down the street now sells **zip ties** (10 for $4, cut off
+  and used up when untied) and **velcro straps** (4 for $12, back in the box when untied).
+  - The box is saved per playthrough next to the save (`.cables.json`) and is part of the morning backups.
+- `GameState.spend_cash(amount)`: one small addition to pay for supplies (claimed in WORK_PLAN).
+- Placeholder drawings for the box and cables until their art is approved (D167).
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/cable_box.gd` | A | Rules: moving, knots, open plugs, strain and snapping, ties, supplies |
+| `scripts/state/cable_store.gd` | A | The box's file, per playthrough |
+| `scripts/view/cable_box_view.gd` | A | The open box: verlet ropes, pulling, tying, carrying |
+| `scripts/rooms/room_view.gd` | M | The box in the counter, workshop and outside; carry and put down |
+| `scripts/night/shop_activity_view.gd` | M | Zip ties and velcro straps at the store |
+| `scripts/state/game_state.gd` | M | `spend_cash` (only) |
+| `scripts/state/save_backups.gd` | M | Morning backups include the cable box |
+| `tools/test_cable_box.gd`, `.github/workflows/tests.yml` | A/M | New suite "Cable box" |
+| `docs/CABLE_BOX_DESIGN.md`, `docs/DECISIONS.md`, `docs/WORK_PLAN.md`, `docs/MENU_NAVIGATION.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | What is built, the user's answers, the GameState claim, navigation, art needed |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.58.3, this entry |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
+- A Python copy of the rope physics: pulling the open plug frees a knot in about 0.85 s; pulling the other
+  plug snaps the cable in about 3 s; a still preview of the open box was drawn from it.
+- GitHub Actions on Godot 4.7.2 (headless): run 46043738971 on the first version (`148ee62`) passed every suite
+  (Cable box 28 checks); the final version, run 46044695324 on `6302a0e`, passed every suite.
+
+### Decisions proposed (not approved)
+- Prices (zip ties $4 for 10, velcro $12 for 4), the starting five cables, where the box stands in each room,
+  and how fast knots give way or cables snap. All easy to change.
+
+### Known issues and open items
+- Not built: using a cable from the box in a repair, the "you lost my cable" customer, automation through the
+  van's trunk, and a night-minute cost for untangling. Box and cable art are placeholders.
+
+### Next action
+- The user merges #87, #88 and this, plays the cable box, and says how the untangling feels.
+
 ## 0.58.2 - 2026-11-27 - B59: morning backups and restoring a damaged ticket book; cable box and termopan decisions
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: PR #87's branch (now 0.58.1, on main 0.58.0 after Codex's #89); merge #87 first. Developed as
