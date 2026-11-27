@@ -117,7 +117,11 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | docs | D157 approved standard Task Manajer, implemented controls/clock/interruptions; original unapproved D156 ideas are historical |
 | `scripts/rules/antivirus_round.gd` | rules | Session-local standard cleanup: actual strain + watchdog, stable rows, aliases/adverts, uppercase word verification, outcomes; no PC/save writes |
 | `scripts/night/antivirus_panel.gd` | view | Native stable Task Manajer controls inside the monitor, SEND/Enter/uppercase, typing/focus/shared pause, bounded advert |
+| `scripts/view/antivirus_effects.gd` | view | 0.58.0: row-local garble, colour, italic text and CPU animation; stable clues and reduced-effects samples |
 | `tools/test_antivirus.gd` | tooling | Standard cleanup, native button/key submission, real monitor/time/save/cancel/PC isolation journey |
+| `docs/PR_87_88_REVIEW.md` | docs | Bounded review of lens/save-recovery PRs, exact B63 reproduction and independent 0.58.0 baseline |
+| `docs/ANTIVIRUS_0580_VALIDATION.md` | docs | Target-engine checks and exact graphical UI-fixture observations for 0.58.0, with limits |
+| `tools/reproduce_b63.gd` | tooling | Optional disposable cross-new-game recovery observation on a checkout with PR #88; not a required suite |
 | `docs/SCAM_DESIGN_PROPOSAL.md` | docs | Seven accepted scam concepts, excluded C, proposed consequences and phased implementation |
 | `docs/MINIGAME_RULES.md` | docs | Intended dust/paste rules, visible customer promises and completion gates; not current code contract |
 | `docs/HANDOFF_FOR_CODEX.md` | docs | What changed since Codex's 0.11.0, how the project is run now, what the user will ask |
@@ -971,3 +975,12 @@ First-day checklist is temporary: after its creation tasks complete, migrate rem
 pointers to the permanent queue, notify the user and retire/delete the obsolete file under the stated
 conditions. Human approval of exact revisions/use precedes any live asset/scene binding; Created or
 AI review/CI does not confer it. No automatic CI approval gate or new runtime support is implemented.
+
+
+## Antivirus update contract — 0.58.0 (D163)
+
+Round accepts an optional stable case_key (run and ticket); only initial names/order vary, never mid-round identities. Scan exposes behavioural leads rather than bad-row flags. Inspection remains stable while view-only AntivirusEffects samples garbled names, CPU readings, colour and one-pixel text jitter from the frozen round clock. Reduced effects use integral seconds, a steady accent and no jitter. Controls retain their rectangles.
+
+GameState.reduce_flashing and set_reduce_flashing(enabled, persist=true) share the existing app settings file with sound_volume. Every setting write retains both values. Missing or non-boolean optional effects values default false; no campaign save/schema changes. Title and pause use CheckButton controls. Shared Pause and word prompts freeze effects. The monitor still owns one-time charging and same-ticket, same-strain reboot-only cure. Keep all existing Antivirus journeys; its new fixtures cover plain clues, stable variation/geometry, effects, settings round-trip and old optional-field compatibility. Popup control-signal checks are not claims of native OS-window mouse routing; the graphical pass checks that separately.
+
+Codex (GPT-6; model id not exposed by this session), ChatGPT Work.

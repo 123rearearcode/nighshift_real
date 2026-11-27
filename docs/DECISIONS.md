@@ -1,5 +1,13 @@
 # Nightshift — Decision Register
 
+### D163 — Intuitive antivirus deduction and 0.58.0 implementation (user, 27 November 2026)
+
+The user chose scan leads that are confirmed through inspection, adding that it must be really simple so someone with little computer knowledge can figure it out intuitively, and requested creation of 0.58.0. This approves the reviewed direction: plain-language behaviour clues, distinct adware/miner reactions, fixed rows/controls, small repeatable per-PC variations and shared saved reduced-effects support. No cursor lag, disappearing targets, new virus family, store economy or part-test implementation is included. The existing real-strain/watchdog/startup/reboot, failed-attempt time and typing-pause boundaries remain. Ten night minutes remains tuning, not a new balance decision. D164 stays reserved for per-part work.
+
+The user additionally requested reviewing Claude's new PRs before continuing. #87/#88 were read and their affected suites run on a8667b7. B63 was independently reproduced; review does not authorize a merge or declare the recovery safe. See PR_87_88_REVIEW.md.
+
+Recorded by Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ### D162 — Implement the bug-audit recommendations (user, 21 November 2026)
 
 After confirmation that the 0.50.0 review had been done, the user asked Codex to implement the changes.

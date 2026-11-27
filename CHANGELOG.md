@@ -132,10 +132,10 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
-## 0.57.11 - 2026-11-27 - B59: morning backups and restoring a damaged ticket book; cable box and termopan decisions
+## 0.58.2 - 2026-11-27 - B59: morning backups and restoring a damaged ticket book; cable box and termopan decisions
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: PR #87's branch (0.57.10, `79ab79b`), not yet merged; merge #87 first. No other PR open; B62 used
-  here, next bug id B63. 0.58.0/0.59.0 stay reserved for Codex, 0.60.0 for the checker.
+- Based on: PR #87's branch (now 0.58.1, on main 0.58.0 after Codex's #89); merge #87 first. Developed as
+  0.57.11. B62 used here; Codex's #89 used B63–B68 (B63 is this PR's backup bug, fixed below); next id B69. 0.58.0/0.59.0 stay reserved for Codex, 0.60.0 for the checker.
 - Type: patch (bug fix: save safety) plus decisions and a design note.
 
 ### Execution status
@@ -174,7 +174,7 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
 | `.github/workflows/tests.yml` | M | Save safety suite |
 | `docs/CABLE_BOX_DESIGN.md` | A | Cable box design notes and open questions |
 | `docs/BUGS.md`, `docs/DECISIONS.md` | M | B59 Fixed, B62; D172–D174 |
-| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.57.11, this entry |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.58.2, this entry |
 
 ### Checks performed
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
@@ -194,9 +194,11 @@ safety suite; results are under Checks performed. Nobody has yet seen the recove
 ### Next action
 - The user merges #87 then this PR, and reviews the termopan drafts.
 
-## 0.57.10 - 2026-11-27 - B61: the magnifying glass shows the clues it has revealed
+## 0.58.1 - 2026-11-27 - B61: the magnifying glass shows the clues it has revealed
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
-- Based on: main 0.57.9 (dfbf5aa; #84, #85 and #86 merged with the user's go-ahead). Answers the Code
+- Based on: main 0.57.9 (dfbf5aa; #84, #85 and #86 merged with the user's go-ahead); main 0.58.0 (79de01f,
+  Codex's #89, reviewed this patch with no blocking finding) merged in before merging, so this is 0.58.1
+  (developed as 0.57.10). Answers the Code
   checker's B61 report (#85, under Unreleased). No other PR open; next bug id B62.
 - Type: patch (bug fix, presentation).
 
@@ -218,7 +220,7 @@ not how it looks. No human in-game visual check yet.
 | `scripts/night/testing_bay_view.gd` | M | `picture_layers`, `lens_glass`; the panel and the glass draw the same stack |
 | `tools/test_testing_bay.gd` | M | B61 checks: the stack before/after a reveal; the glass stays on the picture |
 | `docs/BUGS.md` | M | B61 Fixed, with its regression evidence |
-| `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | Handoff, version 0.57.10, this entry |
+| `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | Handoff, version 0.58.1, this entry |
 
 ### Checks performed
 - `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: passed.
@@ -237,6 +239,92 @@ not how it looks. No human in-game visual check yet.
 ### Next action
 - The user merges the PR. Open discussions: the cable-management minigame, termopan doors and the rest of
   the counter art, the B59 recovery policy.
+
+## 0.58.0 - 2026-11-27 - Simple, lively Task Manajer and reduced effects
+- Author: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+- Based on: merged main 0.57.9 / dfbf5aaaef455a656588fa6fdb7cb40a2e5ad359.
+- Type: minor — user-authorized clue-based gameplay and app-level accessibility preference (D163).
+
+### Execution status
+Codex ran actual Godot 4.7.2.stable.official.ed1daf0bf: final complete required matrix **36 suites,
+2,510 checks, zero failures or script/parse errors**; Antivirus is 69. A 1280×720 graphical UI-fixture
+pass completed adware and miner cleanup, title/pause setting toggles, native uppercase SEND/Enter,
+wrong-word recovery, helper return, and corrected opaque typing presentation. This was not a fresh
+first-day playthrough or human feel/art acceptance. Mesa llvmpipe/dummy-audio limits remain.
+
+The prior user-requested review ran Testing bay 62, Save safety 15 and Night workshop 57 on Claude's
+#88 a8667b7 (including #87), all passing. The optional permanent B63 diagnostic nevertheless reproduced
+the old-run restore there. Neither PR was merged or modified.
+
+### Added / Changed / Fixed / Removed
+- Scan clues explain unwanted adverts or coin-making; app inspection uses stable, simple language.
+  No free exact-target highlighting. Fixed six rows, per-PC repeatable initial names/order and a
+  visible helper Start with PC action keep deduction intuitive without computer knowledge.
+- Adware has bounded adverts/slow rainbow/italic text; miners garble names and vary high CPU readings,
+  with one-pixel text-only jitter. No control movement or cursor lag. Paused/typing clocks freeze effects.
+- Shared title/pause Settings save reduced effects beside volume: steady colour, no shake, updates at
+  most once per second, identical clues/rules. Old volume-only settings remain valid. SAVE_FORMAT stays 1.
+- Existing paid-attempt, source/watchdog/reboot, cancellation, native uppercase SEND/Enter and stale-PC
+  safeguards are retained. B64 fixes stale Pause copy; B65 corrects the first popup fixture. B66/B67/B68 correct adware naming, prompt opacity and stopped-miner aliases found in graphical checks.
+- Reviewed #87/#88 before continuing. B63 is a reproduced cross-run save-recovery problem; recommend
+  correcting #88 before merge. Review/evidence and opt-in diagnostic are included; neither PR was merged,
+  changed or silently included. B62 stays allocated by #88. B59/B61 main statuses are retained.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `CHANGELOG.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `DEVELOPMENT.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `HANDOFF.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `README.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/ANTIVIRUS_0580_VALIDATION.md` | A | Antivirus validation evidence |
+| `docs/ANTIVIRUS_MINIGAME_DESIGN.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/BUGS.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/CURRENT_STATE.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/DECISIONS.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/DESIGN.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/MENU_NAVIGATION.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/PROJECT_BRIEF.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/PR_87_88_REVIEW.md` | A | Bounded PR review and disposable diagnostic |
+| `docs/ROADMAP.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `docs/WORK_PLAN.md` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `project.godot` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/night/antivirus_panel.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/night/pause_menu.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/night/software_view.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/rules/antivirus_round.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/rules/malware.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/state/game_state.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/view/antivirus_effects.gd` | A | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `scripts/view/start_view.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+| `tools/reproduce_b63.gd` | A | Bounded PR review and disposable diagnostic |
+| `tools/test_antivirus.gd` | M | 0.58.0 antivirus, shared preference, coverage or handoff |
+
+### Checks performed
+- Godot 4.7.2 editor import: exit 0; final 36 required suites: 2,510 checks, zero failures/script errors.
+  Native Antivirus is 69; every previous workflow suite and lifecycle journey is retained.
+- Actual graphical UI fixtures: adware and miner verified; native title/pause preference clicks,
+  uppercase/wrong-word/SEND/Enter, readable changing-name clues, helper return and final reboot.
+  Exact observations/limits: docs/ANTIVIRUS_0580_VALIDATION.md. No new artwork/human acceptance claim.
+- Project checker and bug-register checker: zero problems. All 12 bug-register and 9 CI-scope fixtures pass.
+  Whitespace passes. Affected Malware/overclock 34 and Software 38 reruns passed after scan-copy changes.
+- Short scripted bench smoke: finished without script/parse errors. No new performance audit.
+- PR review on a8667b7: Testing bay 62, Save safety 15, Night workshop 57, zero failures/script errors;
+  permanent tools/reproduce_b63.gd again observed $777/night 22/old run after new-game recovery.
+- Disposable graphical data and temporary fixture removed after confirming the game window closed.
+
+### Decisions proposed (not approved)
+No new virus families, scanner tiers, power-ups, hardware damage, shop economy or per-part implementation.
+Ten minutes per attempt remains inherited trial tuning; no new campaign-balance claim.
+
+### Known issues and open items
+PR #88's B63 remains Open. Its recovery/lens runtime changes are not part of this baseline.
+Human playtesting of readability, feel and effects is still needed. Existing lifecycle limitations and
+open bugs remain; no broad bug-closure, structural/performance review or real rendering-performance claim.
+
+### Next action
+The tested source and ZIP are ready. The user explicitly authorized publication to public 123rearearcode/nighshift_real and creation of a PR on 27 November 2026, resolving the earlier automatic-approval block. Publish for cross-review and the user's merge. Correct B63 before recommending #88; reconcile documentation when its revised branch lands.
+Then review part-test design for 0.59.0 separately; scheduled checker retains 0.60.0.
 
 ## 0.57.9 - 2026-11-26 - Counter room: the front wall faces you flat (user's sketch), existing art only
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.

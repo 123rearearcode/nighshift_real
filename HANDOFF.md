@@ -1,6 +1,6 @@
 # Handoff — current state first
 
-## Current — 0.57.11 B59 fixed: morning backups and a restore for a damaged ticket book, 27 November 2026
+## Current — 0.58.2 B59 fixed (developed as 0.57.11): morning backups and a restore for a damaged ticket book, 27 November 2026
 
 User decisions (D172): fix the backup check; save every morning and keep backups up to 3 days back; when the
 ticket book is damaged, try to restore it. Built: `SaveStore.read(path, accept)` skips a wrong-run manifest;
@@ -8,11 +8,11 @@ ticket book is damaged, try to restore it. Built: `SaveStore.read(path, accept)`
 the counter's "The ticket book is damaged" slip restores the newest working backup, setting the damaged
 files aside and putting the player's own files back if none works. Test suite: Save safety.
 Also decided, not built: the cable box (D173, `docs/CABLE_BOX_DESIGN.md`) and termopan doors, radiator and
-linoleum for the counter (D174; drafts for review). Stacked on #87 (0.57.10): merge #87 first.
+linoleum for the counter (D174; drafts for review). Stacked on #87 (0.58.1): merge #87 first.
 Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
 
-## Previous — 0.57.10 B61 fixed, 27 November 2026
+## Previous — 0.58.1 B61 fixed (developed as 0.57.10), 27 November 2026
 
 The testing bay's magnifying glass now draws the same stack as the panel (the close-up, then every revealed
 clue) and stays on the picture (`picture_layers`, `lens_glass` in `testing_bay_view.gd`). #84 (0.57.9), #85
@@ -22,6 +22,16 @@ minigame (a separate cable drawer whose cables tangle, shop items that help), te
 doors and the rest of the counter art, and the B59 recovery policy.
 Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
+
+## Previous — 0.58.0 simple, lively antivirus cleanup, 27 November 2026
+
+The user chose scan leads confirmed by inspection, explicitly requiring intuitive clues for someone without computer knowledge, and authorized creation. D163 records it. Scan clues describe behaviour; click an app for a stable explanation. Stop the unwanted app and its returning helper, turn off Start with PC on the helper, then reboot. Fixed six slots, distinct adware/miner presentation, repeatable per-PC variations and shared saved reduced-effects Settings are implemented. Existing actual-infection/time/typing/reboot/PC-isolation contracts remain. No new assets or save-format change.
+
+Before this work the user requested reviewing Claude's PRs: #87 lens patch and #88 save recovery. Their supplied affected suites passed (62/15/57), but B63 reproduces on #88 a8667b7: a new game loses its morning-1 backup behind the previous run's later mornings, and restore selects the old run. Recommend correction before #88 merge. Neither PR was merged or changed. Full evidence and optional diagnostic: docs/PR_87_88_REVIEW.md and tools/reproduce_b63.gd. Base remains merged main dfbf5aa; do not silently claim their fixes are in 0.58.0. B62 belongs to #88.
+
+Validation completed: all 36 required suites / 2,510 checks pass under Godot 4.7.2, plus real graphical adware/miner and Settings interactions. Exact evidence/limits: docs/ANTIVIRUS_0580_VALIDATION.md and newest CHANGELOG. The local commit and versioned source ZIP are complete. The user explicitly approved publishing 0.58.0 to the public 123rearearcode/nighshift_real repository and opening a PR on 27 November 2026, resolving the earlier automatic-approval block. Publish the tested source as a separate review PR; no further publication confirmation is needed. Preserve Claude's PRs and handle documentation conflicts when they land. Next design review is part tests 0.59.0; D164 stays reserved and scheduled checker owns 0.60.0.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
 
 ## Previous — 0.57.9 counter room with a flat front wall (the user's sketch), 26 November 2026
 

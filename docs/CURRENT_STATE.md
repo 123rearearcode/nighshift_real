@@ -1,5 +1,11 @@
 # Nightshift — Current State and Technical Handoff
 
+## Current antivirus update — 0.58.0 / 27 November 2026
+
+0.58.0 starts from merged main dfbf5aa (0.57.9). The user chose light deduction with especially simple, intuitive clues and authorized implementation. The six-slot Task Manajer now supplies plain-language inspection, per-PC repeatable layouts, distinct adware/miner row effects and a saved reduced-effects preference in title/pause Settings. Actual infection, paid attempt, reboot-only cure and stale-ticket protection remain canonical. No save-format change. PRs #87/#88 were reviewed, not merged: the supplied suites passed but B63 blocks recommending #88. The antivirus feature does not carry their unmerged runtime changes. Final target-engine checks: 36 required suites / 2,510 checks pass, plus graphical UI-fixture adware/miner/Settings verification. Exact evidence: ANTIVIRUS_0580_VALIDATION.md and CHANGELOG; no human acceptance claimed.
+
+Signed: Codex (GPT-6; model id not exposed by this session), ChatGPT Work.
+
 ## Current review consolidation — 0.57.7 / 25 November 2026
 
 User-requested replacement for older checker #77/#78, reviewed against main 0.57.6 / 842d0c2.

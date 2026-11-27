@@ -4,6 +4,8 @@ const Round = preload("res://scripts/rules/antivirus_round.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
 const Clock = preload("res://scripts/rules/night_clock.gd")
 const Nav = preload("res://scripts/night/night_navigation.gd")
+const Effects = preload("res://scripts/view/antivirus_effects.gd")
+const Store = preload("res://scripts/state/save_store.gd")
 func _initialize() -> void: call_deferred("run_checks")
 
 func press(button: Button) -> void:
@@ -13,7 +15,7 @@ func press(button: Button) -> void:
         event.pressed = down
         event.position = button.get_global_rect().get_center()
         event.global_position = event.position
-        root.push_input(event,true)
+        button.get_viewport().push_input(event,true)
         await process_frame
     await process_frame
 
@@ -81,11 +83,83 @@ func run_checks() -> void:
     timed_out.step(600)
     check(timed_out.outcome == "overloaded","gentle overload still supplies a recoverable failure state")
 
+    # D163: lightweight deduction and per-PC variety, never a shuffled/moving target during play.
+    var keyed := Round.new(Malware.MINER, "customer-pc-a")
+    var retry := Round.new(Malware.MINER, "customer-pc-a")
+    check(keyed.processes == retry.processes and keyed.case_variant == retry.case_variant, "the same PC keeps its names and layout on retry")
+    var layouts: Dictionary = {}
+    for n in range(12):
+        var varied := Round.new(Malware.ADWARE, "customer-pc-%d" % n)
+        layouts[str(varied.processes.map(func(p: Dictionary) -> String: return str(p["id"])))] = true
+    check(layouts.size() > 1, "different customer PCs can have different fixed layouts")
+    var named := Round.new(Malware.ADWARE, "customer-pc-a")
+    var app_name: String = named.label("source")
+    named.end_task("source")
+    check(named.status.begins_with(app_name + ":"), "adware reactions name the app actually stopped, including per-PC aliases")
+    keyed.scan()
+    check(keyed.scanned and keyed.scan_clues().contains("coins") and not keyed.scan_clues().contains("Zombie") and not keyed.scan_clues().contains(".exe"), "scan clues explain behaviour without naming exact targets or requiring computer knowledge")
+    check(a.scan_clues().contains("adverts") and keyed.process("watchdog")["detail"].contains("Start with PC"), "adware and miner have distinct plain-language leads and the helper explains recovery")
+    var stable_clue: String = keyed.process("source")["detail"]
+    var live_start: Dictionary = Effects.sample(keyed,"source",false)
+    keyed.step(1.3)
+    var live_after: Dictionary = Effects.sample(keyed,"source",false)
+    check(live_start["text"] != live_after["text"] and stable_clue == keyed.process("source")["detail"], "miner names garble while its readable inspection clue stays fixed")
+    var live_seconds: float = keyed.elapsed
+    keyed.paused = true
+    keyed.step(20)
+    check(keyed.elapsed == live_seconds and Effects.sample(keyed,"source",false) == live_after, "pause freezes presentation as well as the simulation")
+    keyed.paused = false
+    keyed.elapsed = 2.1
+    var reduced_before: Dictionary = Effects.sample(keyed,"source",true)
+    keyed.elapsed = 2.9
+    var reduced_after: Dictionary = Effects.sample(keyed,"source",true)
+    check(reduced_before == reduced_after and reduced_after["offset"] == Vector2.ZERO, "reduced effects keep names and CPU values fixed within a second and remove shake")
+    var colourful := Round.new(Malware.ADWARE)
+    var colour_before: Color = Effects.sample(colourful,"source",false)["colour"]
+    colourful.step(2)
+    check(Effects.sample(colourful,"source",false)["colour"] != colour_before and Effects.sample(colourful,"source",true)["colour"] == reduced_after["colour"], "adware colour cycles become a steady accent with reduced effects")
+    keyed.end_task("source")
+    keyed.submit_word("BANANA")
+    check(Effects.sample(keyed,"source",false)["cpu"] == 0 and Effects.sample(keyed,"source",false)["offset"] == Vector2.ZERO, "stopped malware immediately loses its CPU load and interference")
+    var stopped_alias: String = keyed.label("source")
+    keyed.step(Round.ALIAS_SECONDS * 2.0)
+    check(keyed.label("source") == stopped_alias, "a stopped miner keeps its final alias while the rest of the cleanup continues")
+
     var gs: Node = root.get_node("GameState")
     var night: Node = root.get_node("NightSession")
+    var old_settings: String = gs.settings_path
+    var old_volume: float = gs.sound_volume
+    var old_reduced: bool = gs.reduce_flashing
+    gs.settings_path = "user://antivirus_settings_test.json"
+    _remove_save_files(gs.settings_path)
     use_test_save(gs,"antivirus_test.json")
     for suffix: String in [".night.json",".navigation.json"]: _remove_save_files(gs.save_path+suffix)
     gs.new_game(false)
+    gs.set_reduce_flashing(true)
+    gs.set_sound_volume(0.35)
+    gs.set_reduce_flashing(false,false)
+    gs.set_sound_volume(1.0,false)
+    gs._load_settings()
+    check(gs.reduce_flashing and is_equal_approx(gs.sound_volume,0.35), "volume changes preserve reduced effects and both preferences survive reload")
+    Store.write(gs.settings_path,{"sound_volume":0.4})
+    gs._load_settings()
+    check(not gs.reduce_flashing and is_equal_approx(gs.sound_volume,0.4), "old volume-only settings load with normal effects")
+    Store.write(gs.settings_path,{"sound_volume":0.4,"reduce_flashing":"wrong-type"})
+    gs._load_settings()
+    check(not gs.reduce_flashing, "malformed optional effects preference safely uses its default")
+    var title: Node = load("res://scenes/start.tscn").instantiate()
+    root.add_child(title)
+    current_scene = title
+    await process_frame
+    title._on_settings()
+    await process_frame
+    # AcceptDialog is a separate native Window: test its actual CheckButton signal here; the graphical
+    # pass exercises pointer routing across that window. Root viewport events cannot stand in for it.
+    title.reduce_flashing_toggle.button_pressed = true
+    check(gs.reduce_flashing and Store.read(gs.settings_path).get("reduce_flashing",false) == true, "title Settings control saves the reduced-effects preference")
+    title.settings_dialog.hide()
+    title.queue_free()
+    await process_frame
     check(night.start(gs),"real night starts")
     var first: String = night.active_id
     var second: String = night.tickets[1]["id"]
@@ -114,7 +188,13 @@ func run_checks() -> void:
     check(gs.night_minutes == start+Round.COST_MINUTES,"attempt costs its night minutes once on entry")
     check(not view._navigate(Nav.REPAIR) and view.boot_button.disabled,"active cleanup blocks navigation and competing monitor tests")
     var positions: Dictionary = {}
-    for id: String in panel.row_buttons: positions[id] = panel.row_buttons[id].position
+    for id: String in panel.row_buttons: positions[id] = [panel.row_buttons[id].get_rect(), panel.row_end[id].get_rect()]
+    await press(panel.scan_button)
+    check(panel.clues.text == panel.model.scan_clues() and panel.row_buttons.values().all(func(b: Button) -> bool: return b.modulate == Color.WHITE), "native scan offers readable leads without automatically tagging the hidden bad rows")
+    await press(panel.row_buttons["source"])
+    var inspection: String = panel.details.text
+    panel._process(2)
+    check(panel.details.text == inspection and panel.row_text["source"].text != panel.model.label("source"), "clicking an app exposes a stable plain-language clue while its name is corrupted")
     await press(panel.row_end["source"])
     check(panel.hack.visible and panel.word_input.has_focus(),"native protected-process button opens and focuses the typing prompt")
     await key(KEY_B,98)
@@ -132,13 +212,19 @@ func run_checks() -> void:
     check(not panel.hack.visible and not panel.model.active("source") and Malware.infected(gs.job),"real SEND click works, closes prompt and stops the source without premature cure")
     var saved_rows: Array = panel.row_buttons.keys()
     panel._process(15)
-    check(panel.row_buttons.keys() == saved_rows and positions.keys().all(func(id: String) -> bool: return panel.row_buttons[id].position == positions[id]),"all native row positions/identities survive process ending and clock updates")
+    check(panel.row_buttons.keys() == saved_rows and positions.keys().all(func(id: String) -> bool: return [panel.row_buttons[id].get_rect(), panel.row_end[id].get_rect()] == positions[id]),"all native row and End-button rectangles survive effects, process ending and clock updates")
     var pause: Node = view.get_node("PauseMenu")
     await press(view.get_node("PauseButton"))
     var time_before: float = panel.model.elapsed
     await process_frame
     check(paused and panel.model.elapsed == time_before,"shared Pause freezes the real cleanup")
+    pause._settings()
+    await process_frame
+    check(pause.reduce_flashing_toggle.button_pressed, "pause Settings reads the preference selected on the title screen")
+    pause.reduce_flashing_toggle.button_pressed = false
+    check(not gs.reduce_flashing and Store.read(gs.settings_path).get("reduce_flashing",true) == false, "pause Settings control can change and save the same preference")
     pause.close()
+    await press(panel.row_buttons["watchdog"])
     await press(panel.startup_button)
     await press(panel.row_end["watchdog"])
     await press(panel.verify_button)
@@ -199,4 +285,8 @@ func run_checks() -> void:
     await process_frame
     for suffix: String in [".night.json",".navigation.json"]: _remove_save_files(gs.save_path+suffix)
     restore_save(gs)
+    _remove_save_files(gs.settings_path)
+    gs.settings_path = old_settings
+    gs.set_sound_volume(old_volume,false)
+    gs.set_reduce_flashing(old_reduced,false)
     finish("Antivirus")

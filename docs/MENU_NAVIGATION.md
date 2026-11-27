@@ -1,5 +1,7 @@
 # Room navigation rules — approved 0.53.0 (D161)
 
+0.58.0: both existing Settings dialogs include Reduce flashing and movement beside sound volume. It is an app preference, survives New game/Continue, and never writes shop progress. Task Manajer remains inside the existing monitor; its scan clues and app inspection add no destination, hub or tabs. Shared Pause remains available, and its help refers to workshop stations.
+
 ## Approved counter art — 0.57.5
 
 No destinations, pause, clock, save or intake rules change. The existing counter hotspots are aligned
