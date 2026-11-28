@@ -175,7 +175,8 @@ const CUSTOMER_REQUIRED: Dictionary = {"id": TYPE_STRING, "name": TYPE_STRING, "
     "complaint": TYPE_STRING, "uses": TYPE_STRING, "habits": TYPE_STRING, "patience": TYPE_STRING,
     "trust_start": TYPE_INT, "budget": TYPE_INT, "payout": TYPE_INT, "needs": TYPE_DICTIONARY,
     "pc": TYPE_DICTIONARY}   # 0.45.0 (D148): the PC the customer brings, as catalogue parts
-const CUSTOMER_OPTIONAL: Dictionary = {"greeting": TYPE_STRING, "patience_line": TYPE_STRING}   # 0.58.9 (D181): what they say
+const CUSTOMER_OPTIONAL: Dictionary = {"greeting": TYPE_STRING, "patience_line": TYPE_STRING,   # 0.58.9 (D181): what they say
+    "layout": TYPE_STRING, "laptop_finish": TYPE_STRING}   # 0.59.1 (D185): what they carry in (Mara's laptop)
 const GAME_REQUIRED: Dictionary = {"id": TYPE_STRING, "title": TYPE_STRING, "price": TYPE_INT,
     "gpu_demand": TYPE_INT, "cpu_demand": TYPE_INT, "ram_min": TYPE_INT, "size_gb": TYPE_INT}   # 0.51.0: install size (build requests)
 const PROFESSIONS: Array = ["regular", "gamer", "clueless"]   # first cut (D96)

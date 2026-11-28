@@ -9,6 +9,7 @@
 extends RefCounted
 
 const PcBuild = preload("res://scripts/rules/pc_build.gd")
+const PCLayout = preload("res://scripts/data/pc_layout.gd")   # B84: slot turns
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const Ids = preload("res://scripts/data/ids.gd")
 const ComponentData = preload("res://scripts/data/component_data.gd")
@@ -55,6 +56,17 @@ static func is_fixed(part_uid: String) -> bool:
 # repasted, refitted; never swapped). None of these are hardware-bench pieces; they stay in the job's parts.
 const LAPTOP_RAM: Array = ["ram_1", "ram_2"]
 const LAPTOP_STORAGE: Array = ["m2_1"]
+
+
+# B84 (0.59.1): the quarter turn a part needs to sit on `slot` (the connector's first allowed turn, else 0). A
+# stick on a lying RAM slot (the desktop's slot 3, both of a laptop's) used to be restored unturned, so the
+# hardware bench refused it and put it in the drawer, and saving the bench then took it out of the PC.
+static func turn_for(job: Dictionary, slot: String) -> int:
+    for connector: Dictionary in PCLayout.profile(PcBuild.form(job))["board"]["connectors"]:
+        if str(connector["id"]) == slot:
+            var turns: Array = connector.get("allowed_rotations", [0])
+            return int(turns[0]) if not turns.is_empty() else 0
+    return 0
 
 
 static func ram_slots(job: Dictionary) -> Array:
@@ -213,7 +225,7 @@ static func placements(job: Dictionary, saved: Dictionary) -> Dictionary:
     var laptop: bool = PcBuild.is_laptop(job)
     if str(p["cpu"]) != "" and not laptop: out[uid(job, "cpu")] = {"location": CPU_SLOT, "cell": [0, 0], "rotation": 0}
     for i in range(ram_sticks(job)):
-        out[uid(job, "ram_" + str(LETTERS[i]))] = {"location": ram_slots(job)[i], "cell": [0, 0], "rotation": 0}
+        out[uid(job, "ram_" + str(LETTERS[i]))] = {"location": ram_slots(job)[i], "cell": [0, 0], "rotation": turn_for(job, str(ram_slots(job)[i]))}   # B84
     for i in range(mini((p["storage"] as Array).size(), storage_slots(job).size())):
         out[uid(job, "storage_" + str(LETTERS[i]))] = {"location": storage_slots(job)[i], "cell": [0, 0], "rotation": 0}
     if str(p["psu"]) != "" and not laptop: out[uid(job, "psu")] = {"location": PSU_SLOT, "cell": [0, 0], "rotation": 0}

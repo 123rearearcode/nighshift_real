@@ -174,6 +174,9 @@ it is approved the benches draw the laptop with the plain shapes and storage dra
   laptop can have (dust, adware, a miner) and only when the repaired laptop still passes every check. A
   separate random stream decides, so desktop cases are drawn exactly as before.
 - Tickets and reports say "Laptop" (and what can be changed) instead of "Laptop PC".
+- **Fixed B84 (found by the new suite, run 46152711597):** a customer's RAM stick in a lying slot (a desktop's
+  slot 3, both of a laptop's) was restored unturned, so the hardware bench put it in the drawer and saving
+  took it out of the PC. Each slot now gets its allowed turn (`CustomerPC.turn_for`). New bug id B84 (next B85).
 - **Test fixture:** under the headless suites (tools/test_*.gd as the main loop) the first ticket stays the
   desktop the older suites test (`GameState.desktop_first_ticket`). The game never sets it;
   tools/test_laptops.gd turns it off to test Mara's real laptop.
@@ -190,7 +193,9 @@ it is approved the benches draw the laptop with the plain shapes and storage dra
 | `scripts/data/dust_zones.gd` | M | The laptop's four spots; profile-aware `index_of` / `total_penalty` |
 | `scripts/data/customers.gd` | M | Mara's laptop, complaint and habit |
 | `scripts/rules/pc_build.gd` | M | `form()`, `is_laptop()`; case and board by form |
-| `scripts/rules/customer_pc.gd` | M | Laptop slots; soldered parts are not bench pieces and stay in the parts |
+| `scripts/rules/customer_pc.gd` | M | Laptop slots; soldered parts are not bench pieces and stay in the parts; B84 slot turns |
+| `docs/BUGS.md` | M | B84 |
+| `tools/test_data_schemas.gd`, `tools/test_board_and_bench_state.gd` | M | A customer may name what they carry in; generated laptops have the laptop board |
 | `scripts/rules/part_instances.gd` | M | Snapshots keep the laptop layout |
 | `scripts/rules/ticket_generator.gd` | M | Generated laptops (`as_laptop`) |
 | `scripts/rules/reviews.gd` | M | "opens the laptop" reads like "opens the case" |

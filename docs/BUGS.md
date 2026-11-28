@@ -115,6 +115,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B77 | Verified | Low | Test harness | the new Windough suite named a helper click(), which the shared test base already has with other arguments; the suite did not compile | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 | B78 | Verified | Medium | Monitor / Test harness | windough.gd read the night clock through the GameState global by name; preloaded by a test before the game's globals exist, it did not compile and that suite hung | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 | B79 | Verified | Low | Test harness | the new Windough suite asked whether the old panel's button and text were visible on their own; they are hidden through their container, so the check failed although the panel was gone | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
+| B84 | Fixed | Medium | Hardware bench / Customer PC | a customer stick in a lying RAM slot (a desktop's slot 3) was restored unturned, so the hardware bench put it in the drawer; saving the bench then took it out of the PC | 0.59.1 | Automated: Laptops suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1124,4 +1125,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run `tools/test_windough.gd` at commit `49b6930`.
 - Expected / actual: pass / "FAIL: the monitor is dark while the PC is off; the old flat panel is gone".
 - Regression / evidence: the check uses `is_visible_in_tree()`. Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+
+### B84 — a customer's RAM in a lying slot fell into the drawer
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46152711597 on PR #101, 28 November 2026: the Laptops suite found Mara's laptop memory in the hardware drawer instead of its slot. The same code serves the desktops' third RAM slot.
+- Reported by: CI (new Laptops suite); diagnosed and fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.1, before merge.
+- Root cause: `CustomerPC.placements()` restored every customer stick with rotation 0. A RAM stick is 1 x 4 cells; a lying slot (a desktop's `ram_3`, both of a laptop's) is 4 x 1 and only takes it turned (`allowed_rotations: [1]`). `grid_inventory.setup()` then refused the slot and put the stick in the drawer, and the next bench save (`CustomerPC.apply()`) recorded it as out of the PC. On desktops this hit any customer PC with three sticks.
+- Reproduction: a tower job with three RAM sticks, or Mara's laptop at commit `431a3e3`; open the hardware bench.
+- Expected / actual: the stick sits in its slot / it lies in the drawer and the PC is one stick short after saving.
+- Regression / evidence: `CustomerPC.turn_for()` gives each slot's first allowed turn; `tools/test_laptops.gd` checks a desktop's third stick and a laptop's sticks are restored turned, and that the hardware bench shows the laptop's memory in its slot. CI evidence pending.
 

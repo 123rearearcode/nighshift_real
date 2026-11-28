@@ -74,6 +74,9 @@ func run_checks() -> void:
     var kept: Dictionary = CustomerPC.apply(job, CustomerPC.placements(job, {}))["parts"]
     check(kept["cpu"] == parts["cpu"] and kept["psu"] == parts["psu"] and kept["gpus"] == parts["gpus"] and kept["cooler"] == parts["cooler"], "the soldered processor, graphics, power and heatsink stay in the laptop")
     check(gs.board_blocker() == Laptop.BOARD_LOCKED and not gs.take_out_board(), "the motherboard never comes out")
+    var tower: Dictionary = {"id": "T9", "layout": "tower", "parts": PcBuild.sanitize({"ram": ["ram_8gb", "ram_8gb", "ram_8gb"]})}
+    var third: Dictionary = CustomerPC.placements(tower, {})[CustomerPC.uid(tower, "ram_c")]
+    check(third["location"] == "ram_3" and int(third["rotation"]) == 1 and int(CustomerPC.placements(job, {})[CustomerPC.uid(job, "ram_a")]["rotation"]) == 1, "B84: a stick on a lying slot (a desktop's slot 3, a laptop's slots) is restored turned to fit")
     check(not gs.set_service_part_fitted(Ids.GPU, false) and not gs.set_overclock(1, 0), "no graphics card to take out, no overclocking")
     check(Laptop.why_not(job, "sto_hdd_500") == Laptop.NO_HDD and Laptop.fits(job, "sto_nvme_1tb") and Laptop.fits(job, "ram_16gb") and Laptop.why_not(job, "gpu_gtx1660") == Laptop.SOLDERED, "a 3.5-inch drive does not fit; an NVMe drive and memory do; graphics are soldered")
     gs.job["ticket"]["request"] = "build"
@@ -89,6 +92,7 @@ func run_checks() -> void:
     gs.set_dust(clean)
     gs.job["paste_grade"] = "PERFECT"
     gs.job["paste_done"] = true
+    gs.job["pc_powered"] = true   # the final check boots it
     var result: Dictionary = gs.run_final_check()
     check(bool(gs.job["cleaned"]) and bool(result["boots"]) and bool(result["passed"]), "cleaned and repasted, her laptop passes the final check")
     check(float(result["temp"]) < float(dirty["temp"]) - 40.0, "cleaning takes more than 40 C off a dusty laptop")
@@ -146,7 +150,7 @@ func run_checks() -> void:
     check(not m.can_place("c", rack, 0, Vector2i(1, 1), 0) and not m.can_place("c", rack, 0, Vector2i(2, 2), 0), "three high is the most")
     check(m.blocked("tower") != "" and not m.begin("tower") and not m.begin("a") and m.begin("b"), "the top laptop comes off first")
     m.cancel()
-    check(m.place("c", rack, 0, Vector2i(8, 0), 0) and m.level("c") == 0, "on free shelf space a laptop lies flat")
+    check(m.place("c", rack, 1, Vector2i.ZERO, 0) and m.level("c") == 0, "on free shelf space a laptop lies flat")
     var saved: Dictionary = m.snapshot()
     var again := Model.new()
     again.setup({"tower": sample("tower", Vector2i(8, 6), false), "a": sample("a", Laptop.SIZE, true), "b": sample("b", Laptop.SIZE, true),
