@@ -13,7 +13,7 @@ func _initialize() -> void:
     call_deferred("run_checks")
 
 
-func click(view: Node, native: Vector2, double: bool = false) -> void:
+func tap(view: Node, native: Vector2, double: bool = false) -> void:
     var at: Vector2 = view.windough.global_position + native * 2.0 + Vector2(1, 1)
     for down: bool in [true, false]:
         var event := InputEventMouseButton.new()
@@ -75,15 +75,15 @@ func run_checks() -> void:
     root.push_input(enter, true)
     await process_frame
     check(win.state == "splash", "Enter starts Windough 98 at once")
-    await click(view, Vector2(200, 100))
+    await tap(view, Vector2(200, 100))
     check(win.state == "desktop" and (gs.job.get("findings", []) as Array).size() == findings, "a click skips the splash to the desktop; booting writes nothing in Findings")
 
     # ---- the desktop ----
     check(view.boot_button.disabled == false, "on the desktop the apps can run")
     var hw: Rect2i = win.icon_rect(1)
-    await click(view, Vector2(hw.get_center()))
+    await tap(view, Vector2(hw.get_center()))
     check(win.selected == 1 and win.open_app == "", "one click selects the Hardware check icon")
-    await click(view, Vector2(hw.get_center()), true)
+    await tap(view, Vector2(hw.get_center()), true)
     check(win.open_app == "hardware" and win.app_text("hardware").contains("Press Run"), "a double click opens it in a window")
     var minutes: int = gs.night_minutes
     var run: Rect2 = win.button_rect("Run")
@@ -99,7 +99,7 @@ func run_checks() -> void:
     check(win.result_app == "hardware" and win.app_text("hardware") == view.output.text and view.output.text != "" and win.status_text("hardware").contains("Findings"), "Run runs the monitor's own Hardware check and the window shows its report")
     check(gs.night_minutes >= minutes, "the check keeps its own night-minute rule")
     var close: Rect2i = win.layout("hardware")["close"]
-    await click(view, Vector2(close.get_center()))
+    await tap(view, Vector2(close.get_center()))
     check(win.open_app == "", "the window's X closes it")
     win.open("boot")
     check(win.app_text("boot").contains("Press Run") and not win.app_text("boot").contains("in place"), "another app does not show the last app's report")
@@ -112,7 +112,7 @@ func run_checks() -> void:
     check(win.status_text("hardware") != "" and str(Clock.label(gs.night_minutes)).length() == 5, "the tray clock is the night clock")
 
     # ---- the Begin menu ----
-    await click(view, Vector2(10, Windough.H - 8))
+    await tap(view, Vector2(10, Windough.H - 8))
     check(win.menu_open, "Begin opens the menu")
     var items: Array = win.menu_items()
     var programs: Rect2i = items[0][1]
@@ -120,13 +120,13 @@ func run_checks() -> void:
     check(win.hover_menu == "Programs", "pointing at Programs highlights it")
     await move(view, Vector2(win.program_rect(5).get_center()))
     check(win.hover_program == "stress", "and opens the shop's apps beside it")
-    await click(view, Vector2(win.program_rect(5).get_center()))
+    await tap(view, Vector2(win.program_rect(5).get_center()))
     check(win.open_app == "stress" and not win.menu_open, "choosing the Stress lab opens it")
     win.close_window()
-    await click(view, Vector2(10, Windough.H - 8))
+    await tap(view, Vector2(10, Windough.H - 8))
     var shut: Rect2i = items[items.size() - 1][1]
     await move(view, Vector2(shut.get_center()))
-    await click(view, Vector2(shut.get_center()))
+    await tap(view, Vector2(shut.get_center()))
     check(not gs.job["pc_powered"] and win.state == "off" and view.output.text.contains("readings cleared"), "Shut Down... turns the PC off")
     view.queue_free()
     await process_frame
@@ -142,7 +142,7 @@ func run_checks() -> void:
     await process_frame
     var notes: Array = gs.job.get("findings", [])
     check(dead.windough.state == "no_signal" and dead.output.text.contains("nothing reaches the screen") and str(notes.back()["text"]).begins_with("Boot check: Boot FAILED"), "a PC that does not start shows NO SIGNAL; what you see is written down as a Boot check")
-    await click(dead, Vector2(200, 100))
+    await tap(dead, Vector2(200, 100))
     check(dead.windough.state == "no_signal" and dead.windough.open_app == "", "nothing on that screen can be clicked into")
     dead.queue_free()
     await process_frame

@@ -112,6 +112,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B74 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.10 | Automated: Counter art suite (40 checks), integrated 41 required suites / 2,648 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
 | B75 | Fixed | High | Monitor / Test harness | windough.gd declared the constant README twice, so the script did not parse; the monitor scene failed to load and every suite that opens it hung until its 10-minute limit | 0.59.0 | Automated: all suites, CI pending |
 | B76 | Fixed | High | Monitor / Test harness | windough.gd named a helper wrap(), which Godot already has as a built-in function; calls with two arguments did not compile and the monitor suites hung again | 0.59.0 | Automated: all suites, CI pending |
+| B77 | Fixed | Low | Test harness | the new Windough suite named a helper click(), which the shared test base already has with other arguments; the suite did not compile | 0.59.0 | Automated: Windough suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1091,4 +1092,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: any monitor suite at commit `ce953e6`.
 - Expected / actual: the monitor loads / "Parse Error: Too few arguments for wrap() call. Expected at least 3 but received 2."
 - Regression / evidence: renamed `word_wrap`; every function name in the new scripts was checked against Godot's global function list. CI evidence pending.
+
+### B77 — the Windough suite did not compile: a helper named like the test base's
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46085160781 on PR #99, 28 November 2026; every other suite passed in the normal time.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge. Test code only; the game was not affected.
+- Root cause: `tools/test_windough.gd` declared `func click(view, native, double)`, but its parent `tools/test_support.gd` already has `click(Node, int, bool, Vector2)`. GDScript treats a same-named function as an override and refuses a different signature.
+- Reproduction: run `tools/test_windough.gd` at commit `e0497cd`.
+- Expected / actual: the suite runs / "Parse Error: The function signature doesn't match the parent."
+- Regression / evidence: renamed `tap`; every function name in the suite was compared with the test base's (no other overlap). CI evidence pending.
 
