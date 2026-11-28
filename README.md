@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.59.1)
+# Nightshift - Godot Foundation Trial (v0.59.2)
+
+0.59.2, the first day from the notebook: what customers hand over waits on the counter until you put it away or carry it (one thing in your arms); a small backpack is 8 x 6 and slides in when you rest the pointer on the right edge; the stock room is seen from the front; the laptop is drawn at a tower's scale; laptops under a pile can crack their lid; on the repair bench you lift the PC onto the mat, unscrew it and take the panel off; the thermal steps are a movable manual; customers slide in and out; buying reviews shows on the till at once (B85). The approved laptop art is in; the new art waits for approval. Stacked on PR #101.
 
 0.59.1 adds laptops (D185): smaller in storage and stackable up to three high, case and motherboard locked, only memory and the drive change, quicker to clean but hotter when dirty. Mara brings one. The laptop art awaits approval. Stacked on PR #99.
 

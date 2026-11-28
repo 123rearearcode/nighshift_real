@@ -26,9 +26,10 @@ static func customer(id: String) -> Dictionary:
             "persona": "Polite, in a hurry, slightly suspicious of technology.",
             "about": "Front-desk clerk at the parody-brand hotel around the corner. First time in the shop; found it through an online review.",
             # 0.58.9 (D181): what she says at the counter, around the complaint (placeholder lines; the story is the user's).
-            "greeting": "Good morning. I read about your shop online, so I hope the reviews were honest.",
-            "patience_line": "I need it back by tomorrow morning, please. I start early.",
-            "complaint": "My laptop overheats and the fan is very loud.",   # 0.59.1 (D185): "mara comes in with a laptop"
+            # 0.59.2 (D186; user: "Dialogue needs rewriting"): rewritten lines, still proposals for the user's story.
+            "greeting": "Hello... you're open? Sorry, I came straight from the night shift. I found you online. I hope the reviews are honest.",
+            "patience_line": "I need it back tomorrow morning. My shift starts at seven, and the manager already doesn't like me.",
+            "complaint": "My laptop gets so hot I can't keep it on my lap, and the fan sounds like a hair dryer.",   # 0.59.1 (D185): "mara comes in with a laptop"
             "uses": "Office work, browsing and light games in the evening.",
             "habits": "Never opens the laptop herself. Would notice louder fans and hot air straight away. Reads and writes online reviews.",
             "patience": "Needs the PC back by tomorrow morning.",
@@ -52,8 +53,8 @@ static func customer(id: String) -> Dictionary:
             "profession": "gamer",
             "persona": "Chatty, knows benchmark numbers by heart, no patience for stutter.",
             "about": "Economics student; plays ranked matches every evening. A regular at the shop since his first build.",
-            "greeting": "Hey, it's me again! My PC is in real trouble this time.",   # 0.58.9 (D181), placeholder line
-            "patience_line": "I can wait two days. Not three, though.",
+            "greeting": "Hey, it's me again. Don't laugh. I think I did something to it.",   # 0.59.2: rewritten (proposal)
+            "patience_line": "Two days, max. After that my team finds another player for ranked.",
             "complaint": "The frame rate suddenly tanked; now the PC powers on but the screen stays black. I can't play Counter Stroke at all.",   # 0.47.0: matches his boot symptom (Codex, PR #58)
             "uses": "Counter Stroke 2 every evening; wants it smooth.",
             "habits": "Opens the case himself, watches temperatures and clock speeds. Would spot a swapped part or old paste in a week.",

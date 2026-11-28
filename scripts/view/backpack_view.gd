@@ -20,7 +20,11 @@ const UnderCounter = preload("res://scripts/rooms/under_counter_view.gd")
 const CELL: int = 44
 const PANEL := Rect2(50, 80, 1180, 560)
 const GRID_AT := Vector2(80, 170)
-const LIST_RECT := Rect2(560, 160, 640, 330)
+const LIST_RECT := Rect2(720, 160, 480, 300)
+# 0.59.2 (D186; user: "there should also be a way to carry 1 pc/thing in your arms"): beside the backpack, what
+# you carry in your arms (one thing of any size), drawn small. Drag between them; Carry from the list.
+const ARMS_BOX := Rect2(548, 170, 152, 152)
+const ARMS_CELL: int = 19
 
 var model := Model.new()
 var store := Store.new()
@@ -55,8 +59,9 @@ func open() -> void:
     add_child(scroll)
     list_box = VBoxContainer.new()
     scroll.add_child(list_box)
-    unpack_button = _button("Unpack to the stock room", Rect2(LIST_RECT.position.x, LIST_RECT.end.y + 14, 310, 38), _unpack)
-    counter_button = _button("Put it under the counter", Rect2(LIST_RECT.position.x + 330, LIST_RECT.end.y + 14, 310, 38), _to_counter)
+    _label("IN YOUR ARMS", ARMS_BOX.position - Vector2(0, 28), Vector2(ARMS_BOX.size.x + 20, 26), 15)
+    unpack_button = _button("Unpack to the stock room", Rect2(LIST_RECT.position.x, LIST_RECT.end.y + 14, 234, 38), _unpack)
+    counter_button = _button("Put it under the counter", Rect2(LIST_RECT.position.x + 246, LIST_RECT.end.y + 14, 234, 38), _to_counter)
     close_button = _button("Close the backpack", Rect2(PANEL.end.x - 250, PANEL.position.y + 14, 226, 36), func() -> void: closed.emit())
     close_button.name = "BackpackClose"
     _rebuild_list()
@@ -91,6 +96,10 @@ func packed() -> Array:
     return model.in_unit(Backpack.ID)
 
 
+func carried() -> Array:
+    return model.in_unit(Data.ARMS_ID)
+
+
 func grid_rect() -> Rect2:
     return Rect2(GRID_AT, Vector2(model.backpack_size) * CELL)
 
@@ -103,19 +112,29 @@ func where(uid: String) -> String:
 
 func _rebuild_list() -> void:
     for child: Node in list_box.get_children(): child.queue_free()
-    var away: Array = model.items.keys().filter(func(uid: String) -> bool: return not uid in packed() and str(model.items[uid]["category"]) in Backpack.ACCEPTS)
+    var away: Array = model.items.keys().filter(func(uid: String) -> bool: return not uid in packed() and not uid in carried())
     away.sort()
     for uid: Variant in away:
         var item: Dictionary = model.items[uid]
+        var line := HBoxContainer.new()
+        var carry_button := Button.new()   # 0.59.2: anything, one at a time, in your arms
+        carry_button.name = "Carry_" + str(uid)
+        carry_button.text = "Carry"
+        carry_button.custom_minimum_size = Vector2(70, 32)
+        carry_button.disabled = store.read_only or not carried().is_empty()
+        carry_button.pressed.connect(carry.bind(str(uid)))
+        line.add_child(carry_button)
         var row := Button.new()
         row.name = "Pack_" + str(uid)
         row.alignment = HORIZONTAL_ALIGNMENT_LEFT
-        row.custom_minimum_size = Vector2(LIST_RECT.size.x - 20, 32)
+        row.custom_minimum_size = Vector2(LIST_RECT.size.x - 96, 32)
         row.add_theme_font_size_override("font_size", 14)
-        row.text = "Pack: %s · %s  (%s)" % [item["label"], item["model"], where(str(uid))]
-        row.disabled = store.read_only
+        var fits: bool = str(item["category"]) != "pc" or bool(item.get("stackable", false))   # a desktop is carried, not packed
+        row.text = ("Pack: %s · %s  (%s)" if fits else "%s · %s  (%s): carry it") % [item["label"], item["model"], where(str(uid))]
+        row.disabled = store.read_only or not fits
         row.pressed.connect(pack.bind(str(uid)))
-        list_box.add_child(row)
+        line.add_child(row)
+        list_box.add_child(line)
     if away.is_empty():
         var none := Label.new()
         none.text = "Nothing else to pack."
@@ -127,7 +146,7 @@ func _refresh() -> void:
     var count: int = packed().size()
     info.text = ("%s · %s · %s" % [item["label"], item["model"], item["condition"]]) if not item.is_empty() else \
         ("%d thing%s in your backpack. Click one to pick it up or select it." % [count, "" if count == 1 else "s"]) if count > 0 else "Your backpack is empty."
-    var mine: bool = selected in packed() and model.held == "" and not store.read_only
+    var mine: bool = (selected in packed() or selected in carried()) and model.held == "" and not store.read_only
     unpack_button.disabled = not mine
     counter_button.disabled = not mine
     queue_redraw()
@@ -152,8 +171,25 @@ func pack(uid: String) -> bool:
     return true
 
 
+# 0.59.2: take something in your arms (one thing at a time).
+func carry(uid: String) -> bool:
+    if store.read_only or model.held != "": return false
+    var keep: Dictionary = model.placements.get(uid, {}).duplicate()
+    model.placements.erase(uid)
+    if not model.place_first(uid, Data.ARMS_ID):
+        if not keep.is_empty(): model.placements[uid] = keep
+        status.text = "Your arms are full: put down what you carry first."
+        return false
+    selected = uid
+    _save()
+    status.text = "You carry %s in your arms." % model.items[uid]["label"]
+    call_deferred("_rebuild_list")
+    _refresh()
+    return true
+
+
 func _unpack() -> void:
-    if not selected in packed() or not model.to_room(selected): return
+    if not (selected in packed() or selected in carried()) or not model.to_room(selected): return
     var label: String = str(model.items[selected]["label"])
     _save()
     status.text = "%s went back to the stock room%s." % [label, "" if model.placements.has(selected) else " (no shelf space there: it waits for space)"]
@@ -163,7 +199,7 @@ func _unpack() -> void:
 
 
 func _to_counter() -> void:
-    if not selected in packed(): return
+    if not (selected in packed() or selected in carried()): return
     var keep: Dictionary = model.placements[selected].duplicate()
     model.placements.erase(selected)
     if not model.place_first(selected, Data.COUNTER_ID):
@@ -181,6 +217,8 @@ func _to_counter() -> void:
 
 func item_rect(uid: String) -> Rect2:
     var p: Dictionary = model.placements.get(uid, {})
+    if not p.is_empty() and p["unit"] == Data.ARMS_ID:
+        return Rect2(ARMS_BOX.position + Vector2(p["cell"]) * ARMS_CELL, Vector2(Data.footprint(model.items[uid], p["rotation"])) * ARMS_CELL)
     if p.is_empty() or p["unit"] != Backpack.ID: return Rect2()
     return Rect2(GRID_AT + Vector2(p["cell"]) * CELL, Vector2(Data.footprint(model.items[uid], p["rotation"])) * CELL)
 
@@ -195,11 +233,14 @@ func press_at(at: Vector2) -> void:
         if grid_rect().has_point(at) and model.drop(Backpack.ID, 0, _cell_under(at)):
             _save()
             status.text = "Put down."
+        elif ARMS_BOX.has_point(at) and model.drop(Data.ARMS_ID, 0, Vector2i.ZERO):
+            _save()
+            status.text = "In your arms."
         else:
             status.text = "It does not fit there."
         _refresh()
         return
-    for uid: Variant in packed():
+    for uid: Variant in packed() + carried():
         if item_rect(str(uid)).has_point(at):
             selected = str(uid)
             model.begin(selected)
@@ -266,6 +307,16 @@ func _draw() -> void:
             var colour: Color = Data.COLOURS.get(str(item["kind"]), Color("8a9aa6"))
             draw_rect(r.grow(-2), colour.darkened(0.15))
             draw_string(font, r.position + Vector2(6, 18), str(item["label"]), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 13, Color("101418"))
+        if str(uid) == selected: draw_rect(r.grow(-1), Color("ffd27a"), false, 2.0)
+    draw_rect(ARMS_BOX, Color("1f2a30"))   # 0.59.2: your arms
+    draw_rect(ARMS_BOX, Color("6c8a98"), false, 2.0)
+    if carried().is_empty(): draw_string(font, ARMS_BOX.position + Vector2(10, ARMS_BOX.size.y * 0.5 + 5), "empty", HORIZONTAL_ALIGNMENT_LEFT, ARMS_BOX.size.x - 20, 13, Color("6c7a80"))
+    for uid: Variant in carried():
+        if str(uid) == model.held: continue
+        var r: Rect2 = item_rect(str(uid))
+        var colour: Color = Data.COLOURS.get(str(model.items[uid]["kind"]), Color("8a9aa6"))
+        draw_rect(r.grow(-1), colour.darkened(0.15))
+        draw_string(font, r.position + Vector2(4, 14), str(model.items[uid]["label"]), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 6, 11, Color("101418"))
         if str(uid) == selected: draw_rect(r.grow(-1), Color("ffd27a"), false, 2.0)
     if model.held != "":
         var cells: Vector2i = Data.footprint(model.items[model.held], model.held_rotation)

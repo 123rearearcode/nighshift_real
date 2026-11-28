@@ -72,7 +72,7 @@ func run_checks() -> void:
     var said: Array = MorningText.opening_lines({"complaint": mara["complaint"]}, mara)
     check(said.size() == 4 and said[0] == mara["greeting"] and said[1] == mara["complaint"] and str(said[2]).begins_with("I use it for office work") and said[3] == mara["patience_line"], "Mara greets, says what is wrong, what she uses it for and when she needs it")
     var plain: Array = MorningText.opening_lines({"complaint": "It is slow."}, {"uses": "Games."})
-    check(plain == ["Good morning. Is this the computer repair shop?", "It is slow.", "I use it for games."], "a customer without written lines gets plain ones")
+    check(plain == ["Good morning. You fix computers here, yes?", "It is slow.", "I use it for games."], "a customer without written lines gets plain ones")
     check(MorningText.visit_lines({"kind": "collected", "reaction": "Furious: the PC does not even start."}, {})[0].contains("doesn't even turn on") and MorningText.visit_lines({"kind": "comeback"}, {})[0].contains("acting up"), "collections and comebacks say how it went")
 
     # ---- at the counter ----

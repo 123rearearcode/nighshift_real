@@ -82,6 +82,24 @@ floor placements are unchanged; a piled one adds `level`, used to restore piles 
 and the under-counter view draw piles bottom first, each layer a little up and left with a shadow, and pick the
 top first.
 
+## The counter top, your arms, the front view — 0.59.2 (D186)
+
+Two more fixed units, never in the stock room: `counter_top` ("On the counter", 20 x 6, PCs only) and `arms`
+("In your arms", 8 x 8, anything, `max_items` 1). A job marked `at_counter` (every PC accepted at the counter in
+the game) is placed on the counter top by `fill_unplaced` when it has no saved place; from there the player moves
+it under the counter, into the backpack or into their arms. Arrange keeps all fixed units (`FIXED_IDS`). The
+small backpack is 8 x 6 and takes PCs only when `stackable` (laptops: spec `pc_if_stackable`). The under-counter
+drawer shows the counter top and your arms as two boxes beside the grid; the backpack view has an arms box and a
+Carry button per row. Pile damage: at the end of each night, every laptop with something on it rolls once
+(`Laptop.pile_damage_chance(above_count)` = 5% per item above, seeded by world seed, night and ticket) and may get
+`lid_cracked`, a pickup fault. Under the headless suites (`GameState.desktop_first_ticket`) nothing is marked
+`at_counter`, so the older suites' stock-room start is unchanged.
+
+**Front view (stock room).** PCs are drawn front-on, standing on the shelf (or the pile under them), with a fixed
+height per kind (`FRONT_HEIGHT`: a tower 92 px, a laptop 12 px), so a PC fills one shelf row. Depth rows are not
+drawn: dropping picks the column under the pointer and the front-most free depth, then a pile. Art for the wall,
+rack and front sprites is drafted (`tools/art_batch_f/day1.py`) and used only once approved and installed.
+
 ## Coordination and remaining work
 
 No hot files or customer/shop code changed. The only existing view hook is a new start-menu

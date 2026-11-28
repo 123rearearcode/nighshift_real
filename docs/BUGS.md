@@ -116,6 +116,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B78 | Verified | Medium | Monitor / Test harness | windough.gd read the night clock through the GameState global by name; preloaded by a test before the game's globals exist, it did not compile and that suite hung | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 | B79 | Verified | Low | Test harness | the new Windough suite asked whether the old panel's button and text were visible on their own; they are hidden through their container, so the check failed although the panel was gone | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 | B84 | Verified | Medium | Hardware bench / Customer PC | a customer stick in a lying RAM slot (a desktop's slot 3) was restored unturned, so the hardware bench put it in the drawer; saving the bench then took it out of the PC | 0.59.1 | Automated: Laptops suite, GitHub Actions run 46153480834 (commit ecf0e38, 44 suites / 2,714 checks, 0 failures) |
+| B85 | Fixed | Low | Counter / Phone | after buying fake reviews on the phone, the till on the counter's top bar kept showing the old cash until the room was left and entered again | 0.59.2 | Automated (pending): Day 1 suite, PR CI run |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1136,3 +1137,14 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: the stick sits in its slot / it lies in the drawer and the PC is one stick short after saving.
 - Regression / evidence: `CustomerPC.turn_for()` gives each slot's first allowed turn; `tools/test_laptops.gd` checks a desktop's third stick and a laptop's sticks are restored turned, and that the hardware bench shows the laptop's memory in its slot. Automated: GitHub Actions run 46153480834 (commit ecf0e38, 44 suites / 2,714 checks, 0 failures); the Laptops suite passed 40 checks.
 
+
+
+### B85 — the till kept the old cash after buying reviews
+
+- Found: the user's notebook, 28 November 2026 (page 7): "Bug, review money not instantly showing up on the top bar". Asked where: "the top bar right away".
+- Reported by: the user (human); diagnosed and fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.2.
+- Root cause: `PhonePanel._buy()` takes the $45 off `GameState.money` and redraws only the phone. The counter's hotspot badges (the till's cash) are set in `counter_room._refresh_room()`, which nothing called after a purchase, so the badge showed the old amount until the room was rebuilt.
+- Reproduction: night 1, at the counter, with at least $45: open the phone, buy ReviewBoost; the phone says "Shop cash now $N", the till badge still says the old amount.
+- Expected / actual: the till shows the new cash at once / it shows the old cash until you leave and come back.
+- Regression / evidence: the phone now emits `bought` after a purchase and the counter room refreshes on it. `tools/test_day1.gd` buys reviews at the counter and checks the till badge equals the new cash. Evidence recorded once the PR's CI run passes.

@@ -6,7 +6,10 @@ const Laptop = preload("res://scripts/rules/laptop.gd")       # 0.59.1 (D185): l
 var items: Dictionary = {}
 var units: Array = []
 var fixed_units: Array = [{"id":Data.COUNTER_ID,"model":Data.COUNTER_ID,"room_cell":Vector2i(-1,-1)},   # 0.55.0: not in the room
-    {"id":Backpack.ID,"model":Backpack.ID,"room_cell":Vector2i(-1,-1)}]                            # 0.58.4: carried, never auto-filled
+    {"id":Backpack.ID,"model":Backpack.ID,"room_cell":Vector2i(-1,-1)},                            # 0.58.4: carried, never auto-filled
+    {"id":Data.TOP_ID,"model":Data.TOP_ID,"room_cell":Vector2i(-1,-1)},                            # 0.59.2: handed over, on the counter
+    {"id":Data.ARMS_ID,"model":Data.ARMS_ID,"room_cell":Vector2i(-1,-1)}]                          # 0.59.2: one thing in your arms
+const FIXED_IDS: Array = [Data.COUNTER_ID, Backpack.ID, Data.TOP_ID, Data.ARMS_ID]
 var backpack_size: Vector2i = Backpack.LEVELS[0]["size"]
 var placements: Dictionary = {}
 var next_unit: int = 1
@@ -31,7 +34,7 @@ func setup(sources: Dictionary, saved: Dictionary = {}, backpack: Vector2i = Vec
             if not raw is Dictionary or units.size() >= Data.MAX_UNITS: continue
             var uid: String = str(raw.get("id",""))
             var kind: String = str(raw.get("model",""))
-            if uid == "" or uid.length()>80 or seen.has(uid) or uid in [Data.COUNTER_ID, Backpack.ID] or not Data.MODELS.has(kind): continue
+            if uid == "" or uid.length()>80 or seen.has(uid) or uid in FIXED_IDS or not Data.MODELS.has(kind): continue
             units.append({"id":uid,"model":kind,"room_cell":Vector2i(-1,-1)})
             var rc: Variant = raw.get("room_cell",null)
             if rc is Array and rc.size() == 2 and _integer(rc[0]) and _integer(rc[1]):
@@ -124,6 +127,8 @@ func _spot(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: i
     if furniture.is_empty(): return {}
     var spec: Dictionary = spec_of(str(furniture["model"]))
     if not items[uid]["category"] in spec["accepts"] or shelf<0 or shelf>=int(spec["shelves"]): return {}
+    if items[uid]["category"] == "pc" and bool(spec.get("pc_if_stackable", false)) and not bool(items[uid].get("stackable", false)): return {}   # 0.59.2: a laptop fits a backpack, a desktop does not
+    if spec.has("max_items") and in_unit(unit_id).filter(func(other: String) -> bool: return other != uid).size() >= int(spec["max_items"]): return {}   # 0.59.2: one thing in your arms
     var area := Rect2i(cell,Data.footprint(items[uid],rotation))
     if not Rect2i(Vector2i.ZERO,spec["size"]).encloses(area): return {}
     var touched: Array = []
@@ -159,6 +164,10 @@ func level(uid: String) -> int:
         n += 1
         at = str(placements.get(at, {}).get("on", ""))
     return n
+
+# 0.59.2: how many things rest on `uid`, directly or through others (a pile's weight on it).
+func above_count(uid: String) -> int:
+    return placements.keys().filter(func(other: String) -> bool: return _rests_on(other, uid)).size()
 
 func on_top_of(uid: String) -> Array:
     return placements.keys().filter(func(other: String) -> bool: return str(placements[other].get("on", "")) == uid)
@@ -207,6 +216,7 @@ func fill_unplaced() -> void:
         return aa.x*aa.y>bb.x*bb.y if aa.x*aa.y != bb.x*bb.y else a<b)
     for uid: String in ids:
         var stored: bool = false
+        if bool(items[uid].get("at_counter", false)) and place_first(uid, Data.TOP_ID): continue   # 0.59.2: handed over, it waits on the counter
         for stack_ok: bool in [false, true]:   # 0.59.1: free shelf space first; a laptop then goes on a pile
             for furniture: Dictionary in units:
                 var spec: Dictionary = Data.MODELS[furniture["model"]]
@@ -226,7 +236,7 @@ func fill_unplaced() -> void:
 func arrange() -> void:
     cancel()
     for uid: String in placements.keys():   # 0.55.0: what you keep under the counter stays there (0.58.4: and in your backpack)
-        if not placements[uid]["unit"] in [Data.COUNTER_ID, Backpack.ID]: placements.erase(uid)
+        if not placements[uid]["unit"] in FIXED_IDS: placements.erase(uid)   # 0.59.2: and on the counter, and in your arms
     fill_unplaced()
 
 # 0.55.0: the first free spot in one unit (either rotation). False when it does not fit.

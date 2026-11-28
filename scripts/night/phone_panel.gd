@@ -9,6 +9,7 @@ extends Panel
 const Reviews = preload("res://scripts/rules/reviews.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")   # 0.57.8: the approved phone frame (ART-18)
 const SIZE := Vector2(400, 600)
+signal bought   # B85 (0.59.2): the room behind the phone redraws its till
 
 var header: Label
 var standing: Label
@@ -121,6 +122,7 @@ func _buy() -> void:
     if GameState.buy_fake_reviews():
         NightSession.checkpoint(GameState)
         status.text = "%d glowing reviews posted. Shop cash now $%d." % [Reviews.FAKE_PACK, GameState.money]
+        bought.emit()
     else:
         status.text = "Not enough cash ($%d needed)." % Reviews.FAKE_PRICE
     call_deferred("refresh")

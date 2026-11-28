@@ -144,7 +144,9 @@ func _carry_in(made: Dictionary, who: Dictionary) -> void:
 # before laptops: they test desktop repairs on the first ticket (its graphics card, PSU, case fan, tower
 # geometry), so under a suite the first ticket stays the desktop they assert on. In the game the main loop has
 # no script and this is always false: Mara brings her laptop. tools/test_laptops.gd sets it false to test that.
-# Not saved.
+# 0.59.2 (D186): it also keeps the older suites' start: a new ticket's case is already open on the bench, and
+# handed-over PCs go straight to the stock room instead of waiting on the counter top (tools/test_day1.gd sets it
+# false to test both). Not saved.
 var desktop_first_ticket: bool = false
 
 
@@ -162,6 +164,9 @@ func _job_for(cid: String, who: Dictionary) -> Dictionary:
         "service_replacement_ids": {},
         "layout": "tower",
         "laptop_finish": "",      # 0.59.1 (D185): a laptop's lid colour (laptop.gd FINISHES); "" for a desktop
+        "at_counter": false,      # 0.59.2 (D186): handed over at the counter: until you put it away it waits on the counter top
+        "lid_cracked": false,     # 0.59.2 (D186): a laptop's lid cracked under a pile in storage (seen; noticed at pickup)
+        "case_state": "open" if desktop_first_ticket else "off_table",   # 0.59.2 (D186): off_table / closed / open (bench_case.gd); the old suites start open
         "dust_schema": 2,
         "removed_parts": [],
         "service_table_positions": {},
@@ -531,6 +536,7 @@ func pickup_faults(temp: float = -1.0) -> Array:
     faults.append_array(Malware.pickup_faults(job))      # D132
     faults.append_array(Overclock.pickup_faults(job, at))
     faults.append_array(PartCondition.pickup_faults(job))   # 0.50.0: a crashing shop part left in the PC
+    faults.append_array(Laptop.pickup_faults(job))          # 0.59.2 (D186): a lid cracked in a pile of laptops
     return faults
 
 
@@ -565,6 +571,14 @@ func advance_night(minutes: int) -> void:
 
 
 # D132: the overclocker's two settings, clamped to their ranges.
+# 0.59.2 (D186): the repair bench's first steps: the PC lifted onto the mat and opened (bench_case.gd).
+func set_case_state(value: String) -> void:
+    if not value in ["off_table", "closed", "open"]: return
+    job["case_state"] = value
+    if value == "open": note(Findings.WORK, "Opened the %s." % ("laptop's bottom cover" if PcBuild.is_laptop(job) else "case: side panel off"), "repair")
+    save_game()
+
+
 func set_overclock(mult: int, volt: int) -> bool:
     if job["state"] == "done": return false
     if PcBuild.is_laptop(job): return false   # 0.59.1 (D185): a laptop's BIOS has no overclocking settings
@@ -876,6 +890,7 @@ func load_game() -> bool:
         for key in saved_job:
             if job.has(key):
                 job[key] = saved_job[key]
+        if not str(saved_job.get("case_state", "open")) in ["off_table", "closed", "open"] or not saved_job.has("case_state"): job["case_state"] = "open"   # 0.59.2: saves from before were already open
         if not saved_job.has("dust_schema") and bool(saved_job.get("cleaned", false)) and saved_job.has("dust") and typeof(job["dust"]) == TYPE_DICTIONARY:
             job["dust"]["under_cooler"] = 1.0
             job["dust"]["under_gpu"] = 1.0

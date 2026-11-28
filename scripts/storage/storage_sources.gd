@@ -39,7 +39,7 @@ static func collect(gs: Node) -> Dictionary:
         items[uid] = {"id":uid,"source_uid":str(job["id"]),"category":"pc","kind":"pc","label":"Customer laptop" if laptop else "Customer PC",
             "model":("Laptop" if laptop else "Compact PC" if job.get("layout","tower") == "compact" else "Tower PC")+" · "+str(job.get("customer","Customer")),
             "size":Laptop.SIZE if laptop else Vector2i(7,5) if job.get("layout","tower") == "compact" else Vector2i(8,6),"owner":"Customer property · "+str(job["id"]),
-            "condition":"Awaiting service","reserved":false,"stackable":laptop,"finish":Laptop.finish_of(job) if laptop else "",
+            "condition":"Lid cracked in storage" if bool(job.get("lid_cracked",false)) else "Awaiting service","reserved":false,"stackable":laptop,"at_counter":bool(job.get("at_counter",false)),"finish":Laptop.finish_of(job) if laptop else "",
             "note":("Ticket %s. Customer laptop. It can lie on a desktop or another laptop, up to three high; the top one comes off first. Drag it into the workshop slot to work on it." if laptop
                 else "Ticket %s. Whole customer PC, including fitted parts. Drag it into the workshop slot in the room to work on it.")%str(job["id"])}
     return items

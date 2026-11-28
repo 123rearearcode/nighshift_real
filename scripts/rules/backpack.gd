@@ -8,10 +8,10 @@ const ID := "backpack"                       # the storage unit id (scripts/stor
 # Smallest first; the player always has pockets. Sizes are storage cells (44 px each on screen).
 const LEVELS: Array = [
     {"id": "pockets", "name": "Pockets", "size": Vector2i(4, 2)},
-    {"id": "backpack_small", "name": "Small backpack", "size": Vector2i(6, 3)},
-    {"id": "backpack_large", "name": "Hiking backpack", "size": Vector2i(8, 4)},
+    {"id": "backpack_small", "name": "Small backpack", "size": Vector2i(8, 6)},    # 0.59.2: "about the size of the PC"
+    {"id": "backpack_large", "name": "Hiking backpack", "size": Vector2i(10, 7)},
 ]
-const ACCEPTS: Array = ["tool", "part"]      # whole PCs do not fit in a backpack
+const ACCEPTS: Array = ["tool", "part", "pc"]   # 0.59.2: a laptop fits in a backpack; a desktop does not (pc_if_stackable)
 
 
 # The best backpack the player owns (from GameState.upgrades).
@@ -27,4 +27,4 @@ static func size_for(upgrades: Dictionary) -> Vector2i:
 
 
 static func spec(size: Vector2i) -> Dictionary:
-    return {"name": "Backpack", "size": size, "shelves": 1, "accepts": ACCEPTS, "hint": "Goes with you into every room."}
+    return {"name": "Backpack", "size": size, "shelves": 1, "accepts": ACCEPTS, "pc_if_stackable": true, "hint": "Goes with you into every room."}

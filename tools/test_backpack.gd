@@ -25,7 +25,7 @@ func run_checks() -> void:
     if FileAccess.file_exists(layout_path): DirAccess.remove_absolute(layout_path)
 
     # ---- rules ----
-    check(Backpack.size_for({}) == Vector2i(4, 2) and Backpack.size_for({"backpack_small": true}) == Vector2i(6, 3) and Backpack.size_for({"backpack_small": true, "backpack_large": true}) == Vector2i(8, 4) and Backpack.size_for({"backpack_large": true}) == Vector2i(8, 4), "you always have pockets (4 x 2); backpacks make it 6 x 3 and 8 x 4")
+    check(Backpack.size_for({}) == Vector2i(4, 2) and Backpack.size_for({"backpack_small": true}) == Vector2i(8, 6) and Backpack.size_for({"backpack_small": true, "backpack_large": true}) == Vector2i(10, 7) and Backpack.size_for({"backpack_large": true}) == Vector2i(10, 7), "you always have pockets (4 x 2); backpacks make it 8 x 6 (a PC's size, 0.59.2) and 10 x 7")
 
     # ---- the storage model ----
     var m := Model.new()
@@ -35,7 +35,7 @@ func run_checks() -> void:
     var pc: String = ""
     for uid: String in m.items:
         if str(m.items[uid]["category"]) == "pc": pc = uid
-    check(pc != "" and not m.place_first(pc, Backpack.ID), "a whole customer PC does not go in a backpack")
+    check(pc != "" and not m.place_first(pc, Backpack.ID), "a whole customer desktop does not go in a backpack")
     m.arrange()
     check(m.placements["tool:kit:brush"]["unit"] == Backpack.ID, "Arrange the stock room leaves what you carry alone")
     var saved: Dictionary = m.snapshot()
@@ -48,10 +48,10 @@ func run_checks() -> void:
 
     # ---- the store ----
     gs.money = 200
-    check(gs.buy_upgrade("backpack_small") and int(gs.money) == 200 - int(gs.UPGRADE_PRICES["backpack_small"]) and Backpack.size_for(gs.upgrades) == Vector2i(6, 3), "a small backpack is bought at the store and makes room for more")
+    check(gs.buy_upgrade("backpack_small") and int(gs.money) == 200 - int(gs.UPGRADE_PRICES["backpack_small"]) and Backpack.size_for(gs.upgrades) == Vector2i(8, 6), "a small backpack is bought at the store and makes room for more")
     var grown := Model.new()
     grown.setup(Sources.collect(gs), {})
-    check(grown.backpack_size == Vector2i(6, 3), "the storage model knows the backpack you own")
+    check(grown.backpack_size == Vector2i(8, 6), "the storage model knows the backpack you own")
     change_scene_to_file("res://scenes/night_shop.tscn")
     for f in range(3): await process_frame
     check(current_scene.upgrade_buttons.has("backpack_large") and current_scene.upgrade_buttons["backpack_small"].disabled, "the store sells backpacks; one you own is marked owned")
@@ -64,7 +64,7 @@ func run_checks() -> void:
     if button != null: button.emit_signal("pressed")
     await process_frame
     var view: Control = current_scene.backpack_view
-    check(view != null and view.model.backpack_size == Vector2i(6, 3) and view.title.text.contains("Small backpack"), "it opens your backpack, the size of the one you own")
+    check(view != null and view.model.backpack_size == Vector2i(8, 6) and view.title.text.contains("Small backpack"), "it opens your backpack, the size of the one you own")
     if view != null:
         check(view.pack("tool:kit:pick") and "tool:kit:pick" in view.packed(), "pack something from the stock room")
         var reread := Model.new()

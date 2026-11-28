@@ -30,3 +30,14 @@ hands the retract rectangle to its native button so tools/bin-empty logic cannot
 User assigned these narrow hot-file edits; extend existing PR #41, do not create a competing hot-file
 PR or merge automatically. Claude cross-reviews next. WORK_PLAN.md unchanged. Native-input, data,
 save/report and full bench diagnostic results are recorded in CHANGELOG. No manual graphics claim.
+
+## Bench first steps and the manual — 0.59.2 (D186)
+
+A ticket's PC now arrives beside the mat (`case_state` "off_table"). `scripts/view/bench_case.gd` is an overlay on
+the bench table: drag the PC onto the mat ("closed"), click its screws out (a desktop's two thumbscrews, a
+laptop's eight), drag the side panel or bottom cover onto the tray ("open"). Each step is saved with the ticket
+(`GameState.set_case_state`, which notes "Opened the ..." in the PC's notebook). Until it is open the overlay takes
+every click on the table. Old saves without the key load "open"; under the headless suites new tickets start
+"open". The thermal stage's step list is now `scripts/ui/bench_manual.gd`: a booklet you drag by its spine, the
+wheel or arrows turn pages, it turns to your step when the step changes and prints the live NOW line there. The
+rules (`install_faults.gd`, `paste_sim.gd`) are unchanged. Signed: Claude (Opus 5.5, model id claude-opus-5-5).

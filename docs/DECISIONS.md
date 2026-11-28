@@ -934,3 +934,45 @@ Mara's silver laptop (her drive an SSD), 3 in 10 generated customers with a lapt
 Art: drafts only (revision 1) until the user approves an exact revision. Recorded by Claude (Opus 5.5, model id
 claude-opus-5-5).
 
+### D186 — The first day, from the notebook (user, 28 November 2026)
+
+Nine notebook pages, transcribed in `claude/NOTEBOOK_2026-11-28.md` (project docs), then sixteen questions; the
+user's answers, quoted: "1/ ... The art is approved, btw. 2/ yes 3/the top bar right away 4/Yes 5/Under the
+counter. Also the backpack should automatically pull up when you hover to the right side f the screen 6/Yeah.
+but there should also be a way to carry 1 pc/thing in your arms 7/ keep them 8/ Simple slide for now 9/ Yes and
+yes 10/ Lets start w thermal paste only 11. Yes, but it goes up w more laptops on top of each other. 12/Draft
+from scratch but keep in line w the art design so far. Should have some tiles in it (part w the common wall w the
+hallway) 13/ Yes, the customer archetypes are to be built later, but record all changes in the design and
+roamaps. 14. Yes, they replace the old system. 15. Sure. 16. Sure, that's fine, I dont need any of that stuff
+drawn, and only treated from a far away perspective kinda vibe". On stories: "not for all of them; onjly when
+certain conditions are met on specific archetypes of people. These are stories that can be triggered through
+interaction with non-scripted NPCs. Also, these are the characters archetypes only for the repair/broken laptop
+service. we wil habe slightly different rules/characters for other things."
+
+Built in 0.59.2:
+1. **Laptop art revision 1 approved and installed** (storage, the closed laptop on the counter, the heatsink),
+   hashes in `art/laptop/manifest.json`.
+2. **The stock room seen from the front:** each PC fills one shelf row; depth is chosen for you (the front-most
+   free spot, then a pile).
+3. **B85:** the till on the top bar shows money spent on reviews right away.
+4. **The laptop at tower scale:** 14 x 9 cells drawn at a tower's cell size, its insides tighter; new art
+   (revision 2) drafted, waiting for approval.
+5. **Handed over at the counter:** accepted PCs wait on the counter top; the player moves them under the counter
+   (or carries them). The backpack slides in when the pointer rests on the right edge of the screen.
+6. **Backpack 8 x 6** (a small backpack; a laptop fits, a desktop does not), and **arms**: one thing of any size.
+7. The counter keeps its tiles.
+8. Customers **slide** in from the door side and out again.
+9. **Repair bench first steps:** lift the PC onto the mat, turn out the screws (a desktop's two thumbscrews, a
+   laptop's eight), lift the side panel / bottom cover off onto the tray.
+10. **The thermal paste manual:** a movable booklet, one page per step, the mouse wheel turns pages, it follows
+    the step you are on. Only the thermal stage for now.
+11. **Laptops crack under a pile:** each night, 5% per thing lying on a laptop; the customer finds the cracked lid.
+12. **The stock room art** drafted from scratch (green oil paint, whitewash, tiles on the wall shared with the
+    hallway); waiting for approval.
+13. to 16. **Recorded for later, not built:** customer archetypes replace the old professions system (repair /
+    broken-laptop service only; other services get their own rules and characters). Stories start only for
+    specific archetypes when conditions are met, through interaction with non-scripted NPCs; scamming someone can
+    start a story when they come back; with high trust a customer can bring several PCs. A sealed parody MacBook.
+    Dark story material (abuse, incest) only as an off-screen, far-away plot label, never written out or drawn;
+    the real person named in the notebook is replaced by a fictional scandal.
+Recorded by Claude (Opus 5.5, model id claude-opus-5-5).

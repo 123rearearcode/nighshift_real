@@ -440,3 +440,47 @@ files at their runtime paths, where they do not exist until an approved revision
   the Outside room at street level (pixel art 640 x 360 at 2x) with its hotspot layout. Creator Claude
   (Opus 5.5, model id claude-opus-5-5), drawn with code (`tools/art_batch_c/cables_case.py`, `outside.py`),
   25 November 2026. Review sheets `c9_connectors_case.png`, `c10_outside.png`. Approval: **Pending**.
+
+## Laptop revision 1 installed (0.59.2)
+
+Approved by the user on 28 November 2026: "The art is approved, btw" (answer 1 in D186). Installed byte for byte
+from `art/drafts/laptop/pieces/` revision 1 (11 files; hashes listed above under the laptop drafts and in
+`art/laptop/manifest.json`, checked by `tools/test_day1.gd`). Approval: **Approved (revision 1)**.
+
+## Drafts for review (0.59.2, pending approval)
+
+- Laptop revision 2 (`art/drafts/laptop/`, `tools/art_batch_f/laptop.py`): the chassis and board redrawn for the
+  14 x 9 laptop at tower scale. Creator Claude (Opus 5.5, model id claude-opus-5-5), drawn with code, 28 November
+  2026. Hashes (revision 2):
+  - `storage/laptop_silver_r0.png` `1c17fd58bdf2410048a5e1431b2295f2bdd0d19a1a7d8be04421e60bc6db611f`
+  - `storage/laptop_silver_r1.png` `6e55a3080b1b8ac622ca8222697e9bb0b7cdf2065551662c30e19259a4cae2af`
+  - `storage/laptop_silver_r2.png` `d42501bdb5b2ba42ac26e0279e85c8e4e47305d87b66757bfffb8fe3aac8295d`
+  - `storage/laptop_silver_r3.png` `6c0e04e63f0fca9039ea42084adc71207363c65da6526d2763c48f5d714b2987`
+  - `props/laptop_closed_silver.png` `2d771e32027d85f582e1aa3b8c7f18a1933be028970a31dc267ad83074895a28`
+  - `storage/laptop_graphite_r0.png` `7e6bcee0b218124a9bc635f3b5fad75e088d3649cf662bbfe1ab5d1243cb8001`
+  - `storage/laptop_graphite_r1.png` `26578e345b74b61d3ed2b687b6ab0103a069d64240dcd9e66a649849ce945212`
+  - `storage/laptop_graphite_r2.png` `25f45cc8c5c00634d603772abaf2fc35b25254e20e3339476efecc791f962307`
+  - `storage/laptop_graphite_r3.png` `65e363474680df8545f1117813854bc5ddccd9ac784226ab0149117830985176`
+  - `props/laptop_closed_graphite.png` `c1839243b80857a2a9db1b672f05d2fb54d73a7724764c1d58cacb3ac6f5c728`
+  - `hardware/case_laptop_interior.png` `1e020c4ee5249f51a03368e4106ea99e0da1f21e460c62885ec044db8c61e3fb`
+  - `hardware/board_laptop.png` `815923ec288811fd11dd8e668adf5ca3265b0043adc255d516549d52c370f4ce`
+  - `hardware/laptop_heatsink.png` `0e43d7d6f4e51f1afec5d1ef1bf3bf8ad768005cd53e664d73c278d8fdce6e5f`
+- Day 1 set (`art/drafts/day1/`, `tools/art_batch_f/day1.py`): linoleum floor, stock room wall and rack, PCs
+  seen from the front and side, side panels and the laptop cover. Creator Claude (Opus 5.5, model id
+  claude-opus-5-5), drawn with code, 28 November 2026. Hashes (revision 1, paths under `art/`):
+  - `rooms/counter_termopan/floor-linoleum.png` `6f82e88201aec2000c26d3f4cc73771da6c66181987de564b3ef98fac1633485`
+  - `rooms/stock/stock_wall.png` `3a0815f9bde43bb7bd99cb8e736b04e88946a818c5093be86d6d918113a348c4`
+  - `rooms/stock/rack_front.png` `285291f2fe05d6ef64cea4e8916a63a4c93b645b17611198a1b5fb14d2bc8c61`
+  - `storage/front/pc_tower_front.png` `c15f87e0212138723201a7853b47cfe79c77662658084a23ff893915778e002a`
+  - `storage/front/pc_tower_side.png` `abb827980b993cfac63969c10c2aaa1c5bb82e5461ca4764502bb5efb5293a71`
+  - `storage/front/pc_compact_front.png` `e9fc1a2dca4b0548e3fcd8fbe3e7edbebb69f22d614ecbaf29a70775e32f240e`
+  - `storage/front/pc_compact_side.png` `486154dd66ea43be3d9f212d0123aa3e34f56a48c6d549253860f626d940f803`
+  - `bench/case/side_panel_tower.png` `7198e4ad3c74310bd4c42eccdbe4aca346751f876f108601d14253de7c1eb7ae`
+  - `bench/case/side_panel_compact.png` `a45ae316e75739bcba48721a8f9c2da66867d93651902b87dd426fd173c60159`
+  - `bench/case/laptop_cover.png` `c54156debdaa9240e6224a838773dc4701187c76ca7cfcad5c8207f506153008`
+  - `storage/front/laptop_silver_front.png` `d86ac9c88fd9a4a3d135d11686b674f3f114a14a738204dc92d5cc420cb7e583`
+  - `storage/front/laptop_silver_side.png` `2669e0c3aa101f1e351f65e81500318579e544ef3aa8ea0707399457e47abc50`
+  - `storage/front/laptop_graphite_front.png` `0239a332a910f770830eed46762482137d991786180306484d6f348fdf5316c1`
+  - `storage/front/laptop_graphite_side.png` `64d8e88041d28b11de740a61403dfe2c0c0b1e7e4695186c72656daf8196d1d5`
+
+Approval: **Pending** for both. Nothing above is loaded until an approved revision is installed.

@@ -1,0 +1,18 @@
+{
+ "approval_quote": "The art is approved, btw",
+ "approved": "2026-11-28",
+ "revision": 1,
+ "sha256": {
+  "art/storage/laptop_silver_r0.png": "1c17fd58bdf2410048a5e1431b2295f2bdd0d19a1a7d8be04421e60bc6db611f",
+  "art/storage/laptop_silver_r1.png": "6e55a3080b1b8ac622ca8222697e9bb0b7cdf2065551662c30e19259a4cae2af",
+  "art/storage/laptop_silver_r2.png": "d42501bdb5b2ba42ac26e0279e85c8e4e47305d87b66757bfffb8fe3aac8295d",
+  "art/storage/laptop_silver_r3.png": "6c0e04e63f0fca9039ea42084adc71207363c65da6526d2763c48f5d714b2987",
+  "art/props/laptop_closed_silver.png": "2d771e32027d85f582e1aa3b8c7f18a1933be028970a31dc267ad83074895a28",
+  "art/storage/laptop_graphite_r0.png": "7e6bcee0b218124a9bc635f3b5fad75e088d3649cf662bbfe1ab5d1243cb8001",
+  "art/storage/laptop_graphite_r1.png": "26578e345b74b61d3ed2b687b6ab0103a069d64240dcd9e66a649849ce945212",
+  "art/storage/laptop_graphite_r2.png": "25f45cc8c5c00634d603772abaf2fc35b25254e20e3339476efecc791f962307",
+  "art/storage/laptop_graphite_r3.png": "65e363474680df8545f1117813854bc5ddccd9ac784226ab0149117830985176",
+  "art/props/laptop_closed_graphite.png": "c1839243b80857a2a9db1b672f05d2fb54d73a7724764c1d58cacb3ac6f5c728",
+  "art/hardware/laptop_heatsink.png": "0e43d7d6f4e51f1afec5d1ef1bf3bf8ad768005cd53e664d73c278d8fdce6e5f"
+ }
+}

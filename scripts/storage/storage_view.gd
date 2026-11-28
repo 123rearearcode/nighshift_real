@@ -10,7 +10,21 @@ const Navigation = preload("res://scripts/night/night_navigation.gd")
 const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const WORKSHOP_SLOT := Rect2(1010,150,242,126)
-const STACK_LIFT := Vector2(3, 5)   # 0.59.1 (D185): each laptop on a pile is drawn this much up and left
+# 0.59.2 (D186; user: "In the stock room, the PC should not be like this in perception (when looking from this
+# angle it should only take one height)" and, asked, "each PC fills one shelf row, seen from the front": yes). The
+# racks are seen from the FRONT: every item stands on its shelf as tall as it is (FRONT_HEIGHT, world px), as wide
+# as its footprint; its depth on the shelf is hidden, and what stands further back peeks out a little higher
+# (DEPTH_LIFT per cell of depth). A laptop on a pile lies on top of what it rests on. The storage model is
+# unchanged (footprints, piles, saves): dropping picks the front-most free depth for you.
+const DEPTH_LIFT: float = 3.0
+const FRONT_HEIGHT: Dictionary = {"pc_tower": 92.0, "pc_compact": 78.0, "laptop": 12.0, "gpu": 26.0, "ram": 14.0, "cpu": 18.0,
+    "cooler": 44.0, "psu": 52.0, "storage": 16.0, "tool": 26.0}
+const ARMS_BOX := Rect2(1010,452,242,84)   # 0.59.2: what you carry in your arms, from room to room
+const RoomArt = preload("res://scripts/rooms/room_art.gd")
+# 0.59.2 art (tools/art_batch_f/day1.py), used only once the user has approved it and it is installed: the back
+# wall, the steel rack front, and PCs seen from the front (or the side, when turned on the shelf).
+var stock_art: String = RoomArt.ROOMS_README.get_base_dir() + "/stock/"      # art/rooms/stock/, created when the approved files are installed
+var front_art: String = RoomArt.STORAGE_README.get_base_dir() + "/front/"    # art/storage/front/
 const ROOM_VIEW := Rect2(24,158,946,414)
 var model := Model.new()
 var store := Store.new()
@@ -84,7 +98,7 @@ func _ready() -> void:
     edit_buttons.append(_button("+ Add furniture",Rect2(1010,450,242,38),_open_add))
     edit_buttons.append(_button("Remove empty",Rect2(1010,496,242,38),_remove_unit))
     edit_buttons.append(_button("Auto-pack shelves",Rect2(1010,542,242,38),_arrange))
-    saved_label = _label("Changes save automatically",Vector2(1010,450),Vector2(242,66),15)
+    saved_label = _label("Changes save automatically",Vector2(1010,546),Vector2(242,36),14)   # 0.59.2: below your arms
     retry_save = _button("Retry saving layout",Rect2(1010,542,242,38),_save)
     _label("WAITING FOR SPACE",Vector2(24,592),Vector2(400,26),15)
     _button("‹",Rect2(1150,588,45,30),func() -> void: _waiting_turn(-1))
@@ -312,31 +326,84 @@ func shelf_rect(index: int,shelf: int) -> Rect2:
     return Rect2(to_screen(rect.position),rect.size*zoom)
 func header_rect(index: int) -> Rect2:
     return Rect2(to_screen(_unit_rect(index).position),Vector2(Data.BAY_SIZE.x,34)*zoom)
+# 0.59.2: how tall an item stands, seen from the front (world px).
+static func front_height(item: Dictionary) -> float:
+    match str(item.get("category","")):
+        "pc":
+            if bool(item.get("stackable",false)): return FRONT_HEIGHT["laptop"]
+            return FRONT_HEIGHT["pc_compact"] if item.get("size",Vector2i.ZERO) == Vector2i(7,5) else FRONT_HEIGHT["pc_tower"]
+        "tool": return FRONT_HEIGHT["tool"]
+    return float(FRONT_HEIGHT.get(str(item.get("kind","")),20.0))
+
+# Cells between an item's front edge and the shelf's front edge (0 = at the front).
+func _depth_back(uid: String) -> int:
+    var p: Dictionary = model.placements.get(uid,{})
+    var furniture: Dictionary = model.unit(str(p.get("unit","")))
+    if p.is_empty() or furniture.is_empty() or not Data.MODELS.has(str(furniture["model"])): return 0
+    var depth: int = int(Data.MODELS[furniture["model"]]["size"].y)
+    return maxi(0,depth-(int(p["cell"].y)+Data.footprint(model.items[uid],p["rotation"]).y))
+
 func _world_item(uid: String) -> Rect2:
     var p: Dictionary = model.placements.get(uid,{})
     if p.is_empty(): return Rect2()
     for i in range(model.units.size()):
         if model.units[i]["id"] == p["unit"]:
-            return Rect2(_world_shelf(i,p["shelf"]).position+Vector2(p["cell"])*Data.CELL-STACK_LIFT*model.level(uid),Vector2(Data.footprint(model.items[uid],p["rotation"]))*Data.CELL)   # 0.59.1: a pile reads as a pile
+            var shelf := _world_shelf(i,p["shelf"])
+            var height: float = front_height(model.items[uid])
+            var bottom: float = shelf.end.y-DEPTH_LIFT*_depth_back(uid)
+            var under: String = str(p.get("on",""))
+            if under != "" and model.placements.has(under): bottom = _world_item(under).position.y   # on the pile
+            return Rect2(shelf.position.x+p["cell"].x*Data.CELL,bottom-height,Data.footprint(model.items[uid],p["rotation"]).x*Data.CELL,height)
     return Rect2()
 # B56: only items on the room's own furniture are drawn in it. Items under the counter or in the backpack are
 # placed in units that are not in the room (no world rectangle) and used to be drawn as a mark at the origin.
+# 0.59.2: where the held item would stand at `cell` of a shelf (world px), on a pile if it would rest on one.
+func _front_rect_at(index: int, shelf: int, cell: Vector2i) -> Rect2:
+    var spec: Dictionary = Data.MODELS[model.units[index]["model"]]
+    var fp: Vector2i = Data.footprint(model.items[model.held],model.held_rotation)
+    var shelf_rect := _world_shelf(index,shelf)
+    var height: float = front_height(model.items[model.held])
+    var bottom: float = shelf_rect.end.y-DEPTH_LIFT*maxi(0,int(spec["size"].y)-(cell.y+fp.y))
+    var spot: Dictionary = model._spot(model.held,model.units[index]["id"],shelf,cell,model.held_rotation,true)
+    if str(spot.get("on","")) != "": bottom = _world_item(str(spot["on"])).position.y
+    return Rect2(shelf_rect.position.x+cell.x*Data.CELL,bottom-height,fp.x*Data.CELL,height)
+
+# 0.59.2 (D186): your arms, in the side panel (hidden while arranging furniture).
+func _draw_arms() -> void:
+    if arranging: return
+    draw_rect(ARMS_BOX,Color("1f2a30"))
+    draw_rect(ARMS_BOX,Color("72d9ad") if model.held != "" and ARMS_BOX.has_point(pointer) else Color("6c8a98"),false,2)
+    _text("IN YOUR ARMS",ARMS_BOX.position+Vector2(8,18),13,Color("9fb5be"))
+    var carried: Array = model.in_unit(Data.ARMS_ID)
+    if carried.is_empty(): _text("empty · drop something here",ARMS_BOX.position+Vector2(8,52),13,Color("6c7a80"))
+    for uid: String in carried:
+        if uid != model.held: _draw_item(uid,item_rect(uid))
+
 func room_drawn_items() -> Array:
     var out: Array = []
     for uid: String in model.placements:
         if _world_item(uid).has_area(): out.append(uid)
-    out.sort_custom(func(a: String, b: String) -> bool: return model.level(a) < model.level(b))   # 0.59.1: piles bottom first
+    out.sort_custom(func(a: String, b: String) -> bool: return _draw_before(a,b))   # 0.59.2: back first, piles bottom first
     return out
+
+func _draw_before(a: String, b: String) -> bool:
+    if _depth_back(a) != _depth_back(b): return _depth_back(a) > _depth_back(b)
+    return model.level(a) < model.level(b)
 func item_rect(uid: String) -> Rect2:
+    if str(model.placements.get(uid,{}).get("unit","")) == Data.ARMS_ID:   # 0.59.2: in your arms
+        var tall: float = minf(front_height(model.items[uid]),ARMS_BOX.size.y-26)
+        var wide: float = minf(Data.footprint(model.items[uid],model.placements[uid]["rotation"]).x*Data.CELL,ARMS_BOX.size.x-16)
+        return Rect2(ARMS_BOX.position+Vector2((ARMS_BOX.size.x-wide)*0.5,ARMS_BOX.size.y-6-tall),Vector2(wide,tall))
     var rect := _world_item(uid)
     if rect.has_area(): return Rect2(to_screen(rect.position),rect.size*zoom)
     var n: int = model.overflow().find(uid)-waiting_page*8
     return Rect2(24+n*139,626,130,42) if n>=0 and n<8 else Rect2()
 func _hit(at: Vector2) -> String:
-    var order: Array = model.items.keys()   # 0.59.1: the top of a pile is under the pointer first
-    order.sort_custom(func(a: String, b: String) -> bool: return model.level(a) > model.level(b))
+    var order: Array = model.items.keys()   # 0.59.2: front first, the top of a pile first
+    order.sort_custom(func(a: String, b: String) -> bool: return _draw_before(b,a))
     for uid: String in order:
-        if model.placements.has(uid) and not ROOM_VIEW.has_point(at): continue
+        var in_arms: bool = str(model.placements.get(uid,{}).get("unit","")) == Data.ARMS_ID
+        if model.placements.has(uid) and not in_arms and not ROOM_VIEW.has_point(at): continue
         var rect := item_rect(uid)
         if rect.has_area() and rect.has_point(at): return uid
     return ""
@@ -347,9 +414,16 @@ func _target(at: Vector2) -> Dictionary:
         var spec: Dictionary = Data.MODELS[model.units[i]["model"]]
         for shelf in range(spec["shelves"]):
             var rect := _world_shelf(i,shelf)
-            if rect.has_point(point):
-                var offset := grab*Vector2(Data.footprint(model.items[model.held],model.held_rotation))*Data.CELL if model.held != "" else Vector2.ZERO
-                return {"unit":model.units[i]["id"],"shelf":shelf,"cell":Vector2i(((point-rect.position-offset)/Data.CELL+Vector2(0.5,0.5)).floor())}
+            if rect.grow_individual(0,0,0,8).has_point(point):
+                if model.held == "": return {"unit":model.units[i]["id"],"shelf":shelf,"cell":Vector2i.ZERO}
+                # 0.59.2 (front view): across from the pointer; the front-most free depth, then a pile.
+                var fp: Vector2i = Data.footprint(model.items[model.held],model.held_rotation)
+                var x: int = clampi(int(floor((point.x-rect.position.x)/Data.CELL-grab.x*fp.x+0.5)),0,maxi(0,spec["size"].x-fp.x))
+                for stack_ok: bool in [false,true]:
+                    for y in range(spec["size"].y-fp.y,-1,-1):
+                        if model.can_place(model.held,model.units[i]["id"],shelf,Vector2i(x,y),model.held_rotation,stack_ok):
+                            return {"unit":model.units[i]["id"],"shelf":shelf,"cell":Vector2i(x,y)}
+                return {"unit":model.units[i]["id"],"shelf":shelf,"cell":Vector2i(x,maxi(0,spec["size"].y-fp.y))}
     return {}
 func _room_cell(at: Vector2) -> Vector2i:
     return Vector2i((to_world(at)/Data.BAY_STRIDE).floor())
@@ -435,6 +509,15 @@ func _input(event: InputEvent) -> void:
                     if ROOM_VIEW.has_point(pointer) and changed and model.move_unit(held_furniture,destination): _save()
                     held_furniture = ""
                 elif model.held != "":
+                    if ARMS_BOX.has_point(pointer) and not arranging:   # 0.59.2: take it in your arms
+                        var carried: bool = model.drop(Data.ARMS_ID,0,Vector2i.ZERO)
+                        model.cancel()
+                        if carried:
+                            AudioFeedback.request(self,"handling.putdown")
+                            _save()
+                        else: info.text = "Your arms are full: put down what you carry first."
+                        _redraw()
+                        return
                     if WORKSHOP_SLOT.has_point(pointer):
                         var uid: String = model.held
                         model.cancel()
@@ -480,6 +563,10 @@ func _draw_item(uid: String,rect: Rect2,alpha: float = 1.0, painter: CanvasItem 
     var color: Color = Data.COLOURS.get(item["kind"],Color("a0adba"))
     color.a = alpha
     if model.placements.has(uid) and model.level(uid) > 0: painter.draw_rect(rect.grow(-2).grow_individual(-2,-2,4,6),Color(0,0,0,0.35*alpha))   # 0.59.1: its shadow on the pile
+    var front: Texture2D = _front_texture(item,int(model.placements.get(uid,{}).get("rotation",model.held_rotation if uid == model.held else 0)))
+    if front != null:   # 0.59.2: the approved front picture, once installed
+        painter.draw_texture_rect(front,rect,false,Color(1,1,1,alpha))
+        if bool(item.get("stackable",false)) or rect.size.y <= 70: return
     painter.draw_rect(rect.grow(-2),color.darkened(0.65))
     painter.draw_rect(rect.grow(-2),color,false,2)
     if bool(item.get("stackable",false)):   # 0.59.1 (D185): a closed laptop: hinge along the back, badge on the lid
@@ -514,8 +601,16 @@ func _draw_item(uid: String,rect: Rect2,alpha: float = 1.0, painter: CanvasItem 
         painter.draw_rect(tag,tag_color.darkened(0.5),false,1)
         _text(badge,tag.position+Vector2(4,14),11,Color("1d232b"),painter)
 
+# 0.59.2: the front (or side) picture of a PC, or null.
+func _front_texture(item: Dictionary, rotation: int) -> Texture2D:
+    if str(item.get("category","")) != "pc": return null
+    var art_name: String = ("laptop_"+str(item.get("finish","graphite"))) if bool(item.get("stackable",false)) else ("pc_compact" if item.get("size",Vector2i.ZERO) == Vector2i(7,5) else "pc_tower")
+    return RoomArt.texture(front_art+art_name+("_side" if posmod(rotation,2) == 1 else "_front")+".png")
+
 func draw_room(painter: Node2D) -> void:
     painter.draw_rect(Rect2(Vector2.ZERO,Vector2(Data.ROOM_SIZE)*Data.BAY_STRIDE),Color("182730"))
+    var wall: Texture2D = RoomArt.texture(stock_art+"stock_wall.png")
+    if wall != null: painter.draw_texture_rect(wall,Rect2(Vector2.ZERO,Vector2(Data.ROOM_SIZE)*Data.BAY_STRIDE),false)
     for y in range(Data.ROOM_SIZE.y):
         for x in range(Data.ROOM_SIZE.x):
             var bay := _bay_rect(Vector2i(x,y))
@@ -527,15 +622,18 @@ func draw_room(painter: Node2D) -> void:
         var spec: Dictionary = Data.MODELS[unit["model"]]
         var bay := _unit_rect(i)
         painter.draw_rect(bay,Color("253b47"))
+        var rack: Texture2D = RoomArt.texture(stock_art+"rack_front.png") if unit["model"] == "rack" else null
+        if rack != null: painter.draw_texture_rect(rack,bay,false)   # under the unit's name
         painter.draw_rect(Rect2(bay.position,Vector2(bay.size.x,34)),Color("48616b") if selected_unit == unit["id"] else Color("334b58"))
         _text("%s · %s"%[str(unit["id"]).trim_prefix("storage_"),spec["name"]],bay.position+Vector2(12,24),17,Color("e1e8e9"),painter)
-        painter.draw_rect(Rect2(bay.position+Vector2(14,44),Vector2(9,384)),Color("6a7e88"))
-        painter.draw_rect(Rect2(bay.position+Vector2(257,44),Vector2(9,384)),Color("6a7e88"))
+        if rack == null:
+            painter.draw_rect(Rect2(bay.position+Vector2(14,44),Vector2(9,384)),Color("6a7e88"))
+            painter.draw_rect(Rect2(bay.position+Vector2(257,44),Vector2(9,384)),Color("6a7e88"))
         for shelf in range(spec["shelves"]):
             var rect := _world_shelf(i,shelf)
             painter.draw_rect(rect,Color("111c24"))
             for col in range(spec["size"].x+1): painter.draw_line(rect.position+Vector2(col*Data.CELL,0),rect.position+Vector2(col*Data.CELL,rect.size.y),Color("2d414b"))
-            for row in range(spec["size"].y+1): painter.draw_line(rect.position+Vector2(0,row*Data.CELL),rect.position+Vector2(rect.size.x,row*Data.CELL),Color("2d414b"))
+            # 0.59.2: seen from the front, a shelf shows no depth rows
             painter.draw_rect(Rect2(rect.position+Vector2(-12,rect.size.y),Vector2(rect.size.x+24,8)),Color("74868e"))
     for uid: String in room_drawn_items():
         _draw_item(uid,_world_item(uid),0.3 if uid == model.held else 1.0,painter)
@@ -544,7 +642,7 @@ func draw_room(painter: Node2D) -> void:
         if not target.is_empty():
             for i in range(model.units.size()):
                 if model.units[i]["id"] != target["unit"]: continue
-                var rect := Rect2(_world_shelf(i,target["shelf"]).position+Vector2(target["cell"])*Data.CELL,Vector2(Data.footprint(model.items[model.held],model.held_rotation))*Data.CELL)
+                var rect := _front_rect_at(i,int(target["shelf"]),target["cell"])   # 0.59.2: where it would stand
                 var valid: bool = model.can_place(model.held,target["unit"],target["shelf"],target["cell"],model.held_rotation)
                 painter.draw_rect(rect,Color(0.4,0.9,0.6,0.3) if valid else Color(1,0.4,0.3,0.3))
     if held_furniture != "" and ROOM_VIEW.has_point(pointer):
@@ -558,10 +656,12 @@ func _draw() -> void:
     var valid: bool = model.held != "" and model.items[model.held]["category"] == "pc" and not NightSession.read_only
     draw_rect(WORKSHOP_SLOT,Color("193c36") if valid else Color("14232d"))
     draw_rect(WORKSHOP_SLOT,Color("72d9ad") if valid else Color("6c8a98"),false,2)
+    _draw_arms()
     for uid: String in model.overflow():
         var rect := item_rect(uid)
         if rect.has_area(): _draw_item(uid,rect,0.3 if uid == model.held else 1.0)
     if model.overflow().is_empty(): _text("Everything has shelf space. New items wait here if the furniture fills up.",Vector2(24,650),15)
     if model.held != "":
         var size := Vector2(Data.footprint(model.items[model.held],model.held_rotation))*Data.CELL*zoom
+        size = Vector2(Data.footprint(model.items[model.held],model.held_rotation).x*Data.CELL,front_height(model.items[model.held]))*zoom   # 0.59.2: front view
         _draw_item(model.held,Rect2(motion.center-grab*size,size),0.9)

@@ -132,6 +132,108 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.59.2 - 2026-11-28 - The first day from the notebook: counter top, arms, front-view stock room, bench steps, manual, B85
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code session.
+- Based on: PR #101 / 0.59.1 (laptops, branch feat/laptops-0591), stacked on it: merge #99, then #101, then this.
+  Open alongside: #98 (0.58.11, Codex), #100 (checker, B80 to B83). 0.60.0 stays the checker's.
+- Type: a feature numbered as a patch (from 0.60.0 the bug register needs the checker's structural review first).
+
+### Execution status
+Godot was not run locally (not installed here). GitHub Actions runs every suite headless on Godot 4.7.2, including
+the new Day 1 suite; results are under Checks performed. The new art (laptop revision 2, the day-1 set) is drafted
+and NOT in the game; laptop revision 1 is approved and installed.
+
+### Added / Changed / Fixed / Removed
+- **From the user's notebook (D186).** Nine pages transcribed (project doc `claude/NOTEBOOK_2026-11-28.md`),
+  sixteen questions answered; quotes in docs/DECISIONS.md D186.
+- **Fixed B85 (user-reported):** buying reviews on the phone now shows on the till in the top bar right away.
+- **Handed over at the counter:** "PC just disappears into inv. It must be moved." Accepted PCs now wait on the
+  counter top (a new storage unit, also drawn as a box in the under-counter drawer) until you put them under the
+  counter, pack a laptop, or carry them. Between customers the counter shows what is waiting on it (Mara's laptop
+  at the beginning, as the notebook asked).
+- **Your arms:** carry one thing of any size (a Carry button in the backpack's list, an arms box in the backpack,
+  the drawer and the stock room).
+- **Backpack 8 x 6** ("about the size of the PC"): a small backpack takes a laptop, not a desktop. A hiking
+  backpack is 10 x 7. The backpack slides in when the pointer rests on the right edge of the screen (not over the
+  open drawer).
+- **Stock room seen from the front:** each PC stands front-on and fills one shelf row; you pick the column, the
+  front-most free depth (then a pile) is chosen for you.
+- **The laptop at tower scale:** 14 x 9 cells drawn at a tower's cell size, its board and spots tighter.
+- **Laptops crack under a pile:** at the end of a night each laptop with something on it may crack its lid (5% per
+  thing on top, a trial number). The waiting card says so, and the customer complains at pickup.
+- **Repair bench first steps:** a new ticket's PC sits beside the mat. Drag it onto the mat, click out the screws
+  (a desktop's two thumbscrews, a laptop's eight), drag the side panel or bottom cover onto the tray. Each step is
+  saved; the PC's notebook records "Opened the ...".
+- **The thermal paste manual:** the step list is now a booklet you can drag by its spine and page through with the
+  wheel or the arrows; it turns to the step you are on and prints the live instruction there.
+- **Customers slide** in from the door side and out again ("Simple slide for now").
+- **Dialogue:** Mara's and Relu's first-day lines and the generated customers' morning lines are rewritten.
+- **Art:** laptop revision 1 approved ("The art is approved, btw") and installed: storage pictures, the closed
+  laptop on the counter, the heatsink (hashes checked by the Day 1 suite). Drafted, waiting for approval: laptop
+  revision 2 (tower scale) and the day-1 set (linoleum floor, the stock room wall with tiles on the hallway side,
+  the rack, PCs seen from the front, side panels, the laptop cover). The stock room and the case overlay use them
+  only once installed.
+- **Design recorded, not built:** customer archetypes replace the professions system (repair service only);
+  stories start only for specific archetypes under conditions; several PCs at high trust; a sealed parody MacBook;
+  content limits; soldering, legacy parts and an auction site for later (docs/DESIGN.md, roadmap p13 and p15).
+- **Test fixture:** under the headless suites (`GameState.desktop_first_ticket`) new cases start open and nothing
+  waits on the counter, so the older suites are unchanged; tools/test_day1.gd tests the real first day.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/night/phone_panel.gd` | M | B85: `bought` signal after a purchase |
+| `scripts/rooms/counter_room.gd` | M | Refresh on `bought`; the counter top shown between customers; customer slide in/out; `edge_blocked()` |
+| `scripts/storage/storage_data.gd` | M | `counter_top` and `arms` units |
+| `scripts/storage/storage_model.gd` | M | Fixed units, `max_items`, laptops only in the backpack, handed-over PCs on the counter top, `above_count()` |
+| `scripts/storage/storage_sources.gd` | M | `at_counter`, a cracked lid's condition |
+| `scripts/storage/storage_view.gd` | M | Front view, auto depth, arms box, approved art used once installed |
+| `scripts/rooms/under_counter_view.gd` | M | Counter-top and arms boxes; drop into the unit under the pointer |
+| `scripts/rooms/room_view.gd` | M | The backpack slides in from the right edge |
+| `scripts/view/backpack_view.gd` | M | Carry buttons, the arms box, desktops cannot be packed |
+| `scripts/rules/backpack.gd` | M | 8 x 6 and 10 x 7; laptops accepted |
+| `scripts/rules/laptop.gd` | M | Pile damage chance, the cracked-lid pickup fault |
+| `scripts/rules/pickup_score.gd` | M | The cracked lid's annoyance and complaint |
+| `scripts/night/night_session.gd` | M | Handed-over tickets marked `at_counter`; pile damage at the end of the night |
+| `scripts/state/game_state.gd` | M (hot) | Job keys `at_counter`, `lid_cracked`, `case_state`; `set_case_state()`; pickup fault; fixture note |
+| `scripts/view/bench_view.gd` | M (hot) | Creates the manual and the case overlay; the old guide drawing removed |
+| `scripts/view/bench_case.gd` | A | Lift onto the mat, unscrew, take the panel off |
+| `scripts/ui/bench_manual.gd` | A | The thermal paste manual |
+| `scripts/data/pc_layout.gd` | M | Laptop 14 x 9, drawn at the tower's cell size |
+| `scripts/data/customers.gd`, `scripts/night/morning_text.gd` | M | Rewritten first-day lines |
+| `tools/art_batch_f/laptop.py` | M | Laptop revision 2 (chassis and board at tower scale), scale mock |
+| `tools/art_batch_f/day1.py` | A | Day-1 art drafts and mocks |
+| `art/drafts/laptop/` | M/A | Revision 2 drafts, README, manifest |
+| `art/drafts/day1/` | A | Day-1 drafts, README, manifest |
+| `art/laptop/README.md`, `art/laptop/manifest.json` | A | Revision 1 approval and hashes |
+| `art/storage/laptop_*_r0..r3.png`, `art/props/laptop_closed_*.png`, `art/hardware/laptop_heatsink.png` | A | Approved revision 1, installed |
+| `tools/test_day1.gd` | A | Day 1 suite |
+| `tools/test_laptops.gd`, `tools/test_backpack.gd`, `tools/test_dialogue.gd` | M | 14 x 9 laptop, 8 x 6 backpack, new greeting |
+| `.github/workflows/tests.yml` | M | Runs the Day 1 suite |
+| `docs/BUGS.md` | M | B85 |
+| `docs/DECISIONS.md` | M | D186 |
+| `docs/DESIGN.md` | M | The first day; customer archetypes, stories and content limits (later) |
+| `docs/STORAGE.md`, `docs/THERMAL_SERVICE.md`, `docs/TESTING.md` | M | Counter top, arms, front view; bench steps and manual; the new suite |
+| `docs/ART_ASSET_LOG.md` | M | Revision 1 installed; revision 2 and day-1 drafts pending |
+| `docs/roadmap.json` | M | Phase p15, p14 art done, p13 ideas, decisions d28/d29, about.main 0.59.2 |
+| `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `DEVELOPMENT.md`, `project.godot`, `CHANGELOG.md` | M | Claim, handoff, version, file map |
+
+### Checks performed
+- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: see the PR.
+- GitHub Actions: see the PR (recorded after the run).
+
+### Decisions proposed (not approved)
+- Pile damage 5% per thing on top, the cracked lid's 35-point annoyance, front heights per kind: trial numbers.
+- All new art (laptop revision 2, the day-1 set) is pending approval.
+
+### Known issues and open items
+- The counter top holds 20 x 6 cells: two towers and a laptop. More handed-over PCs go to the stock room.
+- The hardware bench does not have the open-the-case steps; only the repair bench does.
+- Customer archetypes, stories and the other notebook ideas are design only.
+
+### Next action
+The user reviews the drafted art and approves an exact revision (or asks for changes); merge order #99, #101, this.
+
 ## 0.59.1 - 2026-11-28 - Laptops: smaller, stackable, locked case and board; Mara brings one
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code session.
 - Based on: PR #99 / 0.59.0 (Windough 98, branch feat/windough-0590), stacked on it: merge #99 first. Open
