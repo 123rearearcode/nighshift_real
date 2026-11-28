@@ -132,6 +132,119 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.59.1 - 2026-11-28 - Laptops: smaller, stackable, locked case and board; Mara brings one
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code session.
+- Based on: PR #99 / 0.59.0 (Windough 98, branch feat/windough-0590), stacked on it: merge #99 first. Open
+  alongside: #98 (0.58.11, Codex), #100 (checker, B80 to B83). 0.60.0 stays the checker's.
+- Type: a feature numbered as a patch: from 0.60.0 the bug register requires the checker's structural review
+  first (`tools/check_bug_register.py`), so this is 0.59.1.
+
+### Execution status
+Godot was not run locally (not installed here). GitHub Actions runs every suite headless on Godot 4.7.2;
+results are under Checks performed. The laptop art is drafted, shown to the user and NOT in the game: until
+it is approved the benches draw the laptop with the plain shapes and storage draws boxes.
+
+### Added / Changed / Fixed / Removed
+- **Laptops (D185).** The user: "add laptops. they take up less space than a desktop and you can choose to
+  store them on top of eachother or on top of desktops. you cannot change the case or the motherboard for a
+  laptop. its faster to service and space and airflow constraints are more important ... mara comes in with a
+  laptop". Answers (asked): only RAM and storage change; "faster" = less hands-on work; piles at most 3 high,
+  the top one comes off first.
+- **The laptop itself:** a third PC form ("laptop", 16 x 10 cells, seen from below with the bottom cover off).
+  Its board has two lying memory slots and one drive slot; the processor and graphics are soldered under the
+  heatsink. Its own case and board (catalogue "laptop" form) are never sold, never swapped: the motherboard
+  button says "built in", the build case list leaves them out.
+- **Only memory and the drive change.** On the hardware bench only the laptop's memory and drive are
+  pieces; the processor, graphics, power and heatsink stay in the laptop's parts. A 3.5-inch hard drive does
+  not fit (an SSD or NVMe drive does). No graphics card to take out, no replacement heatsink, no overclocking
+  ("This laptop's BIOS has no overclocking settings").
+- **Faster to service:** four dusty spots (blower fan, heatsink, exhaust fins, RAM) with fewer clumps, and
+  only the heatsink lifts out on the repair bench (cleaned, repasted, refitted as before).
+- **Airflow matters more:** each dirty spot costs more heat than on a tower (heatsink 26 C vs a cooler's 20,
+  fins 16 vs a filter's 8, fan 12 vs 8), and the thin case adds 6 C. Trial numbers.
+- **Storage:** a laptop takes 6 x 4 cells (a compact PC 7 x 5, a tower 8 x 6). It can lie on a desktop or
+  another laptop, wholly on top of it, up to three high; the top one comes off first ("Lift the laptop on
+  top off first"). Free shelf space is used before a pile; piles survive saving and loading. Stock room and
+  under-counter storage both draw piles (each layer a little up and left, with a shadow).
+- **Mara brings her silver laptop:** "My laptop overheats and the fan is very loud." Same processor,
+  graphics and memory as before; her drive is now an SSD. Her slip says "Accept laptop"; the counter shows
+  no tower for her. Her chance of finding out a scam is unchanged (reviews.gd reads "opens the laptop"
+  like "opens the case").
+- **Generated customers:** 3 in 10 may bring a laptop (graphite, sometimes silver), only with problems a
+  laptop can have (dust, adware, a miner) and only when the repaired laptop still passes every check. A
+  separate random stream decides, so desktop cases are drawn exactly as before.
+- Tickets and reports say "Laptop" (and what can be changed) instead of "Laptop PC".
+- **Fixed B84 (found by the new suite, run 46152711597):** a customer's RAM stick in a lying slot (a desktop's
+  slot 3, both of a laptop's) was restored unturned, so the hardware bench put it in the drawer and saving
+  took it out of the PC. Each slot now gets its allowed turn (`CustomerPC.turn_for`). New bug id B84 (next B85).
+- **Test fixture:** under the headless suites (tools/test_*.gd as the main loop) the first ticket stays the
+  desktop the older suites test (`GameState.desktop_first_ticket`). The game never sets it;
+  tools/test_laptops.gd turns it off to test Mara's real laptop.
+- **Art drafts (revision 1, not in the game):** the laptop open on the repair bench (chassis, board,
+  heatsink), storage seen from above (silver and graphite, four turns), the closed laptop on the counter,
+  review mocks. `tools/art_batch_f/laptop.py`; drafts in `art/drafts/laptop/`.
+
+### Files changed
+| File | Change | What |
+| --- | --- | --- |
+| `scripts/rules/laptop.gd` | A | Laptop rules: what fits, making a job a laptop, colours, storage size, pile height, messages |
+| `scripts/data/pc_layout.gd` | M | The laptop profile (16 x 10, its board and slots) |
+| `scripts/data/hardware_catalog.gd` | M | The laptop's board and case; `swappable()` |
+| `scripts/data/dust_zones.gd` | M | The laptop's four spots; profile-aware `index_of` / `total_penalty` |
+| `scripts/data/customers.gd` | M | Mara's laptop, complaint and habit |
+| `scripts/rules/pc_build.gd` | M | `form()`, `is_laptop()`; case and board by form |
+| `scripts/rules/customer_pc.gd` | M | Laptop slots; soldered parts are not bench pieces and stay in the parts; B84 slot turns |
+| `docs/BUGS.md` | M | B84 |
+| `tools/test_data_schemas.gd`, `tools/test_board_and_bench_state.gd` | M | A customer may name what they carry in; generated laptops have the laptop board |
+| `scripts/rules/part_instances.gd` | M | Snapshots keep the laptop layout |
+| `scripts/rules/ticket_generator.gd` | M | Generated laptops (`as_laptop`) |
+| `scripts/rules/reviews.gd` | M | "opens the laptop" reads like "opens the case" |
+| `scripts/rules/ticket.gd` | M | "Machine: Laptop" |
+| `scripts/state/game_state.gd` | M (hot) | Laptop dust and heat, locked board, refusals, Mara's carried-in laptop, the test fixture, `laptop_finish` saved |
+| `scripts/night/night_session.gd` | M | Laptop tickets accepted; Mara's laptop when she is second |
+| `scripts/night/hardware_view.gd` | M | Board "built in", stock refused with the reason, laptop case not listed |
+| `scripts/night/software_view.gd` | M | Overclocking refused on a laptop |
+| `scripts/night/ticket_menu.gd`, `scripts/night/morning_text.gd` | M | "Laptop" labels |
+| `scripts/bench/service_access.gd` | M | Movable parts per PC (`movable`) |
+| `scripts/view/bench_view.gd` | M (hot) | Zone indexes in the laptop's list |
+| `scripts/view/bench_parts.gd`, `scripts/view/bench_cleaning.gd` | M | Loop over this PC's movable parts; no replacement on a laptop |
+| `scripts/view/pc_renderer.gd` | M | The laptop's heatsink and lying RAM |
+| `scripts/view/item_art.gd` | M | Laptop pictures once approved |
+| `scripts/storage/storage_model.gd` | M | Piles: `_spot`, `level`, `on_top_of`, `blocked`; free space first; saved levels |
+| `scripts/storage/storage_sources.gd` | M | Laptops are 6 x 4 and stackable |
+| `scripts/storage/storage_view.gd`, `scripts/rooms/under_counter_view.gd` | M | Piles drawn and picked top first |
+| `scripts/rooms/counter_room.gd` | M | A laptop customer's laptop (never a tower); "Accept laptop" |
+| `tools/test_laptops.gd` | A | The laptop suite |
+| `.github/workflows/tests.yml` | M | Laptops suite |
+| `tools/art_batch_f/laptop.py`, `art/drafts/laptop/*` | A | Art drafts and review mocks (not loaded) |
+| `docs/DECISIONS.md`, `docs/DESIGN.md`, `docs/STORAGE.md`, `docs/TESTING.md` | M | D185, laptops, piles, the fixture |
+| `docs/ART_ASSET_LOG.md`, `docs/ART_PRODUCTION_PROGRESS.md` | M | Laptop drafts, revision 1, awaiting approval |
+| `docs/roadmap.json`, `docs/WORK_PLAN.md` | M | Phase p14 (0.59.1 laptops); hot-file claim |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot`, `CHANGELOG.md` | M | File map, handoff, version 0.59.1, this entry |
+
+### Checks performed
+- Locally: `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`,
+  `python3 -B tools/test_bug_register.py` (results in the PR); a name-clash scan of every changed script
+  against Godot's global functions and the test base (none).
+- `python3 -I tools/art_batch_f/laptop.py art/drafts/laptop`: drafts and mocks rendered and looked at.
+- GitHub Actions run 46153480834 on PR #101 (commit ecf0e38): passed; 44 suites / 2,714 checks, 0 failures, including the new Laptops
+  suite (40 checks). Earlier runs on this PR: 46152711597 (B84 found; two older tests did not know laptops;
+  three test mistakes of mine), 46153142069 (the laptop suite did not reset the ticket rotation).
+- Not run: Godot locally; no human playtest of laptops yet.
+
+### Decisions proposed (not approved)
+- All numbers: storage 6 x 4, the spots' heat (26 / 16 / 12 / 3 C), the case's +6 C, 3 in 10 generated
+  laptops, the lid colours.
+- The laptop keeps desktop part names (Mara's processor and graphics are the catalogue's desktop models);
+  laptop-sized memory (SO-DIMM) is not modelled.
+
+### Known issues and open items
+- Laptop art awaits the user's approval; until then plain shapes and boxes.
+- A returning generated customer's laptop is not remembered (their next visit draws the form again).
+
+### Next action
+The user reviews the laptop drafts; after approval the exact files are installed with hashes.
+
 ## 0.59.0 - 2026-11-28 - Windough 98 on NightBoot USB: the customer PC boots on the monitor
 - Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
 - Based on: main 0.58.10 (a9f576b). New bug ids B75 to B79 (next B80). The 0.59.0 slot moves from the dropped per-part

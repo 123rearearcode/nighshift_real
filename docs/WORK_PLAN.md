@@ -1,5 +1,15 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.59.1 laptops, 28 November 2026
+
+The user asked Claude directly for laptops (D185): "i need u to build a new PR which would add laptops". Claude
+claims 0.59.1 (stacked on #99's 0.59.0; from 0.60.0 the checker's structural review comes first), D185 and
+phase p14, and touches the hot files narrowly: `game_state.gd` (laptop dust and heat,
+refusals for the board, graphics, replacements and overclocking, Mara's carried-in laptop, the test fixture
+`desktop_first_ticket`, the saved `laptop_finish`) and `bench_view.gd` (two zone-index lines). `tool_rig.gd` is
+not touched. Open PRs: #98 (0.58.11 Codex), #99 (0.59.0 Claude), #100 (checker, B80 to B83); 0.60.0 stays the
+checker's. New bug ids from this PR start at B84. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.59.0, 28 November 2026
 
 The user dropped the per-part tests ("i wont be doing the parts thing anymore", decided with ChatGPT) and gave the

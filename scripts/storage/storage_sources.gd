@@ -2,6 +2,7 @@
 extends RefCounted
 const PartCondition = preload("res://scripts/rules/part_condition.gd")
 const Data = preload("res://scripts/storage/storage_data.gd")
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 
 static func collect(gs: Node) -> Dictionary:
     var items: Dictionary = {}
@@ -34,9 +35,11 @@ static func collect(gs: Node) -> Dictionary:
         var pc_id: String = str(marker.get("pc","legacy:"+str(job.get("id",""))+":"+str(job.get("customer_id",""))))
         if job.is_empty() or job.get("state","open") == "done" or pc_id == "": continue
         var uid: String = "pc:"+pc_id
-        items[uid] = {"id":uid,"source_uid":str(job["id"]),"category":"pc","kind":"pc","label":"Customer PC",
-            "model":("Compact PC" if job.get("layout","tower") == "compact" else "Tower PC")+" · "+str(job.get("customer","Customer")),
-            "size":Vector2i(7,5) if job.get("layout","tower") == "compact" else Vector2i(8,6),"owner":"Customer property · "+str(job["id"]),
-            "condition":"Awaiting service","reserved":false,
-            "note":"Ticket %s. Whole customer PC, including fitted parts. Drag it into the workshop slot in the room to work on it."%str(job["id"])}
+        var laptop: bool = str(job.get("layout","tower")) == "laptop"   # 0.59.1 (D185): smaller, and it stacks
+        items[uid] = {"id":uid,"source_uid":str(job["id"]),"category":"pc","kind":"pc","label":"Customer laptop" if laptop else "Customer PC",
+            "model":("Laptop" if laptop else "Compact PC" if job.get("layout","tower") == "compact" else "Tower PC")+" · "+str(job.get("customer","Customer")),
+            "size":Laptop.SIZE if laptop else Vector2i(7,5) if job.get("layout","tower") == "compact" else Vector2i(8,6),"owner":"Customer property · "+str(job["id"]),
+            "condition":"Awaiting service","reserved":false,"stackable":laptop,"finish":Laptop.finish_of(job) if laptop else "",
+            "note":("Ticket %s. Customer laptop. It can lie on a desktop or another laptop, up to three high; the top one comes off first. Drag it into the workshop slot to work on it." if laptop
+                else "Ticket %s. Whole customer PC, including fitted parts. Drag it into the workshop slot in the room to work on it.")%str(job["id"])}
     return items

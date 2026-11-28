@@ -98,7 +98,7 @@ func run_checks() -> void:
     for slot in range(8):
         var r: RandomNumberGenerator = Generator.rng_for(31, 4, slot)
         var drawn: Dictionary = Generator.draw_case(gs.make_ticket_job(""), Generator.new_person(r, "p%04d" % slot), {}, gs.diagnosis_capabilities(), 4, r)
-        var layout: String = "compact" if str(drawn["job"]["layout"]) == "compact" else "tower"
+        var layout: String = PcBuild.form(drawn["job"])   # 0.59.1: generated laptops have the laptop's own board
         check(str(drawn["job"]["parts"]["board"]) in Catalog.boards_for(layout), "a generated PC has a motherboard that fits its case (%s)" % layout)
 
     # ---- GPU bracket screws on the bracket, not on the second slot ----

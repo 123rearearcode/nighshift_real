@@ -74,4 +74,4 @@ static func window(owner: Node, id: String, after: Callable = Callable()) -> Acc
 static func identity_text(current: Dictionary) -> String:
     var badge: String = Ticket.badge(current)
     var kind: String = " build" if str(Ticket.flags(current)["request"]) == Ticket.BUILD else ""   # 0.51.0
-    return "%s · %s · %s PC%s%s" % [current.get("customer", ""), current.get("id", ""), str(current.get("layout", "tower")).capitalize(), kind, ("  [" + badge + "]") if badge != "" else ""]
+    return "%s · %s · %s%s%s" % [current.get("customer", ""), current.get("id", ""), "Laptop" if str(current.get("layout", "")) == "laptop" else str(current.get("layout", "tower")).capitalize() + " PC", kind, ("  [" + badge + "]") if badge != "" else ""]   # 0.59.1

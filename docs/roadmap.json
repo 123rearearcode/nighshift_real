@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.59.0",
+  "main": "0.59.1",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -21,7 +21,7 @@
   "repo": "https://github.com/123rearearcode/nighshift_real",
   "source": "ChatGPT's development roadmap (snapshot main 0.58.3 / 732a0e4), checked against the repository at main 0.58.5 and the work done in the Claude chat.",
   "title": "Nightshift roadmap",
-  "updatedAt": "2026-11-27T21:57:37Z",
+  "updatedAt": "2026-11-28T14:30:00Z",
   "live": "https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C",
   "howToUpdate": "Agents: read this file before choosing work. When your PR finishes or changes a roadmap item, update that item's status/detail here in the same PR (keep ids; new items get a new id in their phase). Set about.main to the PR's version. Claude syncs this file with the live page the user edits; if they disagree, the live page wins."
  },
@@ -751,10 +751,123 @@
    ]
   },
   {
+   "id": "p14",
+   "title": "Laptops",
+   "version": "0.59.1",
+   "state": "next",
+   "order": 8,
+   "forecast": false,
+   "summary": "Customers can bring laptops: smaller and stackable in storage, case and motherboard locked, only memory and the drive change, quicker to clean but tighter cooling. Mara brings one. Owner: Claude.",
+   "gate": "You approve the laptop art; laptops work on both benches, in storage and at the counter with every suite green.",
+   "start": "2026-11-28",
+   "end": "2026-11-28",
+   "updatedAt": "2026-11-28T14:30:00Z",
+   "items": [
+    {
+     "id": "p14-01",
+     "title": "Laptop art drafts: open on the bench, storage, counter",
+     "status": "next",
+     "detail": "Revision 1 sent for review: the open laptop (chassis, board, heatsink) on the repair bench, silver and graphite lids from above for storage, the closed laptop on the counter, mocks.",
+     "refs": [
+      "tools/art_batch_f/laptop.py",
+      "art/drafts/laptop/"
+     ],
+     "checkState": "new",
+     "checkNote": "Waiting for your approval. Nothing loads it yet.",
+     "order": 10,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-02",
+     "title": "A laptop: case and motherboard locked, only memory and the drive change",
+     "status": "done",
+     "detail": "A third PC form (16 x 10). Two lying RAM slots, one drive slot; processor and graphics soldered. No 3.5-inch drive, no overclocking, no replacement heatsink.",
+     "refs": [
+      "scripts/rules/laptop.gd",
+      "scripts/data/pc_layout.gd",
+      "scripts/rules/customer_pc.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.1 (D185), PR not merged.",
+     "order": 20,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-03",
+     "title": "Faster to service, airflow matters more",
+     "status": "done",
+     "detail": "Four dusty spots with fewer clumps, only the heatsink lifts out; each dirty spot costs more heat than on a tower and the thin case adds 6 C (trial numbers).",
+     "refs": [
+      "scripts/data/dust_zones.gd",
+      "scripts/state/game_state.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.1, PR not merged.",
+     "order": 30,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-04",
+     "title": "Storage: laptops are smaller and pile up to three high",
+     "status": "done",
+     "detail": "6 x 4 cells. A laptop lies wholly on a desktop or another laptop; the top one comes off first; free space is used before a pile; piles are saved.",
+     "refs": [
+      "scripts/storage/storage_model.gd",
+      "scripts/storage/storage_view.gd",
+      "scripts/rooms/under_counter_view.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.1, PR not merged.",
+     "order": 40,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-05",
+     "title": "Mara brings a laptop",
+     "status": "done",
+     "detail": "Her silver laptop: \"My laptop overheats and the fan is very loud.\" Same performance; her drive is an SSD. \"Accept laptop\" at the counter; no tower shown for her.",
+     "refs": [
+      "scripts/data/customers.gd",
+      "scripts/rooms/counter_room.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.1, PR not merged.",
+     "order": 50,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-06",
+     "title": "Some generated customers bring laptops",
+     "status": "done",
+     "detail": "3 in 10, only with problems a laptop can have (dust, adware, a miner), only when the repaired laptop passes every check. Desktop cases are drawn exactly as before.",
+     "refs": [
+      "scripts/rules/ticket_generator.gd"
+     ],
+     "checkState": "new",
+     "checkNote": "0.59.1, PR not merged.",
+     "order": 60,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    },
+    {
+     "id": "p14-07",
+     "title": "Install the approved laptop art",
+     "status": "planned",
+     "detail": "After approval: the exact files with hashes, bound to the benches, storage and counter.",
+     "refs": [
+      "docs/ART_ASSET_LOG.md"
+     ],
+     "checkState": "new",
+     "checkNote": "After your approval.",
+     "order": 70,
+     "updatedAt": "2026-11-28T14:30:00Z"
+    }
+   ]
+  },
+  {
    "end": "2026-12-27",
    "forecast": true,
    "gate": "Findings are recorded, triaged and assigned. No unresolved critical save/custody blocker passes to the campaign.",
-   "order": 8,
+   "order": 9,
    "start": "2026-12-21",
    "state": "planned",
    "summary": "The scheduled code checker reviews the milestone; the game owners take bounded fixes afterwards.",
@@ -782,7 +895,7 @@
    "end": "2027-01-31",
    "forecast": true,
    "gate": "A fresh player completes the tutorial plus five ordinary days, repairs and assembles a PC, and makes a sale without lost property, duplicate payments or dead ends.",
-   "order": 9,
+   "order": 10,
    "start": "2026-12-28",
    "state": "planned",
    "summary": "Connect salvage, stock, building and selling while proving ownership and economy over multiple days.",
@@ -868,7 +981,7 @@
    "end": "2027-03-07",
    "forecast": true,
    "gate": "Fresh players understand a measured 20–30 minute session. Human art acceptance, real audio and target-PC performance are recorded.",
-   "order": 10,
+   "order": 11,
    "start": "2027-02-01",
    "state": "planned",
    "summary": "A clear opening, approved environment art, sound and a representative short session.",
@@ -934,7 +1047,7 @@
    "end": "2027-05-02",
    "forecast": true,
    "gate": "Early, middle and later play offer different decisions; catalogue, cashflow, customer outcomes and progression survive extended playtests.",
-   "order": 11,
+   "order": 12,
    "start": "2027-03-08",
    "state": "planned",
    "summary": "Broader hardware, customer stories, suppliers, honest/dishonest choices and meaningful progression.",
@@ -1012,7 +1125,7 @@
    "end": "2027-05-30",
    "forecast": true,
    "gate": "Release scope and price chosen; supported machines tested; store requirements verified at that time. Launch date set only after these gates.",
-   "order": 12,
+   "order": 13,
    "start": "2027-05-03",
    "state": "planned",
    "summary": "Package and validate the game, decide commercial scope, and prepare truthful store materials.",
@@ -1045,7 +1158,7 @@
    "end": "",
    "forecast": false,
    "gate": "",
-   "order": 13,
+   "order": 14,
    "start": "",
    "state": "later",
    "summary": "Ideas the user wants or has discussed, not yet placed in a milestone.",
@@ -1494,6 +1607,16 @@
    "ask": "",
    "answer": "",
    "updatedAt": "2026-11-27T23:50:00Z"
+  },
+  {
+   "id": "d27",
+   "order": 270,
+   "state": "settled",
+   "question": "Laptops",
+   "context": "D185, 0.59.1. Smaller, stackable to 3, case and board locked, only RAM and the drive change, faster to service, tighter airflow; Mara brings one.",
+   "ask": "",
+   "answer": "",
+   "updatedAt": "2026-11-28T14:30:00Z"
   }
  ]
 }

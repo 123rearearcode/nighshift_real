@@ -3,6 +3,7 @@
 # Parts removed at the repair bench lie in the drawer (only visibly damaged ones say DAMAGED, D150), and replacing a
 # GPU/cooler uses stock from the drawer. The shop's spare stock lives in the same drawer.
 extends "res://scripts/view/workshop_view.gd"
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const Navigation = preload("res://scripts/night/night_navigation.gd")
 const CustomerPC = preload("res://scripts/rules/customer_pc.gd")
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
@@ -173,6 +174,11 @@ func _build_board_button() -> void:
 
 func _refresh_board_button() -> void:
     if not is_instance_valid(board_button): return
+    board_button.disabled = PcBuild.is_laptop(GameState.job)   # 0.59.1 (D185): built into the laptop
+    if PcBuild.is_laptop(GameState.job):
+        board_button.text = "Motherboard built in"
+        board_button.tooltip_text = Laptop.BOARD_LOCKED
+        return
     if PcBuild.board_out(GameState.job):
         board_button.text = "Fit the motherboard back"
         board_button.tooltip_text = ("Fit the build's motherboard in the case (%d night minutes). Parts can only go in once it is in." % BuildRequest.minutes("board")) if PcBuild.is_build(GameState.job) else "Put the customer's motherboard back in the case. Parts can only go in once it is back."
@@ -284,7 +290,9 @@ func _candidate(mouse: Vector2) -> Dictionary:
     else:
         var record: Dictionary = _stock_record(part_uid)
         var kind: String = str(record.get("kind", ""))
-        if slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]]:
+        if PcBuild.is_laptop(job): why = Laptop.why_not(job, PcBuild.stock_model(record))   # 0.59.1: no 3.5-inch drive
+        if why != "": pass
+        elif slot in [CustomerPC.SLOT_OF[Ids.GPU], CustomerPC.SLOT_OF[Ids.COOLER]]:
             if not kind in Ids.SERVICE_PARTS: why = "That part does not go here."
             elif not kind in job["removed_parts"]: why = "Take the customer's %s out first." % kind.to_upper()
         elif PcBuild.stock_model(record) == "":
@@ -535,13 +543,14 @@ func _refresh_case_panel() -> void:
     head.add_theme_font_size_override("font_size", 15)
     case_rows.add_child(head)
     for id: String in Catalog.CASES:
+        if not Catalog.swappable(str(Catalog.CASES[id]["form"])): continue   # 0.59.1: a laptop's chassis is not sold
         case_rows.add_child(_choice_row(id, "%s · %s · $%d" % [Catalog.case_model(id)["name"], Catalog.case_text(id), int(Catalog.CASES[id]["price"])], id == now_case, not empty, true))
     var head_b := Label.new()
     head_b.text = "MOTHERBOARDS for this case"
     head_b.add_theme_font_size_override("font_size", 15)
     case_rows.add_child(head_b)
     var now_board: String = PcBuild.board_model(GameState.job)
-    for id: String in Catalog.boards_for("compact" if str(GameState.job["layout"]) == "compact" else "tower"):
+    for id: String in Catalog.boards_for(PcBuild.form(GameState.job)):
         case_rows.add_child(_choice_row(id, "%s · %s · $%d" % [Catalog.board(id)["name"], str(Catalog.BOARDS[id]["form"]), int(Catalog.BOARDS[id]["price"])], id == now_board, not empty, false))
 
 func _choice_row(id: String, text: String, current: bool, locked: bool, is_case: bool) -> HBoxContainer:

@@ -1,6 +1,7 @@
 # Multi-ticket bridge while Claude owns GameState. Active PC stays in GameState.job;
 # this manifest holds the inactive jobs. It never copies shop stock or money.
 extends Node
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const Store = preload("res://scripts/state/save_store.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
@@ -57,6 +58,7 @@ func start(gs: Node, introduce_customers: bool = false) -> bool:
     other["parts"] = PcBuild.sanitize(who.get("pc", {}))   # D148: this customer's own PC
     other["pc_specs"] = PcBuild.specs(other["parts"])
     other["layout"] = "compact"
+    if str(who.get("layout", "")) == "laptop" and not gs.desktop_first_ticket: Laptop.make(other, str(who.get("laptop_finish", "graphite")))   # 0.59.1: Mara's laptop when she is second
     other["broken_parts"] = ["gpu"] if cid == "t002_relu" else []
     other["findings"] = []   # 0.47.0: each PC keeps its own notebook
     Malware.infect(other, Malware.ADWARE)   # D132: the second demo PC arrives with adware (the hint is in the complaint)
@@ -119,7 +121,7 @@ func _valid(entry: Variant,gs: Node) -> bool:
     if not entry is Dictionary: return false
     for key: String in ["id","customer_id","customer","complaint","layout","state","paste_grade","paste_material"]:
         if not entry.get(key,null) is String: return false
-    if not entry["layout"] in ["tower","compact"] or not entry["state"] in ["open","done"]: return false
+    if not entry["layout"] in ["tower","compact","laptop"] or not entry["state"] in ["open","done"]: return false   # 0.59.1: laptops
     if gs.person(str(entry["customer_id"])).is_empty(): return false   # 0.48.0: story or generated customer
     for key: String in ["dust","dust_state","hardware_trial","service_table_positions","service_replacements","service_replacement_ids","pc_specs"]:
         if not entry.get(key,null) is Dictionary: return false

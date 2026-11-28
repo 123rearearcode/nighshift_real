@@ -68,8 +68,10 @@ const BOARDS: Dictionary = {
     "board_atx_z390": {"brand": "MSY", "model": "Z390 Torpedo Pro", "form": "tower", "price": 120},
     "board_matx_h310": {"brand": "Gigabait", "model": "H310M Snug", "form": "compact", "price": 35},
     "board_matx_b450": {"brand": "Asos", "model": "Prime B450M-Q", "form": "compact", "price": 60},
+    # 0.59.1 (D185): a laptop's board is part of the laptop. Never sold, never swapped (price 0).
+    "board_laptop_hm65": {"brand": "Compel", "model": "HM65 laptop board", "form": "laptop", "price": 0},
 }
-const DEFAULT_BOARD: Dictionary = {"tower": "board_atx_b350", "compact": "board_matx_h310"}
+const DEFAULT_BOARD: Dictionary = {"tower": "board_atx_b350", "compact": "board_matx_h310", "laptop": "board_laptop_hm65"}
 
 
 # 0.51.0 (session 3.7, D159; user, 20 November 2026: "cases are also something swappable"). Kept apart
@@ -84,8 +86,11 @@ const CASES: Dictionary = {
     "case_tower_silent": {"brand": "be quiat!", "model": "Silent Base 620", "form": "tower", "price": 90, "heat": 2, "quiet": true},
     "case_compact_basic": {"brand": "Thermaltek", "model": "Versa H17", "form": "compact", "price": 25, "heat": 0, "quiet": false},
     "case_compact_quiet": {"brand": "Fractl", "model": "Define Mini", "form": "compact", "price": 60, "heat": 3, "quiet": true},
+    # 0.59.1 (D185): the laptop's own chassis. A thin shell with one small fan: +6 C before any dust (trial
+    # number). Never sold, never swapped.
+    "case_laptop": {"brand": "Compel", "model": "laptop chassis", "form": "laptop", "price": 0, "heat": 6, "quiet": false},
 }
-const DEFAULT_CASE: Dictionary = {"tower": "case_tower_basic", "compact": "case_compact_basic"}
+const DEFAULT_CASE: Dictionary = {"tower": "case_tower_basic", "compact": "case_compact_basic", "laptop": "case_laptop"}
 
 
 static func case_model(id: String) -> Dictionary:
@@ -132,6 +137,11 @@ static func board(id: String) -> Dictionary:
 
 static func is_board(id: String) -> bool:
     return BOARDS.has(id)
+
+
+# 0.59.1 (D185): cases and boards the shop can sell and swap (a laptop's own are neither).
+static func swappable(form: String) -> bool:
+    return form in ["tower", "compact"]
 
 
 static func boards_for(form: String) -> Array:

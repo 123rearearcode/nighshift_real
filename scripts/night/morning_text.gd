@@ -66,7 +66,7 @@ static func card_text(card: Dictionary) -> String:
 static func detail_text(card: Dictionary) -> String:
     var job: Dictionary = card.get("job",{})
     if job.is_empty(): return card_text(card)
-    var lines: Array = ["%s · %s · %s PC"%[str(job.get("customer","")),str(job.get("id","")),str(job.get("layout","tower")).capitalize()]]
+    var lines: Array = ["%s · %s · %s"%[str(job.get("customer","")),str(job.get("id","")),"Laptop" if str(job.get("layout","")) == "laptop" else str(job.get("layout","tower")).capitalize()+" PC"]]   # 0.59.1
     if card.get("kind","") == "collected": lines.append("As it left the shop (%.0f°C in the shop's own check)."%float(card.get("temp",0.0)))
     else: lines.append("As it stands in your shop.")
     lines.append("")

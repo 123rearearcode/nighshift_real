@@ -173,8 +173,9 @@ const DECEPTIONS: Dictionary = {
 const FOUND_PREFIX := "found:"
 const OVERPRICED_SHARE: float = 0.6   # a build worth less than this share of its budget is "overpriced"
 # Habits that make a customer more or less likely to find out (generated_people.gd and customers.gd texts).
-const NOSY: Array = ["opens the case", "watches temperatures", "spot a swapped part", "reads and writes online reviews", "tweaks settings"]
-const TRUSTING: Array = ["never opens the case", "trusts whatever the shop says"]
+# 0.59.1: "the laptop" reads like "the case" (Mara's habit now says laptop; her odds are unchanged).
+const NOSY: Array = ["opens the case", "opens the laptop", "watches temperatures", "spot a swapped part", "reads and writes online reviews", "tweaks settings"]
+const TRUSTING: Array = ["never opens the case", "never opens the laptop", "trusts whatever the shop says"]
 
 
 static func is_found(fault: String) -> bool:

@@ -10,6 +10,12 @@ acceptance. Follow FIRST_DAY_ART_CHECKLIST for the remaining six tasks; do not r
 23 November 2026. Author: Codex (GPT-6; exact deployment model id not exposed by this session), ChatGPT Work.
 This is the permanent place agents read to find **what art to create next**. Read ART_DIRECTION for the look and ART_ASSET_LOG for credits, revisions and human approvals. Do not infer active tasks from old handoffs or completed checklists.
 
+## Pending — laptop drafts, 0.59.1 (D185)
+
+Revision 1 of the laptop art (open on the benches, storage from above in silver and graphite, the counter
+prop) was shown to the user on 28 November 2026 and awaits approval. Details and hashes: ART_ASSET_LOG,
+"Laptop drafts, revision 1". Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current routing
 
 | Field | Current value |

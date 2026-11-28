@@ -172,8 +172,8 @@ func _ready() -> void:
     font = ThemeDB.fallback_font
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     zones = DustZones.zones(str(GameState.job.get("layout", "tower")))
-    cooler_zone = DustZones.index_of(Ids.COOLER)
-    case_fan_zone = DustZones.index_of("case_fan")
+    cooler_zone = DustZones.index_of(Ids.COOLER, str(GameState.job.get("layout", "tower")))   # 0.59.1: a laptop's own list
+    case_fan_zone = DustZones.index_of("case_fan", str(GameState.job.get("layout", "tower")))
     tools.set_long_hose(GameState.has_upgrade("long_hose"))
     VacuumState.restore(GameState.vacuum_state, bin, tools.flow)   # 0.48.1: the bin and hose keep what they held
     _restore_saved_mount()

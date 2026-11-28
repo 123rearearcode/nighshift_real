@@ -404,6 +404,33 @@ asked for the feature, and its look is shown in the PR for acceptance.
 
 Wall alternatives (0.58.5, pending): `art/drafts/walls/` (four options). Nothing loaded.
 
+## Laptop drafts, revision 1 (0.59.1, pending approval)
+
+The user, 28 November 2026: "artwork is also needed, so generate a few artworks of what the laptops would look
+like in game" (D185). Created by Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL
+(`tools/art_batch_f/laptop.py`), on the cells of `PCLayout.laptop()`, in the two existing looks: pixel art for
+storage (22 px per cell, shown at 2x) and the counter prop (shown at 2x); comic-book, semi-realistic hardware for
+the open laptop on the benches (64 px per cell). Review pictures shown in chat the same day:
+`art/drafts/laptop/1_bench_open_laptop.png`, `2_storage_stacks.png`, `3_counter_mara_laptop.png`,
+`4_pixel_pieces.png`. Pieces (`art/drafts/laptop/pieces/`, would install under `art/` at the same relative
+paths), SHA-256:
+  - `hardware/board_laptop.png` `3136864d4f19fa35eaecfe7c2dda646dd5e2ba3f1447fa1f782f1ebbb7f179e9`
+  - `hardware/case_laptop_interior.png` `35a889758759068c9f2c26faefd87cdf824acf9eb1be2c901754f5b47eac5486`
+  - `hardware/laptop_heatsink.png` `0e43d7d6f4e51f1afec5d1ef1bf3bf8ad768005cd53e664d73c278d8fdce6e5f`
+  - `props/laptop_closed_graphite.png` `c1839243b80857a2a9db1b672f05d2fb54d73a7724764c1d58cacb3ac6f5c728`
+  - `props/laptop_closed_silver.png` `2d771e32027d85f582e1aa3b8c7f18a1933be028970a31dc267ad83074895a28`
+  - `storage/laptop_graphite_r0.png` `7e6bcee0b218124a9bc635f3b5fad75e088d3649cf662bbfe1ab5d1243cb8001`
+  - `storage/laptop_graphite_r1.png` `26578e345b74b61d3ed2b687b6ab0103a069d64240dcd9e66a649849ce945212`
+  - `storage/laptop_graphite_r2.png` `25f45cc8c5c00634d603772abaf2fc35b25254e20e3339476efecc791f962307`
+  - `storage/laptop_graphite_r3.png` `65e363474680df8545f1117813854bc5ddccd9ac784226ab0149117830985176`
+  - `storage/laptop_silver_r0.png` `1c17fd58bdf2410048a5e1431b2295f2bdd0d19a1a7d8be04421e60bc6db611f`
+  - `storage/laptop_silver_r1.png` `6e55a3080b1b8ac622ca8222697e9bb0b7cdf2065551662c30e19259a4cae2af`
+  - `storage/laptop_silver_r2.png` `d42501bdb5b2ba42ac26e0279e85c8e4e47305d87b66757bfffb8fe3aac8295d`
+  - `storage/laptop_silver_r3.png` `6c0e04e63f0fca9039ea42084adc71207363c65da6526d2763c48f5d714b2987`
+
+Approval: **Pending**. Nothing is loaded by the game: `ItemArt`, `RoomArt` and the storage views look for these
+files at their runtime paths, where they do not exist until an approved revision is installed.
+
 ## Drafts for review (0.57.8, pending approval)
 
 - `art/drafts/connectors/`: the two power connectors the user asked for ("Add connectors (only 2 kinds for
