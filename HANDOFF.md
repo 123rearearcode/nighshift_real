@@ -7,6 +7,10 @@ monitor (BIOS that gives nothing away -> NightBoot USB menu -> Windough 98 splas
 not start). `scripts/night/windough.gd` draws it from `art/ui/windough/` (approved); the desktop's windows press
 the monitor's own (hidden) app buttons in `software_view.gd`, so the apps' rules are unchanged. Tests open an app
 with `windough.open(id)` and click `windough.button_rect(label)`. 0.60.0 (checker) stays reserved.
+PR #99 is green (run 46087076245, 43 suites / 2,674 checks). Its earlier runs caught B75 to B79, all
+name clashes Godot reports only when it compiles: a duplicate const, a helper named like a Godot built-in
+(`wrap`), a test helper named like one in test_support.gd (`click`), and a global (`GameState`) named in a
+script that tests preload. Look those up before pushing; a parse error makes the suites hang 10 minutes each.
 Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
 

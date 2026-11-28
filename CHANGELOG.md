@@ -187,7 +187,9 @@ performed. The look was checked on the approved draft images; nobody has seen it
 - `windough.py`: the approved drafts regenerate byte for byte after adding the runtime export; the runtime pieces
   and the BIOS / NO SIGNAL screens have the same hashes as the approved drafts' pieces.
 - Locally: `check_project.py`, `check_bug_register.py`, `test_bug_register.py` (results in the PR).
-- GitHub Actions: recorded after the run.
+- GitHub Actions run 46087076245 on PR #99 (commit d8f068f): passed; 43 suites / 2,674 checks, 0 failures,
+  including the new Windough suite (25 checks). Earlier runs on this PR found B75 to B79 (see BUGS.md).
+- Not run: Godot locally (not installed here); no human playtest of the desktop yet.
 
 ### Decisions proposed (not approved)
 - The readme.txt text and the boot timings (BIOS 1.6 s, countdown 3 s, splash 2.4 s).
