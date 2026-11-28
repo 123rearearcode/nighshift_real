@@ -37,6 +37,16 @@ the integrating contributor turns them into a numbered entry at merge time.
 
 ## Unreleased
 
+### Scheduled change review — 2026-11-28 (documentation only)
+
+- Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), in a Claude Code cloud session.
+- Based on: main 0.58.10 (a9f576b); reviewed df5c03f..a9f576b (PRs #84–#97). The integrator assigns the version.
+- Added: B80–B83 to `docs/BUGS.md` (all Open, found by reading the code; Godot was not run): B80 the
+  under-counter drawer saves a stale layout over backpack changes (Medium); B81 the counter cable box spot
+  takes the slip's "Next customer" clicks (Medium); B82 the dialogue does not block the Backpack button or
+  cable box (Low); B83 a failed cable box write keeps supply money spent (Low). B75–B79 are used by open PR #99.
+- Files changed: docs/BUGS.md (M), CHANGELOG.md (M).
+
 ### Scheduled performance review — 2026-11-27 (documentation only)
 
 - Author: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), performance reviewer, in a Claude Code cloud session.

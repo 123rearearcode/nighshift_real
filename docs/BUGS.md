@@ -110,6 +110,10 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B73 | Verified | Low | Bench presentation | The vacuum on/off switch stayed on screen while mounting the cooler (the thermal paste stage) | 0.58.9 | Automated: Audio and vacuum suite, GitHub Actions run 46071704212 |
 
 | B74 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.10 | Automated: Counter art suite (40 checks), integrated 41 required suites / 2,648 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
+| B80 | Open | Medium | Storage / Backpack | The under-counter drawer keeps the storage layout it read when the counter opened; after a backpack change, moving anything in the drawer saves that stale copy and undoes the backpack change | — | Not verified; found by reading the code (checker, main a9f576b) |
+| B81 | Open | Medium | Counter / Cable box | With the cable box standing at the counter, its click spot lies over the slip's "Next customer" (and "Restore this morning's backup") button and takes the click | — | Not verified; found by reading the code (checker, main a9f576b) |
+| B82 | Open | Low | Counter / Dialogue | The customer dialogue's click-blocker is added before the Backpack button and cable box spot, so both (and the B key) still open over a conversation | — | Not verified; found by reading the code (checker, main a9f576b) |
+| B83 | Open | Low | Store / Cable box | Buying a cable-box supply saves the lower cash first and ignores whether the cable box write succeeds; a failed write keeps the money spent without the supplies | — | Not verified; found by reading the code (checker, main a9f576b) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1069,3 +1073,45 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: room returns reuse unchanged artwork with minimal setup / the counter reconstructs its large texture set every time.
 - Correction: keep a bounded process-local cache of successful counter-art loads, shared across presentation holders; source timestamp changes invalidate it, missing art remains uncached. No nodes or mutable gameplay state are cached and no artwork bytes change.
 - Regression / evidence: `tools/test_counter_art.gd` tests room disposal/re-entry texture identity without a strong test reference, separate holders, unchanged intake/cash/time and missing/new/revised/removed unimported art. Automated: the final Counter art suite passed 40 checks under Godot 4.7.2; the original 39 required suites passed 2,610 checks locally before integrating #96. The #96 + #97 integration then passed all 41 required suites / 2,648 checks under local Godot 4.7.2; details are in CHANGELOG.md. `tools/measure_counter_loading.gd` passed 15 checks on each measurement run; docs/COUNTER_LOADING.md preserves same-workspace before/after samples and limits. Not target-PC GPU/frame-present or human feel evidence.
+
+### B80 — The drawer saves a stale storage layout over the backpack's changes
+
+- Found: 0.58.10, scheduled Code checker change review of main `a9f576b` (PRs #84–#97), 28 November 2026
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code; Godot was not run
+- Fixed in: — (open; the fix belongs to the code's owner, not the checker)
+- Root cause: `scripts/rooms/under_counter_view.gd` `_ready()` (line 53) reads the layout once (`model.setup(Sources.collect(GameState), store.read())`) when the counter is built; `counter_room.gd` `open_storage()` (line 209) only slides the drawer into view and never re-reads. `scripts/view/backpack_view.gd` (line 45) reads its own copy when opened and `_save()` (line 137) writes the whole layout. The next drawer save writes the drawer's older copy back.
+- Reproduction (expected from the code): at the counter press B, pack an item from under the counter (or use "Put it under the counter" on a packed one), close the backpack, pull up the drawer, move or turn any item.
+- Expected / actual: the backpack change stays / the item returns to where the drawer last saw it. Second path: the drawer's `_input` (line 206) handles left clicks while open even with the backpack (z 60) drawn over it, so clicks on the backpack grid can also pick up or drop drawer items behind it; one Esc closes both. Placement only: no ownership record is duplicated or lost.
+- Fix direction (for the owner): re-read the layout in `open_storage()` (or share one model), and let the drawer ignore input while the backpack is open.
+- Regression / evidence: none yet; a headless test can pack through the backpack, then move an item in the open drawer and check the backpack's item is still packed.
+
+### B81 — The cable box spot takes the counter slip's "Next customer" clicks
+
+- Found: 0.58.10, scheduled Code checker change review of main `a9f576b` (PRs #84–#97), 28 November 2026
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code; Godot was not run
+- Fixed in: — (open; the fix belongs to the code's owner, not the checker)
+- Root cause: `scripts/rooms/room_view.gd` `CABLE_SPOTS["counter"]` (line 20) is `Rect2(236,498,140,62)`; `_setup_cable_box()` (lines 142–165) adds the spot and its "Put the cable box down here" button after `_room_ready()`. The slip's `NextCustomerButton` (`counter_room.gd` lines 457–460, `SLIP_RECT` line 24) covers x 38–426, y 490–536, and the restore button on the damaged-ticket-book slip sits in the same place. Godot 4 picks controls by tree order, not `z_index`, so the later-added spot (z 4, drawn under the slip's z 30) takes the click.
+- Reproduction (expected from the code): carry the cable box from the workshop to the counter and put it down; next morning click the middle of "Next customer".
+- Expected / actual: the next customer comes / the cable box opens. While carrying the box, the hidden drop button (x 206–406, y 454–490) overlaps the slip's text in the same way.
+- Fix direction (for the owner): move the counter spot clear of `SLIP_RECT`, or add the spot before the slip; add a hotspot-overlap check for the cable spot.
+- Regression / evidence: none yet.
+
+### B82 — The customer dialogue does not block the Backpack button or cable box
+
+- Found: 0.58.10, scheduled Code checker change review of main `a9f576b` (PRs #84–#97), 28 November 2026
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code; Godot was not run
+- Fixed in: — (open; the fix belongs to the code's owner, not the checker)
+- Root cause: `scripts/ui/dialogue_box.gd` (lines 31–36) builds its full-screen click-blocker when `counter_room.gd` `_room_ready()` runs; `room_view.gd` `_ready()` (lines 64–66) adds the cable box spot and the Backpack button afterwards, so they are later in the tree and still receive clicks. `room_view.gd` line 295 opens the backpack on B without checking for a dialogue.
+- Reproduction (expected from the code): while a customer is talking at the counter, click "Backpack (B)" or press B.
+- Expected / actual: nothing opens until the dialogue ends, as the blocker's comment says / the backpack (or cable box) opens over the conversation, and Space still advances the dialogue behind it.
+- Regression / evidence: none yet.
+
+### B83 — A failed cable box write keeps the supply money spent
+
+- Found: 0.58.10, scheduled Code checker change review of main `a9f576b` (PRs #84–#97), 28 November 2026
+- Reported by: Claude (Opus 5.5, model id claude-opus-5-5), Code checker (scheduled), by reading the code; Godot was not run
+- Fixed in: — (open; the fix belongs to the code's owner, not the checker)
+- Root cause: `scripts/night/shop_activity_view.gd` `_buy_supply()` (lines 82–93) calls `GameState.spend_cash()`, which lowers `money` and saves at once (`game_state.gd` lines 423–428), then `CableStore.save_box()` with its result ignored. Nothing rolls the money back if the cable box file cannot be written, and quitting between the two writes has the same effect.
+- Reproduction (expected from the code): make the cable box file unwritable (read-only folder or full disk) and buy a supply at the store.
+- Expected / actual: either both the cash and the supplies change, or neither does and a message says so / the cash is spent and saved, the supplies are lost, and the message reports a purchase.
+- Regression / evidence: none yet; a headless test can inject a failing cable store and check the money is unchanged.
