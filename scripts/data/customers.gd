@@ -29,7 +29,7 @@ static func customer(id: String) -> Dictionary:
             # 0.59.2 (D186; user: "Dialogue needs rewriting"): rewritten lines, still proposals for the user's story.
             "greeting": "Hello... you're open? Sorry, I came straight from the night shift. I found you online. I hope the reviews are honest.",
             "patience_line": "I need it back tomorrow morning. My shift starts at seven, and the manager already doesn't like me.",
-            "complaint": "My laptop gets so hot I can't keep it on my lap, and the fan sounds like a hair dryer.",   # 0.59.1 (D185): "mara comes in with a laptop"
+            "complaint": "My laptop overheats so badly I can't keep it on my lap, and the fan sounds like a hair dryer.",   # 0.59.1 (D185): "mara comes in with a laptop"
             "uses": "Office work, browsing and light games in the evening.",
             "habits": "Never opens the laptop herself. Would notice louder fans and hot air straight away. Reads and writes online reviews.",
             "patience": "Needs the PC back by tomorrow morning.",

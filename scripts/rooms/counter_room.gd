@@ -400,11 +400,16 @@ func _show_customer(person: Dictionary, card: Dictionary = {}) -> void:
 
 # 0.59.2 (D186): a customer slides in from the door side and fades in; leaving, a copy slides back out and fades
 # (so the next customer can already come in). Only x and alpha change: where they stand is unchanged.
+var slide_tween: Tween   # the customer coming in (stopped if the next one comes before it ends)
+
+
 func _slide_in(node: TextureRect) -> void:
+    if slide_tween != null and slide_tween.is_valid(): slide_tween.kill()
     var target: Vector2 = node.position
     node.position = target + Vector2(SLIDE_FROM, 0)
     node.modulate.a = 0.0
     var tween: Tween = create_tween().set_parallel(true)
+    slide_tween = tween
     tween.tween_property(node, "position:x", target.x, SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
     tween.tween_property(node, "modulate:a", 1.0, SLIDE_SECONDS * 0.6)
 
