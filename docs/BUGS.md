@@ -117,6 +117,8 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B79 | Verified | Low | Test harness | the new Windough suite asked whether the old panel's button and text were visible on their own; they are hidden through their container, so the check failed although the panel was gone | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 | B84 | Verified | Medium | Hardware bench / Customer PC | a customer stick in a lying RAM slot (a desktop's slot 3) was restored unturned, so the hardware bench put it in the drawer; saving the bench then took it out of the PC | 0.59.1 | Automated: Laptops suite, GitHub Actions run 46153480834 (commit ecf0e38, 44 suites / 2,714 checks, 0 failures) |
 | B85 | Fixed | Low | Counter / Phone | after buying fake reviews on the phone, the till on the counter's top bar kept showing the old cash until the room was left and entered again | 0.59.2 | Automated (pending): Day 1 suite, PR CI run |
+| B86 | Fixed | Low | Dialogue / Intake | Mara's rewritten complaint no longer said "overheats", the word the intake slip check (and the player's first clue) uses | 0.59.2 | Automated (pending): First customer suite |
+| B87 | Fixed | Low | Counter presentation / Test harness | a customer's portrait was read mid-slide by the counter art suite; a second customer arriving mid-slide could also fight the first slide's tween | 0.59.2 | Automated (pending): Counter art suite |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1148,3 +1150,23 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: night 1, at the counter, with at least $45: open the phone, buy ReviewBoost; the phone says "Shop cash now $N", the till badge still says the old amount.
 - Expected / actual: the till shows the new cash at once / it shows the old cash until you leave and come back.
 - Regression / evidence: the phone now emits `bought` after a purchase and the counter room refreshes on it. `tools/test_day1.gd` buys reviews at the counter and checks the till badge equals the new cash. Evidence recorded once the PR's CI run passes.
+
+### B86 — Mara's rewritten complaint lost "overheats"
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46159823570 on PR #102, 28 November 2026: "FAIL: first customer introduces her existing reported complaint" (First customer suite).
+- Reported by: CI; diagnosed and fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.2, before merge.
+- Root cause: the dialogue rewrite (D186) changed Mara's complaint to "My laptop gets so hot ...", dropping "overheats", which the intake slip test checks and which names her real problem plainly.
+- Reproduction: commit `e968029`, run tools/test_first_customer.gd.
+- Expected / actual: her slip names the overheating / it does not say "overheats".
+- Regression / evidence: the line is now "My laptop overheats so badly I can't keep it on my lap, and the fan sounds like a hair dryer." Evidence recorded once the PR's CI run passes.
+
+### B87 — the counter's customer was read mid-slide
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46159823570 on PR #102, 28 November 2026: "FAIL: Batch B sprites follow the shared customer/PC anchors without resizing their pixels" (Counter art suite).
+- Reported by: CI; diagnosed and fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.2, before merge.
+- Root cause: the new slide-in (D186) starts the portrait 240 px left and tweens it home over 0.45 s; the suite checked its anchor on the next frame. Looking at it also showed that a second customer arriving before the first slide ended would leave two tweens writing the same position.
+- Reproduction: commit `e968029`, run tools/test_counter_art.gd.
+- Expected / actual: the portrait ends at the shared anchor / it is read while still sliding.
+- Regression / evidence: the suite waits for the slide before checking the anchor; `counter_room._slide_in` stops a slide still running. Evidence recorded once the PR's CI run passes.

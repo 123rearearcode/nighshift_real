@@ -7,7 +7,7 @@ The user's notebook (D186): "we will then answer everything and create a new PR"
 `at_counter`, `lid_cracked`, `case_state`; `set_case_state()`; the cracked lid as a pickup fault; the fixture
 comment) and `bench_view.gd` (creates the manual and the case overlay, shows the manual on the thermal stage, no
 longer draws the old guide). The case steps live in a separate overlay (`scripts/view/bench_case.gd`) so the
-bench's own input is untouched. `tool_rig.gd` is not touched. New bug ids from this PR start at B86, decisions at
+bench's own input is untouched. `tool_rig.gd` is not touched. This PR used B85 to B87; new bug ids start at B88, decisions at
 D187. Open PRs: #98 (0.58.11 Codex, uses D182–D184: it clashes with #99's D182), #99, #100 (checker), #101.
 Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 

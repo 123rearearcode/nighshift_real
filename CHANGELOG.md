@@ -147,6 +147,8 @@ and NOT in the game; laptop revision 1 is approved and installed.
 - **From the user's notebook (D186).** Nine pages transcribed (project doc `claude/NOTEBOOK_2026-11-28.md`),
   sixteen questions answered; quotes in docs/DECISIONS.md D186.
 - **Fixed B85 (user-reported):** buying reviews on the phone now shows on the till in the top bar right away.
+- **Fixed B86 and B87 (found by CI, run 46159823570):** Mara's rewritten complaint says "overheats" again; the
+  counter art suite waits for the customer's slide, and a slide still running is stopped when the next customer comes in.
 - **Handed over at the counter:** "PC just disappears into inv. It must be moved." Accepted PCs now wait on the
   counter top (a new storage unit, also drawn as a box in the under-counter drawer) until you put them under the
   counter, pack a laptop, or carry them. Between customers the counter shows what is waiting on it (Mara's laptop
@@ -209,8 +211,9 @@ and NOT in the game; laptop revision 1 is approved and installed.
 | `art/storage/laptop_*_r0..r3.png`, `art/props/laptop_closed_*.png`, `art/hardware/laptop_heatsink.png` | A | Approved revision 1, installed |
 | `tools/test_day1.gd` | A | Day 1 suite |
 | `tools/test_laptops.gd`, `tools/test_backpack.gd`, `tools/test_dialogue.gd` | M | 14 x 9 laptop, 8 x 6 backpack, new greeting |
+| `tools/test_counter_art.gd` | M | B87: waits for the customer's slide |
 | `.github/workflows/tests.yml` | M | Runs the Day 1 suite |
-| `docs/BUGS.md` | M | B85 |
+| `docs/BUGS.md` | M | B85, B86, B87 |
 | `docs/DECISIONS.md` | M | D186 |
 | `docs/DESIGN.md` | M | The first day; customer archetypes, stories and content limits (later) |
 | `docs/STORAGE.md`, `docs/THERMAL_SERVICE.md`, `docs/TESTING.md` | M | Counter top, arms, front view; bench steps and manual; the new suite |
