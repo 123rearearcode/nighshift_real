@@ -211,7 +211,7 @@ and NOT in the game; laptop revision 1 is approved and installed.
 | `art/storage/laptop_*_r0..r3.png`, `art/props/laptop_closed_*.png`, `art/hardware/laptop_heatsink.png` | A | Approved revision 1, installed |
 | `tools/test_day1.gd` | A | Day 1 suite |
 | `tools/test_laptops.gd`, `tools/test_backpack.gd`, `tools/test_dialogue.gd` | M | 14 x 9 laptop, 8 x 6 backpack, new greeting |
-| `tools/test_counter_art.gd` | M | B87: waits for the customer's slide |
+| `tools/test_counter_art.gd`, `tools/test_first_customer.gd` | M | B87: wait for the customer's slide; print the rectangles on failure |
 | `.github/workflows/tests.yml` | M | Runs the Day 1 suite |
 | `docs/BUGS.md` | M | B85, B86, B87 |
 | `docs/DECISIONS.md` | M | D186 |
@@ -222,8 +222,12 @@ and NOT in the game; laptop revision 1 is approved and installed.
 | `docs/WORK_PLAN.md`, `HANDOFF.md`, `README.md`, `DEVELOPMENT.md`, `project.godot`, `CHANGELOG.md` | M | Claim, handoff, version, file map |
 
 ### Checks performed
-- `python3 -I tools/check_project.py`, `python3 -I tools/check_bug_register.py`, `python3 -B tools/test_bug_register.py`: see the PR.
-- GitHub Actions: see the PR (recorded after the run).
+- `python3 -I tools/check_project.py`: PASSED, 0 problems. `python3 -I tools/check_bug_register.py`: 0 problems.
+  `python3 -B tools/test_bug_register.py`: 12 tests OK.
+- GitHub Actions run 46159823570 (commit e968029): 2 failures, B86 (First customer) and B87 (Counter art); the new
+  Day 1 suite passed 47 checks. Run 46160215712 (d9b001c) still failed First customer and Counter art; run
+  46160592990 (75c0f9a, values printed) showed the width drift (240.0001). Run 46160895420 (commit 44d90e0):
+  **green, 45 suites / 2,761 checks, 0 failures** (Day 1 47, First customer 38, Counter art 40).
 
 ### Decisions proposed (not approved)
 - Pile damage 5% per thing on top, the cracked lid's 35-point annoyance, front heights per kind: trial numbers.

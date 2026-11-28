@@ -15,7 +15,9 @@ bench's first steps are an overlay (`scripts/view/bench_case.gd`, job `case_stat
 the counter; `tools/test_day1.gd` tests the real first day. Laptop revision 1 art is installed (approved); laptop
 revision 2 and the day-1 art (`tools/art_batch_f/day1.py`) wait for approval, and the stock room and case overlay
 use them only once installed. Customer archetypes replacing professions, and stories, are recorded in
-docs/DESIGN.md for later. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+docs/DESIGN.md for later. PR #102, stacked on #101, green: run 46160895420, 45 suites / 2,761 checks; CI caught
+B86 and B87 on the way (a Control slid by its x alone drifts its width: set the whole rectangle). Signed: Claude
+(Opus 5.5, model id claude-opus-5-5).
 
 
 ## Previous — 0.59.1 laptops, 28 November 2026
