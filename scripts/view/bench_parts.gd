@@ -29,7 +29,7 @@ func _zone_rect(i: int) -> Rect2:
 
 func _part_rects() -> Dictionary:
     var out: Dictionary = {}
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         var center: Vector2 = bv.part_motions[id].center
         if bv.part_bodies.has(id): center.y -= bv.part_bodies[id].height
         var size: Vector2 = (bv.access.homes[id] as Rect2).size
@@ -40,7 +40,7 @@ func _part_rects() -> Dictionary:
 func _part_poses() -> Dictionary:
     var out: Dictionary = {}
     var rects: Dictionary = _part_rects()
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         out[id] = {"center":rects[id].get_center(),"angle":bv.part_motions[id].angle,"shadow":bv.part_motions[id].center+Vector2(3,5)}
     return out
 
@@ -48,8 +48,8 @@ func _part_poses() -> Dictionary:
 func _sync_part_geometry() -> void:
     if bv.part_motions.is_empty(): return
     var poses: Dictionary = _part_poses()
-    for id: String in ServiceAccess.MOVABLE:
-        var index: int = DustZones.index_of(id)
+    for id: String in bv.access.movable:
+        var index: int = DustZones.index_of(id, str(GameState.job.get("layout", "tower")))   # 0.59.1
         var old: Dictionary = bv.previous_poses.get(id,{"center":bv.access.homes[id].get_center(),"angle":0.0})
         bv.dust.transform_zone(index,old["center"],poses[id]["center"],poses[id]["angle"]-old["angle"])
     bv.previous_poses = poses
@@ -83,14 +83,14 @@ func _finish_part_drag(point: Vector2) -> void:
 
 
 func _pick_target(point: Vector2) -> String:
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         if not id in bv.access.removed_ids() and bv.access.current_rect(id).has_point(point): return id
     return ""
 
 
 func _init_part_motion() -> void:
     var saved: Dictionary = GameState.job.get("service_table_positions",{})
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         var motion := PartMotion.new()
         motion.snap(bv.access.current_rect(id).get_center(),0)
         if id in bv.access.removed_ids() and saved.get(id) is Dictionary:
@@ -107,7 +107,7 @@ func _init_part_motion() -> void:
 
 
 func _step_part_motion(delta: float) -> void:
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         var motion: RefCounted = bv.part_motions[id]
         if bv.access.dragging == id:
             bv.part_bodies.erase(id)
@@ -134,7 +134,7 @@ func _save_service_positions() -> void:
 # The movable part under `point`, or "".
 func _part_under(point: Vector2) -> String:
     var rects: Dictionary = _part_rects()
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         var hit_rect: Rect2 = rects[id]
         if bv.part_bodies.has(id):
             var edge: Vector2 = bv.part_bodies[id].extent()
@@ -235,7 +235,7 @@ func _refresh_replacements() -> void:
         var choice: Dictionary = ServiceParts.option(id,item["tier"])
         var count: int = GameState.stock_count(id,item["tier"])
         item["button"].text = "Fit %s / owned %d" % [choice["label"],count]
-        item["button"].disabled = count == 0 or not id in GameState.job["removed_parts"] or GameState.job["state"] == "done"
+        item["button"].disabled = count == 0 or not id in GameState.job["removed_parts"] or GameState.job["state"] == "done" or str(GameState.job.get("layout", "")) == "laptop"   # 0.59.1: nothing replaces a laptop's heatsink
         item["buy"].disabled = GameState.money < int(choice["cost"])
 
 

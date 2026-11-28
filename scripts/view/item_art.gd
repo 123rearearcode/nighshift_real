@@ -83,11 +83,19 @@ static func clue(name: String) -> Texture2D:
 
 
 static func case_interior(profile_id: String) -> Texture2D:
+    if profile_id == "laptop": return _load(_dir(HARDWARE_README) + "case_laptop_interior.png")   # 0.59.1: once approved
     return _load(_dir(HARDWARE_README) + "case_tower_interior.png") if profile_id == "tower" else null
 
 
 static func board_picture(board_id: String) -> Texture2D:
+    if board_id == "board_laptop": return _load(_dir(HARDWARE_README) + "board_laptop.png")   # 0.59.1: once approved
     return _load(_dir(HARDWARE_README) + "board_demo_l.png") if board_id == "board_demo_l" else null
+
+
+# 0.59.1 (D185): the laptop's heatsink with its heatpipes (4 x 3 cells). Null until the user approves it and
+# the file is installed (tools/art_batch_f/laptop.py --runtime); the bench then draws a plain plate.
+static func laptop_heatsink() -> Texture2D:
+    return _load(_dir(HARDWARE_README) + "laptop_heatsink.png")
 
 
 static func bench(name: String) -> Texture2D:

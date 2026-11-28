@@ -177,7 +177,7 @@ func _step_pieces() -> void:
     _apply_part_collisions(pieces)
     var fitted: Array = []
     if bv.stage == bv.STAGE_CLEAN:
-        for id: String in ServiceAccess.MOVABLE:
+        for id: String in bv.access.movable:
             if id in bv.access.removed_ids() or bv.access.dragging == id: continue
             var home: Rect2 = bv.access.homes[id]
             fitted.append({"id": id, "center": home.get_center(), "angle": 0.0, "half": home.size * 0.5})
@@ -186,7 +186,7 @@ func _step_pieces() -> void:
 
 func _part_pieces() -> Array:
     var out: Array = []
-    for id: String in ServiceAccess.MOVABLE:
+    for id: String in bv.access.movable:
         var dragging: bool = bv.access.dragging == id
         if not dragging and not id in bv.access.removed_ids(): continue
         var motion: RefCounted = bv.part_motions[id]

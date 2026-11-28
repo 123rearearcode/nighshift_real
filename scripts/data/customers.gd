@@ -28,9 +28,9 @@ static func customer(id: String) -> Dictionary:
             # 0.58.9 (D181): what she says at the counter, around the complaint (placeholder lines; the story is the user's).
             "greeting": "Good morning. I read about your shop online, so I hope the reviews were honest.",
             "patience_line": "I need it back by tomorrow morning, please. I start early.",
-            "complaint": "PC overheats and the fan is very loud.",
+            "complaint": "My laptop overheats and the fan is very loud.",   # 0.59.1 (D185): "mara comes in with a laptop"
             "uses": "Office work, browsing and light games in the evening.",
-            "habits": "Never opens the case herself. Would notice louder fans and hot air straight away. Reads and writes online reviews.",
+            "habits": "Never opens the laptop herself. Would notice louder fans and hot air straight away. Reads and writes online reviews.",
             "patience": "Needs the PC back by tomorrow morning.",
             "trust_start": 50,
             "budget": 90,
@@ -38,6 +38,10 @@ static func customer(id: String) -> Dictionary:
             "needs": {"boots": true, "quiet": true},
             # D148 (0.45.0): the PC she brings, as catalogue parts (hardware_catalog.gd).
             "pc": {"cpu": "cpu_i5_6060", "gpus": ["gpu_gtx1660"], "ram": ["ram_8gb"], "storage": ["sto_hdd_500"], "psu": "psu_cv450", "cooler": "cool_stock_box"},
+            # 0.59.1 (D185): she brings a silver laptop (laptop.gd make(): her drive becomes an SSD; the
+            # processor and graphics are soldered). Same performance as before, so her needs still fit.
+            "layout": "laptop",
+            "laptop_finish": "silver",
         }
     if id == "t002_relu":
         return {

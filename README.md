@@ -1,4 +1,6 @@
-# Nightshift - Godot Foundation Trial (v0.59.0)
+# Nightshift - Godot Foundation Trial (v0.59.1)
+
+0.59.1 adds laptops (D185): smaller in storage and stackable up to three high, case and motherboard locked, only memory and the drive change, quicker to clean but hotter when dirty. Mara brings one. The laptop art awaits approval. Stacked on PR #99.
 
 0.59.0: the customer's PC boots on the diagnostic monitor. Switch it on: the BIOS, the shop's NightBoot USB stick (a boot menu counting down), then Windough 98, a goofy Windows. The shop's apps are desktop icons (double click to open them in a window); Begin has Programs, a readme from the last technician and Shut Down. A PC that will not start just shows NO SIGNAL.
 

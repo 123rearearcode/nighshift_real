@@ -68,7 +68,7 @@ static func snapshot(job: Dictionary) -> Dictionary:
     var marker: Variant = job.get("hardware_trial", {})
     marker = marker.get("night_session", {}) if marker is Dictionary else {}
     return {"parts":Build.sanitize(job.get("parts", {})),"part_instances":sanitize(job.get("part_instances", {})),
-        "layout":"compact" if str(job.get("layout", "tower")) == "compact" else "tower",
+        "layout":str(job.get("layout", "tower")) if str(job.get("layout", "tower")) in ["compact", "laptop"] else "tower",
         "pc_id":str(marker.get("pc", "")) if marker is Dictionary else "",
         "removed_parts":_strings(job.get("removed_parts", [])),"broken_parts":_strings(job.get("broken_parts", [])),
         "dead_slots":_strings(job.get("dead_slots", [])),"loose_parts":loose(job.get("loose_parts", []))}

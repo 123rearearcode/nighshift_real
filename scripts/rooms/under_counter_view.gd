@@ -22,6 +22,7 @@ const Navigation = preload("res://scripts/night/night_navigation.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const CounterArt = preload("res://scripts/rooms/counter_art.gd")
 const ItemArt = preload("res://scripts/view/item_art.gd")   # 0.57.8: one picture lookup for every scene
+const STACK_LIFT := Vector2(4, 6)   # 0.59.1 (D185): each laptop on a pile is drawn this much up and left
 const DRAG_START: float = 6.0       # px: a press that moves farther than this is a drag, else a click
 const CELL: int = 44
 const GRID := Rect2(40, 140, 880, 440)          # 20 x 10 cells
@@ -96,7 +97,9 @@ func _label(text: String, at: Vector2, area: Vector2, size: int) -> Label:
 
 
 func here() -> Array:
-    return model.in_unit(Data.COUNTER_ID)
+    var out: Array = model.in_unit(Data.COUNTER_ID)
+    out.sort_custom(func(a: String, b: String) -> bool: return model.level(a) < model.level(b))   # 0.59.1: piles bottom first
+    return out
 
 
 # The rows are rebuilt only from here (never inside a row button's own signal: _bring defers it).
@@ -157,14 +160,16 @@ func _send() -> void:
 func item_rect(uid: String) -> Rect2:
     var p: Dictionary = model.placements.get(uid, {})
     if p.is_empty() or p["unit"] != Data.COUNTER_ID: return Rect2()
-    return Rect2(GRID.position + Vector2(p["cell"]) * CELL, Vector2(Data.footprint(model.items[uid], p["rotation"])) * CELL)
+    return Rect2(GRID.position + Vector2(p["cell"]) * CELL - STACK_LIFT * model.level(uid), Vector2(Data.footprint(model.items[uid], p["rotation"])) * CELL)   # 0.59.1: a pile reads as a pile
 
 
 # Which storage picture an item uses ("" = none: draw the plain box).
 static func art_name(item: Dictionary) -> String:
     var kind: String = str(item.get("kind", ""))
     match str(item.get("category", "")):
-        "pc": return "pc_compact" if item.get("size", Vector2i.ZERO) == Vector2i(7, 5) else "pc_tower"
+        "pc":
+            if bool(item.get("stackable", false)): return "laptop_" + str(item.get("finish", "graphite"))   # 0.59.1 (D185), once approved
+            return "pc_compact" if item.get("size", Vector2i.ZERO) == Vector2i(7, 5) else "pc_tower"
         "tool": return kind if kind in Data.TOOL_SIZES else ""
         "part": return ItemArt.part_name(kind, str(item.get("model", "")))
     return ""
@@ -186,7 +191,9 @@ func item_texture(uid: String, rotation: int) -> Texture2D:
 
 
 func _hit(at: Vector2) -> String:
-    for uid: Variant in here():
+    var order: Array = here()
+    order.reverse()   # 0.59.1: the top of a pile first
+    for uid: Variant in order:
         if item_rect(str(uid)).has_point(at): return str(uid)
     return ""
 
@@ -226,6 +233,7 @@ func _input(event: InputEvent) -> void:
                 if not GRID.has_point(pointer): return
                 var uid: String = _hit(pointer)
                 selected = uid
+                if uid != "" and model.blocked(uid) != "": status.text = model.blocked(uid)   # 0.59.1: a laptop lies on it
                 if uid != "" and model.begin(uid):
                     grab = ((pointer - item_rect(uid).position) / CELL).floor()
                     press_at = pointer
@@ -295,6 +303,7 @@ func _draw() -> void:
         var r: Rect2 = item_rect(str(uid))
         var item: Dictionary = model.items[uid]
         var tex: Texture2D = item_texture(str(uid), int(model.placements[uid]["rotation"]))
+        if model.level(str(uid)) > 0: draw_rect(Rect2(r.position + Vector2(4, 6), r.size), Color(0, 0, 0, 0.3))   # 0.59.1: shadow on the pile
         if tex != null:
             draw_texture_rect(tex, r, false)
             if str(uid) == selected: draw_rect(r.grow(-1), Color("ffd27a"), false, 2.0)

@@ -115,6 +115,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `scripts/ui/dialogue_box.gd` | ui | 0.58.9 (D181): spoken lines that unroll; click, Space or Enter goes on |
 | `tools/test_wall_finishes.gd` | test | 0.58.9: wall finishes (approved files, buying, switching, saving, the counter) |
 | `tools/test_dialogue.gd` | test | 0.58.9: the dialogue box and customers talking first at the counter |
+| `tools/test_laptops.gd` | test | 0.59.1 (D185): laptops: shape, dusty spots and heat, locked parts, Mara's laptop on the counter and both benches, generated laptops, storage piles up to three high |
 | `tools/art_batch_d/walls.py` | tool | 0.58.5/0.58.9: draws the four wall finishes over the counter shell and the review pictures |
 | `tools/art_batch_d/walls_export.py` | tool | 0.58.9: exports the approved walls as runtime layers and proves they rebuild the drafts |
 | `tools/art_batch_d/flat.py` | tool | helper for walls.py: the flat counter front from the approved Batch A pictures |
@@ -186,6 +187,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/art_batch_c/ui_skins.py` | art source | 0.57.6: ART-18 monitor and phone frames (pixel art) |
 | `tools/art_batch_c/sheets_c1.py` | art source | 0.57.6: Batch C round-1 review sheets (not game art) |
 | `tools/art_batch_c/sheets_c2.py` | art source | 0.57.6: Batch C round-2 review sheets (not game art) |
+| `tools/art_batch_f/laptop.py` | tool | 0.59.1 (D185): laptop art drafts (storage, counter prop, open laptop on the benches) and review mocks; `--runtime` writes the files only after approval |
 | `tools/check_bug_register.py` | tooling | Validate one bug index, statuses, detail/evidence links and the next review marker |
 | `tools/test_bug_register.py` | tooling | Malformed register fixtures protecting the ledger checker |
 | `tools/test_part_lifecycle.gd` | tooling | Cross-PC same-model spare identity, damage, custody, collection, reload and malformed external data journeys |
@@ -261,6 +263,7 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_hardware_ticket_pc.gd` | tooling | Hardware bench shows the ticket's PC, GPU screws, shop data (D131) |
 | `scripts/data/hardware_catalog.gd` | data | The hardware catalogue: CPUs, GPUs, RAM, storage, PSUs, coolers with parody names, stats and prices (D148) |
 | `scripts/rules/pc_build.gd` | rules | A PC's six stats from its parts; PSU and cooler support; several GPUs; replacements and broken parts applied (D148) |
+| `scripts/rules/laptop.gd` | rules | 0.59.1 (D185): laptops: what fits (memory, an SSD/NVMe drive), making a job a laptop, lid colours, storage size and pile height, the messages |
 | `tools/test_real_hardware.gd` | tooling | Catalogue, stats, support rules, multi-GPU, names, unchanged demo performance, saves (D148) |
 | `tools/test_hardware_parts.gd` | tooling | Parts in and out at the hardware bench, second PCIe slot, buying and fitting catalogue parts, upgrades and swaps (D149) |
 | `tools/test_diagnosis.gd` | tooling | Findings notebook, Stress lab app, 06:00 limit for timed tests, hidden health kept out of notes, story-case solvability and difficulty (0.47.0) |
@@ -373,6 +376,7 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `art/bench/README.md` | art | 0.57.8: approved repair-bench layers (dust, paste stage, fan) |
 | `art/tools/README.md` | art | 0.57.8: approved pixel-art bench tools with 24 pre-turned frames, hose, clamp, bin, cloth |
 | `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
+| `art/drafts/laptop/README.md` | art | 0.59.1 (D185): the laptop drafts, revision 1, not loaded; approval pending |
 | `docs/CABLE_BOX_DESIGN.md` | docs | The cable box (D173): a movable, openable box whose loose cables tangle when moved; physics untangling; shop helpers; "you lost my cable" customers. Not built |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |

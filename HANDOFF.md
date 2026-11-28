@@ -1,6 +1,20 @@
 # Handoff — current state first
 
-## Current — 0.59.0 Windough 98 on NightBoot USB, 28 November 2026
+## Current — 0.59.1 laptops, 28 November 2026
+
+The user asked for laptops (D185). A laptop is a job with layout "laptop": `scripts/rules/laptop.gd` (what fits,
+`make()`), `PCLayout.laptop()` (16 x 10, two lying RAM slots, one drive slot, soldered processor/graphics under
+the heatsink), `DustZones._laptop()` (four hotter spots), the catalogue's laptop case/board (never swapped).
+Only RAM and the drive are hardware-bench pieces (`customer_pc.gd`); the repair bench lifts only the heatsink
+(`service_access.gd` `movable`). Storage piles: `storage_model.gd` `_spot`/`level`/`blocked`, at most 3 high,
+top first. Mara's record has `"layout": "laptop"` (`GameState._customer_job()`); generated customers get one 3
+in 10 times when their problems suit (`ticket_generator.as_laptop`). Under the headless suites the first ticket
+stays a desktop (`GameState.desktop_first_ticket`); `tools/test_laptops.gd` turns that off. Laptop art is
+drafted (`tools/art_batch_f/laptop.py`, `art/drafts/laptop/`) and waits for the user's approval; nothing loads
+it yet. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.59.0 Windough 98 on NightBoot USB, 28 November 2026
 
 The user dropped the per-part tests and gave 0.59.0 to Claude (D182): the customer PC boots on the diagnostic
 monitor (BIOS that gives nothing away -> NightBoot USB menu -> Windough 98 splash -> desktop; NO SIGNAL if it does

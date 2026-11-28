@@ -70,6 +70,18 @@ shown with a retry button. Held moves never alter committed placement until a va
 so saving during a move cannot strand an item. Successful moves/furniture edits autosave.
 Furniture/layout persists across New game; current source stock is reconciled on next entry.
 
+## Laptop piles — 0.59.1 (D185)
+
+A customer laptop is a 6 x 4 storage item marked `stackable`. It may rest on a desktop or another laptop when
+its whole footprint lies on that item, that item is the top of its pile (nothing else on it) and the pile stays
+at most three high (`Laptop.STACK_MAX`, the desktop counting). `storage_model._spot()` decides; a piled
+placement carries `on` (what it rests on) and `level()` counts the height. Anything with something on it cannot
+be picked up or sent back to the room (`blocked()`: "Lift the laptop on top off first"). Automatic placement
+(`fill_unplaced`, `place_first`) tries free shelf space first and only then a pile. The save stays version 2:
+floor placements are unchanged; a piled one adds `level`, used to restore piles bottom first. The stock room
+and the under-counter view draw piles bottom first, each layer a little up and left with a shadow, and pick the
+top first.
+
 ## Coordination and remaining work
 
 No hot files or customer/shop code changed. The only existing view hook is a new start-menu

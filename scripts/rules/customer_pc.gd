@@ -50,6 +50,21 @@ static func is_fixed(part_uid: String) -> bool:
     return is_customer(part_uid) and part_of(part_uid) in FIXED
 
 
+# 0.59.1 (D185): in a laptop only the RAM and the drive come out. The processor and graphics are soldered,
+# the power comes from the board and battery, the heatsink is serviced at the repair bench (cleaned,
+# repasted, refitted; never swapped). None of these are hardware-bench pieces; they stay in the job's parts.
+const LAPTOP_RAM: Array = ["ram_1", "ram_2"]
+const LAPTOP_STORAGE: Array = ["m2_1"]
+
+
+static func ram_slots(job: Dictionary) -> Array:
+    return LAPTOP_RAM if PcBuild.is_laptop(job) else RAM_SLOTS
+
+
+static func storage_slots(job: Dictionary) -> Array:
+    return LAPTOP_STORAGE if PcBuild.is_laptop(job) else STORAGE_SLOTS
+
+
 static func parts(job: Dictionary) -> Dictionary:
     return PcBuild.sanitize(job.get("parts", {}))
 
@@ -62,7 +77,7 @@ static func loose(job: Dictionary) -> Array:
 
 
 static func ram_sticks(job: Dictionary) -> int:
-    return mini((parts(job)["ram"] as Array).size(), RAM_SLOTS.size())
+    return mini((parts(job)["ram"] as Array).size(), ram_slots(job).size())
 
 
 # The catalogue id behind a customer uid in this job ("" when unknown).
@@ -112,11 +127,13 @@ static func _customer_part(job: Dictionary, key: String, id: String, damaged: bo
 static func components(job: Dictionary) -> Array:
     var out: Array = []
     var p: Dictionary = parts(job)
-    if str(p["cpu"]) != "": out.append(_customer_part(job, "cpu", str(p["cpu"]), false, "In the PC"))
-    for i in range(ram_sticks(job)): out.append(_customer_part(job, "ram_" + str(LETTERS[i]), str(p["ram"][i]), false, "In the PC"))
-    for i in range(mini((p["storage"] as Array).size(), STORAGE_SLOTS.size())): out.append(_customer_part(job, "storage_" + str(LETTERS[i]), str(p["storage"][i]), false, "In the PC"))
-    if str(p["psu"]) != "": out.append(_customer_part(job, "psu", str(p["psu"]), false, "In the PC"))
-    if (p["gpus"] as Array).size() > 1: out.append(_customer_part(job, "gpu_2", str(p["gpus"][1]), false, "In the PC (second card)"))
+    var laptop: bool = PcBuild.is_laptop(job)
+    var where: String = "In the laptop" if laptop else "In the PC"
+    if str(p["cpu"]) != "" and not laptop: out.append(_customer_part(job, "cpu", str(p["cpu"]), false, where))
+    for i in range(ram_sticks(job)): out.append(_customer_part(job, "ram_" + str(LETTERS[i]), str(p["ram"][i]), false, where))
+    for i in range(mini((p["storage"] as Array).size(), storage_slots(job).size())): out.append(_customer_part(job, "storage_" + str(LETTERS[i]), str(p["storage"][i]), false, where))
+    if str(p["psu"]) != "" and not laptop: out.append(_customer_part(job, "psu", str(p["psu"]), false, where))
+    if (p["gpus"] as Array).size() > 1 and not laptop: out.append(_customer_part(job, "gpu_2", str(p["gpus"][1]), false, "In the PC (second card)"))
     var list: Array = loose(job)
     for i in range(list.size()): out.append(_customer_part(job, "loose_" + str(i), str(list[i]["id"]), bool(list[i]["damaged"]), "Out of the PC" + (" (a part from your stock is in its place)" if str(list[i]["original_of"]) != "" else "")))
     for part: String in first_parts(job):
@@ -127,6 +144,7 @@ static func components(job: Dictionary) -> Array:
 # 0.51.0: the first-slot parts (GPU, cooler) that physically exist for this job. A repair PC always has
 # both (out of the PC or in it). A build has no customer original: an empty first slot holds nothing.
 static func first_parts(job: Dictionary) -> Array:
+    if PcBuild.is_laptop(job): return []   # 0.59.1: soldered graphics; the heatsink stays a repair-bench job
     var removed: Array = job.get("removed_parts", []) if job.get("removed_parts", []) is Array else []
     if not PcBuild.is_build(job): return [Ids.GPU, Ids.COOLER]
     return [Ids.GPU, Ids.COOLER].filter(func(part: String) -> bool: return not part in removed)
@@ -192,13 +210,14 @@ static func is_damaged(job: Dictionary, part_uid: String) -> bool:
 static func placements(job: Dictionary, saved: Dictionary) -> Dictionary:
     var out: Dictionary = {}
     var p: Dictionary = parts(job)
-    if str(p["cpu"]) != "": out[uid(job, "cpu")] = {"location": CPU_SLOT, "cell": [0, 0], "rotation": 0}
+    var laptop: bool = PcBuild.is_laptop(job)
+    if str(p["cpu"]) != "" and not laptop: out[uid(job, "cpu")] = {"location": CPU_SLOT, "cell": [0, 0], "rotation": 0}
     for i in range(ram_sticks(job)):
-        out[uid(job, "ram_" + str(LETTERS[i]))] = {"location": RAM_SLOTS[i], "cell": [0, 0], "rotation": 0}
-    for i in range(mini((p["storage"] as Array).size(), STORAGE_SLOTS.size())):
-        out[uid(job, "storage_" + str(LETTERS[i]))] = {"location": STORAGE_SLOTS[i], "cell": [0, 0], "rotation": 0}
-    if str(p["psu"]) != "": out[uid(job, "psu")] = {"location": PSU_SLOT, "cell": [0, 0], "rotation": 0}
-    if (p["gpus"] as Array).size() > 1: out[uid(job, "gpu_2")] = {"location": GPU2_SLOT, "cell": [0, 0], "rotation": 0}
+        out[uid(job, "ram_" + str(LETTERS[i]))] = {"location": ram_slots(job)[i], "cell": [0, 0], "rotation": 0}
+    for i in range(mini((p["storage"] as Array).size(), storage_slots(job).size())):
+        out[uid(job, "storage_" + str(LETTERS[i]))] = {"location": storage_slots(job)[i], "cell": [0, 0], "rotation": 0}
+    if str(p["psu"]) != "" and not laptop: out[uid(job, "psu")] = {"location": PSU_SLOT, "cell": [0, 0], "rotation": 0}
+    if (p["gpus"] as Array).size() > 1 and not laptop: out[uid(job, "gpu_2")] = {"location": GPU2_SLOT, "cell": [0, 0], "rotation": 0}
     var keys: Array = []
     for i in range(loose(job).size()): keys.append(uid(job, "loose_" + str(i)))
     for part: String in first_parts(job):
@@ -278,4 +297,10 @@ static func apply(job: Dictionary, snapshot: Dictionary) -> Dictionary:
         if slot_ids.has(slot):
             (out["storage"] as Array).append(slot_ids[slot]["id"])
             if slot_ids[slot].has("instance"): records[STORAGE_SLOTS[(out["storage"] as Array).size()-1]] = slot_ids[slot]["instance"]
+    if PcBuild.is_laptop(job):   # 0.59.1: the soldered processor and the board's power never leave the laptop
+        out["cpu"] = p["cpu"]
+        out["psu"] = p["psu"]
+        for slot: String in [CPU_SLOT, PSU_SLOT]:
+            var kept: Dictionary = Instances.get_part(job, slot)
+            if not kept.is_empty(): records[slot] = kept
     return {"parts": out, "loose_parts": drawer, "first": first, "dead_slots": dead, "part_instances": records}

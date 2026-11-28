@@ -108,7 +108,7 @@ static func text(job: Dictionary, customer: Dictionary, games: Dictionary) -> St
         "Pay on collection: $%d" % int(r["terms"]["payout"]),
         "Collection: %s" % r["terms"]["collection"] if str(r["terms"]["collection"]) != "" else "",
         "",
-        "Machine: %s PC · %s" % [str(r["machine"]["layout"]).capitalize(), r["machine"]["parts"]],
+        "Machine: %s · %s" % ["Laptop (only memory and the drive can be changed)" if str(r["machine"]["layout"]) == "laptop" else str(r["machine"]["layout"]).capitalize() + " PC", r["machine"]["parts"]],   # 0.59.1
         "Specs: " + PcBuild.summary_line(job),
     ]
     lines.append_array(PcBuild.part_lines(job))   # D148: every part by name

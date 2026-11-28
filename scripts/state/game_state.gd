@@ -8,6 +8,7 @@ const ComponentData = preload("res://scripts/data/component_data.gd")
 const GridInventory = preload("res://scripts/bench/grid_inventory.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
 const ServiceParts = preload("res://scripts/data/service_parts.gd")
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const DustZones = preload("res://scripts/data/dust_zones.gd")
 const SaveStore = preload("res://scripts/state/save_store.gd")
 const PasteMaterials = preload("res://scripts/data/paste_materials.gd")
@@ -89,6 +90,7 @@ var settings_path: String = SETTINGS_PATH # injectable for isolated regression t
 
 func _ready() -> void:
     _load_settings()
+    desktop_first_ticket = _running_a_test_suite()   # 0.59.1: see desktop_first_ticket
     if not load_game():
         new_game(false)   # title screen must not create/overwrite a save just by opening
 
@@ -104,7 +106,7 @@ func new_game(persist: bool = true) -> void:
     night_number = 1
     opening_customers = []
     comebacks = []
-    job = _make_job()
+    job = _customer_job()   # 0.59.1: Mara's laptop
     player_inventory = _starter_inventory()
     inventory_layout = {}
     inventory_sequence = 10
@@ -120,14 +122,46 @@ func new_game(persist: bool = true) -> void:
 
 # The next ticket's customer rotates with every COMPLETED ticket (D104): finish Mara's PC and
 # Relu brings his in; abandon a ticket and the same customer is still waiting on it.
+# 0.59.1: this is also the blank template for generated and returning customers' tickets (make_ticket_job), so it
+# stays a desktop; _customer_job() gives a story customer the PC they carry in.
 func _make_job() -> Dictionary:
     var cid: String = Customers.IDS[tickets_taken % Customers.IDS.size()]
-    var who: Dictionary = Customers.customer(cid)
+    return _job_for(cid, Customers.customer(cid))
+
+
+# 0.59.1 (D185): the rotating story customer's own ticket. Mara brings a laptop (her record's "layout").
+func _customer_job() -> Dictionary:
+    var made: Dictionary = _make_job()
+    _carry_in(made, Customers.customer(str(made["customer_id"])))
+    return made
+
+
+func _carry_in(made: Dictionary, who: Dictionary) -> void:
+    if str(who.get("layout", "tower")) == "laptop" and not desktop_first_ticket: Laptop.make(made, str(who.get("laptop_finish", "graphite")))
+
+
+# 0.59.1 TEST FIXTURE ONLY. The headless suites (tools/test_*.gd, each run as the main loop by CI) were written
+# before laptops: they test desktop repairs on the first ticket (its graphics card, PSU, case fan, tower
+# geometry), so under a suite the first ticket stays the desktop they assert on. In the game the main loop has
+# no script and this is always false: Mara brings her laptop. tools/test_laptops.gd sets it false to test that.
+# Not saved.
+var desktop_first_ticket: bool = false
+
+
+func _running_a_test_suite() -> bool:
+    var main: Variant = get_tree().get_script() if get_tree() != null else null
+    if not main is Script: return false
+    var path: String = (main as Script).resource_path   # a suite is tools/test_*.gd
+    return path.get_base_dir().get_file() == "tools" and path.get_file().begins_with("test_")
+
+
+func _job_for(cid: String, who: Dictionary) -> Dictionary:
     return {
         "id": "T%03d" % ticket_sequence,
         "removed_component_records": [],
         "service_replacement_ids": {},
         "layout": "tower",
+        "laptop_finish": "",      # 0.59.1 (D185): a laptop's lid colour (laptop.gd FINISHES); "" for a desktop
         "dust_schema": 2,
         "removed_parts": [],
         "service_table_positions": {},
@@ -203,12 +237,12 @@ func _clean_zone_labels() -> Array:
 
 
 func _refresh_cleaned() -> void:
-    job["cleaned"] = parts_clean_count() == DustZones.zones().size()
+    job["cleaned"] = parts_clean_count() == DustZones.zones(PcBuild.form(job)).size()
 
 
 func parts_clean_count() -> int:
     var n: int = 0
-    for z: Dictionary in DustZones.zones():
+    for z: Dictionary in DustZones.zones(PcBuild.form(job)):   # 0.59.1: a laptop has its own spots
         if dust_fraction(str(z["id"])) >= DustZones.CLEAN_AT:
             n += 1
     return n
@@ -236,6 +270,7 @@ func damage_service_part(part_id: String) -> bool:
     return true
 
 func replace_service_part(part_id: String, tier: String) -> bool:
+    if PcBuild.is_laptop(job): return false   # 0.59.1 (D185): a laptop keeps its own heatsink; its graphics are soldered
     for record: Dictionary in player_inventory:
         if record["kind"] == part_id and record["tier"] == tier and stock_available(record["uid"]):
             return fit_inventory_part(part_id,record["uid"])
@@ -243,6 +278,7 @@ func replace_service_part(part_id: String, tier: String) -> bool:
 
 func fit_inventory_part(part_id: String, uid: String) -> bool:
     if job["state"] == "done" or not part_id in job["removed_parts"] or PcBuild.board_out(job): return false
+    if PcBuild.is_laptop(job): return false   # 0.59.1 (D185): soldered graphics; a laptop keeps its own heatsink
     var index: int = -1
     for i in range(player_inventory.size()):
         if player_inventory[i]["uid"] == uid: index = i
@@ -304,7 +340,7 @@ func _fresh_dust() -> Dictionary:
 
 func start_repair_ticket() -> void:
     ticket_sequence += 1
-    job = _make_job()
+    job = _customer_job()
     save_game()
 
 func _starter_inventory() -> Array:
@@ -469,6 +505,7 @@ func turn_gpu_screw() -> bool:
 func set_service_part_fitted(part_id: String, fitted: bool) -> bool:
     if job["state"] == "done" or not part_id in ServiceParts.IDS:
         return false
+    if part_id == Ids.GPU and PcBuild.is_laptop(job): return false   # 0.59.1 (D185): soldered graphics
     var removed: bool = part_id in job["removed_parts"]
     if fitted == not removed:
         return false
@@ -530,6 +567,7 @@ func advance_night(minutes: int) -> void:
 # D132: the overclocker's two settings, clamped to their ranges.
 func set_overclock(mult: int, volt: int) -> bool:
     if job["state"] == "done": return false
+    if PcBuild.is_laptop(job): return false   # 0.59.1 (D185): a laptop's BIOS has no overclocking settings
     var was: Dictionary = Overclock.settings(job)
     job["overclock"] = Overclock.sanitize({"mult": mult, "volt": volt})
     if job["overclock"] != was:
@@ -602,7 +640,7 @@ func assess() -> Dictionary:
     var notes: Array = []
     _refresh_cleaned()
     var dirty_parts: Array = []
-    for z: Dictionary in DustZones.zones():
+    for z: Dictionary in DustZones.zones(PcBuild.form(job)):   # 0.59.1 (D185): a laptop's spots, each hotter
         var left: float = 1.0 - dust_fraction(str(z["id"]))
         var add: float = float(z["temp_penalty"]) * left
         temp += add
@@ -922,7 +960,7 @@ func load_game() -> bool:
     _refresh_shop_condition()   # 0.50.0: rebuilt from the stock records, never trusted from the save
     job["dust_schema"] = 2
     # Never trust old or malformed containers/grades as proof of completed work.
-    if not str(job["layout"]) in ["tower", "compact"]:
+    if not str(job["layout"]) in ["tower", "compact", "laptop"]:   # 0.59.1: laptops (D185)
         job["layout"] = "tower"
     var clean_dust: Dictionary = {}
     for z: Dictionary in DustZones.zones():
@@ -1125,6 +1163,7 @@ func make_ticket_job(customer_id: String) -> Dictionary:
     fresh["payout"] = int(who["payout"])
     fresh["parts"] = PcBuild.sanitize(who.get("pc", {}))
     fresh["pc_specs"] = PcBuild.specs(fresh["parts"])
+    _carry_in(fresh, who)   # 0.59.1: a returning laptop customer brings the laptop again
     return fresh
 
 
@@ -1174,8 +1213,9 @@ func fit_catalog_stock(uid: String, slot: String) -> bool:
     var free: bool = false
     if slot == CustomerPC.CPU_SLOT: free = type == Catalog.CPU and str(p["cpu"]) == ""
     elif slot == CustomerPC.PSU_SLOT: free = type == Catalog.PSU and str(p["psu"]) == ""
-    elif slot in CustomerPC.RAM_SLOTS: free = type == Catalog.RAM and (p["ram"] as Array).size() + shop.keys().filter(func(k: String) -> bool: return k in CustomerPC.RAM_SLOTS).size() < CustomerPC.RAM_SLOTS.size()
-    elif slot in CustomerPC.STORAGE_SLOTS: free = type == Catalog.STORAGE and (p["storage"] as Array).size() + shop.keys().filter(func(k: String) -> bool: return k in CustomerPC.STORAGE_SLOTS).size() < CustomerPC.STORAGE_SLOTS.size()
+    elif slot in CustomerPC.RAM_SLOTS: free = type == Catalog.RAM and slot in CustomerPC.ram_slots(job) and (p["ram"] as Array).size() + shop.keys().filter(func(k: String) -> bool: return k in CustomerPC.RAM_SLOTS).size() < CustomerPC.ram_slots(job).size()
+    elif slot in CustomerPC.STORAGE_SLOTS: free = type == Catalog.STORAGE and slot in CustomerPC.storage_slots(job) and (p["storage"] as Array).size() + shop.keys().filter(func(k: String) -> bool: return k in CustomerPC.STORAGE_SLOTS).size() < CustomerPC.storage_slots(job).size()
+    if PcBuild.is_laptop(job) and not Laptop.fits(job, model): free = false   # 0.59.1: no 3.5-inch drive, nothing soldered
     elif slot == CustomerPC.GPU2_SLOT: free = type == Catalog.GPU and (p["gpus"] as Array).size() < 2
     if not free: return false
     if PcBuild.is_build(job) and assembly_blocker(type) != "": return false   # 0.51.0: assembly costs night time
@@ -1397,6 +1437,7 @@ func receive_salvage(finds: Array) -> Dictionary:
 
 # Why the motherboard cannot come out right now ("" = it can): every other part must be out first.
 func board_blocker() -> String:
+    if PcBuild.is_laptop(job): return Laptop.BOARD_LOCKED   # 0.59.1 (D185)
     if PcBuild.board_out(job): return "The motherboard is already out of the case."
     var p: Dictionary = PcBuild.sanitize(job.get("parts", {}))
     var still: Array = []
@@ -1460,7 +1501,7 @@ func take_build_deposit(arrival: Dictionary) -> int:
 # {ok, message}.
 func choose_build_case(id: String) -> Dictionary:
     if job["state"] == "done" or not PcBuild.is_build(job): return {"ok": false, "message": "Only a build's case can be swapped (repairs keep the customer's case)."}
-    if not Catalog.is_case(id): return {"ok": false, "message": "Unknown case."}
+    if not Catalog.is_case(id) or not Catalog.swappable(str(Catalog.CASES[id]["form"])): return {"ok": false, "message": "Unknown case."}
     var current: String = PcBuild.case_model(job)
     if id == current: return {"ok": false, "message": "The build is already in that case."}
     if not PcBuild.board_out(job): return {"ok": false, "message": "A case is swapped empty: take every part out, then the motherboard, first."}

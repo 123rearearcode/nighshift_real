@@ -6,6 +6,8 @@ const TRAY: Rect2 = Layout.BENCH_TRAY
 const ToolRig = preload("res://scripts/bench/tool_rig.gd")
 const BOUNDS: Rect2 = ToolRig.TABLE   # a dragged part can never leave the bench
 const MOVABLE: Array = Ids.SERVICE_PARTS
+# 0.59.1 (D185): the movable parts THIS PC has, in MOVABLE's order: a laptop has only its heatsink (cooler).
+var movable: Array = []
 var homes: Dictionary = {}
 var parked: Dictionary = {}
 var removed: Dictionary = {}
@@ -17,6 +19,7 @@ func setup(zones: Array, origin: Vector2, saved: Array) -> void:
     homes.clear()
     parked.clear()
     removed.clear()
+    movable.clear()
     dragging = ""
     for z: Dictionary in zones:
         var id: String = str(z["id"])
@@ -26,6 +29,8 @@ func setup(zones: Array, origin: Vector2, saved: Array) -> void:
             homes[id] = rect
             parked[id] = Rect2(Vector2(65, 563) if id == Ids.COOLER else Vector2(260, 585), rect.size)
             removed[id] = id in saved
+    for id: String in MOVABLE:
+        if homes.has(id): movable.append(id)
 
 func current_rect(id: String) -> Rect2:
     if dragging == id:
@@ -33,7 +38,7 @@ func current_rect(id: String) -> Rect2:
     return parked[id] if bool(removed.get(id, false)) else homes[id]
 
 func begin(point: Vector2) -> bool:
-    for id: String in MOVABLE:
+    for id: String in movable:
         var rect: Rect2 = current_rect(id)
         if rect.has_point(point):
             dragging = id
@@ -62,16 +67,16 @@ func finish(point: Vector2) -> Dictionary:
         "message": ("Removed " + id + "; clean its surface in the tray and the exposed dust underneath." if bool(removed[id]) else "Refitted " + id + " into its original mount.") if valid else "Drop on the tray or the original mount. Returned to its previous position."}
 
 func set_removed(id: String, value: bool) -> void:
-    if id in MOVABLE: removed[id] = value
+    if id in movable: removed[id] = value
 
 func removed_ids() -> Array:
     var ids: Array = []
-    for id: String in MOVABLE:
+    for id: String in movable:
         if bool(removed.get(id, false)): ids.append(id)
     return ids
 
 func blockers() -> Array:
     var out: Array = []
-    for id: String in MOVABLE:
+    for id: String in movable:
         if not bool(removed.get(id, false)): out.append({"id": id, "rect": homes[id]})
     return out

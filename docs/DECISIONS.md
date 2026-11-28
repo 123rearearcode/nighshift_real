@@ -916,3 +916,21 @@ the customer's head, THE WORKSHOP, and outside the shop's name on its front (NIG
 the plate says the room's name, the small title at the top is hidden. Also: the termopan drafts (D174) were
 approved ("aight go on with the PVC") and installed; the user asked for alternatives to the tiles (four
 drafts, pending). Recorded by Claude (Opus 5.5, model id claude-opus-5-5).
+
+### D185 — Laptops (user, 28 November 2026)
+
+"i need u to build a new PR which would add laptops. they take up less space than a desktop and you can choose to
+store them on top of eachother or on top of desktops. you cannot change the case or the motherboard for a laptop.
+its faster to service and space and airflow constraints are more important. artwork is also needed, so generate a
+few artworks of what the laptops would look like in game. update all relevant documants . mara comes in with a
+laptop". Answers to the three questions asked first (all the recommended options): inside a laptop only the RAM
+and the drive can be changed (processor and graphics soldered; the heatsink is still cleaned and repasted);
+"faster to service" means less hands-on work (fewer dusty spots, one heatsink, no card to unscrew); storage piles
+are at most 3 high, each laptop wholly on a desktop or another laptop, and the top one comes off first.
+Implementation choices (proposals, 0.59.1): the laptop layout (16 x 10 cells; two lying memory slots, one drive
+slot), its own case and board (never sold or swapped), no 3.5-inch drive, no overclocking, four spots that each
+cost more heat when dirty plus +6 C for the thin case, a 6 x 4 storage footprint, free shelf space before a pile,
+Mara's silver laptop (her drive an SSD), 3 in 10 generated customers with a laptop when their problems suit one.
+Art: drafts only (revision 1) until the user approves an exact revision. Recorded by Claude (Opus 5.5, model id
+claude-opus-5-5).
+

@@ -71,6 +71,9 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
             canvas.draw_set_transform(poses[id]["center"],poses[id]["angle"])
             base = Transform2D(float(poses[id]["angle"]), Vector2(poses[id]["center"]))
             r = Rect2(-r.size*0.5,r.size)
+        if profile_id == "laptop" and _draw_laptop_zone(canvas, id, r, base, cell):   # 0.59.1 (D185)
+            canvas.draw_set_transform(Vector2.ZERO)
+            continue
         if _draw_zone_art(canvas, id, r, base, cooler_angle if id == Ids.COOLER else case_angle):
             canvas.draw_set_transform(Vector2.ZERO)
             continue
@@ -90,6 +93,33 @@ static func draw_pc(canvas: CanvasItem, profile_id: String, area: Rect2, zones: 
         # Compact labels stay inside component bounds; progress is listed in the right panel.
         canvas.draw_string(font, r.position + Vector2(3, 13), str(z["label"]), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 4, 11, Color.WHITE)
         canvas.draw_set_transform(Vector2.ZERO)
+
+
+# 0.59.1 (D185): a laptop's heatsink and its lying RAM. The heatsink is one piece with its two heatpipes
+# running a cell to the left, to the blower fan. Until the user approves the laptop pictures
+# (tools/art_batch_f/laptop.py) it is a plain copper plate; the fan, fins and labels use the shared drawing.
+static func _draw_laptop_zone(canvas: CanvasItem, id: String, r: Rect2, base: Transform2D, cell: float) -> bool:
+    match id:
+        Ids.COOLER:
+            var plate := Rect2(r.position - Vector2(cell, 0), r.size + Vector2(cell, 0))
+            var sink: Texture2D = ItemArt.laptop_heatsink()
+            if sink != null:
+                canvas.draw_texture_rect(sink, plate, false)
+                return true
+            for k in range(2):
+                var y: float = r.position.y + r.size.y * (0.3 + 0.35 * k)
+                canvas.draw_line(Vector2(plate.position.x, y), Vector2(r.get_center().x, y), Color("c4844e"), maxf(3.0, cell * 0.16))
+            canvas.draw_rect(r.grow(-cell * 0.12), Color("b47a46"))
+            canvas.draw_rect(r.grow(-cell * 0.12), Color("e4b07c"), false, 2.0)
+            canvas.draw_string(ThemeDB.fallback_font, r.position + Vector2(6, 16), "Heatsink", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 8, 11, Color.WHITE)
+            return true
+        "motherboard":            # two lying memory slots, one above the other
+            var ram: Texture2D = ItemArt.board("ram", 1)
+            if ram == null: return false
+            var h: float = r.size.y * 0.5
+            for k in range(2): canvas.draw_texture_rect(ram, Rect2(r.position + Vector2(0, k * h), Vector2(r.size.x, h)), false)
+            return true
+    return false
 
 
 # 0.57.8: a bench zone drawn with its approved picture (the same drawings as the storage and the hardware

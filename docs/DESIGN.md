@@ -1,5 +1,16 @@
 # Nightshift — Working Design
 
+## Current laptop update — 0.59.1 / 28 November 2026 (D185)
+
+Laptops are a third customer PC form beside tower and compact. CONFIRMED by the user: they take less storage
+space and can lie on top of each other or on desktops (piles at most 3 high, the top one off first); the case and
+motherboard cannot be changed; only memory and the drive can (processor and graphics soldered); they are faster
+to service (less hands-on work); space and airflow constraints matter more; Mara brings one. PROPOSED numbers:
+6 x 4 storage cells, four dusty spots each costing more heat than on a tower (heatsink 26 C, fins 16, fan 12,
+RAM 3) plus +6 C for the case, no 3.5-inch drive, no overclocking, 3 in 10 generated customers bring a laptop
+when their problems suit one. Rules: `scripts/rules/laptop.gd`; layout `PCLayout.laptop()`; spots
+`DustZones._laptop()`; piles `storage_model.gd`. Art awaits approval.
+
 ## Current antivirus update — 0.58.0 / 27 November 2026
 
 D163: scan clues describe the unwanted behaviour without selecting exact targets. App inspection explains what it does in ordinary language. Stop the source and its returning helper, turn off Start with PC for that helper, then verify by reboot. Adware has bounded adverts/colour; miners have garbled aliases/high load. Six row slots and all controls stay fixed during an attempt. Stable per-PC variations repeat on retries; no computer terminology is required to solve them. Reduced effects give steady colour, no shake and changes at most once a second, with identical clues/rules. Ten night minutes per attempt remains trial tuning.

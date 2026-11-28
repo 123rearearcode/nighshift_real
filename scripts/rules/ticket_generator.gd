@@ -14,6 +14,7 @@
 # draws a plain dusty PC is offered instead. Numbers are trial proposals (D154).
 extends RefCounted
 
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const People = preload("res://scripts/data/generated_people.gd")
 const Catalog = preload("res://scripts/data/hardware_catalog.gd")
 const Ids = preload("res://scripts/data/ids.gd")
@@ -287,6 +288,24 @@ static func check(job: Dictionary, person: Dictionary, caps: Dictionary, night: 
     return {"ok": true, "level": level, "reason": ""}
 
 
+# 0.59.1 (D185): some customers bring a laptop. Only problems a laptop can have qualify (dust and malware;
+# nothing soldered can be swapped, its BIOS has no overclock, its RAM has two slots), and only when the laptop,
+# repaired, still passes every check above (its tighter cooling and fixed graphics included). A separate random
+# stream decides, so the desktop cases the generator draws are exactly what they were before laptops.
+const LAPTOP_CHANCE: float = 0.3
+const LAPTOP_EVENTS: Array = ["dust", "adware", "miner"]
+
+static func as_laptop(trial: Dictionary, person: Dictionary, events: Array, caps: Dictionary, night: int, stream: int) -> Dictionary:
+    if bool(person.get("scripted", false)) or not events.all(func(e: Variant) -> bool: return str(e) in LAPTOP_EVENTS): return {}
+    var lr := RandomNumberGenerator.new()
+    lr.seed = hash([stream, "laptop"])
+    if lr.randf() >= LAPTOP_CHANCE: return {}
+    var made: Dictionary = Laptop.make(trial.duplicate(true), "silver" if lr.randf() < 0.3 else "graphite")
+    if repaired(made, int(caps.get("money", 0))).is_empty(): return {}
+    var verdict: Dictionary = check(made, person, caps, night)
+    return {"job": made, "level": int(verdict["level"])} if bool(verdict["ok"]) else {}
+
+
 # Draws one case for `person` onto `job` (a fresh job for them). `pc` = the PC they own ({} = new one).
 # Returns {job, person, events, level, fallback}. The person record gets their PC, needs and pay terms.
 static func draw_case(job: Dictionary, person: Dictionary, pc: Dictionary, caps: Dictionary, night: int, r: RandomNumberGenerator) -> Dictionary:
@@ -305,6 +324,8 @@ static func draw_case(job: Dictionary, person: Dictionary, pc: Dictionary, caps:
         if not bool(person.get("scripted", false)): who["needs"] = needs_for(who, fixed, r)
         var verdict: Dictionary = check(trial, who, caps, night)
         if not bool(verdict["ok"]): continue
+        var laptop: Dictionary = as_laptop(trial, who, events, caps, night, r.seed + attempt)   # 0.59.1 (D185)
+        if not laptop.is_empty(): return _finish(laptop["job"], who, base_pc, events, int(laptop["level"]), false)
         return _finish(trial, who, base_pc, events, int(verdict["level"]), false)
     # Fallback: their PC, dusty, nothing else wrong (always evident and always fixable).
     var plain: Dictionary = job.duplicate(true)

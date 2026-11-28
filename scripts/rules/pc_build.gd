@@ -74,9 +74,20 @@ static func sanitize(raw: Variant) -> Dictionary:
         "case": str(r.get("case", "")) if Catalog.is_case(str(r.get("case", ""))) else ""}
 
 
+# 0.59.1 (D185): the PC's form: "tower", "compact" or "laptop" (anything else reads as a tower).
+static func form(job: Dictionary) -> String:
+    var layout: String = str(job.get("layout", "tower"))
+    return layout if layout in ["compact", "laptop"] else "tower"
+
+
+# 0.59.1 (D185): a laptop. Its case and motherboard are part of it; only the RAM and the drive come out.
+static func is_laptop(job: Dictionary) -> bool:
+    return form(job) == "laptop"
+
+
 # 0.51.0: the case model of this job. A case of the wrong form for the layout reads as the default.
 static func case_model(job: Dictionary) -> String:
-    var layout: String = "compact" if str(job.get("layout", "tower")) == "compact" else "tower"
+    var layout: String = form(job)
     var id: String = str(sanitize(job.get("parts", {}))["case"])
     if id != "" and str(Catalog.CASES[id]["form"]) == layout: return id
     return str(Catalog.DEFAULT_CASE[layout])
@@ -96,7 +107,7 @@ static func is_build(job: Dictionary) -> bool:
 # 0.48.1: the motherboard model in this job's case. A board of the wrong form for the case, or none
 # recorded, reads as the case's default board.
 static func board_model(job: Dictionary) -> String:
-    var layout: String = "compact" if str(job.get("layout", "tower")) == "compact" else "tower"
+    var layout: String = form(job)
     var id: String = str(sanitize(job.get("parts", {}))["board"])
     if id != "" and str(Catalog.BOARDS[id]["form"]) == layout: return id
     return str(Catalog.DEFAULT_BOARD[layout])

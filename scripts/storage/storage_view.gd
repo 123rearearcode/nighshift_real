@@ -10,6 +10,7 @@ const Navigation = preload("res://scripts/night/night_navigation.gd")
 const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const Ticket = preload("res://scripts/rules/ticket.gd")
 const WORKSHOP_SLOT := Rect2(1010,150,242,126)
+const STACK_LIFT := Vector2(3, 5)   # 0.59.1 (D185): each laptop on a pile is drawn this much up and left
 const ROOM_VIEW := Rect2(24,158,946,414)
 var model := Model.new()
 var store := Store.new()
@@ -316,7 +317,7 @@ func _world_item(uid: String) -> Rect2:
     if p.is_empty(): return Rect2()
     for i in range(model.units.size()):
         if model.units[i]["id"] == p["unit"]:
-            return Rect2(_world_shelf(i,p["shelf"]).position+Vector2(p["cell"])*Data.CELL,Vector2(Data.footprint(model.items[uid],p["rotation"]))*Data.CELL)
+            return Rect2(_world_shelf(i,p["shelf"]).position+Vector2(p["cell"])*Data.CELL-STACK_LIFT*model.level(uid),Vector2(Data.footprint(model.items[uid],p["rotation"]))*Data.CELL)   # 0.59.1: a pile reads as a pile
     return Rect2()
 # B56: only items on the room's own furniture are drawn in it. Items under the counter or in the backpack are
 # placed in units that are not in the room (no world rectangle) and used to be drawn as a mark at the origin.
@@ -324,6 +325,7 @@ func room_drawn_items() -> Array:
     var out: Array = []
     for uid: String in model.placements:
         if _world_item(uid).has_area(): out.append(uid)
+    out.sort_custom(func(a: String, b: String) -> bool: return model.level(a) < model.level(b))   # 0.59.1: piles bottom first
     return out
 func item_rect(uid: String) -> Rect2:
     var rect := _world_item(uid)
@@ -331,7 +333,9 @@ func item_rect(uid: String) -> Rect2:
     var n: int = model.overflow().find(uid)-waiting_page*8
     return Rect2(24+n*139,626,130,42) if n>=0 and n<8 else Rect2()
 func _hit(at: Vector2) -> String:
-    for uid: String in model.items:
+    var order: Array = model.items.keys()   # 0.59.1: the top of a pile is under the pointer first
+    order.sort_custom(func(a: String, b: String) -> bool: return model.level(a) > model.level(b))
+    for uid: String in order:
         if model.placements.has(uid) and not ROOM_VIEW.has_point(at): continue
         var rect := item_rect(uid)
         if rect.has_area() and rect.has_point(at): return uid
@@ -414,6 +418,10 @@ func _input(event: InputEvent) -> void:
                             _redraw()
                             return
                 var uid := _hit(pointer)
+                if uid != "" and model.blocked(uid) != "":   # 0.59.1: a laptop lies on it
+                    info.text = model.blocked(uid)
+                    _redraw()
+                    return
                 if model.begin(uid):
                     var rect := item_rect(uid)
                     grab = (pointer-rect.position)/rect.size
@@ -471,9 +479,13 @@ func _draw_item(uid: String,rect: Rect2,alpha: float = 1.0, painter: CanvasItem 
         return
     var color: Color = Data.COLOURS.get(item["kind"],Color("a0adba"))
     color.a = alpha
+    if model.placements.has(uid) and model.level(uid) > 0: painter.draw_rect(rect.grow(-2).grow_individual(-2,-2,4,6),Color(0,0,0,0.35*alpha))   # 0.59.1: its shadow on the pile
     painter.draw_rect(rect.grow(-2),color.darkened(0.65))
     painter.draw_rect(rect.grow(-2),color,false,2)
-    if item["category"] == "pc" and rect.size.y>70:
+    if bool(item.get("stackable",false)):   # 0.59.1 (D185): a closed laptop: hinge along the back, badge on the lid
+        painter.draw_rect(Rect2(rect.position+Vector2(8,6),Vector2(rect.size.x-16,6)),color.darkened(0.35))
+        painter.draw_rect(Rect2(rect.get_center()-Vector2(7,5),Vector2(14,10)),color.darkened(0.25))
+    elif item["category"] == "pc" and rect.size.y>70:
         painter.draw_rect(Rect2(rect.position+Vector2(15,18),Vector2(rect.size.x-30,12)),color.darkened(0.2))
         for y in range(48,int(rect.size.y)-20,10):
             painter.draw_line(rect.position+Vector2(18,y),rect.position+Vector2(rect.size.x-18,y),color.darkened(0.4),3)

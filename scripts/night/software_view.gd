@@ -1,5 +1,6 @@
 # Wave 2 first slice: live diagnostic desktop. The rules own reports; views never finish a job.
 extends "res://scripts/night/night_screen.gd"
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const ItemArt = preload("res://scripts/view/item_art.gd")
 const RoomArt = preload("res://scripts/rooms/room_art.gd")
 const Checks = preload("res://scripts/rules/software_checks.gd")
@@ -380,7 +381,9 @@ func _exit_tree() -> void:
 func _oc_step(mult_delta: int,volt_delta: int) -> void:
     if not _guard(): return
     var current: Dictionary = Overclock.settings(GameState.job)
-    GameState.set_overclock(int(current["mult"])+mult_delta,int(current["volt"])+volt_delta)
+    if not GameState.set_overclock(int(current["mult"])+mult_delta,int(current["volt"])+volt_delta):
+        _show(Laptop.NO_OVERCLOCK if str(GameState.job.get("layout","")) == "laptop" else "The settings cannot be changed now.")   # 0.59.1 (D185)
+        return
     var saved: bool = NightSession.checkpoint(GameState)
     _refresh()
     _show("Settings changed. Run a stress test, then check the heat. A quick test cannot prove stability."+("\n"+NightSession.status if not saved else ""))

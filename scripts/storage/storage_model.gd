@@ -2,6 +2,7 @@
 extends RefCounted
 const Data = preload("res://scripts/storage/storage_data.gd")
 const Backpack = preload("res://scripts/rules/backpack.gd")   # 0.58.4: the player's backpack is one more unit
+const Laptop = preload("res://scripts/rules/laptop.gd")       # 0.59.1 (D185): laptops stack
 var items: Dictionary = {}
 var units: Array = []
 var fixed_units: Array = [{"id":Data.COUNTER_ID,"model":Data.COUNTER_ID,"room_cell":Vector2i(-1,-1)},   # 0.55.0: not in the room
@@ -42,7 +43,9 @@ func setup(sources: Dictionary, saved: Dictionary = {}, backpack: Vector2i = Vec
     if units.is_empty(): add_unit("rack")
     var raw_places: Variant = saved.get("placements",{})
     if raw_places is Dictionary:
-        for uid: String in items:
+        var order: Array = items.keys()   # 0.59.1: what lies under a laptop goes back first
+        order.sort_custom(func(a: String, b: String) -> bool: return _saved_level(raw_places, a) < _saved_level(raw_places, b) if _saved_level(raw_places, a) != _saved_level(raw_places, b) else a < b)
+        for uid: String in order:
             var raw: Variant = raw_places.get(uid,{})
             if not raw is Dictionary: continue
             var xy: Variant = raw.get("cell",null)
@@ -50,6 +53,11 @@ func setup(sources: Dictionary, saved: Dictionary = {}, backpack: Vector2i = Vec
             if not _integer(raw.get("shelf",null)) or not _integer(raw.get("rotation",null)): continue
             place(uid,str(raw.get("unit","")),int(raw["shelf"]),Vector2i(int(xy[0]),int(xy[1])),int(raw["rotation"]))
     fill_unplaced()
+
+static func _saved_level(raw_places: Dictionary, uid: String) -> int:
+    var raw: Variant = raw_places.get(uid, {})
+    return clampi(int(raw.get("level", 0)), 0, Laptop.STACK_MAX - 1) if raw is Dictionary and _integer(raw.get("level", 0)) else 0
+
 
 static func _integer(value: Variant) -> bool:
     return typeof(value) in [TYPE_INT,TYPE_FLOAT] and is_finite(float(value)) and absf(float(value))<=2147483647 and float(value) == floorf(float(value))
@@ -103,27 +111,73 @@ func remove_unit(id: String) -> bool:
 func spec_of(model_id: String) -> Dictionary:
     return Backpack.spec(backpack_size) if model_id == Backpack.ID else Data.spec(model_id)
 
-func can_place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int) -> bool:
-    if not items.has(uid): return false
+func can_place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int, stack_ok: bool = true) -> bool:
+    return not _spot(uid, unit_id, shelf, cell, rotation, stack_ok).is_empty()
+
+# 0.59.1 (D185): where an item would rest: {"on": uid it rests on ("" = the shelf itself), "level": 0 = on the
+# shelf}, or {} when it cannot go there. Only a laptop (items[uid].stackable) may rest on something: on a
+# desktop or another laptop, wholly on top of it (its footprint inside the other's), on the top of that pile
+# (nothing else on it), with the pile at most Laptop.STACK_MAX high. Anything else needs free shelf cells.
+func _spot(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int, stack_ok: bool = true) -> Dictionary:
+    if not items.has(uid): return {}
     var furniture: Dictionary = unit(unit_id)
-    if furniture.is_empty(): return false
+    if furniture.is_empty(): return {}
     var spec: Dictionary = spec_of(str(furniture["model"]))
-    if not items[uid]["category"] in spec["accepts"] or shelf<0 or shelf>=int(spec["shelves"]): return false
+    if not items[uid]["category"] in spec["accepts"] or shelf<0 or shelf>=int(spec["shelves"]): return {}
     var area := Rect2i(cell,Data.footprint(items[uid],rotation))
-    if not Rect2i(Vector2i.ZERO,spec["size"]).encloses(area): return false
+    if not Rect2i(Vector2i.ZERO,spec["size"]).encloses(area): return {}
+    var touched: Array = []
     for other: String in placements:
-        if other == uid: continue
+        if other == uid or _rests_on(other, uid): continue
         var p: Dictionary = placements[other]
-        if p["unit"] == unit_id and p["shelf"] == shelf and area.intersects(Rect2i(p["cell"],Data.footprint(items[other],p["rotation"]))): return false
+        if p["unit"] == unit_id and p["shelf"] == shelf and area.intersects(Rect2i(p["cell"],Data.footprint(items[other],p["rotation"]))): touched.append(other)
+    if touched.is_empty(): return {"on": "", "level": 0}
+    if not stack_ok or not bool(items[uid].get("stackable", false)): return {}
+    var top: String = ""
+    for other: String in touched:
+        if top == "" or level(other) > level(top): top = other
+    if items[top]["category"] != "pc" or not on_top_of(top).is_empty() or level(top) + 1 >= Laptop.STACK_MAX: return {}
+    var under: Dictionary = placements[top]
+    if not Rect2i(under["cell"],Data.footprint(items[top],under["rotation"])).encloses(area): return {}
+    for other: String in touched:   # everything it touches must be that pile, below the top
+        if other != top and not _rests_on(top, other): return {}
+    return {"on": top, "level": level(top) + 1}
+
+func place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int, stack_ok: bool = true) -> bool:
+    var spot: Dictionary = _spot(uid, unit_id, shelf, cell, rotation, stack_ok)
+    if spot.is_empty(): return false
+    placements[uid] = {"unit":unit_id,"shelf":shelf,"cell":cell,"rotation":posmod(rotation,4)}
+    if str(spot["on"]) != "": placements[uid]["on"] = str(spot["on"])   # only a piled laptop carries "on"
     return true
 
-func place(uid: String, unit_id: String, shelf: int, cell: Vector2i, rotation: int) -> bool:
-    if not can_place(uid,unit_id,shelf,cell,rotation): return false
-    placements[uid] = {"unit":unit_id,"shelf":shelf,"cell":cell,"rotation":posmod(rotation,4)}
-    return true
+# 0.59.1: how high an item rests (0 = on the shelf), what rests directly on it, and whether `a` rests
+# (directly or through others) on `b`.
+func level(uid: String) -> int:
+    var n: int = 0
+    var at: String = str(placements.get(uid, {}).get("on", ""))
+    while at != "" and n < Laptop.STACK_MAX:
+        n += 1
+        at = str(placements.get(at, {}).get("on", ""))
+    return n
+
+func on_top_of(uid: String) -> Array:
+    return placements.keys().filter(func(other: String) -> bool: return str(placements[other].get("on", "")) == uid)
+
+func _rests_on(a: String, b: String) -> bool:
+    var at: String = str(placements.get(a, {}).get("on", ""))
+    var guard: int = 0
+    while at != "" and guard < Laptop.STACK_MAX:
+        if at == b: return true
+        at = str(placements.get(at, {}).get("on", ""))
+        guard += 1
+    return false
+
+# Why an item cannot be picked up now ("" = it can): something rests on it.
+func blocked(uid: String) -> String:
+    return "" if on_top_of(uid).is_empty() else "Lift the laptop on top off first."
 
 func begin(uid: String) -> bool:
-    if held != "" or not items.has(uid): return false
+    if held != "" or not items.has(uid) or blocked(uid) != "": return false
     held = uid
     held_rotation = int(placements.get(uid,{}).get("rotation",0))
     return true
@@ -153,15 +207,17 @@ func fill_unplaced() -> void:
         return aa.x*aa.y>bb.x*bb.y if aa.x*aa.y != bb.x*bb.y else a<b)
     for uid: String in ids:
         var stored: bool = false
-        for furniture: Dictionary in units:
-            var spec: Dictionary = Data.MODELS[furniture["model"]]
-            for shelf in range(spec["shelves"]):
-                for rotation in [0,1]:
-                    for y in range(spec["size"].y):
-                        for x in range(spec["size"].x):
-                            if place(uid,furniture["id"],shelf,Vector2i(x,y),rotation):
-                                stored = true
-                                break
+        for stack_ok: bool in [false, true]:   # 0.59.1: free shelf space first; a laptop then goes on a pile
+            for furniture: Dictionary in units:
+                var spec: Dictionary = Data.MODELS[furniture["model"]]
+                for shelf in range(spec["shelves"]):
+                    for rotation in [0,1]:
+                        for y in range(spec["size"].y):
+                            for x in range(spec["size"].x):
+                                if place(uid,furniture["id"],shelf,Vector2i(x,y),rotation,stack_ok):
+                                    stored = true
+                                    break
+                            if stored: break
                         if stored: break
                     if stored: break
                 if stored: break
@@ -178,16 +234,17 @@ func place_first(uid: String, unit_id: String) -> bool:
     var furniture: Dictionary = unit(unit_id)
     if furniture.is_empty() or not items.has(uid): return false
     var spec: Dictionary = spec_of(str(furniture["model"]))
-    for shelf in range(int(spec["shelves"])):
-        for rotation in [0,1]:
-            for y in range(spec["size"].y):
-                for x in range(spec["size"].x):
-                    if place(uid,unit_id,shelf,Vector2i(x,y),rotation): return true
+    for stack_ok: bool in [false, true]:   # 0.59.1: free space first, then on top of a pile
+        for shelf in range(int(spec["shelves"])):
+            for rotation in [0,1]:
+                for y in range(spec["size"].y):
+                    for x in range(spec["size"].x):
+                        if place(uid,unit_id,shelf,Vector2i(x,y),rotation,stack_ok): return true
     return false
 
 # 0.55.0: back to the stock room: off the counter, onto the first free room shelf (or "waiting for space").
 func to_room(uid: String) -> bool:
-    if held != "" or not placements.has(uid): return false
+    if held != "" or not placements.has(uid) or blocked(uid) != "": return false
     placements.erase(uid)
     fill_unplaced()
     return true
@@ -200,6 +257,7 @@ func snapshot() -> Dictionary:
     for uid: String in placements:
         var p: Dictionary = placements[uid]
         result[uid] = {"unit":p["unit"],"shelf":p["shelf"],"cell":[p["cell"].x,p["cell"].y],"rotation":p["rotation"]}
+        if level(uid) > 0: result[uid]["level"] = level(uid)   # 0.59.1: piles restore bottom first
     var room_units: Array = []
     for entry: Dictionary in units:
         var cell: Vector2i = entry["room_cell"]

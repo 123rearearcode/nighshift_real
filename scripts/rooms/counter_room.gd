@@ -14,6 +14,7 @@
 # parts really go) and nosy customers who open the case at the counter. The bin is a "later:" hotspot.
 extends "res://scripts/rooms/room_view.gd"
 
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
 const TicketRule = preload("res://scripts/rules/ticket.gd")
 const TicketMenu = preload("res://scripts/night/ticket_menu.gd")
 const MorningText = preload("res://scripts/night/morning_text.gd")
@@ -328,12 +329,13 @@ func _show_visit(index: int) -> void:
     if opening_visits:
         slip_title.text = "DAY 1 · NEW CUSTOMER · %d of %d" % [index + 1, arrived]
         slip_text.text = MorningText.opening_text(card, person)
-        next_button.text = "Accept PC · next customer" if index < visits.size() - 1 else "Accept PC · begin night 1"
+        var what: String = "laptop" if _visit_is_laptop(card) else "PC"   # 0.59.1 (D185)
+        next_button.text = ("Accept %s · next customer" % what) if index < visits.size() - 1 else ("Accept %s · begin night 1" % what)
     else:
         slip_title.text = "MORNING · %d customer%s came in · %d of %d" % [arrived, "" if arrived == 1 else "s", index + 1, arrived]
         slip_text.text = MorningText.card_text(card)
         next_button.text = "Next customer ▸" if index < visits.size() - 1 else "That's everyone: open up for the night"
-    _show_customer(person)
+    _show_customer(person, card)
     # 0.58.9 (D181): the customer speaks first (click or Space unrolls each line); the ticket slip follows.
     slip.hide()
     var said: Array = MorningText.opening_lines(card, person) if opening_visits else MorningText.visit_lines(card, person)
@@ -347,9 +349,22 @@ func _dialogue_done() -> void:
     refresh()
 
 
-# The customer at the window and their PC on the counter.
-func _show_customer(person: Dictionary) -> void:
-    if customer_pc != null: customer_pc.visible = customer_pc.texture != null
+# 0.59.1 (D185): does this visitor bring a laptop (their ticket's PC)?
+func _visit_is_laptop(card: Dictionary) -> bool:
+    return str(NightSession.ticket_job(GameState, str(card.get("ticket", ""))).get("layout", "")) == "laptop"
+
+
+# The customer at the window and their PC on the counter. 0.59.1: a laptop customer's laptop lies there
+# instead of the tower (its picture once the user approves it; until then nothing is shown, never a tower).
+func _show_customer(person: Dictionary, card: Dictionary = {}) -> void:
+    if customer_pc != null:
+        var laptop: bool = _visit_is_laptop(card)
+        var job: Dictionary = NightSession.ticket_job(GameState, str(card.get("ticket", ""))) if laptop else {}
+        customer_pc.texture = RoomArt.prop(("laptop_closed_" + Laptop.finish_of(job)) if laptop else CUSTOMER_PC_PROP)
+        if customer_pc.texture != null:
+            customer_pc.size = Vector2(customer_pc.texture.get_size()) * RoomArt.PIXEL_SCALE
+            customer_pc.position = (CUSTOMER_PC_BASE - Vector2(customer_pc.size.x * 0.5, customer_pc.size.y)).round()
+        customer_pc.visible = customer_pc.texture != null
     if portrait == null: return
     var tex: Texture2D = RoomArt.customer(person)
     portrait.texture = tex

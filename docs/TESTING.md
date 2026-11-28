@@ -1,5 +1,13 @@
 # Test policy — 0.27.0
 
+## Current addition — 0.59.1 laptops
+
+`tools/test_laptops.gd` (CI suite "Laptops") checks the laptop layout, spots and heat, its locked parts, Mara's
+laptop at the counter and on both benches, generated laptops and storage piles. **Fixture:** under any headless
+suite (a `tools/test_*.gd` script as the main loop) `GameState.desktop_first_ticket` is true, so the first ticket
+stays the desktop the older suites were written to test (graphics card, PSU, tower geometry). The game never
+sets it. `test_laptops.gd` sets it false to test Mara's real laptop; a new suite that needs her laptop does the same.
+
 ## Current addition — 0.54.0 delivered physical parts
 
 Keep required `tools/test_delivered_parts.gd` (Delivered parts) alongside Part lifecycle. It follows a
