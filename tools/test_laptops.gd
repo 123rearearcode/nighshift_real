@@ -42,7 +42,7 @@ func run_checks() -> void:
 
     # ---- the laptop's shape, case, board and dusty spots ----
     var pc: Dictionary = PCLayout.profile("laptop")
-    check(pc["id"] == "laptop" and pc["size"] == Vector2i(16, 10) and LayoutRules.validate(pc).is_empty(), "a laptop is a valid 16 x 10 layout, its board inside it")
+    check(pc["id"] == "laptop" and pc["size"] == Vector2i(14, 9) and LayoutRules.validate(pc).is_empty(), "a laptop is a valid 14 x 9 layout (0.59.2: tower scale, tighter inside), its board inside it")
     var slots: Array = (pc["board"]["connectors"] as Array).map(func(c: Dictionary) -> String: return str(c["id"]))
     check(slots.has("ram_1") and slots.has("ram_2") and slots.has("m2_1") and not slots.has("pcie") and not slots.has("psu_bay") and not slots.has("ram_3") and not slots.has("m2_2"), "its board has two memory slots and one drive slot, nothing else to fit")
     check(Catalog.boards_for("laptop") == ["board_laptop_hm65"] and Catalog.DEFAULT_CASE["laptop"] == "case_laptop" and not Catalog.swappable("laptop") and Catalog.swappable("tower"), "a laptop has its own board and case, never sold or swapped")

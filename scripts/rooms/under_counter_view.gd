@@ -26,7 +26,11 @@ const STACK_LIFT := Vector2(4, 6)   # 0.59.1 (D185): each laptop on a pile is dr
 const DRAG_START: float = 6.0       # px: a press that moves farther than this is a drag, else a click
 const CELL: int = 44
 const GRID := Rect2(40, 140, 880, 440)          # 20 x 10 cells
-const LIST_RECT := Rect2(944, 140, 308, 440)
+const LIST_RECT := Rect2(944, 432, 308, 148)       # 0.59.2: below the counter top and your arms
+# 0.59.2 (D186): what was handed over waits ON the counter (20 x 6) until you put it under it; your arms carry one
+# thing (8 x 8). Drawn small (SMALL px per cell) in the right column; drag between them and the grid.
+const SMALL: int = 15
+const BOXES: Dictionary = {"counter_top": Rect2(944, 150, 300, 90), "arms": Rect2(944, 278, 120, 120)}
 const PART_ART: Array = ["gpu", "ram", "cpu", "cooler", "psu"]
 
 var model := Model.new()
@@ -63,6 +67,8 @@ func _ready() -> void:
     _label("UNDER THE COUNTER" + ("  ·  move the mouse up here to close" if embedded else ""), Vector2(40 if embedded else 210, 24), Vector2(1000, 36), 26 if not embedded else 22)
     if not embedded: Navigation.exit(self, "Counter", Navigation.COUNTER)
     _label("Keep anything close at hand: parts, tools, PCs. Click to pick up, click to put down (or drag); R, Q, E, right-click or the wheel turns it; Esc puts it back.", Vector2(40, 74), Vector2(1180, 30), 15)
+    _label("ON THE COUNTER · drag it down here", BOXES["counter_top"].position - Vector2(0, 28), Vector2(308, 26), 15)
+    _label("IN YOUR ARMS", BOXES["arms"].position - Vector2(0, 28), Vector2(308, 26), 15)
     _label("IN THE STOCK ROOM · click to bring it here", LIST_RECT.position - Vector2(0, 30), Vector2(LIST_RECT.size.x, 26), 15)
     var scroll := ScrollContainer.new()
     scroll.position = LIST_RECT.position
@@ -102,10 +108,33 @@ func here() -> Array:
     return out
 
 
+# 0.59.2: everything this view shows: under the counter, on the counter top, in your arms (piles bottom first).
+func shown() -> Array:
+    var out: Array = here()
+    for unit_id: String in BOXES: out.append_array(model.in_unit(unit_id))
+    return out
+
+
+# 0.59.2: the unit under a point ("" = none) and the cell there for the held item.
+func unit_at(at: Vector2) -> String:
+    if GRID.has_point(at): return Data.COUNTER_ID
+    for unit_id: String in BOXES:
+        if (BOXES[unit_id] as Rect2).has_point(at): return unit_id
+    return ""
+
+
+func cell_at(unit_id: String, at: Vector2) -> Vector2i:
+    if unit_id == Data.COUNTER_ID: return _cell_under(at)
+    var size: Vector2i = Data.spec(unit_id)["size"]
+    var fp: Vector2i = Data.footprint(model.items[model.held], model.held_rotation) if model.held != "" else Vector2i.ONE
+    var cell := Vector2i(((at - (BOXES[unit_id] as Rect2).position) / SMALL).floor()) - fp / 2
+    return cell.clamp(Vector2i.ZERO, (size - fp).max(Vector2i.ZERO))
+
+
 # The rows are rebuilt only from here (never inside a row button's own signal: _bring defers it).
 func _rebuild_list() -> void:
     for child: Node in list_box.get_children(): child.queue_free()
-    var away: Array = model.items.keys().filter(func(uid: String) -> bool: return not uid in here())
+    var away: Array = model.items.keys().filter(func(uid: String) -> bool: return not uid in shown())
     away.sort()
     for uid: Variant in away:
         var item: Dictionary = model.items[uid]
@@ -126,7 +155,7 @@ func _rebuild_list() -> void:
 func _refresh() -> void:
     var item: Dictionary = model.items.get(selected, {})
     info.text = ("%s · %s\n%s · %s" % [item["label"], item["model"], item["owner"], item["condition"]]) if not item.is_empty() else "%d thing%s under the counter. Click one to select it." % [here().size(), "" if here().size() == 1 else "s"]
-    send_button.disabled = store.read_only or not selected in here() or model.held != ""
+    send_button.disabled = store.read_only or not selected in shown() or model.held != ""
     queue_redraw()
 
 
@@ -159,6 +188,8 @@ func _send() -> void:
 
 func item_rect(uid: String) -> Rect2:
     var p: Dictionary = model.placements.get(uid, {})
+    if not p.is_empty() and BOXES.has(str(p["unit"])):   # 0.59.2: on the counter top or in your arms, drawn small
+        return Rect2((BOXES[p["unit"]] as Rect2).position + Vector2(p["cell"]) * SMALL - Vector2(2, 3) * model.level(uid), Vector2(Data.footprint(model.items[uid], p["rotation"])) * SMALL)
     if p.is_empty() or p["unit"] != Data.COUNTER_ID: return Rect2()
     return Rect2(GRID.position + Vector2(p["cell"]) * CELL - STACK_LIFT * model.level(uid), Vector2(Data.footprint(model.items[uid], p["rotation"])) * CELL)   # 0.59.1: a pile reads as a pile
 
@@ -191,7 +222,7 @@ func item_texture(uid: String, rotation: int) -> Texture2D:
 
 
 func _hit(at: Vector2) -> String:
-    var order: Array = here()
+    var order: Array = shown()
     order.reverse()   # 0.59.1: the top of a pile first
     for uid: Variant in order:
         if item_rect(str(uid)).has_point(at): return str(uid)
@@ -230,12 +261,12 @@ func _input(event: InputEvent) -> void:
         if store.read_only: return
         if event.pressed:
             if model.held == "":
-                if not GRID.has_point(pointer): return
+                if unit_at(pointer) == "": return
                 var uid: String = _hit(pointer)
                 selected = uid
                 if uid != "" and model.blocked(uid) != "": status.text = model.blocked(uid)   # 0.59.1: a laptop lies on it
                 if uid != "" and model.begin(uid):
-                    grab = ((pointer - item_rect(uid).position) / CELL).floor()
+                    grab = ((pointer - item_rect(uid).position) / (CELL if model.placements[uid]["unit"] == Data.COUNTER_ID else SMALL)).floor()
                     press_at = pointer
                     dragging = true
                     AudioFeedback.request(self, "handling.pickup")
@@ -278,9 +309,10 @@ func turn_selected(step: int) -> bool:
 func place_held() -> void:
     var moved: String = model.held
     if moved == "": return
-    if not GRID.has_point(pointer):
+    var target: String = unit_at(pointer)
+    if target == "":
         model.cancel()
-    elif model.drop(Data.COUNTER_ID, 0, _cell_under(pointer)):
+    elif model.drop(target, 0, cell_at(target, pointer)):   # 0.59.2: under the counter, back on top, or into your arms
         selected = moved
         _save()
     else:
@@ -298,7 +330,43 @@ func _draw() -> void:
     for y in range(Data.COUNTER["size"].y + 1):
         draw_line(GRID.position + Vector2(0, y * CELL), GRID.position + Vector2(GRID.size.x, y * CELL), Color("597175"), 1.0)
     var font: Font = ThemeDB.fallback_font
-    for uid: Variant in here():
+    _draw_items(here(), font)
+    if model.held != "":
+        var size := Vector2(Data.footprint(model.items[model.held], model.held_rotation)) * CELL
+        var cell: Vector2i = _cell_under(pointer)
+        var ok: bool = GRID.has_point(pointer) and model.can_place(model.held, Data.COUNTER_ID, 0, cell, model.held_rotation)
+        var ghost := Rect2(GRID.position + Vector2(cell) * CELL, size)
+        if not GRID.has_point(pointer) and unit_at(pointer) != "":   # 0.59.2: over the counter top or your arms
+            var unit_id: String = unit_at(pointer)
+            cell = cell_at(unit_id, pointer)
+            ok = model.can_place(model.held, unit_id, 0, cell, model.held_rotation)
+            ghost = Rect2((BOXES[unit_id] as Rect2).position + Vector2(cell) * SMALL, Vector2(Data.footprint(model.items[model.held], model.held_rotation)) * SMALL)
+        var held_tex: Texture2D = item_texture(model.held, model.held_rotation)
+        if held_tex != null and GRID.has_point(pointer): draw_texture_rect(held_tex, ghost, false, Color(1, 1, 1, 0.7))
+        draw_rect(ghost, Color(0.4, 0.9, 0.5, 0.25) if ok else Color(0.95, 0.35, 0.35, 0.3))
+        draw_rect(ghost, Color("6fcf97") if ok else Color("eb5757"), false, 2.0)
+    if environment.available():
+        environment.draw_storage(self, GRID, true)
+        # Live controls stay on a readable backing, outside all 200 usable cells.
+        draw_rect(Rect2(0, 0, 1280, 110), Color("13232b"))
+        draw_rect(Rect2(934, 110, 346, 478), Color("13232b"))
+        draw_rect(Rect2(0, 588, 1280, 132), Color("13232b"))
+    _draw_boxes(font)
+
+
+# 0.59.2 (D186): the counter top and your arms, in the right column, with what is in them.
+func _draw_boxes(font: Font) -> void:
+    for unit_id: String in BOXES:
+        var box: Rect2 = BOXES[unit_id]
+        draw_rect(box, Color("2a2420") if unit_id == Data.TOP_ID else Color("1f2a30"))
+        draw_rect(box, Color("8a7a62") if unit_id == Data.TOP_ID else Color("6c8a98"), false, 2.0)
+        if model.in_unit(unit_id).is_empty():
+            draw_string(font, box.position + Vector2(8, box.size.y * 0.5 + 5), "empty", HORIZONTAL_ALIGNMENT_LEFT, box.size.x - 16, 13, Color("6c7a80"))
+    for unit_id: String in BOXES: _draw_items(model.in_unit(unit_id), font)
+
+
+func _draw_items(list: Array, font: Font) -> void:
+    for uid: Variant in list:
         if str(uid) == model.held: continue
         var r: Rect2 = item_rect(str(uid))
         var item: Dictionary = model.items[uid]
@@ -312,18 +380,4 @@ func _draw() -> void:
         draw_rect(r.grow(-2), colour.darkened(0.15))
         draw_rect(r.grow(-2), Color("ffd27a") if str(uid) == selected else colour.lightened(0.3), false, 2.0)
         draw_string(font, r.position + Vector2(6, 18), str(item["label"]), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 13, Color("101418"))
-    if model.held != "":
-        var size := Vector2(Data.footprint(model.items[model.held], model.held_rotation)) * CELL
-        var cell: Vector2i = _cell_under(pointer)
-        var ok: bool = GRID.has_point(pointer) and model.can_place(model.held, Data.COUNTER_ID, 0, cell, model.held_rotation)
-        var ghost := Rect2(GRID.position + Vector2(cell) * CELL, size)
-        var held_tex: Texture2D = item_texture(model.held, model.held_rotation)
-        if held_tex != null: draw_texture_rect(held_tex, ghost, false, Color(1, 1, 1, 0.7))
-        draw_rect(ghost, Color(0.4, 0.9, 0.5, 0.25) if ok else Color(0.95, 0.35, 0.35, 0.3))
-        draw_rect(ghost, Color("6fcf97") if ok else Color("eb5757"), false, 2.0)
-    if environment.available():
-        environment.draw_storage(self, GRID, true)
-        # Live controls stay on a readable backing, outside all 200 usable cells.
-        draw_rect(Rect2(0, 0, 1280, 110), Color("13232b"))
-        draw_rect(Rect2(934, 110, 346, 478), Color("13232b"))
-        draw_rect(Rect2(0, 588, 1280, 132), Color("13232b"))
+

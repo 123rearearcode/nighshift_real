@@ -16,6 +16,9 @@ const CableStore = preload("res://scripts/state/cable_store.gd")
 const CableBoxView = preload("res://scripts/view/cable_box_view.gd")
 const BackpackView = preload("res://scripts/view/backpack_view.gd")   # 0.58.4: the personal inventory
 const BACKPACK_BUTTON := Rect2(1150, 650, 110, 34)
+const EDGE_X: float = 1272.0          # 0.59.2: the right edge that pulls the backpack in
+const EDGE_DELAY: float = 0.12
+const BACKPACK_SLIDE: float = 0.22
 # Where the box stands in each room that can hold it (screen px).
 const CABLE_SPOTS: Dictionary = {"counter": Rect2(236, 498, 140, 62), "workshop": Rect2(560, 540, 150, 66), "outside": Rect2(520, 470, 140, 62)}
 
@@ -43,6 +46,8 @@ var cable_drop: Button             # "Put the cable box down here" while carryin
 var cable_view: Control            # the open box
 var backpack_button: Button        # 0.58.4: opens your backpack, in every room
 var backpack_view: Control
+var edge_time: float = 0.0
+var edge_armed: bool = true
 
 
 func _ready() -> void:
@@ -123,18 +128,40 @@ func _setup_backpack() -> void:
     add_child(backpack_button)
 
 
-func open_backpack() -> void:
+func open_backpack(slide: bool = false) -> void:
     if backpack_view != null or cable_view != null: return
     var view: Control = BackpackView.new()
     add_child(view)
     view.open()
     view.closed.connect(_close_backpack)
     backpack_view = view
+    if slide:   # 0.59.2: it slides in from the right edge
+        view.position.x = 1280.0
+        create_tween().tween_property(view, "position:x", 0.0, BACKPACK_SLIDE).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _close_backpack() -> void:
     if backpack_view != null: backpack_view.queue_free()
     backpack_view = null
+    edge_armed = false   # the pointer has to leave the edge before it opens again
+
+
+# 0.59.2 (D186; user: "the backpack should automatically pull up when you hover to the right side of the screen"):
+# resting the pointer on the right edge for a moment slides the backpack in. A room can block it (edge_blocked()).
+func _process(delta: float) -> void:
+    var at: Vector2 = get_viewport().get_mouse_position()
+    if at.x < EDGE_X - 60.0: edge_armed = true
+    if backpack_view != null or cable_view != null or not edge_armed or at.x < EDGE_X or at.y < 0.0 or at.y > 720.0 or edge_blocked():
+        edge_time = 0.0
+        return
+    edge_time += delta
+    if edge_time >= EDGE_DELAY:
+        edge_time = 0.0
+        open_backpack(true)
+
+
+func edge_blocked() -> bool:
+    return false
 
 
 # ---- the cable box (0.58.3, D173: "can be moved from room to room") ----

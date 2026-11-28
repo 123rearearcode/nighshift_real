@@ -504,3 +504,37 @@ $3/0°C and toothpaste free/+14°C. Both thermal reports and saved/per-PC physic
 The reel is inside the vacuum bin: RETRACT on the bin replaces the separate spool. It does not
 empty the bin; hose stays shortened until pulled. No new campaign system or save-shape change.
 Signed: Codex (GPT 6.1 Sol, model id gpt-6.1-sol) in ChatGPT Work, 15 November 2026.
+
+## The first day and customer archetypes — 0.59.2 (D186), 28 November 2026
+
+From the user's notebook (transcribed in the project doc `claude/NOTEBOOK_2026-11-28.md`) and the answers in D186.
+
+**Built in 0.59.2.** Handed-over PCs wait on the counter top until the player moves them (under the counter, into
+the backpack, or in their arms: one thing of any size). A small backpack is 8 x 6, about a PC's size: a laptop
+fits, a desktop does not; it slides in when the pointer rests on the right edge of the screen. The stock room is
+seen from the front, each PC one shelf row high. A laptop is drawn at a tower's scale (14 x 9 cells), its insides
+tighter. Laptops lying under something can crack their lid overnight (5% per thing on top, a trial number); the
+customer finds it at pickup. On the repair bench the PC is first lifted onto the mat, its screws turned out and
+its side panel (a laptop's bottom cover) lifted off. The thermal paste steps are a movable manual that follows the
+step you are on (only the thermal stage for now). Customers slide in from the door side and out again. Mara's and
+Relu's first-day lines are rewritten.
+
+**Customer archetypes (agreed, to be built later).** Archetypes replace the old professions system. They are for
+the repair / broken-laptop service only; other services will get slightly different rules and characters. The
+notebook's archetypes: corporate workers (more likely a laptop, often do not know what is wrong, easily scammed;
+Mara is one), family (a mother, a father with his son's PC, the family desktop: viruses and lots of dust, budget,
+easily scammed), old people (old hardware, clueless, sometimes nothing is wrong), young people (goth girl, harder
+to scam; regular girl, always a sealed parody MacBook; chill guy, moderate, can get very angry; Fortnite kid, easy
+to scam, expensive PC), gamers (regular, hard to scam; creepy gamer; PC master race, impossible to scam, checks at
+once) and middle-aged (no-time-to-play guy, business owner, online shopper). Scam-resistance numbers are open.
+
+**Stories.** Not every customer has one: a story starts only for specific archetypes when certain conditions are
+met, through interaction with non-scripted NPCs. Scamming someone can start a story when they come back. With high
+trust a customer can bring several PCs at once. Dark material from the notebook (abuse, incest) is only ever an
+off-screen plot label treated from far away, never written out or drawn; the real person the notebook names is
+replaced by a fictional scandal. Folder-snooping, police requests and "not their PC" stories are ideas, not yet
+designed. **Scam hook to flag:** every archetype marked "easily scammed" is a target the design deliberately offers.
+
+**Later ideas (not scheduled):** soldering motherboards for custom builds; legacy parts, an auction website, and
+old people bringing old parts in.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5), 28 November 2026.

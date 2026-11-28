@@ -23,7 +23,7 @@ static func opening_text(card: Dictionary, person: Dictionary) -> String:
 # can have their own `greeting` and `patience_line` (data/customers.gd); others get plain lines. Never the
 # hidden faults, infection, condition or true budget.
 static func opening_lines(card: Dictionary, person: Dictionary) -> Array:
-    var out: Array = [str(person.get("greeting", "Good morning. Is this the computer repair shop?"))]
+    var out: Array = [str(person.get("greeting", "Good morning. You fix computers here, yes?"))]   # 0.59.2: rewritten
     var complaint: String = str(card.get("complaint", person.get("complaint", "")))
     if complaint != "": out.append(complaint)
     var uses: String = str(person.get("uses", ""))
@@ -36,14 +36,14 @@ static func opening_lines(card: Dictionary, person: Dictionary) -> Array:
 static func visit_lines(card: Dictionary, person: Dictionary) -> Array:
     match str(card.get("kind", "")):
         "new": return opening_lines(card, person)
-        "comeback": return ["It's acting up again. I'm bringing it back."]
+        "comeback": return ["It's acting up again. The same thing. I paid you to fix it."]   # 0.59.2: rewritten
         "collected":
             var reaction: String = str(card.get("reaction", ""))
-            if reaction.begins_with("Furious"): return ["It doesn't even turn on! I'm not paying for this."]
-            if reaction.begins_with("Happy"): return ["Thank you! It runs like new."]
-            if reaction.begins_with("Disappointed"): return ["Hm. I expected better, to be honest."]
-            if reaction.begins_with("Angry"): return ["This is not what I paid for."]
-            return ["I'm here for my PC."]
+            if reaction.begins_with("Furious"): return ["It doesn't even turn on! What did you do to it? I'm not paying for this."]
+            if reaction.begins_with("Happy"): return ["It's quiet, it's quick, like the day I bought it. Thank you!"]
+            if reaction.begins_with("Disappointed"): return ["Hm. Better, I suppose. I expected more for the money."]
+            if reaction.begins_with("Angry"): return ["This is not what I paid for. Not at all."]
+            return ["I've come to pick up my computer."]
     return []
 
 

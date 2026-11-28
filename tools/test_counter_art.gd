@@ -72,7 +72,8 @@ func run_checks() -> void:
     check(not counter.placeholders and counter.room_layer.morning and counter.counter_layer.morning, "intake uses the morning exterior with the real layered room")
     var customer: TextureRect = counter.get_node("CustomerPortrait")
     var pc: TextureRect = counter.get_node("CustomerPC")
-    check(customer.position + customer.size == Vector2(800, 488) and pc.position + pc.size == Vector2(1094, 550), "Batch B sprites follow the shared customer/PC anchors without resizing their pixels")
+    await create_timer(counter.SLIDE_SECONDS + 0.2).timeout   # 0.59.2 (D186): the customer slides in first
+    check(customer.position + customer.size == Vector2(800, 488) and pc.position + pc.size == Vector2(1094, 550), "Batch B sprites follow the shared customer/PC anchors without resizing their pixels (customer %s + %s, PC %s + %s, PC shown %s)" % [customer.position, customer.size, pc.position, pc.size, pc.visible])
     check(customer.z_index < counter.counter_layer.z_index and pc.z_index > counter.counter_layer.z_index and counter.get_node("Hotspots").z_index > counter.counter_layer.z_index, "counter occludes the customer while the separate PC and clipboard remain above it")
     check(not counter.slip.get_rect().intersects(customer.get_rect()) and not counter.slip.get_rect().intersects(pc.get_rect()), "the intake paper leaves the customer and their PC visible")
     # 0.57.9 (user's sketch): the front wall is flat; the glass block stands on the floor line and the door and

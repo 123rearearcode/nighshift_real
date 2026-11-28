@@ -2,6 +2,9 @@
 # this manifest holds the inactive jobs. It never copies shop stock or money.
 extends Node
 const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.1 (D185)
+const StorageModel = preload("res://scripts/storage/storage_model.gd")    # 0.59.2: laptops piled in storage
+const StorageSources = preload("res://scripts/storage/storage_sources.gd")
+const StorageStore = preload("res://scripts/storage/storage_store.gd")
 const Store = preload("res://scripts/state/save_store.gd")
 const Customers = preload("res://scripts/data/customers.gd")
 const Malware = preload("res://scripts/rules/malware.gd")
@@ -67,6 +70,9 @@ func start(gs: Node, introduce_customers: bool = false) -> bool:
     # Introduce these SAME PCs, not generated copies, before the first night. Direct demo/test
     # callers retain the existing start() contract; the title's New game opts into the opening.
     gs.opening_customers = tickets.map(func(entry: Dictionary) -> String: return str(entry["id"])) if introduce_customers else []
+    if introduce_customers and not gs.desktop_first_ticket:   # 0.59.2 (D186): their PCs are handed over at the counter and wait on it (the older suites keep the stock-room start)
+        for entry: Dictionary in tickets: entry["at_counter"] = true
+        gs.job["at_counter"] = true
     gs.ticket_sequence += 1
     gs.save_game()
     if not _main_saved(gs):
@@ -382,6 +388,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
                 var build_job: Dictionary = order["job"]
                 _tag(build_job,str(build_job["id"]),run_id+":pc:"+str(build_job["id"]))
                 var net: int = gs.take_build_deposit(build_job)
+                build_job["at_counter"] = not gs.desktop_first_ticket   # 0.59.2 (D186): handed over at the counter; you put it away
                 tickets.append(build_job)
                 present.append(str(build_job["customer_id"]))
                 var spec: Dictionary = order["build"]
@@ -404,6 +411,7 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
         if not bool(drawn["person"].get("scripted",false)): gs.remember_person(drawn["person"])
         var fresh: Dictionary = drawn["job"]
         _tag(fresh,str(fresh["id"]),run_id+":pc:"+str(fresh["id"]))
+        fresh["at_counter"] = not gs.desktop_first_ticket   # 0.59.2 (D186): it waits on the counter until you put it away
         tickets.append(fresh)
         present.append(str(fresh["customer_id"]))
         cards.append({"kind":"new","ticket":str(fresh["id"]),"customer":str(fresh["customer"]),"customer_id":str(fresh["customer_id"]),
@@ -413,6 +421,28 @@ func _arrivals(gs: Node,night: int) -> Dictionary:
 
 # Ends the night: earlier comebacks arrive, called customers collect, everyone else waits one more
 # night, collected PCs leave and new customers bring theirs, the clock resets. Returns the report.
+# 0.59.2 (D186): each laptop with things lying on it may crack its lid tonight (Laptop.pile_damage_chance, one
+# roll per laptop per night, fixed by the world seed). Returns the ticket ids that cracked.
+func _pile_damage(gs: Node, night: int) -> Array:
+    var m := StorageModel.new()
+    m.setup(StorageSources.collect(gs), StorageStore.new().read())
+    var out: Array = []
+    for uid: String in m.placements:
+        var item: Dictionary = m.items.get(uid, {})
+        var on_top: int = m.above_count(uid)
+        if not bool(item.get("stackable", false)) or on_top == 0: continue
+        var id: String = str(item.get("source_uid", ""))
+        var r := RandomNumberGenerator.new()
+        r.seed = hash([int(gs.world_seed), night, id, "pile"])
+        if r.randf() >= Laptop.pile_damage_chance(on_top): continue
+        for entry: Dictionary in tickets:
+            if str(entry["id"]) == id and not bool(entry.get(Laptop.LID_CRACKED, false)):
+                entry[Laptop.LID_CRACKED] = true
+                out.append(id)
+        if str(gs.job.get("id", "")) == id: gs.job[Laptop.LID_CRACKED] = true
+    return out
+
+
 func end_night(gs: Node) -> Dictionary:
     if not gs.opening_customers.is_empty():
         return {"ok":false,"message":"Serve the opening day's customers before closing the night."}
@@ -429,13 +459,14 @@ func end_night(gs: Node) -> Dictionary:
         var card: Dictionary = gs.collect_active()
         if not card.is_empty(): cards.append(card)
         if not checkpoint(gs): return {"ok":false,"message":status}
+    var cracked: Array = _pile_damage(gs,night)   # 0.59.2 (D186): laptops under a pile
     for entry: Dictionary in _open_tickets():
         var f: Dictionary = Ticket.flags(entry)
         f["nights"] = int(f.get("nights",0)) + 1
         entry["ticket"] = f
         if str(entry["id"]) == str(gs.job["id"]): gs.job["ticket"] = f
         cards.append({"kind":"waiting","ticket":str(entry["id"]),"customer":str(entry["customer"]),"customer_id":str(entry["customer_id"]),
-            "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"],
+            "nights":int(f["nights"]),"reaction":"Still in your shop: %d night%s so far."%[int(f["nights"]),"" if int(f["nights"]) == 1 else "s"]+(" Its lid cracked under what was piled on it." if str(entry["id"]) in cracked else ""),
             "job":entry.duplicate(true)})
     # 0.52.0 (D160): the review site checks the shop's new reviews before the morning's customers read them.
     var notice: Dictionary = gs.check_fake_reviews(night)

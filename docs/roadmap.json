@@ -13,7 +13,7 @@
    "Decisions run to D178 and bugs to B70 (next id B71). B55, B56, B57 and L1, L2, L4, L5 are still open, as the roadmap says."
   ],
   "datesNote": "Dates after 27 Nov 2026 are ChatGPT's planning forecast, not agreed deadlines. Only 0.59.0 (Codex) and 0.60.0 (checker) are reserved versions. Steam launch has no date.",
-  "main": "0.59.1",
+  "main": "0.59.2",
   "notChecked": [
    "ChatGPT's playtest records (chatgpt.com library links) are not reachable from Claude; items that come from them are marked so.",
    "The forecast calendar is a planning assumption, not measured velocity."
@@ -21,7 +21,7 @@
   "repo": "https://github.com/123rearearcode/nighshift_real",
   "source": "ChatGPT's development roadmap (snapshot main 0.58.3 / 732a0e4), checked against the repository at main 0.58.5 and the work done in the Claude chat.",
   "title": "Nightshift roadmap",
-  "updatedAt": "2026-11-28T14:30:00Z",
+  "updatedAt": "2026-11-28T20:00:00Z",
   "live": "https://claude.ai/artifact/Q2BjGkZigwUqGzLjcE5p7C",
   "howToUpdate": "Agents: read this file before choosing work. When your PR finishes or changes a roadmap item, update that item's status/detail here in the same PR (keep ids; new items get a new id in their phase). Set about.main to the PR's version. Claude syncs this file with the live page the user edits; if they disagree, the live page wins."
  },
@@ -765,9 +765,9 @@
    "items": [
     {
      "id": "p14-01",
-     "title": "Laptop art drafts: open on the bench, storage, counter",
-     "status": "next",
-     "detail": "Revision 1 sent for review: the open laptop (chassis, board, heatsink) on the repair bench, silver and graphite lids from above for storage, the closed laptop on the counter, mocks.",
+     "title": "Laptop art: revision 1 approved",
+     "status": "done",
+     "detail": "Approved by the user on 28 Nov 2026 (\"The art is approved, btw\"). Revision 2 (tower scale, tighter inside) is drafted in 0.59.2 and waits for approval.",
      "refs": [
       "tools/art_batch_f/laptop.py",
       "art/drafts/laptop/"
@@ -775,7 +775,7 @@
      "checkState": "new",
      "checkNote": "Waiting for your approval. Nothing loads it yet.",
      "order": 10,
-     "updatedAt": "2026-11-28T14:30:00Z"
+     "updatedAt": "2026-11-28T20:00:00Z"
     },
     {
      "id": "p14-02",
@@ -850,16 +850,152 @@
     },
     {
      "id": "p14-07",
-     "title": "Install the approved laptop art",
-     "status": "planned",
-     "detail": "After approval: the exact files with hashes, bound to the benches, storage and counter.",
+     "title": "Install the approved laptop art (revision 1)",
+     "status": "done",
+     "detail": "0.59.2: storage pictures, the closed laptop on the counter and the heatsink are in the game, with hashes in art/laptop/manifest.json.",
      "refs": [
       "docs/ART_ASSET_LOG.md"
      ],
      "checkState": "new",
      "checkNote": "After your approval.",
      "order": 70,
-     "updatedAt": "2026-11-28T14:30:00Z"
+     "updatedAt": "2026-11-28T20:00:00Z"
+    }
+   ]
+  },
+  {
+   "id": "p15",
+   "title": "The first day, from the notebook",
+   "version": "0.59.2",
+   "state": "next",
+   "order": 9,
+   "forecast": false,
+   "summary": "The notebook of 28 Nov 2026: a bug, first-day feel, storage and bench steps (D186).",
+   "gate": "PR CI green; the user approves the drafted art.",
+   "start": "2026-11-28",
+   "end": "",
+   "updatedAt": "2026-11-28T20:00:00Z",
+   "items": [
+    {
+     "id": "p15-01",
+     "title": "B85: the till shows money spent on reviews right away",
+     "status": "done",
+     "detail": "User-reported (notebook). The counter refreshes when the phone sells reviews.",
+     "refs": [
+      "docs/BUGS.md"
+     ],
+     "order": 1501,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-02",
+     "title": "Handed over at the counter: PCs wait on the counter top",
+     "status": "done",
+     "detail": "Mara's laptop (and every accepted PC) waits on the counter until you put it under the counter or carry it.",
+     "refs": [
+      "docs/STORAGE.md"
+     ],
+     "order": 1502,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-03",
+     "title": "Backpack 8 x 6, one thing in your arms, slides in from the right edge",
+     "status": "done",
+     "detail": "A small backpack takes a laptop, not a desktop; arms carry one thing of any size.",
+     "refs": [
+      "docs/STORAGE.md"
+     ],
+     "order": 1503,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-04",
+     "title": "Stock room seen from the front",
+     "status": "done",
+     "detail": "Each PC fills one shelf row; the depth is picked for you (front-most free spot, then a pile).",
+     "refs": [
+      "docs/STORAGE_ROOM.md"
+     ],
+     "order": 1504,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-05",
+     "title": "Laptop at tower scale, tighter inside",
+     "status": "done",
+     "detail": "14 x 9 cells drawn at the tower's cell size. Revision 2 art drafted, waiting for approval.",
+     "refs": [
+      "art/drafts/laptop/README.md"
+     ],
+     "order": 1505,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-06",
+     "title": "Laptops can crack under a pile",
+     "status": "done",
+     "detail": "5% a night per thing lying on a laptop; the customer finds the cracked lid at pickup. Trial number.",
+     "refs": [
+      "docs/DESIGN.md"
+     ],
+     "order": 1506,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-07",
+     "title": "Repair bench: lift the PC on, unscrew, take the panel off",
+     "status": "done",
+     "detail": "Desktops: two thumbscrews and the side panel. Laptops: eight screws and the bottom cover.",
+     "refs": [
+      "docs/THERMAL_SERVICE.md"
+     ],
+     "order": 1507,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-08",
+     "title": "Thermal paste manual",
+     "status": "done",
+     "detail": "A movable booklet that follows the step you are on; the wheel turns pages. Other bench steps later.",
+     "refs": [
+      "docs/THERMAL_SERVICE.md"
+     ],
+     "order": 1508,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-09",
+     "title": "Customers slide in and out",
+     "status": "done",
+     "detail": "A simple slide for now.",
+     "refs": [
+      "docs/DESIGN.md"
+     ],
+     "order": 1509,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-10",
+     "title": "First-day dialogue rewritten",
+     "status": "done",
+     "detail": "Mara and Relu, and the generated customers' morning lines.",
+     "refs": [
+      "scripts/data/customers.gd"
+     ],
+     "order": 1510,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p15-11",
+     "title": "Art: linoleum floor, stock room wall and rack, front views, side panels, laptop cover",
+     "status": "next",
+     "detail": "Drafted from scratch in 0.59.2 (tools/art_batch_f/day1.py); waits for the user's approval of an exact revision before it goes in.",
+     "refs": [
+      "art/drafts/day1/README.md"
+     ],
+     "order": 1511,
+     "updatedAt": "2026-11-28T20:00:00Z"
     }
    ]
   },
@@ -1163,7 +1299,7 @@
    "state": "later",
    "summary": "Ideas the user wants or has discussed, not yet placed in a milestone.",
    "title": "Possibilities without a slot",
-   "updatedAt": "2026-11-27T20:30:00Z",
+   "updatedAt": "2026-11-28T20:00:00Z",
    "version": "Unscheduled",
    "id": "p13",
    "items": [
@@ -1353,6 +1489,78 @@
      "status": "idea",
      "title": "Preserve test evidence, time and pause rules",
      "updatedAt": "2026-11-27T23:50:00Z"
+    },
+    {
+     "id": "p13-20",
+     "title": "Customer archetypes replace the professions system",
+     "status": "planned",
+     "detail": "Repair / broken-laptop service only: corporate workers, family, old people, young people, gamers, middle-aged. Other services get their own rules and characters. D186; docs/DESIGN.md.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 207,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p13-21",
+     "title": "Stories from archetypes, under conditions",
+     "status": "idea",
+     "detail": "Only specific archetypes, when conditions are met, through interaction with non-scripted NPCs. Scamming someone can start a story when they come back. Dark material only off-screen, from far away. D186.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 208,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p13-22",
+     "title": "Several PCs at once at high trust",
+     "status": "idea",
+     "detail": "A trusted customer can bring more than one PC. D186.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 209,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p13-23",
+     "title": "A sealed parody MacBook",
+     "status": "idea",
+     "detail": "Brought by the \"regular girl\" archetype; sealed, little to service. D186.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 210,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p13-24",
+     "title": "Soldering motherboards (custom builds)",
+     "status": "idea",
+     "detail": "From the notebook: \"That's how you custom build your own PCs.\" Later.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 211,
+     "updatedAt": "2026-11-28T20:00:00Z"
+    },
+    {
+     "id": "p13-25",
+     "title": "Legacy parts and an auction website",
+     "status": "idea",
+     "detail": "Buy legacy parts at auction, or old people bring them in. From the notebook. Later.",
+     "refs": [
+      "docs/DESIGN.md",
+      "docs/DECISIONS.md"
+     ],
+     "order": 212,
+     "updatedAt": "2026-11-28T20:00:00Z"
     }
    ]
   }
@@ -1617,6 +1825,26 @@
    "ask": "",
    "answer": "",
    "updatedAt": "2026-11-28T14:30:00Z"
+  },
+  {
+   "id": "d28",
+   "order": 280,
+   "state": "settled",
+   "question": "The first day, from the notebook",
+   "context": "D186, 0.59.2. Counter top and arms, backpack 8 x 6 and the right-edge slide, front-view stock room, laptop at tower scale, pile damage 5% per thing on top, bench lift/unscrew/panel steps, thermal manual, customer slide, B85.",
+   "ask": "",
+   "answer": "",
+   "updatedAt": "2026-11-28T20:00:00Z"
+  },
+  {
+   "id": "d29",
+   "order": 290,
+   "state": "open",
+   "question": "Approve the 0.59.2 art drafts?",
+   "context": "Laptop revision 2 (tower scale) and the day-1 set: linoleum floor, stock room wall and rack, PCs seen from the front, side panels and the laptop cover. Drafts in art/drafts/laptop and art/drafts/day1.",
+   "ask": "Approve the exact revision (or say what to change).",
+   "answer": "",
+   "updatedAt": "2026-11-28T20:00:00Z"
   }
  ]
 }

@@ -22,6 +22,8 @@ const HandState = preload("res://scripts/bench/hand_state.gd")
 const BenchItems = preload("res://scripts/bench/bench_items.gd")
 const ServiceAccess = preload("res://scripts/bench/service_access.gd")
 const PCLayout = preload("res://scripts/data/pc_layout.gd")
+const BenchManual = preload("res://scripts/ui/bench_manual.gd")   # 0.59.2 (D186)
+const BenchCase = preload("res://scripts/view/bench_case.gd")       # 0.59.2 (D186)
 const Backdrop = preload("res://scripts/view/bench_backdrop.gd")
 const PCRenderer = preload("res://scripts/view/pc_renderer.gd")
 const DustZones = preload("res://scripts/data/dust_zones.gd")
@@ -76,6 +78,8 @@ var pointer_event := Vector2.ZERO
 var pointer_tick: int = 0
 var font: Font
 var stage: int = STAGE_CLEAN
+var manual: Control        # 0.59.2 (D186): scripts/ui/bench_manual.gd
+var case_cover: Node2D     # 0.59.2 (D186): scripts/view/bench_case.gd, until the case is open
 var pick := DustPick.new()
 var replacement_panel: Panel
 var replacement_summary: Label
@@ -188,6 +192,16 @@ func _ready() -> void:
     add_child(backdrop)
     _build_ui()
     _select_stage(STAGE_CLEAN)
+    # 0.59.2 (D186): the thermal paste manual, and a PC that still has to be put on the mat and opened.
+    manual = BenchManual.new()
+    manual.position = Vector2(970, 500)
+    manual.visible = false
+    add_child(manual)
+    if str(GameState.job.get("case_state", BenchCase.OPEN)) != BenchCase.OPEN:
+        case_cover = BenchCase.new()
+        add_child(case_cover)
+        case_cover.setup(str(GameState.job.get("layout", "tower")), str(GameState.job.get("case_state", BenchCase.OPEN)))
+        case_cover.changed.connect(func(value: String) -> void: GameState.set_case_state(value))
 
 
 func _initialize_dust() -> void: cleaning._initialize_dust()
@@ -415,6 +429,9 @@ func _input(event: InputEvent) -> void: input_router._input(event)
 # ---------- simulation tick (fixed 60 Hz) ----------
 
 func _process(_delta: float) -> void:
+    if manual != null:   # 0.59.2: the manual follows the thermal step you are on
+        manual.visible = stage == STAGE_PASTE
+        if manual.visible: manual.follow(thermal.guide_step(), thermal.guide_text())
     queue_redraw()
 
 
@@ -584,8 +601,7 @@ func _draw_clean_cursor() -> void:
 func _draw_paste_stage() -> void:
     PasteRenderer.draw_stage(self, paste, paste_texture, PASTE_ORIGIN, PASTE_CELL, mount)
     PasteRenderer.draw_cooler_base(self, Rect2(PANEL_X + 270, 258, 250, 40), bool(GameState.job["cooler_film_peeled"]))
-    # 0.44.1: the thermal guide (steps + one NOW line) replaces the bare steps line.
-    PasteRenderer.draw_guide(self, Vector2(PANEL_X, 512), thermal.guide_step(), BenchThermal.GUIDE, thermal.guide_text())
+    # 0.59.2 (D186): the thermal guide is now the movable manual (scripts/ui/bench_manual.gd), not drawn here.
     var locked: bool = not mount.active and (not mount_result.is_empty() or bool(GameState.job["paste_done"]))
     if mount.active:
         PasteRenderer.draw_screws(self, InstallFaults.screw_centers(_socket_region()), screw_clicks, InstallFaults.TURNS_NEEDED, InstallFaults.SCREW_RADIUS)

@@ -23,6 +23,29 @@ const SOLDERED := "Soldered to the laptop's motherboard: the processor and graph
 const NO_HDD := "A 3.5-inch hard drive does not fit inside a laptop: use an SSD or an NVMe drive."
 const NOT_LAPTOP_PART := "Only memory and a drive can be changed in a laptop."
 const NO_OVERCLOCK := "This laptop's BIOS has no overclocking settings."
+# 0.59.2 (D186; user: "Storing laptops on top of each other can cause damage, just decide on probability to add";
+# and, on 5% a night: "Yes, but it goes up w more laptops on top of each other"). Each morning a laptop with
+# things lying on it cracks its lid with a chance of PILE_DAMAGE for every one of them (two on it: 10%). The
+# morning report says so; the customer notices at pickup (LID_ANNOYANCE points off, and a complaint). Trial numbers.
+const PILE_DAMAGE: float = 0.05
+const LID_CRACKED := "lid_cracked"
+const LID_ANNOYANCE: float = 35.0
+
+
+static func pile_damage_chance(on_top: int) -> float:
+    return clampf(PILE_DAMAGE * float(maxi(0, on_top)), 0.0, 1.0)
+
+
+static func pickup_faults(job: Dictionary) -> Array:
+    return [LID_CRACKED] if bool(job.get(LID_CRACKED, false)) else []
+
+
+static func annoyance(faults: Array) -> float:
+    return LID_ANNOYANCE * float(faults.count(LID_CRACKED))
+
+
+static func complaint(fault: String) -> String:
+    return "the laptop's lid is cracked" if fault == LID_CRACKED else ""
 
 
 # Can a catalogue model go into a laptop's free slot? Memory, and a drive that is not a 3.5-inch disk.

@@ -116,6 +116,12 @@ Update this table whenever files change. The checker fails if a file is missing 
 | `tools/test_wall_finishes.gd` | test | 0.58.9: wall finishes (approved files, buying, switching, saving, the counter) |
 | `tools/test_dialogue.gd` | test | 0.58.9: the dialogue box and customers talking first at the counter |
 | `tools/test_laptops.gd` | test | 0.59.1 (D185): laptops: shape, dusty spots and heat, locked parts, Mara's laptop on the counter and both benches, generated laptops, storage piles up to three high |
+| `tools/test_day1.gd` | test | 0.59.2 (D186): the first day: B85 till badge, counter top and arms, 8 x 6 backpack, pile damage, the bench's lift/unscrew/panel steps, the thermal manual, the customer slide, the backpack's edge slide, the approved laptop art hashes |
+| `scripts/view/bench_case.gd` | view | 0.59.2 (D186): the repair bench before work: lift the PC onto the mat, click its screws out, lift the side panel / bottom cover off; saves `case_state` |
+| `scripts/ui/bench_manual.gd` | ui | 0.59.2 (D186): the thermal paste manual: a movable booklet, one page per step, follows the step you are on |
+| `tools/art_batch_f/day1.py` | tool | 0.59.2 (D186): day-1 art drafts (linoleum floor, stock room wall and rack, front-view PCs, side panels, laptop cover) and review mocks; `--runtime` writes the files only after approval |
+| `art/drafts/day1/README.md` | art | 0.59.2 (D186): the day-1 drafts, revision 1, not loaded; approval pending |
+| `art/laptop/README.md` | art | 0.59.2 (D186): laptop art revision 1 in the game, its approval quote and hashes |
 | `tools/art_batch_d/walls.py` | tool | 0.58.5/0.58.9: draws the four wall finishes over the counter shell and the review pictures |
 | `tools/art_batch_d/walls_export.py` | tool | 0.58.9: exports the approved walls as runtime layers and proves they rebuild the drafts |
 | `tools/art_batch_d/flat.py` | tool | helper for walls.py: the flat counter front from the approved Batch A pictures |
@@ -376,7 +382,7 @@ store handles layout I/O, view orchestrates them. No dependency from GameState i
 | `art/bench/README.md` | art | 0.57.8: approved repair-bench layers (dust, paste stage, fan) |
 | `art/tools/README.md` | art | 0.57.8: approved pixel-art bench tools with 24 pre-turned frames, hose, clamp, bin, cloth |
 | `art/ui/README.md` | art | 0.57.3: close-up skins (the ticket clipboard), pixel art at 2x |
-| `art/drafts/laptop/README.md` | art | 0.59.1 (D185): the laptop drafts, revision 1, not loaded; approval pending |
+| `art/drafts/laptop/README.md` | art | 0.59.1/0.59.2: the laptop drafts; revision 1 approved and installed, revision 2 (tower scale) pending |
 | `docs/CABLE_BOX_DESIGN.md` | docs | The cable box (D173): a movable, openable box whose loose cables tangle when moved; physics untangling; shop helpers; "you lost my cable" customers. Not built |
 | `docs/PART_TESTS_DESIGN.md` | docs | Brief for the per-part goofy tests that replace the quick/long tests (D162, Codex, 0.58.0) |
 | `docs/ROOM_ART_GUIDE.md` | docs | For the artist: replacing room art and moving hotspots in the Godot editor (0.53.0) |

@@ -1,6 +1,26 @@
 # Handoff — current state first
 
-## Current — 0.59.1 laptops, 28 November 2026
+## Current — 0.59.2 the first day, 28 November 2026
+
+From the user's notebook (D186; transcription in the project doc `claude/NOTEBOOK_2026-11-28.md`). Handed-over
+PCs are jobs with `at_counter`: `storage_model.fill_unplaced()` puts them in the new fixed unit `counter_top`;
+`arms` holds one thing (`max_items`). The small backpack is 8 x 6 and takes laptops (`pc_if_stackable`). The room
+base class (`room_view.gd`) slides the backpack in from the right edge; the counter blocks it while the drawer is
+open (`edge_blocked()`). The stock room draws PCs front-on (`storage_view.gd` `FRONT_HEIGHT`, `_target` picks the
+depth). The laptop profile is 14 x 9 drawn at the tower's cell size (`PCLayout.display`). Pile damage is rolled in
+`NightSession.end_night` (`_pile_damage`, `Laptop.pile_damage_chance`), a pickup fault `lid_cracked`. The repair
+bench's first steps are an overlay (`scripts/view/bench_case.gd`, job `case_state`), the thermal steps a manual
+(`scripts/ui/bench_manual.gd`). Customers slide (`counter_room._slide_in/_slide_out`). B85: the phone emits
+`bought`, the counter refreshes. Under the suites (`desktop_first_ticket`) cases start open and nothing waits on
+the counter; `tools/test_day1.gd` tests the real first day. Laptop revision 1 art is installed (approved); laptop
+revision 2 and the day-1 art (`tools/art_batch_f/day1.py`) wait for approval, and the stock room and case overlay
+use them only once installed. Customer archetypes replacing professions, and stories, are recorded in
+docs/DESIGN.md for later. PR #102, stacked on #101, green: run 46160895420, 45 suites / 2,761 checks; CI caught
+B86 and B87 on the way (a Control slid by its x alone drifts its width: set the whole rectangle). Signed: Claude
+(Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.59.1 laptops, 28 November 2026
 
 The user asked for laptops (D185). A laptop is a job with layout "laptop": `scripts/rules/laptop.gd` (what fits,
 `make()`), `PCLayout.laptop()` (16 x 10, two lying RAM slots, one drive slot, soldered processor/graphics under

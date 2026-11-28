@@ -117,6 +117,7 @@ jobs:
           test_dialogue|Dialogue
           test_windough|Windough
           test_laptops|Laptops
+          test_day1|Day 1
           test_delivered_parts|Delivered parts"
           bad=0
           while IFS='|' read -r file name; do

@@ -109,125 +109,115 @@ def finish_comic(p, lit=True):
 
 
 def chassis():
-    """The base with its bottom cover off: plastic tub, magnesium frame, blower-fan bay, exhaust fins,
-    battery, speakers, hinge mounts, DC jack, ribbon connectors, screw posts. Board/heatsink/fan are
-    separate pictures drawn over it (the fan by the game's own rotor)."""
+    """Revision 2 (0.59.2; user: "way too big ... needs a lot more work to show the space constraints and
+    components of a laptop"): 14 x 9 cells at a tower's cell size, packed tight. The base with its bottom
+    cover off: plastic tub, hinge mounts, blower-fan bay with its exhaust fins, the board tray, a battery
+    filling the front, two speakers squeezed beside it, a DC jack, two USB ports and an audio jack in the side
+    wall, keyboard and touchpad ribbons, cover screw posts. The board, heatsink and fan rotor are drawn over it."""
     old = pc.S; pc.S = 3
     try:
-        W, H = 16 * U, 10 * U
+        W, H = 14 * U, 9 * U
         p = pc.Pen(W, H)
-        p.grad((0, 0, W - 1, H - 1), "#4b4f57", "#26292e", 0, r=26, angle=0.5)            # outer shell
-        p.grad((12, 12, W - 13, H - 13), "#34383f", "#1d2024", 1.6, r=18, angle=0.6)      # inner tub
-        rnd = random.Random(61)
-        for _ in range(40):                                                                 # moulded ribs
-            x = rnd.randrange(30, W - 30); y = rnd.randrange(6 * U + 40, H - 30)
-            p.line([(x, y), (x + rnd.randrange(20, 60), y)], (60, 64, 72, 160), 0.8)
-        # hinge mounts along the back edge (row 0)
-        for x0 in (40, W - 140):
-            p.grad((x0, 8, x0 + 100, 52), "#8c939b", "#4a5058", 1.4, r=6, angle=0.3)
-            for k in range(3): p.ell((x0 + 16 + k * 32 - 7, 22, x0 + 16 + k * 32 + 7, 36), "#c9b98a", 0.8)
-        # blower fan bay (1,1) 3x3: a round well with a housing lip; the game draws the rotor on top
-        fb = cells(1, 1, 4, 4)
-        p.grad((fb[0] + 6, fb[1] + 6, fb[2] - 6, fb[3] - 6), "#202328", "#0f1013", 1.4, shape="ellipse")
-        p.ring((fb[0] + 14, fb[1] + 14, fb[2] - 14, fb[3] - 14), "#3c4048", 1.2)
-        p.poly([(fb[0] + 4, fb[1] + U * 1.2), (fb[0] - 6 + 10, fb[1] + U * 1.0), (fb[0] + 10, fb[1] + U * 2.2), (fb[0] + 4, fb[1] + U * 2.0)], "#2b2f35", 1.0)
-        # exhaust fins (0,1) 1x3 beside the fan: thin copper fin stack behind a grille
-        ex = cells(0, 1, 1, 4)
-        p.grad((ex[0] + 10, ex[1] + 4, ex[2] + 4, ex[3] - 4), "#c58b5a", "#7a4f2d", 1.2, r=3, angle=1.4)
-        for y in range(ex[1] + 10, ex[3] - 8, 6): p.line([(ex[0] + 12, y), (ex[2] + 2, y)], "#5a3a22", 1.0)
-        # board tray outline (4,1) 11x5: standoffs; the board picture covers it
-        bt = cells(4, 1, 15, 6)
+        p.grad((0, 0, W - 1, H - 1), "#4b4f57", "#26292e", 0, r=22, angle=0.5)            # outer shell
+        p.grad((10, 10, W - 11, H - 11), "#34383f", "#1d2024", 1.6, r=16, angle=0.6)      # inner tub
+        for x0 in (30, W - 120):                                                            # hinge mounts (row 0)
+            p.grad((x0, 6, x0 + 90, 46), "#8c939b", "#4a5058", 1.4, r=5, angle=0.3)
+            for k in range(3): p.ell((x0 + 14 + k * 30 - 6, 19, x0 + 14 + k * 30 + 6, 31), "#c9b98a", 0.8)
+        fb = cells(1, 1, 4, 4)                                                              # blower-fan bay
+        p.grad((fb[0] + 4, fb[1] + 4, fb[2] - 4, fb[3] - 4), "#202328", "#0f1013", 1.4, shape="ellipse")
+        p.ring((fb[0] + 12, fb[1] + 12, fb[2] - 12, fb[3] - 12), "#3c4048", 1.2)
+        p.grad((fb[0] - 2, fb[1] + 6, fb[0] + 30, fb[3] - 6), "#2b2f35", "#1b1e22", 1.0, r=6)  # blower outlet
+        ex = cells(0, 1, 1, 4)                                                              # exhaust fins
+        p.grad((ex[0] + 8, ex[1] + 4, ex[2] + 2, ex[3] - 4), "#c58b5a", "#7a4f2d", 1.2, r=3, angle=1.4)
+        for y in range(ex[1] + 8, ex[3] - 6, 5): p.line([(ex[0] + 10, y), (ex[2], y)], "#5a3a22", 1.0)
+        bt = cells(4, 1, 13, 5)                                                             # board tray
         p.rect((bt[0] - 4, bt[1] - 4, bt[2] + 4, bt[3] + 4), "#17191c", 1.0, r=6)
-        for (cx, cy) in [(4, 1), (15, 1), (4, 6), (15, 6), (9, 1), (9, 6)]:
-            p.ell((cx * U - 9, cy * U - 9, cx * U + 9, cy * U + 9), "#c9b98a", 0.8)
-        # battery (2,7) 12x2: a flat pack with a blank label and its cable to the board
-        bb = cells(2, 7, 14, 9)
-        p.grad((bb[0], bb[1], bb[2], bb[3]), "#2a2d33", "#15171a", 1.6, r=10, angle=0.2)
-        for k in range(4):
-            x = bb[0] + 40 + k * 3 * U
-            p.rect((x, bb[1] + 18, x + 2 * U + 40, bb[3] - 18), "#22252a", 0.8, r=6)       # cell bumps
-        p.rect((bb[0] + 5 * U, bb[1] + 26, bb[0] + 8 * U, bb[3] - 26), "#e9e6dc", 0.8, r=3)  # blank label
-        for x in range(bb[0] + 5 * U + 10, bb[0] + 8 * U - 10, 4):
-            p.line([(x, bb[1] + 34), (x, bb[1] + 46 + (x % 3) * 2)], "#6a6a66", 0.6)
-        p.line([(bb[2] - 30, bb[1]), (bb[2] - 30, 6 * U + 10)], "#d04848", 2.4)               # battery leads
-        p.line([(bb[2] - 22, bb[1]), (bb[2] - 22, 6 * U + 10)], "#1b1c20", 2.4)
-        # speakers in the front corners, DC jack and USB at the side
-        for x0 in (12, W - 2 * U + 8):
-            p.grad((x0 + 10, 7 * U + 20, x0 + U + 30, 9 * U + 30), "#24272c", "#121316", 1.2, r=10)
-            for yy in range(7 * U + 36, 9 * U + 20, 10):
-                for xx in range(x0 + 22, x0 + U + 22, 10): p.ell((xx - 3, yy - 3, xx + 3, yy + 3), "#0b0c0e", 0)
-        p.grad((W - 40, 2 * U, W - 10, 2 * U + 46), "#9aa2aa", "#5b636b", 1.2, r=4)          # DC jack
-        p.ell((W - 32, 2 * U + 14, W - 18, 2 * U + 28), "#141518", 0)
-        for k in range(2): p.rect((W - 34, 3 * U + k * 40, W - 12, 3 * U + 24 + k * 40), "#1b1e22", 1.0, r=2)   # USB
-        # ribbon connectors (keyboard, touchpad) between board and battery
-        for x0 in (6 * U, 10 * U):
-            p.rect((x0, 6 * U + 22, x0 + U + 20, 6 * U + 42), "#e7d9a8", 0.8, r=2)
-            p.rect((x0 + 10, 6 * U + 26, x0 + U + 10, 6 * U + 38), "#b9a874", 0)
-        # screw posts of the bottom cover around the rim
-        for (x, y) in [(30, 70), (W - 30, 70), (30, H - 30), (W - 30, H - 30), (W // 2, H - 22), (W // 2, 26), (30, H // 2), (W - 30, H // 2)]:
-            p.ell((x - 10, y - 10, x + 10, y + 10), "#3a3e45", 1.0); p.ell((x - 4, y - 4, x + 4, y + 4), "#9aa2aa", 0)
-        p.glint(40, 30, 28, 1.6); p.glint(W - 180, 24, 22, 1.4)
+        for (cx, cy) in [(4, 1), (13, 1), (4, 5), (13, 5), (8.5, 5)]:
+            p.ell((cx * U - 8, cy * U - 8, cx * U + 8, cy * U + 8), "#c9b98a", 0.8)
+        # row 5: ribbons from the board to the keyboard and touchpad, and the battery leads
+        for x0, w in ((5 * U, U + 10), (8 * U, U - 6)):
+            p.rect((x0, 5 * U + 14, x0 + w, 5 * U + 34), "#e7d9a8", 0.8, r=2)
+            p.rect((x0 + 8, 5 * U + 18, x0 + w - 8, 5 * U + 30), "#b9a874", 0)
+            p.line([(x0 + w // 2, 5 * U + 34), (x0 + w // 2, 6 * U + 4)], "#e7d9a8", 4.0)
+        p.line([(12 * U, 5 * U + 4), (12 * U, 6 * U + 6)], "#d04848", 2.4)
+        p.line([(12 * U + 8, 5 * U + 4), (12 * U + 8, 6 * U + 6)], "#1b1c20", 2.4)
+        bb = cells(1, 6, 13, 8)                                                             # battery
+        p.grad((bb[0] + 2 * U, bb[1], bb[2] - 2 * U, bb[3]), "#2a2d33", "#15171a", 1.6, r=10, angle=0.2)
+        for k in range(3):
+            x = bb[0] + 2 * U + 24 + k * int(2.6 * U)
+            p.rect((x, bb[1] + 16, x + 2 * U + 10, bb[3] - 16), "#22252a", 0.8, r=6)
+        p.rect((bb[0] + 5 * U, bb[1] + 24, bb[0] + 7 * U + 20, bb[3] - 24), "#e9e6dc", 0.8, r=3)   # blank label
+        for x in range(bb[0] + 5 * U + 10, bb[0] + 7 * U + 10, 4):
+            p.line([(x, bb[1] + 32), (x, bb[1] + 42 + (x % 3) * 2)], "#6a6a66", 0.6)
+        for x0 in (bb[0], bb[2] - 2 * U + 10):                                             # speakers beside it
+            p.grad((x0 + 6, bb[1] + 6, x0 + 2 * U - 16, bb[3] - 6), "#24272c", "#121316", 1.2, r=10)
+            for yy in range(bb[1] + 20, bb[3] - 14, 9):
+                for xx in range(x0 + 18, x0 + 2 * U - 26, 9): p.ell((xx - 3, yy - 3, xx + 3, yy + 3), "#0b0c0e", 0)
+        p.grad((W - 34, 1 * U + 20, W - 8, 1 * U + 62), "#9aa2aa", "#5b636b", 1.2, r=4)    # DC jack
+        p.ell((W - 28, 1 * U + 34, W - 14, 1 * U + 48), "#141518", 0)
+        for k in range(2): p.rect((W - 30, 2 * U + 30 + k * 36, W - 10, 2 * U + 52 + k * 36), "#1b1e22", 1.0, r=2)   # USB
+        p.ell((W - 28, 4 * U + 10, W - 14, 4 * U + 24), "#1b1e22", 1.0)                   # audio jack
+        for (x, y) in [(24, 60), (W - 24, 60), (24, H - 24), (W - 24, H - 24), (W // 2, H - 18), (W // 2, 22), (24, H // 2)]:
+            p.ell((x - 9, y - 9, x + 9, y + 9), "#3a3e45", 1.0); p.ell((x - 4, y - 4, x + 4, y + 4), "#9aa2aa", 0)
+        p.glint(36, 26, 24, 1.6); p.glint(W - 160, 20, 20, 1.4)
         return finish_comic(p, lit=False)
     finally:
         pc.S = old
 
 
 def board():
-    """The laptop motherboard, 11 x 5 cells: soldered CPU and GPU dies with VRAM (under the heatsink), two
-    lying SO-DIMM slots, one M.2 slot, power circuitry, the battery connector. No sockets: nothing on it
-    except the RAM and the drive comes out."""
+    """The laptop motherboard, 9 x 4 cells: soldered CPU and GPU dies with VRAM (under the heatsink), power
+    stages, two lying SO-DIMM slots, one M.2 slot, a Wi-Fi card with its two antenna leads, a coin cell, the
+    battery connector. No sockets: nothing on it except the RAM and the drive comes out."""
     old = pc.S; pc.S = 4
     try:
-        W, H = 11 * U, 5 * U
+        W, H = 9 * U, 4 * U
         p = pc.Pen(W, H)
         p.grad((2, 2, W - 3, H - 3), "#1f4a3e", "#12302a", 0, angle=0.7)
         rnd = random.Random(62)
-        for _ in range(60):
+        for _ in range(50):
             x, y = rnd.randrange(8, W - 8), rnd.randrange(8, H - 8)
             pts = [(x, y)]
             for _ in range(3):
-                dd = rnd.choice([(1, 0), (0, 1), (1, 1), (1, -1)]); L = rnd.randrange(14, 60)
+                dd = rnd.choice([(1, 0), (0, 1), (1, 1), (1, -1)]); L = rnd.randrange(12, 50)
                 x, y = x + dd[0] * L, y + dd[1] * L
                 pts.append((min(W - 6, x), max(6, min(H - 6, y))))
             p.line(pts, (64, 132, 104, 110), 1.0)
-        # soldered CPU die (board 1,1 .. 2,2) and GPU die with four VRAM chips (board 2.2 .. 3.8)
-        p.grad((U + 14, U + 14, 2 * U + 30, 2 * U + 30), "#2a2c31", "#141518", 1.4, r=4)
-        p.grad((U + 34, U + 34, 2 * U + 10, 2 * U + 10), "#c9cfd5", "#8a939c", 1.0, r=2)      # bare CPU die
-        p.grad((2 * U + 44, U + 70, 3 * U + 60, 3 * U + 30), "#2a2c31", "#141518", 1.4, r=4)  # GPU package
-        p.grad((2 * U + 66, U + 92, 3 * U + 38, 3 * U + 8), "#b9c1c8", "#7c858e", 1.0, r=2)   # GPU die
-        for (x, y) in [(2 * U + 40, U + 40), (3 * U + 44, U + 40), (2 * U + 40, 3 * U + 40), (3 * U + 44, 3 * U + 40)]:
-            p.rect((x, y, x + 22, y + 16), "#1d1f24", 0.8, r=1)                              # VRAM
-        for (x, y) in [(U, U), (4 * U, U), (U, 4 * U), (4 * U, 4 * U)]:
-            p.ell((x - 8, y - 8, x + 8, y + 8), "#c9b98a", 0.8); p.ell((x - 3, y - 3, x + 3, y + 3), "#121315", 0)   # heatsink screw holes
-        # power stages left of the dies
-        for i in range(5):
-            p.grad((16, 18 + i * 52, 52, 54 + i * 52), "#6b7079", "#2f3338", 1.0, r=4, angle=0.7)
-        # SO-DIMM slots, lying (board 6,0 and 6,1, each 4 x 1): low slot body, gold contacts, side latches
-        for row in (0, 1):
+        # under the heatsink (board 1..4, 0..3): CPU die, GPU package with its die and four VRAM chips
+        p.grad((U + 12, 14, 2 * U + 24, U + 26), "#2a2c31", "#141518", 1.4, r=4)
+        p.grad((U + 30, 32, 2 * U + 6, U + 8), "#c9cfd5", "#8a939c", 1.0, r=2)
+        p.grad((2 * U + 30, U + 30, 3 * U + 50, 2 * U + 50), "#2a2c31", "#141518", 1.4, r=4)
+        p.grad((2 * U + 52, U + 52, 3 * U + 28, 2 * U + 28), "#b9c1c8", "#7c858e", 1.0, r=2)
+        for (x, y) in [(2 * U + 26, U + 6), (3 * U + 36, U + 6), (2 * U + 26, 2 * U + 56), (3 * U + 36, 2 * U + 56)]:
+            p.rect((x, y, x + 20, y + 14), "#1d1f24", 0.8, r=1)
+        for (x, y) in [(U, 6), (4 * U - 4, 6), (U, 3 * U - 4), (4 * U - 4, 3 * U - 4)]:
+            p.ell((x - 7, y - 7 + 8, x + 7, y + 7 + 8), "#c9b98a", 0.8)
+        for i in range(4):                                                               # power stages
+            p.grad((10, 14 + i * 56, 46, 50 + i * 56), "#6b7079", "#2f3338", 1.0, r=4, angle=0.7)
+        for row in (0, 1):                                                               # SO-DIMM slots, lying
             y0 = row * U
-            p.rect((6 * U + 6, y0 + 14, 10 * U - 6, y0 + 50), "#25272c", 1.4, r=3)
-            p.rect((6 * U + 14, y0 + 26, 10 * U - 14, y0 + 38), "#101113", 0.6)
-            for x in range(6 * U + 18, 10 * U - 18, 4):
-                if 8 * U - 6 <= x <= 8 * U + 2: continue
+            p.rect((5 * U + 6, y0 + 14, 9 * U - 8, y0 + 50), "#25272c", 1.4, r=3)
+            p.rect((5 * U + 14, y0 + 26, 9 * U - 16, y0 + 38), "#101113", 0.6)
+            for x in range(5 * U + 18, 9 * U - 20, 4):
+                if 7 * U - 6 <= x <= 7 * U + 2: continue
                 p.line([(x, y0 + 28), (x, y0 + 36)], "#c9a64e", 0.6)
-            for x0 in (6 * U - 4, 10 * U - 14):
-                p.grad((x0, y0 + 8, x0 + 18, y0 + 56), "#dfe5ea", "#8f98a1", 1.2, r=3)        # metal latches
-        # M.2 slot (board 6,3, 2 x 1) with length marks and the standoff
-        x0, y0 = 6 * U, 3 * U
-        p.rect((x0 + 6, y0 + 18, x0 + 24, y0 + 46), "#1a1b1e", 1.0, r=2)
-        for yy in range(y0 + 22, y0 + 43, 3): p.line([(x0 + 10, yy), (x0 + 20, yy)], "#c9a64e", 0.6)
-        for k in (64, 92):
-            p.ell((x0 + k - 3, y0 + 29, x0 + k + 3, y0 + 35), "#c9b98a", 0)
-        p.ell((x0 + 112, y0 + 24, x0 + 126, y0 + 38), "#d8c48a", 0.9); p.ell((x0 + 116, y0 + 28, x0 + 122, y0 + 34), "#2a2c30", 0)
-        # right side: battery connector, BIOS chip, coin cell, small parts
-        p.rect((9 * U, 3 * U + 20, 10 * U + 40, 4 * U + 6), "#efe9d8", 1.0, r=3)
-        for k in range(7): p.rect((9 * U + 8 + k * 12, 3 * U + 28, 9 * U + 16 + k * 12, 3 * U + 44), "#b9a46a", 0)
-        p.rect((9 * U + 10, 4 * U + 20, 9 * U + 46, 4 * U + 44), "#1d1f24", 0.8, r=1)
-        p.ell((10 * U + 6, 4 * U + 12, 10 * U + 50, 4 * U + 56), "#cfd6dc", 1.2)
-        for x in range(5 * U, 6 * U - 6, 10):
-            for y in range(3 * U + 20, 5 * U - 20, 14): p.rect((x, y, x + 5, y + 6), "#c79a5a", 0)
-        for box in [(U + 6, U + 6, 4 * U - 6, 4 * U - 6), (6 * U - 6, 4, 10 * U + 6, 2 * U - 4)]:
-            p.d.rectangle(p._b(box), outline=(225, 232, 228, 110), width=3)              # silkscreen, no text
+            for x0 in (5 * U - 2, 9 * U - 18):
+                p.grad((x0, y0 + 8, x0 + 16, y0 + 56), "#dfe5ea", "#8f98a1", 1.2, r=3)
+        x0, y0 = 5 * U, 3 * U                                                            # M.2 slot + standoff
+        p.rect((x0 + 6, y0 + 18, x0 + 22, y0 + 46), "#1a1b1e", 1.0, r=2)
+        for yy in range(y0 + 22, y0 + 43, 3): p.line([(x0 + 9, yy), (x0 + 19, yy)], "#c9a64e", 0.6)
+        p.ell((x0 + 112, y0 + 24, x0 + 124, y0 + 36), "#d8c48a", 0.9)
+        wx = 7 * U                                                                       # Wi-Fi card (board 7, 3)
+        p.grad((wx + 6, y0 + 10, wx + U - 6, y0 + 54), "#2d3a46", "#1a222a", 1.2, r=3)
+        p.rect((wx + 14, y0 + 18, wx + U - 14, y0 + 34), "#c9cfd5", 0.8, r=2)
+        for k, col in enumerate(("#1b1c20", "#e8e8e4")):
+            p.ell((wx + 16 + k * 18, y0 + 38, wx + 26 + k * 18, y0 + 48), "#d8b04a", 0.6)
+            p.line([(wx + 21 + k * 18, y0 + 43), (wx + 21 + k * 18, 2), ], col, 2.0)        # antenna leads to the lid
+        p.ell((8 * U + 6, 2 * U + 8, 8 * U + 50, 2 * U + 52), "#cfd6dc", 1.2)            # coin cell
+        p.rect((8 * U + 8, 3 * U + 12, 9 * U - 6, 3 * U + 52), "#efe9d8", 1.0, r=3)       # battery connector
+        for k in range(3): p.rect((8 * U + 14 + k * 12, 3 * U + 20, 8 * U + 21 + k * 12, 3 * U + 40), "#b9a46a", 0)
+        for box in [(U + 4, 4, 4 * U - 4, 3 * U - 4), (5 * U - 6, 4, 9 * U - 4, 2 * U - 4)]:
+            p.d.rectangle(p._b(box), outline=(225, 232, 228, 110), width=3)
         p.line([(2, 2), (W - 3, 2), (W - 3, H - 3), (2, H - 3), (2, 2)], INK, 2.0)
         return finish_comic(p)
     finally:
@@ -269,27 +259,39 @@ def load(path):
 
 
 def bench_mock():
-    """The laptop on the repair bench at game scale: bench painting, chassis, board, heatsink, fan, one RAM
-    stick and an SSD from the approved part art."""
+    """The laptop on the repair bench at game scale: the same cell size as a tower (PCLayout.display), so it is
+    as small as it is. Bench painting, chassis, board, heatsink, fan, one RAM stick and an SSD."""
     bg = load("art/bench/background/bench_background.png").resize((1280, 720), Image.LANCZOS)
     area = (40, 110, 620, 400)
-    cell = min(area[2] / 16, area[3] / 10)
-    ox = area[0] + (area[2] - 16 * cell) / 2; oy = area[1] + (area[3] - 10 * cell) / 2
+    cell = min(area[2] / 18, area[3] / 16)                       # a tower's cell size
+    ox = area[0] + (area[2] - 14 * cell) / 2; oy = area[1] + (area[3] - 9 * cell) / 2
     def at(x, y, w, h): return (int(round(ox + x * cell)), int(round(oy + y * cell)), int(round(w * cell)), int(round(h * cell)))
     def put(im, box):
         x, y, w, h = box
         bg.alpha_composite(im.resize((w, h), Image.LANCZOS), (x, y))
-    shadow = Image.new("RGBA", (int(16 * cell) + 24, int(10 * cell) + 24), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle((0, 0, shadow.width - 1, shadow.height - 1), 30, fill=(0, 0, 0, 90))
-    bg.alpha_composite(shadow, (int(ox) + 4, int(oy) + 10))
-    put(chassis(), at(0, 0, 16, 10))
-    put(board(), at(4, 1, 11, 5))
+    shadow = Image.new("RGBA", (int(14 * cell) + 16, int(9 * cell) + 16), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle((0, 0, shadow.width - 1, shadow.height - 1), 20, fill=(0, 0, 0, 90))
+    bg.alpha_composite(shadow, (int(ox) + 3, int(oy) + 7))
+    put(chassis(), at(0, 0, 14, 9))
+    put(board(), at(4, 1, 9, 4))
     rotor = load("art/bench/fan/fan_rotor.png"); frame = load("art/bench/fan/fan_frame.png")
     put(rotor, at(1.25, 1.25, 2.5, 2.5)); put(frame, at(1, 1, 3, 3))
-    put(heatsink(), at(4, 2, 4, 3))
-    ram = load("art/hardware/parts/ram_r1.png"); put(ram, at(10, 1, 4, 1))
-    ssd = load("art/hardware/parts/storage_ssd_r0.png"); put(ssd, at(10, 4, 2, 1))
+    put(heatsink(), at(4, 1, 4, 3))
+    ram = load("art/hardware/parts/ram_r1.png"); put(ram, at(9, 1, 4, 1))
+    ssd = load("art/hardware/parts/storage_ssd_r0.png"); put(ssd, at(9, 4, 2, 1))
     return bg
+
+
+def tower_beside_mock():
+    """Scale check: the approved tower interior and the laptop side by side at the same cell size."""
+    cell = 25
+    tower = load("art/hardware/case_tower_interior.png").resize((18 * cell, 16 * cell), Image.LANCZOS)
+    lap = chassis().resize((14 * cell, 9 * cell), Image.LANCZOS)
+    lap.alpha_composite(board().resize((9 * cell, 4 * cell), Image.LANCZOS), (4 * cell, cell))
+    lap.alpha_composite(heatsink().resize((4 * cell, 3 * cell), Image.LANCZOS), (4 * cell, cell))
+    out = Image.new("RGBA", (18 * cell + 14 * cell + 60, 16 * cell + 40), (46, 44, 42, 255))
+    out.alpha_composite(tower, (20, 20)); out.alpha_composite(lap, (18 * cell + 40, 20 + 16 * cell - 9 * cell))
+    return out
 
 
 def storage_mock():
@@ -348,8 +350,8 @@ def runtime_files():
     for f in FINISHES:
         for r in range(4): out["storage/laptop_%s_r%d.png" % (f, r)] = storage_turned(f, r)
         out["props/laptop_closed_%s.png" % f] = counter_prop(f)
-    out["hardware/case_laptop_interior.png"] = chassis().resize((16 * U, 10 * U), Image.LANCZOS)
-    out["hardware/board_laptop.png"] = board().resize((11 * U, 5 * U), Image.LANCZOS)
+    out["hardware/case_laptop_interior.png"] = chassis().resize((14 * U, 9 * U), Image.LANCZOS)
+    out["hardware/board_laptop.png"] = board().resize((9 * U, 4 * U), Image.LANCZOS)
     out["hardware/laptop_heatsink.png"] = heatsink().resize((4 * U, 3 * U), Image.LANCZOS)
     return out
 
@@ -370,6 +372,7 @@ if __name__ == "__main__":
     storage_mock().save(os.path.join(out, "2_storage_stacks.png"))
     counter_mock().save(os.path.join(out, "3_counter_mara_laptop.png"))
     sheet([files["storage/laptop_silver_r0.png"], files["storage/laptop_graphite_r0.png"], files["props/laptop_closed_silver.png"], files["props/laptop_closed_graphite.png"]]).save(os.path.join(out, "4_pixel_pieces.png"))
+    tower_beside_mock().save(os.path.join(out, "5_scale_tower_and_laptop.png"))
     hashes = {rel: hashlib.sha256(open(os.path.join(out, "pieces", rel), "rb").read()).hexdigest() for rel in files}
-    json.dump({"revision": 1, "sha256": hashes}, open(os.path.join(out, "manifest.json"), "w"), indent=1)
+    json.dump({"revision": 2, "sha256": hashes}, open(os.path.join(out, "manifest.json"), "w"), indent=1)
     print("drafts ok", len(files))

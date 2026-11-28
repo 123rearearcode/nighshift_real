@@ -1,0 +1,19 @@
+{
+ "revision": 1,
+ "sha256": {
+  "rooms/counter_termopan/floor-linoleum.png": "6f82e88201aec2000c26d3f4cc73771da6c66181987de564b3ef98fac1633485",
+  "rooms/stock/stock_wall.png": "3a0815f9bde43bb7bd99cb8e736b04e88946a818c5093be86d6d918113a348c4",
+  "rooms/stock/rack_front.png": "285291f2fe05d6ef64cea4e8916a63a4c93b645b17611198a1b5fb14d2bc8c61",
+  "storage/front/pc_tower_front.png": "c15f87e0212138723201a7853b47cfe79c77662658084a23ff893915778e002a",
+  "storage/front/pc_tower_side.png": "abb827980b993cfac63969c10c2aaa1c5bb82e5461ca4764502bb5efb5293a71",
+  "storage/front/pc_compact_front.png": "e9fc1a2dca4b0548e3fcd8fbe3e7edbebb69f22d614ecbaf29a70775e32f240e",
+  "storage/front/pc_compact_side.png": "486154dd66ea43be3d9f212d0123aa3e34f56a48c6d549253860f626d940f803",
+  "bench/case/side_panel_tower.png": "7198e4ad3c74310bd4c42eccdbe4aca346751f876f108601d14253de7c1eb7ae",
+  "bench/case/side_panel_compact.png": "a45ae316e75739bcba48721a8f9c2da66867d93651902b87dd426fd173c60159",
+  "bench/case/laptop_cover.png": "c54156debdaa9240e6224a838773dc4701187c76ca7cfcad5c8207f506153008",
+  "storage/front/laptop_silver_front.png": "d86ac9c88fd9a4a3d135d11686b674f3f114a14a738204dc92d5cc420cb7e583",
+  "storage/front/laptop_silver_side.png": "2669e0c3aa101f1e351f65e81500318579e544ef3aa8ea0707399457e47abc50",
+  "storage/front/laptop_graphite_front.png": "0239a332a910f770830eed46762482137d991786180306484d6f348fdf5316c1",
+  "storage/front/laptop_graphite_side.png": "64d8e88041d28b11de740a61403dfe2c0c0b1e7e4695186c72656daf8196d1d5"
+ }
+}

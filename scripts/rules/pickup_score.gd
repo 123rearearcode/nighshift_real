@@ -8,6 +8,7 @@ extends RefCounted
 const FpsSim = preload("res://scripts/rules/fps_sim.gd")
 const Games = preload("res://scripts/data/games.gd")
 const InstallFaults = preload("res://scripts/rules/install_faults.gd")
+const Laptop = preload("res://scripts/rules/laptop.gd")   # 0.59.2 (D186): a lid cracked in a pile
 const Malware = preload("res://scripts/rules/malware.gd")
 const Overclock = preload("res://scripts/rules/overclock.gd")
 
@@ -26,9 +27,9 @@ static func score(customer: Dictionary, shop_temp: float, gpu_power: float, cpu_
     var points: float = 100.0
     var misses: Array = []
     var temp: float = shop_temp + InstallFaults.heat(faults) + Malware.heat(faults)
-    points -= InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults)
+    points -= InstallFaults.annoyance(faults) + Malware.annoyance(faults) + Overclock.annoyance(faults) + Laptop.annoyance(faults)   # 0.59.2: a cracked lid
     for id: Variant in faults:
-        var text: String = InstallFaults.complaint(str(id)) + Malware.complaint(str(id)) + Overclock.complaint(str(id))
+        var text: String = InstallFaults.complaint(str(id)) + Malware.complaint(str(id)) + Overclock.complaint(str(id)) + Laptop.complaint(str(id))
         if text != "":
             misses.append(text)
     # Temperature: full marks when cool, scaling off toward the pass limit.

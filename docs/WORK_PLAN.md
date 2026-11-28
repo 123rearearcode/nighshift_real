@@ -1,6 +1,17 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
-## Current bounded assignment — 0.59.1 laptops, 28 November 2026
+## Current bounded assignment — 0.59.2 the first day, 28 November 2026
+
+The user's notebook (D186): "we will then answer everything and create a new PR". Claude claims 0.59.2 (stacked on
+#101's 0.59.1), D186, B85 and phase p15, and touches the hot files narrowly: `game_state.gd` (job keys
+`at_counter`, `lid_cracked`, `case_state`; `set_case_state()`; the cracked lid as a pickup fault; the fixture
+comment) and `bench_view.gd` (creates the manual and the case overlay, shows the manual on the thermal stage, no
+longer draws the old guide). The case steps live in a separate overlay (`scripts/view/bench_case.gd`) so the
+bench's own input is untouched. `tool_rig.gd` is not touched. This PR used B85 to B87; new bug ids start at B88, decisions at
+D187. Open PRs: #98 (0.58.11 Codex, uses D182–D184: it clashes with #99's D182), #99, #100 (checker), #101.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+## Previous bounded assignment — 0.59.1 laptops, 28 November 2026
 
 The user asked Claude directly for laptops (D185): "i need u to build a new PR which would add laptops". Claude
 claims 0.59.1 (stacked on #99's 0.59.0; from 0.60.0 the checker's structural review comes first), D185 and

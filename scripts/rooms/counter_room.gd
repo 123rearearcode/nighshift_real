@@ -21,6 +21,12 @@ const MorningText = preload("res://scripts/night/morning_text.gd")
 const Phone = preload("res://scripts/night/phone_panel.gd")
 const CounterArt = preload("res://scripts/rooms/counter_art.gd")
 const DialogueBox = preload("res://scripts/ui/dialogue_box.gd")   # 0.58.9 (D181): customers talk first
+const StorageModel = preload("res://scripts/storage/storage_model.gd")    # 0.59.2: what waits on the counter top
+const StorageSources = preload("res://scripts/storage/storage_sources.gd")
+const StorageStore = preload("res://scripts/storage/storage_store.gd")
+const StorageData = preload("res://scripts/storage/storage_data.gd")
+const SLIDE_SECONDS: float = 0.45      # 0.59.2 (D186; user: "Simple slide for now"): customers come in and go out
+const SLIDE_FROM: float = -240.0       # px to the left (the door side) where a customer starts and leaves to
 const VISITORS: Array = ["collected", "comeback", "new"]   # cards of people who walk in (waiting ones did not come)
 const SLIP_RECT := Rect2(24, 176, 416, 374)
 # 0.57.3: the ticket clipboard close-up is the approved skin (art/ui/ticket_clipboard.png, 300 x 350 at
@@ -96,6 +102,7 @@ func _room_ready() -> void:
     phone.position = Vector2(440, 60)
     phone.z_index = 20
     phone.hide()
+    phone.bought.connect(refresh)   # B85: the till badge shows the money the reviews cost
     add_child(phone)
     _setup_counter_art()
     _build_storage_drawer()
@@ -171,6 +178,11 @@ func _sync_counter_art() -> void:
     counter_layer.queue_redraw()
 
 
+# 0.59.2: the backpack does not slide in over the open under-counter drawer.
+func edge_blocked() -> bool:
+    return storage_open
+
+
 func visiting() -> bool:
     return visit_index >= 0
 
@@ -220,6 +232,7 @@ func close_storage() -> bool:
     storage_open = false
     storage_drawer.is_open = false
     _slide_storage(720.0)
+    _show_counter_top()   # 0.59.2: what you put away leaves the counter top
     return true
 
 
@@ -271,6 +284,7 @@ func _refresh_room() -> void:
         spot.disabled = waiting_on_customers or (spot.closed_at_dawn and over)
         spot.tooltip_text = "Serve the customers at the counter first." if waiting_on_customers else ("06:00: the night is over. Close the shutter." if spot.closed_at_dawn and over else spot.label)
     _sync_counter_art()
+    if not visiting(): _show_counter_top()   # 0.59.2 (D186)
     queue_redraw()
 
 
@@ -381,11 +395,77 @@ func _show_customer(person: Dictionary, card: Dictionary = {}) -> void:
         portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
         portrait.position = PORTRAIT_FIT.position
         portrait.size = PORTRAIT_FIT.size
+    _slide_in(portrait)
+
+
+# 0.59.2 (D186): a customer slides in from the door side and fades in; leaving, a copy slides back out and fades
+# (so the next customer can already come in). Only x and alpha change: where they stand is unchanged.
+var slide_tween: Tween   # the customer coming in (stopped if the next one comes before it ends)
+
+
+func _slide_in(node: TextureRect) -> void:
+    if slide_tween != null and slide_tween.is_valid(): slide_tween.kill()
+    var target: Vector2 = node.position
+    node.position = target + Vector2(SLIDE_FROM, 0)
+    node.modulate.a = 0.0
+    var tween: Tween = create_tween().set_parallel(true)
+    slide_tween = tween
+    # Set the whole rectangle each step: moving a Control's x alone drifts its width by a rounding error (B87).
+    var keep: Vector2 = node.size
+    var step := func(x: float) -> void:
+        node.position = Vector2(x, target.y)
+        node.size = keep
+    tween.tween_method(step, node.position.x, target.x, SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    tween.tween_property(node, "modulate:a", 1.0, SLIDE_SECONDS * 0.6)
+
+
+func _slide_out(node: TextureRect) -> void:
+    if node == null or not node.visible or node.texture == null: return
+    var ghost := TextureRect.new()
+    ghost.name = "LeavingCustomer"
+    ghost.texture = node.texture
+    ghost.stretch_mode = node.stretch_mode
+    ghost.expand_mode = node.expand_mode
+    ghost.texture_filter = node.texture_filter
+    ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    ghost.position = node.position
+    ghost.size = node.size
+    ghost.z_index = node.z_index
+    add_child(ghost)
+    var tween: Tween = create_tween().set_parallel(true)
+    tween.tween_property(ghost, "position:x", node.position.x + SLIDE_FROM, SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+    tween.tween_property(ghost, "modulate:a", 0.0, SLIDE_SECONDS)
+    tween.chain().tween_callback(ghost.queue_free)
 
 
 func _hide_customer() -> void:
+    _slide_out(portrait)   # 0.59.2: they walk out
     if portrait != null: portrait.hide()
     if customer_pc != null: customer_pc.hide()
+    _show_counter_top()
+
+
+# 0.59.2 (D186; user: "PC just disappears into inv. It must be moved"): what was handed over stays ON the counter
+# (storage unit "counter_top") until you put it under the counter or pick it up. Between customers the counter
+# shows the first of them.
+func counter_top() -> Array:
+    var m := StorageModel.new()
+    m.setup(StorageSources.collect(GameState), StorageStore.new().read())
+    return m.in_unit(StorageData.TOP_ID).map(func(uid: String) -> Dictionary: return m.items[uid])
+
+
+func _show_counter_top() -> void:
+    if customer_pc == null or visiting(): return
+    var top: Array = counter_top()
+    if top.is_empty():
+        customer_pc.hide()
+        return
+    var first: Dictionary = top[0]
+    customer_pc.texture = RoomArt.prop(("laptop_closed_" + str(first.get("finish", "graphite"))) if bool(first.get("stackable", false)) else CUSTOMER_PC_PROP)
+    if customer_pc.texture != null:
+        customer_pc.size = Vector2(customer_pc.texture.get_size()) * RoomArt.PIXEL_SCALE
+        customer_pc.position = (CUSTOMER_PC_BASE - Vector2(customer_pc.size.x * 0.5, customer_pc.size.y)).round()
+    customer_pc.visible = customer_pc.texture != null
 
 
 func _next_visit() -> void:

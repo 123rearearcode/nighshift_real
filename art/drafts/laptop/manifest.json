@@ -1,5 +1,5 @@
 {
- "revision": 1,
+ "revision": 2,
  "sha256": {
   "storage/laptop_silver_r0.png": "1c17fd58bdf2410048a5e1431b2295f2bdd0d19a1a7d8be04421e60bc6db611f",
   "storage/laptop_silver_r1.png": "6e55a3080b1b8ac622ca8222697e9bb0b7cdf2065551662c30e19259a4cae2af",
@@ -11,8 +11,8 @@
   "storage/laptop_graphite_r2.png": "25f45cc8c5c00634d603772abaf2fc35b25254e20e3339476efecc791f962307",
   "storage/laptop_graphite_r3.png": "65e363474680df8545f1117813854bc5ddccd9ac784226ab0149117830985176",
   "props/laptop_closed_graphite.png": "c1839243b80857a2a9db1b672f05d2fb54d73a7724764c1d58cacb3ac6f5c728",
-  "hardware/case_laptop_interior.png": "35a889758759068c9f2c26faefd87cdf824acf9eb1be2c901754f5b47eac5486",
-  "hardware/board_laptop.png": "3136864d4f19fa35eaecfe7c2dda646dd5e2ba3f1447fa1f782f1ebbb7f179e9",
+  "hardware/case_laptop_interior.png": "1e020c4ee5249f51a03368e4106ea99e0da1f21e460c62885ec044db8c61e3fb",
+  "hardware/board_laptop.png": "815923ec288811fd11dd8e668adf5ca3265b0043adc255d516549d52c370f4ce",
   "hardware/laptop_heatsink.png": "0e43d7d6f4e51f1afec5d1ef1bf3bf8ad768005cd53e664d73c278d8fdce6e5f"
  }
 }

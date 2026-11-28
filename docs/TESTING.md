@@ -1,5 +1,13 @@
 # Test policy — 0.27.0
 
+## Current addition — 0.59.2 the first day
+
+`tools/test_day1.gd` (CI suite "Day 1") checks B85 (the till badge after buying reviews), the counter top and
+arms, the 8 x 6 backpack (a laptop yes, a desktop no), pile damage and the cracked-lid pickup fault, the bench's
+lift / unscrew / panel steps and the saved `case_state`, the thermal manual's pages, the customer slide and the
+backpack's slide from the right edge. It sets `GameState.desktop_first_ticket` false where it tests the game's
+real first day (the counter handover, the closed case) and true elsewhere.
+
 ## Current addition — 0.59.1 laptops
 
 `tools/test_laptops.gd` (CI suite "Laptops") checks the laptop layout, spots and heat, its locked parts, Mara's

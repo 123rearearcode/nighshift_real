@@ -16,7 +16,18 @@ const MODELS: Dictionary = {
 const COUNTER_ID := "counter"
 const COUNTER: Dictionary = {"name":"Under-counter storage","size":Vector2i(20,10),"shelves":1,"accepts":["pc","tool","part"],"hint":"Under the counter window: keep anything close at hand."}
 
+# 0.59.2 (D186; user: "PC just disappears into inv. It must be moved", "Under the counter", "there should also
+# be a way to carry 1 pc/thing in your arms"). A PC handed over at the counter waits ON the counter top until you
+# put it under the counter or pick it up; your arms carry exactly one thing of any size, from room to room. Both
+# are fixed units like the under-counter storage: never in the room, never auto-filled by Arrange.
+const TOP_ID := "counter_top"
+const TOP: Dictionary = {"name":"On the counter","size":Vector2i(20,6),"shelves":1,"accepts":["pc"],"hint":"Handed over at the counter: put it under the counter or pick it up."}
+const ARMS_ID := "arms"
+const ARMS: Dictionary = {"name":"In your arms","size":Vector2i(8,8),"shelves":1,"accepts":["pc","tool","part"],"max_items":1,"hint":"One thing at a time, any size. It goes with you into every room."}
+
 static func spec(model: String) -> Dictionary:
+    if model == TOP_ID: return TOP
+    if model == ARMS_ID: return ARMS
     return COUNTER if model == COUNTER_ID else MODELS.get(model,{})
 
 const TOOL_SIZES: Dictionary = {"vacuum":Vector2i(4,2),"brush":Vector2i(3,1),"pick":Vector2i(2,1),"cloth":Vector2i(2,2),"syringe":Vector2i(1,2)}
