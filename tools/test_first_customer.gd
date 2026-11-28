@@ -54,7 +54,7 @@ func run_checks() -> void:
     # 0.57.3 (ART-08/09, approved 25 November 2026): Mara's own sprite and her PC are at the counter.
     var portrait: TextureRect = counter.get_node("CustomerPortrait")
     check(portrait.visible and portrait.texture != null and portrait.texture.resource_path.get_file() == "t001_mara.png" and Vector2i(portrait.texture.get_size()) == Vector2i(120, 172), "Mara's approved sprite stands at the counter window")
-    check(portrait.size == Vector2(240, 344) and is_equal_approx(portrait.position.y + portrait.size.y, 488.0) and portrait.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "she is shown at exactly 2x with her waist on the counter top, pixels kept sharp")
+    check(portrait.size == Vector2(240, 344) and is_equal_approx(portrait.position.y + portrait.size.y, 488.0) and portrait.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "she is shown at exactly 2x with her waist on the counter top, pixels kept sharp (%s at %s, filter %d)" % [portrait.size, portrait.position, portrait.texture_filter])
     var pc_prop: TextureRect = counter.get_node("CustomerPC")
     check(pc_prop.visible and pc_prop.texture != null and pc_prop.size == Vector2(128, 196), "her PC stands on the counter at 2x while she is there")
     var jobs: Array = night.jobs(gs)
