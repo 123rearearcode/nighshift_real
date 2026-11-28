@@ -410,7 +410,12 @@ func _slide_in(node: TextureRect) -> void:
     node.modulate.a = 0.0
     var tween: Tween = create_tween().set_parallel(true)
     slide_tween = tween
-    tween.tween_property(node, "position:x", target.x, SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    # Set the whole rectangle each step: moving a Control's x alone drifts its width by a rounding error (B87).
+    var keep: Vector2 = node.size
+    var step := func(x: float) -> void:
+        node.position = Vector2(x, target.y)
+        node.size = keep
+    tween.tween_method(step, node.position.x, target.x, SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
     tween.tween_property(node, "modulate:a", 1.0, SLIDE_SECONDS * 0.6)
 
 

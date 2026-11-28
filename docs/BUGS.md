@@ -118,7 +118,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B84 | Verified | Medium | Hardware bench / Customer PC | a customer stick in a lying RAM slot (a desktop's slot 3) was restored unturned, so the hardware bench put it in the drawer; saving the bench then took it out of the PC | 0.59.1 | Automated: Laptops suite, GitHub Actions run 46153480834 (commit ecf0e38, 44 suites / 2,714 checks, 0 failures) |
 | B85 | Fixed | Low | Counter / Phone | after buying fake reviews on the phone, the till on the counter's top bar kept showing the old cash until the room was left and entered again | 0.59.2 | Automated (pending): Day 1 suite, PR CI run |
 | B86 | Fixed | Low | Dialogue / Intake | Mara's rewritten complaint no longer said "overheats", the word the intake slip check (and the player's first clue) uses | 0.59.2 | Automated (pending): First customer suite |
-| B87 | Fixed | Low | Counter presentation / Test harness | a customer's portrait was read mid-slide by the counter art suite; a second customer arriving mid-slide could also fight the first slide's tween | 0.59.2 | Automated (pending): Counter art suite |
+| B87 | Fixed | Low | Counter presentation / Test harness | a customer's slide-in drifted the portrait's width (240.0001) and was read mid-slide by the counter art suite; a second customer arriving mid-slide could also fight the first slide's tween | 0.59.2 | Automated (pending): Counter art suite |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1166,7 +1166,7 @@ then-current design wording do not override the current status, D150 or the late
 - Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46159823570 on PR #102, 28 November 2026: "FAIL: Batch B sprites follow the shared customer/PC anchors without resizing their pixels" (Counter art suite).
 - Reported by: CI; diagnosed and fixed by Claude (Opus 5.5, model id claude-opus-5-5).
 - Fixed in: 0.59.2, before merge.
-- Root cause: the new slide-in (D186) starts the portrait 240 px left and tweens it home over 0.45 s; the suite checked its anchor on the next frame. Looking at it also showed that a second customer arriving before the first slide ended would leave two tweens writing the same position.
+- Root cause: the new slide-in (D186) starts the portrait 240 px left and tweens it home over 0.45 s; the suite checked its anchor on the next frame. Looking at it also showed that a second customer arriving before the first slide ended would leave two tweens writing the same position. A third run (46160592990, with the rectangle printed) showed the other half: tweening only a Control's x left its width at 240.0001, so the First customer suite's exact 2x check failed mid-slide.
 - Reproduction: commit `e968029`, run tools/test_counter_art.gd.
 - Expected / actual: the portrait ends at the shared anchor / it is read while still sliding.
-- Regression / evidence: the suite waits for the slide before checking the anchor; `counter_room._slide_in` stops a slide still running. Evidence recorded once the PR's CI run passes.
+- Regression / evidence: the counter art suite waits for the slide before checking the anchor; `counter_room._slide_in` stops a slide still running and sets the whole rectangle on each step (position and the unchanged size), so the width never drifts; both suites print the rectangles if the check fails. Evidence recorded once the PR's CI run passes.
