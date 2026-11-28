@@ -114,6 +114,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B76 | Fixed | High | Monitor / Test harness | windough.gd named a helper wrap(), which Godot already has as a built-in function; calls with two arguments did not compile and the monitor suites hung again | 0.59.0 | Automated: all suites, CI pending |
 | B77 | Fixed | Low | Test harness | the new Windough suite named a helper click(), which the shared test base already has with other arguments; the suite did not compile | 0.59.0 | Automated: Windough suite, CI pending |
 | B78 | Fixed | Medium | Monitor / Test harness | windough.gd read the night clock through the GameState global by name; preloaded by a test before the game's globals exist, it did not compile and that suite hung | 0.59.0 | Automated: Windough suite, CI pending |
+| B79 | Fixed | Low | Test harness | the new Windough suite asked whether the old panel's button and text were visible on their own; they are hidden through their container, so the check failed although the panel was gone | 0.59.0 | Automated: Windough suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1113,4 +1114,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run `tools/test_windough.gd` at commit `61f78d4`.
 - Expected / actual: the suite runs / "Compile Error: Identifier not found: GameState" at `windough.gd:497`.
 - Regression / evidence: the clock now looks the game state up at run time (`get_node_or_null("/root/GameState")`); both Windough files were scanned for every global name in `project.godot` (none left). CI evidence pending.
+
+### B79 — the Windough suite checked the old panel the wrong way
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46086814984 on PR #99, 28 November 2026; 24 of 25 Windough checks passed, all other suites passed.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge. Test code only; the game was right.
+- Root cause: the monitor hides the old flat panel by hiding the boxes that hold it, so `boot_button.visible` and `output.visible` stay `true` while nothing is drawn. The check read those flags instead of asking whether each is on screen.
+- Reproduction: run `tools/test_windough.gd` at commit `49b6930`.
+- Expected / actual: pass / "FAIL: the monitor is dark while the PC is off; the old flat panel is gone".
+- Regression / evidence: the check uses `is_visible_in_tree()`. CI evidence pending.
 

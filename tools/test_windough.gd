@@ -60,7 +60,7 @@ func run_checks() -> void:
     current_scene = view
     await process_frame
     var win: Control = view.windough
-    check(win != null and win.available() and win.state == "off" and not view.boot_button.visible and not view.output.visible, "the monitor is dark while the PC is off; the old flat panel is gone")
+    check(win != null and win.available() and win.state == "off" and not view.boot_button.is_visible_in_tree() and not view.output.is_visible_in_tree(), "the monitor is dark while the PC is off; the old flat panel is gone")
     view._power()
     await process_frame
     check(gs.job["pc_powered"] and win.state == "bios" and view.output.text.contains("NightBoot"), "switching on shows the BIOS first")
