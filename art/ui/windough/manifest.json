@@ -1,0 +1,43 @@
+{
+ "approved_on": "2026-11-28",
+ "approved_by": "the user (human), in the Claude chat",
+ "approval_quote": "approved, create PR",
+ "revision": 2,
+ "revision_1_feedback": "make sure the info of the bios doesnt give anything away, maybe its best to remove any info there. spend a bit more time on the details of this, making it have a better feel. i will review once more after",
+ "reviewed_files": {
+  "art/drafts/windough/mock_1.png": "70b74e67caa1fbf2f4d680d43a0f4d169ff9afcc50db770e952245cadcda0886",
+  "art/drafts/windough/mock_2.png": "83b678585cf63e88c5d01aee365c5968395843590cba6ca737041bbf79ed9dde",
+  "art/drafts/windough/mock_3.png": "6255ccd10a7d102e8213f3df304e63f366a5777320d6f81b2efc14fcbe5f352a",
+  "art/drafts/windough/mock_4.png": "5e17073c50a366d520b49661c0fdef721c16766ab4ed9868558c85cef4d12a71",
+  "art/drafts/windough/mock_5.png": "f839c5766ad0a03596185535a1d617b32737e15563aeeffa438cf5f4d98809a6",
+  "art/drafts/windough/mock_6.png": "b765bc4de1a4d9814ae5b9c328fb185d89663657dd9c170cc783654ca0374345",
+  "art/drafts/windough/mock_7.png": "e62243c7313876ae20992accb8724616d4171695a981e8e3366d460d50a901be"
+ },
+ "creator": "Claude (Opus 5.5, model id claude-opus-5-5), code-drawn with Python/PIL (tools/art_batch_e/windough.py, font5x7.py); original, no real logos or company names",
+ "notes": "bios.png, no_signal.png and every piece are byte-identical to the approved drafts' pieces; nightboot_base.png and splash_windough_base.png are the approved screens without the countdown line and the dough fill, which the game draws by the same rule; font5x7.png is the approved font as an atlas.",
+ "sha256": {
+  "begin_button.png": "902dc1ffab4fba5cc5f487461a068ed57cdfec7af7a053cc99caa9e5e327184f",
+  "begin_button_pressed.png": "8df2e0ef6ec10b29cd0e03946eb11fc3199a1b1aa5a4e9702688e0074c8e87b8",
+  "bios.png": "5c604cd29ae446a212b191610b84a84050d08de481d9f32b784aeb832c7a7b99",
+  "cursor.png": "a10b86f12257054786e70e81afd9872b20e2c8a34459b2f0567d3368f1d3c657",
+  "font5x7.json": "d780e0f7cbac422987295a6ffda6646d26d4c18e1169da78ce99d7fe326d325c",
+  "font5x7.png": "3cab853d480e4f38f896f647270a42f43885de06fca0ffaafb46abfb443f961e",
+  "icon_bin.png": "586318aca763561ffa453f7c060565d2194023a7cc65f48eef36d9e361a33f0e",
+  "icon_boot.png": "27b3ee4b6e7a10c598ba4d00817d6f94fb432d866b150fa196035ba95eb42acc",
+  "icon_game.png": "295eccdf57eb1729b4208e0f99310b8d2f1934bbd004829c39ccc9ff82bef716",
+  "icon_hardware.png": "91ccefee443b9cdd1a4aa8dd5ecc172130e785c78e2aa356e09d05adb5c8349b",
+  "icon_overclock.png": "9047546950358ae6b63a707aa160f5a1c36d2a70c7a248092b92a39392817a9b",
+  "icon_readme.png": "b4584fa41b35751559ace1871b29f4022afa9874718868ae91fbe96441af504a",
+  "icon_speaker.png": "b49850040d5d31c19bf2caf570815b61f57ae65b355c720132b276183ff24b5f",
+  "icon_stress.png": "7829aef711fb265e7d338d305ae424d44684a0fd90ea786620a16cb73fb12eb5",
+  "icon_taskmanajer.png": "387590fb785da3e49b3c1fff06228b430dee030a71e78e6c1b9f7733b5d8bb30",
+  "icon_usb.png": "631d38f4af48d8cf4f2755ed2826cf7444123287d0f21e1506f7a611de5ad765",
+  "icon_vapor.png": "9a5b6bca1db25829065fa6da39fc185ee162f239e03b209f20c073af7955bb3d",
+  "logo_dough.png": "e89fc259f3cf6cc3726149b18cefdfd160e8b67d17813598bfa2d3052c49a3e9",
+  "nightboot_base.png": "27ea01d1204c9011ede9add7fad497ca18bf64dd98c56a29ac86fc567ab93621",
+  "no_signal.png": "1708885a3842e7b274648eb3fae6c87fa6f3fcdcae2791a20c88c742c185be84",
+  "splash_windough_base.png": "e09dceab53a495341494c4e893545cb9f2ec42de28f20c4596c2fbbd9e96acaa",
+  "taskbar.png": "b693ebe6faa676f2414fb0cb0d2fd089bef3a95925752fce57190ed93e1cffa0",
+  "wallpaper.png": "d3873cbdeeaf2398cbc2ec78ac1a15a404dbd7c44e835f90dfc1e9e17746931f"
+ }
+}

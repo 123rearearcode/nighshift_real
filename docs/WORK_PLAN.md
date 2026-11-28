@@ -1,5 +1,13 @@
 # Work plan — code health and responsibilities (from 0.19.1)
 
+## Current bounded assignment — 0.59.0, 28 November 2026
+
+The user dropped the per-part tests ("i wont be doing the parts thing anymore", decided with ChatGPT) and gave the
+0.59.0 slot to Claude: the Windough 98 desktop on NightBoot USB (D182). **0.59.0 is no longer reserved for Codex.**
+Claude owns `scripts/night/windough.gd` and the monitor's `software_view.gd` presentation; the apps' rules are
+unchanged. No hot file touched. 0.60.0 (checker) stays reserved.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
 ## Current bounded assignment — 0.58.10, 27 November 2026
 
 PR #97 is stacked on #96 (0.58.9); its earlier unmerged version/bug/task claims are corrected to

@@ -1,6 +1,20 @@
 # Handoff — current state first
 
-## Current — 0.58.10 faster counter returns, 27 November 2026
+## Current — 0.59.0 Windough 98 on NightBoot USB, 28 November 2026
+
+The user dropped the per-part tests and gave 0.59.0 to Claude (D182): the customer PC boots on the diagnostic
+monitor (BIOS that gives nothing away -> NightBoot USB menu -> Windough 98 splash -> desktop; NO SIGNAL if it does
+not start). `scripts/night/windough.gd` draws it from `art/ui/windough/` (approved); the desktop's windows press
+the monitor's own (hidden) app buttons in `software_view.gd`, so the apps' rules are unchanged. Tests open an app
+with `windough.open(id)` and click `windough.button_rect(label)`. 0.60.0 (checker) stays reserved.
+PR #99 is green (run 46087076245, 43 suites / 2,674 checks). Its earlier runs caught B75 to B79, all
+name clashes Godot reports only when it compiles: a duplicate const, a helper named like a Godot built-in
+(`wrap`), a test helper named like one in test_support.gd (`click`), and a global (`GameState`) named in a
+script that tests preload. Look those up before pushing; a parse error makes the suites hang 10 minutes each.
+Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+
+
+## Previous — 0.58.10 faster counter returns, 27 November 2026
 
 The user reported a noticeable counter loading delay and confirmed it happens every return. Codex reproduced
 the repeated texture loads on main 0.58.8 (d0710c0), then added a bounded process-local counter-art cache

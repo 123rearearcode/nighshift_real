@@ -110,6 +110,11 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B73 | Verified | Low | Bench presentation | The vacuum on/off switch stayed on screen while mounting the cooler (the thermal paste stage) | 0.58.9 | Automated: Audio and vacuum suite, GitHub Actions run 46071704212 |
 
 | B74 | Verified | Low | Counter loading | Every return reloads the counter’s large texture set after scene disposal, causing a visible pause | 0.58.10 | Automated: Counter art suite (40 checks), integrated 41 required suites / 2,648 checks, local Godot 4.7.2; targeted samples in COUNTER_LOADING.md |
+| B75 | Verified | High | Monitor / Test harness | windough.gd declared the constant README twice, so the script did not parse; the monitor scene failed to load and every suite that opens it hung until its 10-minute limit | 0.59.0 | Automated: all suites, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
+| B76 | Verified | High | Monitor / Test harness | windough.gd named a helper wrap(), which Godot already has as a built-in function; calls with two arguments did not compile and the monitor suites hung again | 0.59.0 | Automated: all suites, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
+| B77 | Verified | Low | Test harness | the new Windough suite named a helper click(), which the shared test base already has with other arguments; the suite did not compile | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
+| B78 | Verified | Medium | Monitor / Test harness | windough.gd read the night clock through the GameState global by name; preloaded by a test before the game's globals exist, it did not compile and that suite hung | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
+| B79 | Verified | Low | Test harness | the new Windough suite asked whether the old panel's button and text were visible on their own; they are hidden through their container, so the check failed although the panel was gone | 0.59.0 | Automated: Windough suite, GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures) |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1069,3 +1074,54 @@ then-current design wording do not override the current status, D150 or the late
 - Expected / actual: room returns reuse unchanged artwork with minimal setup / the counter reconstructs its large texture set every time.
 - Correction: keep a bounded process-local cache of successful counter-art loads, shared across presentation holders; source timestamp changes invalidate it, missing art remains uncached. No nodes or mutable gameplay state are cached and no artwork bytes change.
 - Regression / evidence: `tools/test_counter_art.gd` tests room disposal/re-entry texture identity without a strong test reference, separate holders, unchanged intake/cash/time and missing/new/revised/removed unimported art. Automated: the final Counter art suite passed 40 checks under Godot 4.7.2; the original 39 required suites passed 2,610 checks locally before integrating #96. The #96 + #97 integration then passed all 41 required suites / 2,648 checks under local Godot 4.7.2; details are in CHANGELOG.md. `tools/measure_counter_loading.gd` passed 15 checks on each measurement run; docs/COUNTER_LOADING.md preserves same-workspace before/after samples and limits. Not target-PC GPU/frame-present or human feel evidence.
+
+### B75 — Windough did not parse: a constant declared twice
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46081628581 on PR #99 (0.59.0 development), 28 November 2026; the user asked why CI was taking so long.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: renaming the art-folder constant to `README` (so `tools/check_project.py` could resolve its path) collided with the existing `README` constant holding the readme.txt note. GDScript refuses the duplicate, `software_view.gd` could not preload `windough.gd`, the monitor scene loaded without its script, and every suite that uses it stopped mid-coroutine and waited for its 10-minute timeout (the run was cancelled after 24 minutes to read the log).
+- Reproduction: run any suite that opens `scenes/software.tscn` at `feat/windough-0590` commit before `7e5e67d`.
+- Expected / actual: the monitor loads with Windough / "Parse Error: Could not preload resource script windough.gd", then "Nonexistent function '_hardware' in base 'Node2D'".
+- Regression / evidence: the note is `README_NOTE`; input handling now casts events before reading their fields. Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+
+### B76 — Windough did not compile: a helper named like a built-in
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46084080907 on PR #99 (after B75's fix), 28 November 2026; cancelled after 10 minutes (a normal run takes 2) to read the log.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: `static func wrap(s, chars)` in `windough.gd` shares its name with GDScript's global `wrap(value, min, max)`; the global wins, so `wrap(label, 9)` is "Too few arguments" and the script fails to compile. As with B75, every suite that opens the monitor then stopped mid-coroutine until its timeout. Godot is not run locally, so both errors first showed in CI.
+- Reproduction: any monitor suite at commit `ce953e6`.
+- Expected / actual: the monitor loads / "Parse Error: Too few arguments for wrap() call. Expected at least 3 but received 2."
+- Regression / evidence: renamed `word_wrap`; every function name in the new scripts was checked against Godot's global function list. Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+
+### B77 — the Windough suite did not compile: a helper named like the test base's
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46085160781 on PR #99, 28 November 2026; every other suite passed in the normal time.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge. Test code only; the game was not affected.
+- Root cause: `tools/test_windough.gd` declared `func click(view, native, double)`, but its parent `tools/test_support.gd` already has `click(Node, int, bool, Vector2)`. GDScript treats a same-named function as an override and refuses a different signature.
+- Reproduction: run `tools/test_windough.gd` at commit `e0497cd`.
+- Expected / actual: the suite runs / "Parse Error: The function signature doesn't match the parent."
+- Regression / evidence: renamed `tap`; every function name in the suite was compared with the test base's (no other overlap). Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+
+### B78 — Windough did not compile when a test loaded it first
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46085896479 on PR #99, 28 November 2026; all other suites passed, the Windough suite hung and the run was cancelled after 9 minutes.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: the tray clock used `GameState.night_minutes`. In the game the monitor scene loads after the `GameState` global is registered, so it worked; a test that `preload`s `windough.gd` compiles it before that, so "Identifier not found: GameState". The suite then called into the half-loaded script and never reached its finish line.
+- Reproduction: run `tools/test_windough.gd` at commit `61f78d4`.
+- Expected / actual: the suite runs / "Compile Error: Identifier not found: GameState" at `windough.gd:497`.
+- Regression / evidence: the clock now looks the game state up at run time (`get_node_or_null("/root/GameState")`); both Windough files were scanned for every global name in `project.godot` (none left). Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+
+### B79 — the Windough suite checked the old panel the wrong way
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46086814984 on PR #99, 28 November 2026; 24 of 25 Windough checks passed, all other suites passed.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge. Test code only; the game was right.
+- Root cause: the monitor hides the old flat panel by hiding the boxes that hold it, so `boot_button.visible` and `output.visible` stay `true` while nothing is drawn. The check read those flags instead of asking whether each is on screen.
+- Reproduction: run `tools/test_windough.gd` at commit `49b6930`.
+- Expected / actual: pass / "FAIL: the monitor is dark while the PC is off; the old flat panel is gone".
+- Regression / evidence: the check uses `is_visible_in_tree()`. Automated: GitHub Actions run 46087076245 (commit d8f068f, 43 suites / 2,674 checks, 0 failures); the Windough suite passed 25 checks.
+

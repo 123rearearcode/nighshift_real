@@ -115,6 +115,7 @@ jobs:
           test_backpack|Backpack
           test_wall_finishes|Wall finishes
           test_dialogue|Dialogue
+          test_windough|Windough
           test_delivered_parts|Delivered parts"
           bad=0
           while IFS='|' read -r file name; do

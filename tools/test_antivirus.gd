@@ -19,6 +19,18 @@ func press(button: Button) -> void:
         await process_frame
     await process_frame
 
+# 0.59.0 (D182): the monitor's apps are buttons in Windough 98 windows; click them where they are drawn.
+func press_at(at: Vector2) -> void:
+    for down: bool in [true,false]:
+        var event := InputEventMouseButton.new()
+        event.button_index = MOUSE_BUTTON_LEFT
+        event.pressed = down
+        event.position = at
+        event.global_position = at
+        root.push_input(event,true)
+        await process_frame
+    await process_frame
+
 func key(code: Key, unicode_value: int = 0) -> void:
     for down: bool in [true,false]:
         var event := InputEventKey.new()
@@ -178,10 +190,12 @@ func run_checks() -> void:
     await process_frame
     view._remove()
     check(view.antivirus_panel == null,"cleanup requires the deliberate scan first")
-    await press(view.scan_button)
+    view.windough.open("taskmanajer")
+    check(view.windough.state == "desktop" and view.windough.open_app == "taskmanajer" and view.windough.button_rect("Scan").has_area(), "the PC is on: Task Manajer opens in a Windough window with its Scan button")
+    await press_at(view.windough.button_rect("Scan").get_center())
     check(view.threat_found and not view.remove_button.disabled,"native scan reveals the real infection and offers cleanup")
     var start: int = gs.night_minutes
-    await press(view.remove_button)
+    await press_at(view.windough.button_rect("Remove threat").get_center())
     var panel: Node = view.antivirus_panel
     panel.set_process(false)
     check(panel != null and panel.model.strain == Malware.MINER and Malware.infected(gs.job),"Remove threat opens the real minigame and cannot instantly cure")

@@ -132,6 +132,71 @@ the integrating contributor turns them into a numbered entry at merge time.
 - Next action: discuss open choices; compare the implementer's actual branch with confirmed design;
   isolate any necessary changes to existing behaviour in a separate push after discussion. No merge.
 
+## 0.59.0 - 2026-11-28 - Windough 98 on NightBoot USB: the customer PC boots on the monitor
+- Author: Claude (Opus 5.5, model id claude-opus-5-5) in a Claude Code cloud session.
+- Based on: main 0.58.10 (a9f576b). New bug ids B75 to B79 (next B80). The 0.59.0 slot moves from the dropped per-part
+  tests (Codex) to this (D182). 0.60.0 (checker) stays reserved.
+- Type: minor (a new presentation for the diagnostic monitor; approved art).
+
+### Execution status
+Godot was not run locally. GitHub Actions runs every suite headless on Godot 4.7.2; results are under Checks
+performed. The look was checked on the approved draft images; nobody has seen it running in game yet.
+
+### Added / Changed / Fixed / Removed
+- **The per-part tests are dropped (D182; user: "i wont be doing the parts thing anymore").** PART_TESTS_DESIGN.md
+  is marked dropped; the roadmap moves its tasks to Unscheduled; WORK_PLAN frees the 0.59.0 reservation.
+- **Windough 98 on NightBoot USB (D182; "It has to look somewhat like a goofy windows. We will have it booted in
+  our own boot tool"; drafts approved: "approved, create PR").** `scripts/night/windough.gd` draws the customer
+  PC's screen inside the monitor bezel (pixel art at 2x, a faint CRT scanline):
+  - switching on: the BIOS (nothing about the parts, as the user asked) -> the NightBoot USB menu counting down
+    from 3 (a click or Enter starts now) -> the Windough 98 splash, dough rising along a tray -> the desktop;
+    a click skips any stage; booting costs no night minutes and writes nothing;
+  - a PC that does not start shows only NO SIGNAL; what you see and hear is written in Findings as a Boot check;
+  - the desktop: Boot check, Hardware check, Task Manajer, Vapor, Counter Stroke 2, Stress lab, Overclocker,
+    readme.txt, Bin of Regret; click selects (checkerboard highlight), double click or Enter opens a window
+    (title bar, menu bar, report, buttons, status line); the buttons are the monitor's own app buttons, so every
+    rule, night minute and Findings entry is unchanged;
+  - Begin: Programs (the apps), Documents (readme.txt, a placeholder note from the last technician), Settings and
+    Help (jokes), Shut Down (turns the PC off); the tray clock is the night clock; a pixel mouse cursor.
+- **Fixed B75 (before merge):** a duplicate constant stopped `windough.gd` from parsing, so every monitor suite
+  hung in CI run 46081628581; renamed. **Fixed B76 (before merge):** a helper named `wrap()` clashed with Godot's
+  built-in function and stopped it compiling (run 46084080907); renamed `word_wrap`. **Fixed B77 (before merge, tests only):** the new suite's `click()` helper clashed with
+  the shared test base's (run 46085160781); renamed `tap`. **Fixed B78 (before merge):** the tray clock named the
+  `GameState` global, which a test that loads the script first does not have yet (run 46085896479); it is looked up now. **Fixed B79 (tests only):** the suite
+  read the old panel's own visible flags, not whether it is on screen (run 46086814984).
+- `software_view.gd`: the flat button panel is hidden (the buttons remain the place the rules run); power on and
+  off drive the boot.
+
+### Files changed
+| File | Change | What |
+|---|---|---|
+| `scripts/night/windough.gd` | A | The PC's screen: boot, desktop, windows, Begin menu |
+| `scripts/night/software_view.gd` | M | Hosts Windough; power drives the boot; NO SIGNAL observation |
+| `art/ui/windough/*` | A | 23 approved files, manifest, README |
+| `art/drafts/windough/*` | A | The approved revision 2 drafts and pieces (not loaded) |
+| `tools/art_batch_e/windough.py`, `font5x7.py` | A | Draws the drafts and exports the game's files |
+| `tools/test_windough.gd` | A | New suite (in CI) |
+| `tools/test_antivirus.gd` | M | Clicks Scan and Remove threat in the Task Manajer window |
+| `.github/workflows/tests.yml` | M | Windough suite |
+| `docs/BUGS.md` | M | B75 to B79 |
+| `docs/DECISIONS.md` (D182), `docs/PART_TESTS_DESIGN.md`, `docs/ART_ASSET_LOG.md`, `docs/WORK_PLAN.md`, `docs/roadmap.json` | M | Records |
+| `DEVELOPMENT.md`, `HANDOFF.md`, `README.md`, `project.godot` | M | File map, handoff, version 0.59.0 |
+| `CHANGELOG.md` | M | This entry |
+
+### Checks performed
+- `windough.py`: the approved drafts regenerate byte for byte after adding the runtime export; the runtime pieces
+  and the BIOS / NO SIGNAL screens have the same hashes as the approved drafts' pieces.
+- Locally: `check_project.py`, `check_bug_register.py`, `test_bug_register.py` (results in the PR).
+- GitHub Actions run 46087076245 on PR #99 (commit d8f068f): passed; 43 suites / 2,674 checks, 0 failures,
+  including the new Windough suite (25 checks). Earlier runs on this PR found B75 to B79 (see BUGS.md).
+- Not run: Godot locally (not installed here); no human playtest of the desktop yet.
+
+### Decisions proposed (not approved)
+- The readme.txt text and the boot timings (BIOS 1.6 s, countdown 3 s, splash 2.4 s).
+
+### Next action
+Merge; switch a customer PC on at the monitor and try the desktop.
+
 ## 0.58.10 - 2026-11-27 - Reuse the counter art between room visits (B74)
 - Author: Codex (GPT-6, model id not exposed by this session) in ChatGPT Work.
 - Based on: PR #96 / 0.58.9, 2a19795345abacb417fed08fbf92d017d6d6e5c0, integrated into PR #97.
