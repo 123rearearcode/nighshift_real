@@ -113,6 +113,7 @@ not a structural review or a fix. Full current-state evidence: [REVIEW_CONSOLIDA
 | B75 | Fixed | High | Monitor / Test harness | windough.gd declared the constant README twice, so the script did not parse; the monitor scene failed to load and every suite that opens it hung until its 10-minute limit | 0.59.0 | Automated: all suites, CI pending |
 | B76 | Fixed | High | Monitor / Test harness | windough.gd named a helper wrap(), which Godot already has as a built-in function; calls with two arguments did not compile and the monitor suites hung again | 0.59.0 | Automated: all suites, CI pending |
 | B77 | Fixed | Low | Test harness | the new Windough suite named a helper click(), which the shared test base already has with other arguments; the suite did not compile | 0.59.0 | Automated: Windough suite, CI pending |
+| B78 | Fixed | Medium | Monitor / Test harness | windough.gd read the night clock through the GameState global by name; preloaded by a test before the game's globals exist, it did not compile and that suite hung | 0.59.0 | Automated: Windough suite, CI pending |
 
 ## Known limitations and design debt (not closed bugs)
 
@@ -1102,4 +1103,14 @@ then-current design wording do not override the current status, D150 or the late
 - Reproduction: run `tools/test_windough.gd` at commit `e0497cd`.
 - Expected / actual: the suite runs / "Parse Error: The function signature doesn't match the parent."
 - Regression / evidence: renamed `tap`; every function name in the suite was compared with the test base's (no other overlap). CI evidence pending.
+
+### B78 — Windough did not compile when a test loaded it first
+
+- Found: GitHub Actions run https://github.com/123rearearcode/nighshift_real/actions/runs/46085896479 on PR #99, 28 November 2026; all other suites passed, the Windough suite hung and the run was cancelled after 9 minutes.
+- Reported by: CI; fixed by Claude (Opus 5.5, model id claude-opus-5-5).
+- Fixed in: 0.59.0, before merge.
+- Root cause: the tray clock used `GameState.night_minutes`. In the game the monitor scene loads after the `GameState` global is registered, so it worked; a test that `preload`s `windough.gd` compiles it before that, so "Identifier not found: GameState". The suite then called into the half-loaded script and never reached its finish line.
+- Reproduction: run `tools/test_windough.gd` at commit `61f78d4`.
+- Expected / actual: the suite runs / "Compile Error: Identifier not found: GameState" at `windough.gd:497`.
+- Regression / evidence: the clock now looks the game state up at run time (`get_node_or_null("/root/GameState")`); both Windough files were scanned for every global name in `project.godot` (none left). CI evidence pending.
 

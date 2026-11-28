@@ -494,7 +494,8 @@ func _draw_desktop() -> void:
                 _text(part, tx, spot.y + 26 + k * 9, LIGHT, 1, false, Color8(8, 44, 44))
     _pic("taskbar", Vector2(0, H - TASKBAR))
     _pic("begin_button_pressed" if menu_open else "begin_button", Vector2(2, H - TASKBAR + 2))
-    var clock: String = Clock.label(int(GameState.night_minutes)) if Engine.get_main_loop() != null else "00:00"
+    var gs: Node = get_node_or_null("/root/GameState")   # looked up, not named: a test can preload this script before the game's globals exist (B78)
+    var clock: String = Clock.label(int(gs.night_minutes)) if gs != null else "00:00"
     _text(clock, W - 34, H - TASKBAR + 5, INK)
     if open_app != "":
         _taskbar_button(54, str(TITLES.get(open_app, open_app)))
