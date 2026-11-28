@@ -227,7 +227,10 @@ it is approved the benches draw the laptop with the plain shapes and storage dra
   `python3 -B tools/test_bug_register.py` (results in the PR); a name-clash scan of every changed script
   against Godot's global functions and the test base (none).
 - `python3 -I tools/art_batch_f/laptop.py art/drafts/laptop`: drafts and mocks rendered and looked at.
-- GitHub Actions: recorded after the run.
+- GitHub Actions run 46153480834 on PR #101 (commit ecf0e38): passed; 44 suites / 2,714 checks, 0 failures, including the new Laptops
+  suite (40 checks). Earlier runs on this PR: 46152711597 (B84 found; two older tests did not know laptops;
+  three test mistakes of mine), 46153142069 (the laptop suite did not reset the ticket rotation).
+- Not run: Godot locally; no human playtest of laptops yet.
 
 ### Decisions proposed (not approved)
 - All numbers: storage 6 x 4, the spots' heat (26 / 16 / 12 / 3 C), the case's +6 C, 3 in 10 generated

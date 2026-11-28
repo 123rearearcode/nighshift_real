@@ -11,7 +11,8 @@ top first. Mara's record has `"layout": "laptop"` (`GameState._customer_job()`);
 in 10 times when their problems suit (`ticket_generator.as_laptop`). Under the headless suites the first ticket
 stays a desktop (`GameState.desktop_first_ticket`); `tools/test_laptops.gd` turns that off. Laptop art is
 drafted (`tools/art_batch_f/laptop.py`, `art/drafts/laptop/`) and waits for the user's approval; nothing loads
-it yet. Signed: Claude (Opus 5.5, model id claude-opus-5-5).
+it yet. PR #101, stacked on #99 (merge #99 first), green: run 46153480834, 44 suites / 2,714 checks. It also
+fixed B84 (a customer's RAM in a lying slot fell into the drawer). Signed: Claude (Opus 5.5, model id claude-opus-5-5).
 
 
 ## Previous — 0.59.0 Windough 98 on NightBoot USB, 28 November 2026
