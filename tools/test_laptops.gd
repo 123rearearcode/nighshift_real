@@ -96,6 +96,7 @@ func run_checks() -> void:
     var result: Dictionary = gs.run_final_check()
     check(bool(gs.job["cleaned"]) and bool(result["boots"]) and bool(result["passed"]), "cleaned and repasted, her laptop passes the final check")
     check(float(result["temp"]) < float(dirty["temp"]) - 40.0, "cleaning takes more than 40 C off a dusty laptop")
+    gs.tickets_taken = 0   # finishing her ticket rotated the next customer to Relu (D104); she comes back first
 
     # ---- the repair bench and the hardware bench ----
     gs.new_game(false)
