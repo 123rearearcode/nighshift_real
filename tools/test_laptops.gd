@@ -74,8 +74,8 @@ func run_checks() -> void:
     var kept: Dictionary = CustomerPC.apply(job, CustomerPC.placements(job, {}))["parts"]
     check(kept["cpu"] == parts["cpu"] and kept["psu"] == parts["psu"] and kept["gpus"] == parts["gpus"] and kept["cooler"] == parts["cooler"], "the soldered processor, graphics, power and heatsink stay in the laptop")
     check(gs.board_blocker() == Laptop.BOARD_LOCKED and not gs.take_out_board(), "the motherboard never comes out")
-    var tower: Dictionary = {"id": "T9", "layout": "tower", "parts": PcBuild.sanitize({"ram": ["ram_8gb", "ram_8gb", "ram_8gb"]})}
-    var third: Dictionary = CustomerPC.placements(tower, {})[CustomerPC.uid(tower, "ram_c")]
+    var desk: Dictionary = {"id": "T9", "layout": "tower", "parts": PcBuild.sanitize({"ram": ["ram_8gb", "ram_8gb", "ram_8gb"]})}
+    var third: Dictionary = CustomerPC.placements(desk, {})[CustomerPC.uid(desk, "ram_c")]
     check(third["location"] == "ram_3" and int(third["rotation"]) == 1 and int(CustomerPC.placements(job, {})[CustomerPC.uid(job, "ram_a")]["rotation"]) == 1, "B84: a stick on a lying slot (a desktop's slot 3, a laptop's slots) is restored turned to fit")
     check(not gs.set_service_part_fitted(Ids.GPU, false) and not gs.set_overclock(1, 0), "no graphics card to take out, no overclocking")
     check(Laptop.why_not(job, "sto_hdd_500") == Laptop.NO_HDD and Laptop.fits(job, "sto_nvme_1tb") and Laptop.fits(job, "ram_16gb") and Laptop.why_not(job, "gpu_gtx1660") == Laptop.SOLDERED, "a 3.5-inch drive does not fit; an NVMe drive and memory do; graphics are soldered")
@@ -164,8 +164,8 @@ func run_checks() -> void:
     gs.job["laptop_finish"] = "graphite"
     check(gs.load_game() and Laptop.finish_of(gs.job) == "silver" and PcBuild.is_laptop(gs.job), "her laptop and its colour survive saving and loading")
     night.ensure(gs)
-    var item: Dictionary = Sources.collect(gs).values().filter(func(i: Dictionary) -> bool: return str(i["category"]) == "pc" and str(i["source_uid"]) == str(gs.job["id"]))[0]
-    check(item["size"] == Laptop.SIZE and bool(item["stackable"]) and item["finish"] == "silver" and str(item["model"]).begins_with("Laptop"), "Mara's laptop is a small, stackable storage item")
+    var shelved: Dictionary = Sources.collect(gs).values().filter(func(i: Dictionary) -> bool: return str(i["category"]) == "pc" and str(i["source_uid"]) == str(gs.job["id"]))[0]
+    check(shelved["size"] == Laptop.SIZE and bool(shelved["stackable"]) and shelved["finish"] == "silver" and str(shelved["model"]).begins_with("Laptop"), "Mara's laptop is a small, stackable storage item")
 
     # ---- at the counter ----
     gs.new_game(false)
